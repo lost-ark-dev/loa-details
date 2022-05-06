@@ -29,3 +29,4 @@ yarn-error.log*
 *.sln
 
 binary/*
+oo2net_9_win64.dll

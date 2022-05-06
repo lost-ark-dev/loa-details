@@ -1,4 +1,4 @@
-import { app, dialog, nativeTheme } from "electron";
+import { app, dialog, nativeTheme, ipcMain } from "electron";
 import { initialize } from "@electron/remote/main";
 import { createMainWindow, createDamageMeterWindow } from "./windows";
 import path from "path";
@@ -66,6 +66,12 @@ app.whenReady().then(() => {
 
   createMainWindow(mainWindow);
   createDamageMeterWindow(damageMeterWindow, store, sessionState);
+});
+
+ipcMain.on("window-to-main", (event, arg) => {
+  if (arg.message === "soft-reset-session") {
+    sessionState.softResetState();
+  }
 });
 
 app.on("window-all-closed", () => {

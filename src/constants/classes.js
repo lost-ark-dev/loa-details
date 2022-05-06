@@ -1,4 +1,4 @@
-export const availableClassImages = [
+const availableClassImages = [
   "Arcanist",
   "Artillerist",
   "Assassin",
@@ -65,12 +65,4 @@ for (const className of availableClassImages) {
   j++;
 }
 
-export function getClassColor(className) {
-  if (!Object.keys(classColors).includes(className))
-    return classColors[className];
-
-  return {
-    backgroundColor: "grey-10",
-    foregroundColor: "#fff",
-  };
-}
+export { availableClassImages, classColors };

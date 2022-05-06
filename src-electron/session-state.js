@@ -19,6 +19,7 @@ export class SessionState {
       version: 1,
       lastBroadcastedVersion: 0,
       startedOn: +new Date(),
+      fightStartedOn: 0,
       players: {},
       projectiles: {},
       damageStatistics: {
@@ -28,6 +29,20 @@ export class SessionState {
         topDamageTaken: 0,
       },
     };
+  }
+  softResetState() {
+    // keep player id's
+    const playersCopy = { ...this.game.players };
+    this.resetState();
+    for (const _player of Object.keys(playersCopy)) {
+      this.game.players[_player] = {
+        ...playersCopy[_player],
+        ...{
+          damage: 0,
+          damageTaken: 0,
+        },
+      };
+    }
   }
 
   addEventListenerWindow(event, window) {
@@ -61,7 +76,6 @@ export class SessionState {
     /* this.eventListenerWindows.data.forEach((wndw) =>
       wndw.webContents.send("pcap-on-data", value)
     ); */
-
     const dataSplit = value.split(",");
 
     if (dataSplit[0] === "new-instance") {
@@ -121,6 +135,29 @@ export class SessionState {
               newDamage
             );
           }
+
+          if (this.game.fightStartedOn === 0)
+            this.game.fightStartedOn = +new Date();
+        }
+      } else {
+        // damage taken player
+        owner = this.getPlayerById(dataSplit[3]);
+        if (owner) {
+          const damageNum = parseInt(dataSplit[5]) || 0;
+          this.game.damageStatistics.totalDamageTaken += damageNum;
+
+          const newDamage = owner.damageTaken + damageNum;
+          this.updatePlayerById(owner.id, {
+            damageTaken: newDamage,
+          });
+
+          this.game.damageStatistics.topDamageTaken = Math.max(
+            this.game.damageStatistics.topDamageTaken,
+            newDamage
+          );
+
+          if (this.game.fightStartedOn === 0)
+            this.game.fightStartedOn = +new Date();
         }
       }
     }

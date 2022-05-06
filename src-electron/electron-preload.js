@@ -3,7 +3,7 @@ import { BrowserWindow } from "@electron/remote";
 
 contextBridge.exposeInMainWorld("messageApi", {
   send: (channel, data) => {
-    let validChannels = ["test-channel"];
+    let validChannels = ["window-to-main"];
 
     if (validChannels.includes(channel)) {
       ipcRenderer.send(channel, data);
