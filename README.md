@@ -1,7 +1,11 @@
-![electron_qligkY4O7l](https://user-images.githubusercontent.com/29287377/167145492-ba0255ce-027f-4c89-a96d-ccf2e83a6faf.png)
+![image](https://user-images.githubusercontent.com/29287377/167152332-bc32d441-c085-450d-bde7-557456c0a78d.png)
 
 # LOA Details (loa-details)
 
-Damage meter for Lost Ark.
+Realtime Damage Meter for Lost Ark.
 
-Refer to [karaeren / Lost-Ark-Packet-Capture](https://github.com/karaeren/Lost-Ark-Packet-Capture) to get the damage capture service.
+# Releases
+Refer to [Releases section](https://github.com/karaeren/loa-details/releases)
+
+# Packet CAPTURE
+Refer to [karaeren / Lost-Ark-Packet-Capture](https://github.com/karaeren/Lost-Ark-Packet-Capture) to get the packet capture service.
