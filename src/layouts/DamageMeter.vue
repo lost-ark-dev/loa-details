@@ -266,6 +266,7 @@ onMounted(() => {
     sessionDuration.value = +new Date() - sessionState.startedOn;
     if (sessionState.fightStartedOn > 0)
       fightDuration.value = +new Date() - sessionState.fightStartedOn;
+    else fightDuration.value = 0;
   }, 1000);
 });
 </script>

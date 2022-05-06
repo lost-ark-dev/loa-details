@@ -169,7 +169,9 @@ export class SessionState {
       wndw.webContents.send("pcap-on-error", value)
     ); */
 
-    dialog.showErrorBox("Error", value);
+    dialog.showErrorBox("Error", value).then(() => {
+      console.log("Error", value);
+    });
   }
   async broadcastStateChange() {
     const ver = this.game.version;
