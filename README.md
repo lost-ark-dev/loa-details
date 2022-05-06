@@ -1,41 +1,7 @@
+![electron_qligkY4O7l](https://user-images.githubusercontent.com/29287377/167145492-ba0255ce-027f-4c89-a96d-ccf2e83a6faf.png)
+
 # LOA Details (loa-details)
 
-Damage meter for Lost Ark
+Damage meter for Lost Ark.
 
-## Install the dependencies
-```bash
-yarn
-# or
-npm install
-```
-
-### Start the app in development mode (hot-code reloading, error reporting, etc.)
-```bash
-quasar dev
-```
-
-
-### Lint the files
-```bash
-yarn lint
-# or
-npm run lint
-```
-
-
-### Format the files
-```bash
-yarn format
-# or
-npm run format
-```
-
-
-
-### Build the app for production
-```bash
-quasar build
-```
-
-### Customize the configuration
-See [Configuring quasar.config.js](https://v2.quasar.dev/quasar-cli-vite/quasar-config-js).
+Refer to [karaeren / Lost-Ark-Packet-Capture](https://github.com/karaeren/Lost-Ark-Packet-Capture) to get the damage capture service.
