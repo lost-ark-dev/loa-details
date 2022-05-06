@@ -102,6 +102,7 @@
 <script setup>
 import { onMounted, reactive, computed, ref } from "vue";
 import { availableClassImages, classColors } from "../constants/classes";
+import { Notify } from "quasar";
 
 let compactBars = ref(false);
 let sessionDuration = ref(0);
@@ -260,6 +261,12 @@ onMounted(() => {
     sessionState.damageStatistics = value.damageStatistics;
     sessionState.startedOn = value.startedOn;
     sessionState.fightStartedOn = value.fightStartedOn;
+  });
+
+  window.messageApi.receive("pcap-on-error", (value) => {
+    Notify.create({
+      message: value,
+    });
   });
 
   setInterval(() => {

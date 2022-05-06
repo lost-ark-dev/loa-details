@@ -33,7 +33,7 @@ export function createDamageMeterWindow(
 
   // Event listeners
   //sessionState.addEventListenerWindow("message", damageMeterWindow);
-  //sessionState.addEventListenerWindow("data", damageMeterWindow);
+  sessionState.addEventListenerWindow("error", damageMeterWindow);
   sessionState.addEventListenerWindow("stateChange", damageMeterWindow);
 
   const damageMeterWindow_x = store.get("damagemeter.position.x"),

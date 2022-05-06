@@ -165,13 +165,13 @@ export class SessionState {
     this.game.version += 1;
   }
   onError(value) {
-    /* this.eventListenerWindows.error.forEach((wndw) =>
+    this.eventListenerWindows.error.forEach((wndw) =>
       wndw.webContents.send("pcap-on-error", value)
-    ); */
+    );
 
-    dialog.showErrorBox("Error", value).then(() => {
-      console.log("Error", value);
-    });
+    if (value !== "oodle init failed" && value !== "oodle decompress failed") {
+      dialog.showErrorBox("Error", value);
+    }
   }
   async broadcastStateChange() {
     const ver = this.game.version;
