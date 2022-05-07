@@ -53,9 +53,24 @@ export function createDamageMeterWindow(
   damageMeterWindow.on("moved", () => {
     store.set("damagemeter.position.x", damageMeterWindow.getPosition()[0]);
     store.set("damagemeter.position.y", damageMeterWindow.getPosition()[1]);
+
+    // replayLogFile("test.log", sessionState); this is only for debug purpouses
   });
 
   damageMeterWindow.on("closed", () => {
     damageMeterWindow = null;
   });
+}
+
+function replayLogFile(name, sessionState) {
+  const fs = require("fs");
+  const logdata = fs.readFileSync(
+    path.resolve(__dirname, "../../logs/" + name),
+    "utf8"
+  );
+
+  for (const line of logdata.split("\n")) {
+    if (!line) continue;
+    sessionState.onCombatEvent(line);
+  }
 }
