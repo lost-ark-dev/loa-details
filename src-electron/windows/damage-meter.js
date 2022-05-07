@@ -35,6 +35,11 @@ export function createDamageMeterWindow(
   sessionState.addEventListenerWindow("message", damageMeterWindow);
   sessionState.addEventListenerWindow("stateChange", damageMeterWindow);
 
+  const damageMeterWindow_w = store.get("damagemeter.width"),
+    damagemeterWindow_h = store.get("damagemeter.height");
+  if (damageMeterWindow_w && damagemeterWindow_h)
+    damageMeterWindow.setSize(damageMeterWindow_w, damagemeterWindow_h);
+
   const damageMeterWindow_x = store.get("damagemeter.position.x"),
     damagemeterWindow_y = store.get("damagemeter.position.y");
   if (damageMeterWindow_x && damagemeterWindow_y)
@@ -51,10 +56,17 @@ export function createDamageMeterWindow(
   }
 
   damageMeterWindow.on("moved", () => {
-    store.set("damagemeter.position.x", damageMeterWindow.getPosition()[0]);
-    store.set("damagemeter.position.y", damageMeterWindow.getPosition()[1]);
+    const curPos = damageMeterWindow.getPosition();
+    store.set("damagemeter.position.x", curPos[0]);
+    store.set("damagemeter.position.y", curPos[1]);
 
     // replayLogFile("test.log", sessionState); // this is only for debug purpouses
+  });
+
+  damageMeterWindow.on("resized", () => {
+    const curSize = damageMeterWindow.getSize();
+    store.set("damagemeter.width", curSize[0]);
+    store.set("damagemeter.height", curSize[1]);
   });
 
   damageMeterWindow.on("closed", () => {
