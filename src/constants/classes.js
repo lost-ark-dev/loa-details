@@ -1,68 +1,31 @@
-const availableClassImages = [
-  "Arcanist",
-  "Artillerist",
-  "Assassin",
-  "Bard",
-  "Berserker",
-  "Deadeye",
-  "Destroyer",
-  "Deathblade",
-  "FemaleGunner",
-  "Glavier",
-  "Gunlancer",
-  "Gunner",
-  "Gunslinger",
-  "Machinist",
-  "Mage",
-  "MaleMartialArtist",
-  "MartialArtist",
-  "Paladin",
-  "Reaper",
-  "Scrapper",
-  "Shadowhunter",
-  "Sharpshooter",
-  "Sorceress",
-  "Soreress",
-  "Soulfist",
-  "Striker",
-  "Summoner",
-  "Wardancer",
-  "Warrior",
-];
-
-const classColors = {};
-const possibleColors = [
-  "pink",
-  "purple",
-  "indigo",
-  "blue",
-  "cyan",
-  "teal",
-  "green",
-  "light-green",
-  "lime",
-  "yellow",
-  "amber",
-  "orange",
-  "deep-orange",
-  "brown",
-  "blue-grey",
-];
-
-let i = 6,
-  j = 0;
-
-for (const className of availableClassImages) {
-  if (j === possibleColors.length - 1) {
-    j = 0;
-    i += 2;
-  }
-
-  classColors[className] = {
-    backgroundColor: possibleColors[j] + "-" + i,
-    foregroundColor: "#fff",
-  };
-  j++;
-}
-
-export { availableClassImages, classColors };
+export const classes = {
+  Arcanist: { color: "#b38915" },
+  Artillerist: { color: "#33670b" },
+  Assassin: { color: "#3752d8" },
+  Bard: { color: "#674598" },
+  Berserker: { color: "#ee2e48" },
+  Deadeye: { color: "#4442a8" },
+  Destroyer: { color: "#7b9aa2" },
+  Deathblade: { color: "#a91a16" },
+  FemaleGunner: { color: "#541165" },
+  Glavier: { color: "#f6da6a" },
+  Gunlancer: { color: "#E1907E" },
+  Gunner: { color: "#184B4D" },
+  Gunslinger: { color: "#6bcec2" },
+  Machinist: { color: "#3b4292" },
+  Mage: { color: "#df2871" },
+  MaleMartialArtist: { color: "#3366cc" },
+  MartialArtist: { color: "#dc3912" },
+  Paladin: { color: "#ff9900" },
+  Reaper: { color: "#109618" },
+  Scrapper: { color: "#990099" },
+  Shadowhunter: { color: "#0099c6" },
+  Sharpshooter: { color: "#dd4477" },
+  Sorceress: { color: "#66aa00" },
+  Soreress: { color: "#b82e2e" },
+  Soulfist: { color: "#316395" },
+  Striker: { color: "#994499" },
+  Summoner: { color: "#22aa99" },
+  Wardancer: { color: "#aaaa11" },
+  Warrior: { color: "#6633cc" },
+};

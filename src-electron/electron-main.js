@@ -32,13 +32,11 @@ app.whenReady().then(() => {
   try {
     if (process.env.DEBUGGING) {
       connection = new ConnectionBuilder()
-        .connectTo(
-          path.resolve(__dirname, "../../binary/Lost Ark Packet Capture.exe")
-        )
+        .connectTo(path.resolve(__dirname, "../../binary/LostArkLogger.exe"))
         .build();
     } else {
       connection = new ConnectionBuilder()
-        .connectTo("Lost Ark Packet Capture.exe")
+        .connectTo("LostArkLogger.exe")
         .build();
     }
   } catch (e) {
@@ -52,15 +50,14 @@ app.whenReady().then(() => {
   }
 
   connection.on("message", (value) => sessionState.onMessage(value));
-  connection.on("data-v2", (value) => sessionState.onData(value));
-  connection.on("error", (value) => sessionState.onError(value));
+  connection.on("new-zone", (value) => sessionState.onNewZone(value));
+  connection.on("combat-event", (value) => sessionState.onCombatEvent(value));
   connection.onDisconnect = () => {
     dialog.showErrorBox(
       "Error",
       "The connection to the Lost Ark Packet Capture was lost for some reason. Exiting app..."
     );
 
-    console.log("Exiting app...");
     app.exit();
   };
 
@@ -69,8 +66,8 @@ app.whenReady().then(() => {
 });
 
 ipcMain.on("window-to-main", (event, arg) => {
-  if (arg.message === "soft-reset-session") {
-    sessionState.softResetState();
+  if (arg.message === "reset-session") {
+    sessionState.resetState();
   }
 });
 

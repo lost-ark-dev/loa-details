@@ -193,8 +193,8 @@ module.exports = configure(function (/* ctx */) {
         },
         extraFiles: [
           {
-            from: "binary/Lost Ark Packet Capture.exe",
-            to: "Lost Ark Packet Capture.exe",
+            from: "binary/LostArkLogger.exe",
+            to: "LostArkLogger.exe",
           },
         ],
       },

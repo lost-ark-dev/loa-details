@@ -1,14 +1,29 @@
-import { dialog } from "electron";
 import { timeout } from "./util/timeout";
+
+const classRegex = /(.*)( )\(([^)]+)\)/;
+
+const entityTemplate = {
+  name: "",
+  class: "",
+  isPlayer: false,
+  damageDealt: 0,
+  damageTaken: 0,
+  hits: {
+    total: 0,
+    crit: 0,
+    backAttack: 0,
+    frontAttack: 0,
+    counter: 0,
+  },
+};
 
 export class SessionState {
   constructor() {
     this.resetState();
+
     this.eventListenerWindows = {
       stateChange: [],
       message: [],
-      data: [],
-      error: [],
     };
 
     this.broadcastStateChange();
@@ -20,8 +35,7 @@ export class SessionState {
       lastBroadcastedVersion: 0,
       startedOn: +new Date(),
       fightStartedOn: 0,
-      players: {},
-      projectiles: {},
+      entities: {},
       damageStatistics: {
         totalDamageDealt: 0,
         topDamageDealt: 0,
@@ -30,149 +44,104 @@ export class SessionState {
       },
     };
   }
-  softResetState() {
-    // keep player id's
-    const playersCopy = { ...this.game.players };
-    this.resetState();
-    for (const _player of Object.keys(playersCopy)) {
-      this.game.players[_player] = {
-        ...playersCopy[_player],
-        ...{
-          damage: 0,
-          damageTaken: 0,
-        },
-      };
-    }
-  }
 
   addEventListenerWindow(event, window) {
     this.eventListenerWindows[event].push(window);
   }
 
   onMessage(value) {
-    /* this.eventListenerWindows.message.forEach((wndw) =>
-      wndw.webContents.send("pcap-on-message", value)
-    ); */
-
     console.log("Message:", value);
+
+    this.eventListenerWindows.message.forEach((wndw) =>
+      wndw.webContents.send("pcap-on-message", value)
+    );
   }
 
-  getProjectileById(id) {
-    if (!Object.keys(this.game.projectiles).includes(id)) return null;
-    return this.game.projectiles[id];
+  onNewZone(value) {
+    console.log("New Zone:", value);
+
+    this.resetState();
   }
-  getPlayerById(id) {
-    if (!Object.keys(this.game.players).includes(id)) return null;
-    return this.game.players[id];
-  }
-  updatePlayerById(id, newValues) {
-    if (!Object.keys(this.game.players).includes(id)) return null;
-    for (const _key of Object.keys(newValues)) {
-      this.game.players[id][_key] = newValues[_key];
+
+  disassembleEntityFromPacket(value) {
+    const isPlayer = value.includes("("); // has class name
+
+    if (isPlayer) {
+      const player = classRegex.exec(value);
+      return {
+        name: player[1] || "Unknown Entity",
+        class: player[3],
+        isPlayer,
+      };
+    } else {
+      return { name: value || "Unknown Entity", class: "", isPlayer };
     }
   }
 
-  onData(value) {
-    /* this.eventListenerWindows.data.forEach((wndw) =>
-      wndw.webContents.send("pcap-on-data", value)
-    ); */
+  onCombatEvent(value) {
+    console.log("Combat Event:", value);
+
     const dataSplit = value.split(",");
 
-    if (dataSplit[0] === "new-instance") {
-      // ex message : new-instance
-      // description: flag
-      this.resetState();
-    } else if (dataSplit[0] === "new-player") {
-      // ex message : new-player,1    ,$You,UnknwonClass,116887566
-      // description: flag      ,isYou,name,class       ,id
+    const dmgOwner = this.disassembleEntityFromPacket(dataSplit[1]),
+      dmgTarget = this.disassembleEntityFromPacket(dataSplit[2]);
 
-      this.game.players[dataSplit[4]] = {
-        id: dataSplit[4],
-        isUser: dataSplit[1] === "1",
-        name: dataSplit[2],
-        class: dataSplit[3],
-        damage: 0,
-        damageTaken: 0,
+    if (!Object.keys(this.game.entities).includes(dmgOwner.name))
+      this.game.entities[dmgOwner.name] = {
+        ...entityTemplate,
+        ...dmgOwner,
       };
-    } else if (dataSplit[0] === "new-projectile") {
-      // ex message : new-projectile,116924174           ,116972014
-      // description: flag          ,sourceId (playerId) ,projectileId
-      this.game.projectiles[dataSplit[2]] = {
-        id: dataSplit[2],
-        sourceId: dataSplit[1],
+
+    if (!Object.keys(this.game.entities).includes(dmgTarget.name))
+      this.game.entities[dmgTarget.name] = {
+        ...entityTemplate,
+        ...dmgTarget,
       };
-    } else if (dataSplit[0] === "skill-damage-notify") {
-      // ex message : skill-damage-notify,116992910                       ,Bard     ,116934798,Sound Shock,1673,0   ,0         ,0
-      // description: flag               ,sourceId (projectileId/playerId),className,targetId ,skillName  ,dmg ,crit,backAttack,frontAttack
-      let owner = dataSplit[1];
-      const projectile = this.getProjectileById(dataSplit[1]);
-      const player = this.getPlayerById(dataSplit[1]);
-      if (projectile || player) {
-        // only players
-        if (projectile) owner = this.getPlayerById(projectile.sourceId);
-        else if (player) owner = player;
 
-        if (owner) {
-          if (
-            dataSplit[2] !== "UnknownClass" &&
-            owner.class &&
-            owner.class !== dataSplit[2]
-          ) {
-            this.updatePlayerById(owner.id, { class: dataSplit[2] });
-          }
+    //const skillName = dataSplit[3]; // might use it later
 
-          if (owner.id) {
-            const damageNum = parseInt(dataSplit[5]) || 0;
-            this.game.damageStatistics.totalDamageDealt += damageNum;
-
-            const newDamage = owner.damage + damageNum;
-            this.updatePlayerById(owner.id, {
-              damage: newDamage,
-            });
-
-            this.game.damageStatistics.topDamageDealt = Math.max(
-              this.game.damageStatistics.topDamageDealt,
-              newDamage
-            );
-          }
-
-          if (this.game.fightStartedOn === 0)
-            this.game.fightStartedOn = +new Date();
-        }
-      } else {
-        // damage taken player
-        owner = this.getPlayerById(dataSplit[3]);
-        if (owner) {
-          const damageNum = parseInt(dataSplit[5]) || 0;
-          this.game.damageStatistics.totalDamageTaken += damageNum;
-
-          const newDamage = owner.damageTaken + damageNum;
-          this.updatePlayerById(owner.id, {
-            damageTaken: newDamage,
-          });
-
-          this.game.damageStatistics.topDamageTaken = Math.max(
-            this.game.damageStatistics.topDamageTaken,
-            newDamage
-          );
-
-          if (this.game.fightStartedOn === 0)
-            this.game.fightStartedOn = +new Date();
-        }
-      }
+    let damage;
+    try {
+      damage = parseInt(dataSplit[4]);
+    } catch {
+      damage = 0;
     }
+
+    const critCount = dataSplit[5] === "1" ? 1 : 0;
+    const backAttackCount = dataSplit[6] === "1" ? 1 : 0;
+    const frontAttackCount = dataSplit[7] === "1" ? 1 : 0;
+    const counterCount = dataSplit[8] === "1" ? 1 : 0;
+
+    this.game.entities[dmgOwner.name].damageDealt += damage;
+    this.game.entities[dmgTarget.name].damageTaken += damage;
+
+    this.game.entities[dmgOwner.name].hits.total += 1;
+    this.game.entities[dmgOwner.name].hits.crit += critCount;
+    this.game.entities[dmgOwner.name].hits.backAttack += backAttackCount;
+    this.game.entities[dmgOwner.name].hits.frontAttack += frontAttackCount;
+    this.game.entities[dmgOwner.name].hits.counter += counterCount;
+
+    if (dmgOwner.isPlayer) {
+      this.game.damageStatistics.totalDamageDealt += damage;
+      this.game.damageStatistics.topDamageDealt = Math.max(
+        this.game.damageStatistics.topDamageDealt,
+        this.game.entities[dmgOwner.name].damageDealt
+      );
+    }
+
+    if (dmgTarget.isPlayer) {
+      this.game.damageStatistics.totalDamageTaken += damage;
+      this.game.damageStatistics.topDamageTaken = Math.max(
+        this.game.damageStatistics.topDamageTaken,
+        this.game.entities[dmgTarget.name].damageTaken
+      );
+    }
+
+    if (this.game.fightStartedOn === 0) this.game.fightStartedOn = +new Date();
 
     this.game.version += 1;
   }
-  onError(value) {
-    this.eventListenerWindows.error.forEach((wndw) =>
-      wndw.webContents.send("pcap-on-error", value)
-    );
 
-    if (value !== "oodle init failed" && value !== "oodle decompress failed") {
-      dialog.showErrorBox("Error", value);
-    }
-  }
   async broadcastStateChange() {
     const ver = this.game.version;
 

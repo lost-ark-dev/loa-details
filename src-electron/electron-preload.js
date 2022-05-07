@@ -10,12 +10,7 @@ contextBridge.exposeInMainWorld("messageApi", {
     }
   },
   receive: (channel, func) => {
-    let validChannels = [
-      "pcap-on-message",
-      "pcap-on-data",
-      "pcap-on-error",
-      "pcap-on-state-change",
-    ];
+    let validChannels = ["pcap-on-message", "pcap-on-state-change"];
 
     if (validChannels.includes(channel)) {
       // Deliberately strip event as it includes `sender`

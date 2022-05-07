@@ -1,135 +1,72 @@
 <template>
-  <q-layout
-    view="hHh lpr fFf"
-    style="height: 100vh"
-    class="shadow-2 rounded-borders overflow-hidden"
-  >
-    <q-header bordered class="bg-primary text-white q-electron-drag">
-      <q-bar>
-        <div>
-          Damage {{ damageType === DamageTypeDealt ? "Dealt" : "Taken" }}
-        </div>
-
-        <q-space />
-
-        <q-btn
-          dense
-          flat
-          icon="format_size"
-          @click="compactBars = !compactBars"
-        >
-          <q-tooltip>
-            Toggle between compact damage bars and normal ones
-          </q-tooltip>
+  <div class="damager">
+    <nav class="nav q-electron-drag">
+      <span class="title">LOA Details</span>
+      <div style="margin-left: auto">
+        <q-btn icon="settings" flat size="xs">
+          <q-tooltip>Options. SoonTM.</q-tooltip>
         </q-btn>
-
-        <q-btn
-          dense
-          flat
-          icon="access_time"
-          @click="toggleDamageNumberVisibility"
-        >
-          <q-tooltip> Toggle between damage number, dps and both. </q-tooltip>
-        </q-btn>
-
-        <q-btn dense flat icon="shield" @click="toggleDamageType">
-          <q-tooltip>
-            Toggle between damage dealt and taken statistics
-          </q-tooltip>
-        </q-btn>
-
-        <q-btn dense flat icon="restart_alt" @click="requestSessionRestart">
-          <q-tooltip> Restart session </q-tooltip>
-        </q-btn>
-      </q-bar>
-    </q-header>
-
-    <q-page-container class="overflow-hidden" style="position: relative">
-      <q-page v-if="sortedPlayers.length === 0" class="info-box click-through">
-        Attack some monsters!
-      </q-page>
-      <q-page v-else>
-        <q-linear-progress
-          v-for="player in sortedPlayers"
+      </div>
+    </nav>
+    <table class="damage-meter-table">
+      <thead>
+        <tr>
+          <th style="width: 26px"></th>
+          <th style="width: 100%"></th>
+          <th style="width: 52px">
+            {{ damageType === DamageTypeDealt ? "DPS" : "TPS" }}
+          </th>
+          <th style="width: 48px">
+            {{ damageType === DamageTypeDealt ? "D" : "T" }}%
+          </th>
+          <th style="width: 72px">
+            {{ damageType === DamageTypeDealt ? "Damage" : "Tanked" }}
+          </th>
+          <th style="width: 48px">CRIT</th>
+          <th style="width: 48px">F.A.</th>
+          <th style="width: 48px">B.A.</th>
+          <th style="width: 44px">CNTR</th>
+        </tr>
+      </thead>
+      <tbody>
+        <TableEntry
+          v-for="player in sortedEntities"
           :key="player.id"
-          :color="getClassColor(player.class).backgroundColor"
-          class="progress-bar click-through"
-          :size="compactBars ? '24px' : '32px'"
-          :value="getPercentage(player, 'top') / 100"
-        >
-          <div
-            class="absolute-full flex items-center"
-            :class="compactBars ? 'compact-bar' : ''"
-          >
-            <div class="bar-img-bg"></div>
-            <img
-              v-if="!compactBars"
-              class="bar-img"
-              :src="getClassImage(player.class)"
-            />
-            <span class="bar-text">{{ player.name }} ({{ player.class }})</span>
-            <span class="bar-text bar-text-right">
-              {{ getDamageText(player.damage, player.damageTaken) }}
-              ({{ getPercentage(player, "total") }}%)
-            </span>
-          </div>
-        </q-linear-progress>
-      </q-page>
-    </q-page-container>
-
-    <q-footer bordered class="bg-primary text-white click-through">
-      <q-bar>
-        <div>
-          Total:
-          {{
-            (damageType === DamageTypeDealt
-              ? sessionState.damageStatistics.totalDamageDealt
-              : sessionState.damageStatistics.totalDamageTaken
-            ).toLocaleString()
-          }}
-        </div>
-        <q-space />
-        <div>
-          {{ millisToMinutesAndSeconds(sessionDuration) }} ({{
-            millisToMinutesAndSeconds(fightDuration)
-          }})
-        </div>
-      </q-bar>
-    </q-footer>
-  </q-layout>
+          :player="player"
+          :showTanked="damageType === DamageTypeTaken"
+          :fightDuration="Math.max(1000, fightDuration)"
+        />
+      </tbody>
+    </table>
+    <div class="footer">
+      <q-btn flat size="sm" @click="damageType = DamageTypeDealt">DMG</q-btn>
+      <q-btn flat size="sm" @click="damageType = DamageTypeTaken">TANK</q-btn>
+      <div style="margin-left: auto">
+        <q-btn flat size="sm" @click="requestSessionRestart">RESET</q-btn>
+        <span class="time">
+          {{ millisToMinutesAndSeconds(fightDuration) }}
+          ({{ millisToMinutesAndSeconds(sessionDuration) }})
+        </span>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
 import { onMounted, reactive, computed, ref } from "vue";
-import { availableClassImages, classColors } from "../constants/classes";
 import { Notify } from "quasar";
 
-let compactBars = ref(false);
+import TableEntry from "../components/DamageMeter/TableEntry.vue";
+
 let sessionDuration = ref(0);
 let fightDuration = ref(0);
 
 const DamageTypeDealt = Symbol("dealt");
 const DamageTypeTaken = Symbol("taken");
 let damageType = ref(DamageTypeDealt);
-function toggleDamageType() {
-  damageType.value =
-    damageType.value === DamageTypeDealt ? DamageTypeTaken : DamageTypeDealt;
-}
-
-const DamageStyleNormal = Symbol("normal");
-const DamageStyleDPS = Symbol("dps");
-const DamageStyleBoth = Symbol("both");
-let damageNumberVisibility = ref(DamageStyleNormal);
-function toggleDamageNumberVisibility() {
-  if (damageNumberVisibility.value === DamageStyleNormal)
-    damageNumberVisibility.value = DamageStyleDPS;
-  else if (damageNumberVisibility.value === DamageStyleDPS)
-    damageNumberVisibility.value = DamageStyleBoth;
-  else damageNumberVisibility.value = DamageStyleNormal;
-}
 
 let sessionState = reactive({
-  players: [],
+  entities: [],
   startedOn: +new Date(),
   damageStatistics: {
     totalDamageDealt: 0,
@@ -138,39 +75,79 @@ let sessionState = reactive({
     topDamageTaken: 0,
   },
 });
-/* let sessionState = reactive({ //fake data
-  players: [
+
+/* let sessionState = reactive({
+  //fake data
+  entities: [
     {
-      id: 100,
-      isUser: 1,
+      isPlayer: 1,
       name: "Test",
-      damage: 500,
+      damageDealt: 500,
       damageTaken: 1000,
       class: "Artillerist",
+      hits: {
+        total: 10,
+        crit: 1,
+        backAttack: 0,
+        frontAttack: 0,
+        counter: 0,
+      },
     },
     {
-      id: 100,
-      isUser: 1,
+      isPlayer: 1,
       name: "Test2",
-      damage: 111,
+      damageDealt: 111,
       damageTaken: 1534,
       class: "Bard",
+      hits: {
+        total: 10,
+        crit: 1,
+        backAttack: 0,
+        frontAttack: 0,
+        counter: 0,
+      },
     },
     {
-      id: 100,
-      isUser: 1,
+      isPlayer: 1,
       name: "Test3",
-      damage: 222,
+      damageDealt: 222,
       damageTaken: 258,
       class: "Machinist",
+      hits: {
+        total: 10,
+        crit: 1,
+        backAttack: 0,
+        frontAttack: 0,
+        counter: 0,
+      },
     },
     {
-      id: 100,
-      isUser: 1,
+      isPlayer: 1,
       name: "Test4",
-      damage: 333,
+      damageDealt: 333,
       damageTaken: 1746,
       class: "Destroyer",
+      hits: {
+        total: 10,
+        crit: 1,
+        backAttack: 0,
+        frontAttack: 0,
+        counter: 0,
+      },
+    },
+    {
+      name: "8E9F7925",
+      class: "",
+      isPlayer: false,
+      damageDealt: 28,
+      damageTaken: 134562,
+      hits: {
+        total: 10,
+        crit: 1,
+        backAttack: 0,
+        frontAttack: 0,
+        counter: 0,
+      },
     },
   ],
   startedOn: +new Date(),
@@ -182,21 +159,31 @@ let sessionState = reactive({
   },
 }); */
 
-const sortedPlayers = computed(() => {
-  // eslint-disable-next-line vue/no-side-effects-in-computed-properties
-  return sessionState.players
-    .filter((x) =>
-      damageType.value === DamageTypeDealt ? x.damage > 0 : x.damageTaken > 0
+const sortedEntities = computed(() => {
+  const res = sessionState.entities
+    .filter(
+      (entity) =>
+        entity.isPlayer &&
+        (damageType.value === DamageTypeDealt
+          ? entity.damageDealt > 0
+          : entity.damageTaken > 0)
     )
     .sort((a, b) =>
       damageType.value === DamageTypeDealt
-        ? b.damage - a.damage
+        ? b.damageDealt - a.damageDealt
         : b.damageTaken - a.damageTaken
     );
+
+  for (const entity of res) {
+    entity.percentageTotal = getPercentage(entity, "total");
+    entity.percentageTop = getPercentage(entity, "top");
+  }
+
+  return res;
 });
 
 function getPercentage(player, relativeTo) {
-  let a = player.damage;
+  let a = player.damageDealt;
   if (damageType.value === DamageTypeTaken) a = player.damageTaken;
 
   let b;
@@ -212,58 +199,24 @@ function getPercentage(player, relativeTo) {
 }
 
 function millisToMinutesAndSeconds(millis) {
-  var minutes = Math.floor(millis / 60000);
-  var seconds = ((millis % 60000) / 1000).toFixed(0);
+  let minutes = Math.floor(millis / 60000);
+  let seconds = ((millis % 60000) / 1000).toFixed(0);
   return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
 }
 
-function getClassImage(className) {
-  if (availableClassImages.includes(className))
-    return new URL(`../assets/classes/${className}.png`, import.meta.url).href;
-
-  return new URL(`../assets/classes/Warrior.png`, import.meta.url).href;
-}
-
-function getClassColor(className) {
-  if (Object.keys(classColors).includes(className))
-    return classColors[className];
-
-  return {
-    backgroundColor: "grey-10",
-    foregroundColor: "#fff",
-  };
-}
-
-function getDamageText(damage, damageTaken) {
-  let a = damage;
-  if (damageType.value === DamageTypeTaken) a = damageTaken;
-
-  const dmg = a.toLocaleString();
-  const dps = (a / (fightDuration.value / 1000)).toFixed(1).toLocaleString();
-  let psText = damageType.value === DamageTypeDealt ? "DPS" : "TPS";
-
-  if (damageNumberVisibility.value === DamageStyleNormal) {
-    return dmg;
-  } else if (damageNumberVisibility.value === DamageStyleDPS) {
-    return `${dps} ${psText}`;
-  } else {
-    return `${dmg} (${dps} ${psText})`;
-  }
-}
-
 function requestSessionRestart() {
-  window.messageApi.send("window-to-main", { message: "soft-reset-session" });
+  window.messageApi.send("window-to-main", { message: "reset-session" });
 }
 
 onMounted(() => {
   window.messageApi.receive("pcap-on-state-change", (value) => {
-    sessionState.players = Object.values(value.players);
+    sessionState.entities = Object.values(value.entities);
     sessionState.damageStatistics = value.damageStatistics;
     sessionState.startedOn = value.startedOn;
     sessionState.fightStartedOn = value.fightStartedOn;
   });
 
-  window.messageApi.receive("pcap-on-error", (value) => {
+  window.messageApi.receive("pcap-on-message", (value) => {
     Notify.create({
       message: value,
     });
@@ -279,57 +232,120 @@ onMounted(() => {
 </script>
 
 <style>
+* {
+  margin: 0;
+  padding: 0;
+  touch-action: manipulation;
+}
 html,
 body {
-  background: rgb(18 18 18 / 66%) !important;
+  background-color: rgba(0, 0, 0, 0.3) !important;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: hidden;
+}
+html {
+  color: #ffffff;
+  font-family: "Segoe UI", "sans-serif";
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-transition: 0.3s;
+}
+::-webkit-scrollbar,
+scrollbar {
+  width: 0;
+  height: 0;
+}
+div,
+li {
+  -ms-user-select: none;
+  -moz-user-select: -moz-none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  user-select: none;
+  list-style: none;
 }
 .click-through {
-  pointer-events: none;
-  user-select: none;
+  pointer-events: none !important;
+  user-select: none !important;
 }
 .overflow-hidden {
   overflow: hidden !important;
 }
-.info-box {
-  width: 100%;
+.text-center {
+  text-align: center;
+}
+.ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nav,
+.footer {
   display: flex;
   align-items: center;
-  justify-content: center;
+  background: rgb(22, 22, 22, 0.75);
+  color: rgb(189, 189, 189);
+  height: 32px;
+  font-size: 14px;
+  padding: 0 8px;
 }
-.bar-img-bg {
-  position: absolute;
-  height: 100%;
-  width: 52px;
+.nav .title {
+  color: #fff;
+}
+.footer {
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+  left: 0;
+}
+.footer .time {
+  font-size: 12px;
+  color: #fff;
+}
+.damage-meter-table {
+  font-family: "Segoe UI", "Segoe UI", "sans-serif";
+  z-index: 100;
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+.damage-meter-table thead tr {
+  background: rgba(0, 0, 0, 0.5);
+  color: rgb(189, 189, 189);
+  font-size: 11px;
+}
+.damage-meter-table tbody tr {
+  position: relative;
+  height: 28px;
+  color: #ffffff;
+  font-size: 12px;
+  text-shadow: rgb(0, 0, 0) 0px 0px 0.3rem;
+}
+.ex {
+  font-size: 10px;
+  color: rgb(189, 189, 189);
+}
+.td-class-img {
   background-image: linear-gradient(
-    to left,
-    rgba(0, 0, 0, 0),
-    rgb(0 0 0 / 50%) 90%
+    to right,
+    rgba(0, 0, 0, 0.5),
+    rgba(0, 0, 0, 0)
   );
 }
-
-.bar-img {
-  width: 26px;
-  z-index: 10;
+.td-class-img img {
+  width: 16px;
   margin-left: 4px;
-}
-
-.bar-text {
-  z-index: 10;
-  color: white;
-  text-shadow: 1px 1px #000;
-  font-size: 16px;
-  margin-left: 8px;
   margin-top: 4px;
 }
-.compact-bar > .bar-text {
-  font-size: 13px;
-}
-.bar-text-right {
-  margin-left: auto;
-  margin-right: 8px;
-}
-.progress-bar {
-  transition-property: top;
-  transition-duration: 0.25s;
+.player-bar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -100;
+  opacity: 0.75;
+  height: 28px;
 }
 </style>

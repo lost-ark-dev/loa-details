@@ -10,13 +10,13 @@ export function createDamageMeterWindow(
   damageMeterWindow = new BrowserWindow({
     icon: path.resolve(__dirname, "icons/icon.png"),
     autoHideMenuBar: true,
-    width: 396,
-    height: 198,
+    width: 512,
+    height: 200,
     frame: false,
     transparent: true,
     resizable: true,
-    minWidth: 312,
-    minHeight: 66,
+    minWidth: 430,
+    minHeight: 124,
     fullscreenable: false,
     alwaysOnTop: true,
     useContentSize: true,
@@ -32,8 +32,7 @@ export function createDamageMeterWindow(
   damageMeterWindow.setAlwaysOnTop(true, "level");
 
   // Event listeners
-  //sessionState.addEventListenerWindow("message", damageMeterWindow);
-  sessionState.addEventListenerWindow("error", damageMeterWindow);
+  sessionState.addEventListenerWindow("message", damageMeterWindow);
   sessionState.addEventListenerWindow("stateChange", damageMeterWindow);
 
   const damageMeterWindow_x = store.get("damagemeter.position.x"),
