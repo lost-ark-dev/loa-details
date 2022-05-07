@@ -78,7 +78,7 @@ function abbreviateNumber(n) {
 }
 
 function getClassImage(className) {
-  if (Object.keys(classes).includes(className))
+  if (className in classes)
     return new URL(`../../assets/classes/${className}.png`, import.meta.url)
       .href;
 
@@ -86,7 +86,7 @@ function getClassImage(className) {
 }
 
 function getClassColor(className) {
-  if (Object.keys(classes).includes(className)) return classes[className].color;
+  if (className in classes) return classes[className].color;
   return "#353535";
 }
 </script>
