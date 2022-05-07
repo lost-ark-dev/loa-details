@@ -1,7 +1,23 @@
 <template>
-  <div class="damager">
+  <div>
     <nav class="nav q-electron-drag">
-      <span class="title">LOA Details</span>
+      <span v-if="!isMinimized" class="time">
+        {{ millisToMinutesAndSeconds(fightDuration) }}
+      </span>
+      <div class="info-box">
+        <span>LOA Details</span>
+        <br />
+        <div v-if="!isMinimized">
+          <span style="margin-right: 12px">
+            Total DMG
+            {{ numberFormat(sessionState.damageStatistics.totalDamageDealt) }}
+          </span>
+          <span style="margin-right: 12px">
+            Total TNK
+            {{ numberFormat(sessionState.damageStatistics.totalDamageTaken) }}
+          </span>
+        </div>
+      </div>
       <div style="margin-left: auto">
         <q-btn
           round
@@ -46,11 +62,9 @@
       <q-btn flat size="sm" @click="damageType = DamageTypeDealt">DMG</q-btn>
       <q-btn flat size="sm" @click="damageType = DamageTypeTaken">TANK</q-btn>
       <div style="margin-left: auto">
-        <q-btn flat size="sm" @click="requestSessionRestart">RESET</q-btn>
-        <span class="time">
-          {{ millisToMinutesAndSeconds(fightDuration) }}
-          ({{ millisToMinutesAndSeconds(sessionDuration) }})
-        </span>
+        <q-btn flat size="sm" @click="requestSessionRestart">
+          RESET SESSION
+        </q-btn>
       </div>
     </div>
   </div>
@@ -133,6 +147,10 @@ function millisToMinutesAndSeconds(millis) {
   let minutes = Math.floor(millis / 60000);
   let seconds = ((millis % 60000) / 1000).toFixed(0);
   return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+}
+
+function numberFormat(n) {
+  return new Intl.NumberFormat("en-US").format(n);
 }
 
 function requestSessionRestart() {
@@ -219,9 +237,12 @@ li {
   align-items: center;
   background: rgb(22, 22, 22, 0.75);
   color: rgb(189, 189, 189);
-  height: 32px;
+  height: 64px;
   font-size: 14px;
   padding: 0 8px;
+}
+.footer {
+  height: 32px !important;
 }
 .nav .title {
   color: #fff;
@@ -232,9 +253,14 @@ li {
   bottom: 0;
   left: 0;
 }
-.footer .time {
-  font-size: 12px;
+.nav .time {
+  font-size: 32px;
+  margin-left: 8px;
   color: #fff;
+}
+.nav .info-box {
+  margin-left: 12px;
+  font-size: 11px;
 }
 .damage-meter-table {
   font-family: "Segoe UI", "Segoe UI", "sans-serif";
