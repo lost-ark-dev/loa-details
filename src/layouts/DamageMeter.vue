@@ -3,12 +3,16 @@
     <nav class="nav q-electron-drag">
       <span class="title">LOA Details</span>
       <div style="margin-left: auto">
-        <q-btn icon="settings" flat size="xs">
-          <q-tooltip>Options. SoonTM.</q-tooltip>
-        </q-btn>
+        <q-btn
+          round
+          :icon="isMinimized ? 'add' : 'remove'"
+          @click="toggleMinimizedState"
+          flat
+          size="sm"
+        />
       </div>
     </nav>
-    <table class="damage-meter-table">
+    <table v-if="!isMinimized" class="damage-meter-table">
       <thead>
         <tr>
           <th style="width: 26px"></th>
@@ -38,7 +42,7 @@
         />
       </tbody>
     </table>
-    <div class="footer">
+    <div v-if="!isMinimized" class="footer">
       <q-btn flat size="sm" @click="damageType = DamageTypeDealt">DMG</q-btn>
       <q-btn flat size="sm" @click="damageType = DamageTypeTaken">TANK</q-btn>
       <div style="margin-left: auto">
@@ -58,6 +62,16 @@ import { Notify } from "quasar";
 
 import TableEntry from "../components/DamageMeter/TableEntry.vue";
 
+let isMinimized = ref(false);
+function toggleMinimizedState() {
+  isMinimized.value = !isMinimized.value;
+
+  window.messageApi.send("window-to-main", {
+    message: "toggle-damage-meter-minimized-state",
+    value: isMinimized.value,
+  });
+}
+
 let sessionDuration = ref(0);
 let fightDuration = ref(0);
 
@@ -75,89 +89,6 @@ let sessionState = reactive({
     topDamageTaken: 0,
   },
 });
-
-/* let sessionState = reactive({
-  //fake data
-  entities: [
-    {
-      isPlayer: 1,
-      name: "Test",
-      damageDealt: 500,
-      damageTaken: 1000,
-      class: "Artillerist",
-      hits: {
-        total: 10,
-        crit: 1,
-        backAttack: 0,
-        frontAttack: 0,
-        counter: 0,
-      },
-    },
-    {
-      isPlayer: 1,
-      name: "Test2",
-      damageDealt: 111,
-      damageTaken: 1534,
-      class: "Bard",
-      hits: {
-        total: 10,
-        crit: 1,
-        backAttack: 0,
-        frontAttack: 0,
-        counter: 0,
-      },
-    },
-    {
-      isPlayer: 1,
-      name: "Test3",
-      damageDealt: 222,
-      damageTaken: 258,
-      class: "Machinist",
-      hits: {
-        total: 10,
-        crit: 1,
-        backAttack: 0,
-        frontAttack: 0,
-        counter: 0,
-      },
-    },
-    {
-      isPlayer: 1,
-      name: "Test4",
-      damageDealt: 333,
-      damageTaken: 1746,
-      class: "Destroyer",
-      hits: {
-        total: 10,
-        crit: 1,
-        backAttack: 0,
-        frontAttack: 0,
-        counter: 0,
-      },
-    },
-    {
-      name: "8E9F7925",
-      class: "",
-      isPlayer: false,
-      damageDealt: 28,
-      damageTaken: 134562,
-      hits: {
-        total: 10,
-        crit: 1,
-        backAttack: 0,
-        frontAttack: 0,
-        counter: 0,
-      },
-    },
-  ],
-  startedOn: +new Date(),
-  damageStatistics: {
-    totalDamageDealt: 1166,
-    topDamageDealt: 500,
-    totalDamageTaken: 4538,
-    topDamageTaken: 1746,
-  },
-}); */
 
 const sortedEntities = computed(() => {
   const res = sessionState.entities

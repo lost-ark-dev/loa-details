@@ -61,13 +61,41 @@ app.whenReady().then(() => {
     app.exit();
   };
 
-  createMainWindow(mainWindow);
-  createDamageMeterWindow(damageMeterWindow, store, sessionState);
+  mainWindow = createMainWindow(mainWindow);
+  damageMeterWindow = createDamageMeterWindow(
+    damageMeterWindow,
+    store,
+    sessionState
+  );
 });
+
+let damageMeterWindowOldSize, damageMeterWindowOldMinimumSize;
 
 ipcMain.on("window-to-main", (event, arg) => {
   if (arg.message === "reset-session") {
     sessionState.resetState();
+  } else if (arg.message === "toggle-damage-meter-minimized-state") {
+    if (arg.value) {
+      let newW = 150,
+        newY = 32;
+
+      damageMeterWindowOldSize = damageMeterWindow.getSize();
+      damageMeterWindowOldMinimumSize = damageMeterWindow.getMinimumSize();
+
+      damageMeterWindow.setMinimumSize(newW, newY);
+      damageMeterWindow.setSize(newW, newY);
+      damageMeterWindow.setResizable(false);
+    } else {
+      damageMeterWindow.setMinimumSize(
+        damageMeterWindowOldMinimumSize[0],
+        damageMeterWindowOldMinimumSize[1]
+      );
+      damageMeterWindow.setSize(
+        damageMeterWindowOldSize[0],
+        damageMeterWindowOldSize[1]
+      );
+      damageMeterWindow.setResizable(true);
+    }
   }
 });
 

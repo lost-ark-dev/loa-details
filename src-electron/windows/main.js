@@ -35,4 +35,6 @@ export function createMainWindow(mainWindow) {
     mainWindow = null;
     app.quit();
   });
+
+  return mainWindow;
 }

@@ -60,6 +60,8 @@ export function createDamageMeterWindow(
   damageMeterWindow.on("closed", () => {
     damageMeterWindow = null;
   });
+
+  return damageMeterWindow;
 }
 
 function replayLogFile(name, sessionState) {
