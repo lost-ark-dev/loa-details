@@ -74,6 +74,10 @@ let damageMeterWindowOldSize, damageMeterWindowOldMinimumSize;
 ipcMain.on("window-to-main", (event, arg) => {
   if (arg.message === "reset-session") {
     sessionState.resetState();
+  } else if (arg.message === "cancel-reset-session") {
+    if (sessionState.resetTimer) {
+      sessionState.cancelReset();
+    }
   } else if (arg.message === "toggle-damage-meter-minimized-state") {
     if (arg.value) {
       let newW = 150,

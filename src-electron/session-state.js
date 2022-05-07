@@ -20,6 +20,7 @@ const entityTemplate = {
 
 export class SessionState {
   constructor() {
+    this.resetTimer = null;
     this.resetState();
 
     this.eventListenerWindows = {
@@ -31,6 +32,9 @@ export class SessionState {
   }
 
   resetState() {
+    this.resetTimer = null;
+    console.log("resetState()");
+
     this.game = {
       version: 1,
       lastBroadcastedVersion: 0,
@@ -44,6 +48,10 @@ export class SessionState {
         topDamageTaken: 0,
       },
     };
+  }
+  cancelReset() {
+    if (this.resetTimer) clearTimeout(this.resetTimer);
+    this.resetTimer = null;
   }
 
   addEventListenerWindow(event, window) {
@@ -59,9 +67,14 @@ export class SessionState {
   }
 
   onNewZone(value) {
-    //console.log("New Zone:", value);
-
-    this.resetState();
+    console.log("New Zone:", value);
+    if (this.resetTimer == null) {
+      console.log("Setting a reset timer");
+      this.resetTimer = setTimeout(this.resetState.bind(this), 6000);
+      this.eventListenerWindows.message.forEach((wndw) =>
+        wndw.webContents.send("pcap-on-message", "new-zone")
+      );
+    }
   }
 
   disassembleEntityFromPacket(value) {
@@ -80,7 +93,7 @@ export class SessionState {
   }
 
   onCombatEvent(value) {
-    //console.log("Combat Event:", value);
+    console.log("Combat Event:", value);
 
     const dataSplit = value.split(",");
 
