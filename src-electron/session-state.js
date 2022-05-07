@@ -1,4 +1,5 @@
 import { timeout } from "./util/timeout";
+const _ = require("lodash");
 
 const classRegex = /(.*)( )\(([^)]+)\)/;
 
@@ -88,13 +89,13 @@ export class SessionState {
 
     if (!Object.keys(this.game.entities).includes(dmgOwner.name))
       this.game.entities[dmgOwner.name] = {
-        ...entityTemplate,
+        ..._.cloneDeep(entityTemplate),
         ...dmgOwner,
       };
 
     if (!Object.keys(this.game.entities).includes(dmgTarget.name))
       this.game.entities[dmgTarget.name] = {
-        ...entityTemplate,
+        ..._.cloneDeep(entityTemplate),
         ...dmgTarget,
       };
 
