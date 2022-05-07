@@ -101,7 +101,7 @@ export class SessionState {
 
     if (
       dmgOwner.class &&
-      this.game.entities[dmgOwner.name] &&
+      dmgOwner.name in this.game.entities &&
       dmgOwner.class !== this.game.entities[dmgOwner.name].class
     ) {
       this.game.entities[dmgOwner.name].class = dmgOwner.class;

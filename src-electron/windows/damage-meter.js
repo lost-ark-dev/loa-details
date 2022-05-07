@@ -54,7 +54,7 @@ export function createDamageMeterWindow(
     store.set("damagemeter.position.x", damageMeterWindow.getPosition()[0]);
     store.set("damagemeter.position.y", damageMeterWindow.getPosition()[1]);
 
-    // replayLogFile("test.log", sessionState); this is only for debug purpouses
+    // replayLogFile("test.log", sessionState); // this is only for debug purpouses
   });
 
   damageMeterWindow.on("closed", () => {
