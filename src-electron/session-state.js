@@ -59,7 +59,7 @@ export class SessionState {
   }
 
   onNewZone(value) {
-    console.log("New Zone:", value);
+    //console.log("New Zone:", value);
 
     this.resetState();
   }
@@ -80,24 +80,33 @@ export class SessionState {
   }
 
   onCombatEvent(value) {
-    console.log("Combat Event:", value);
+    //console.log("Combat Event:", value);
 
     const dataSplit = value.split(",");
 
     const dmgOwner = this.disassembleEntityFromPacket(dataSplit[1]),
       dmgTarget = this.disassembleEntityFromPacket(dataSplit[2]);
 
-    if (!Object.keys(this.game.entities).includes(dmgOwner.name))
+    if (!(dmgOwner.name in this.game.entities))
       this.game.entities[dmgOwner.name] = {
         ..._.cloneDeep(entityTemplate),
         ...dmgOwner,
       };
 
-    if (!Object.keys(this.game.entities).includes(dmgTarget.name))
+    if (!(dmgTarget.name in this.game.entities))
       this.game.entities[dmgTarget.name] = {
         ..._.cloneDeep(entityTemplate),
         ...dmgTarget,
       };
+
+    if (
+      dmgOwner.class &&
+      this.game.entities[dmgOwner.name] &&
+      dmgOwner.class !== this.game.entities[dmgOwner.name].class
+    ) {
+      this.game.entities[dmgOwner.name].class = dmgOwner.class;
+      this.game.entities[dmgOwner.name].isPlayer = true;
+    }
 
     //const skillName = dataSplit[3]; // might use it later
 
