@@ -18,8 +18,8 @@
           </span>
         </div>
       </div>
-      <div style="margin-left:auto">
-        <div v-if="!isMinimized" style="display:inline-block">
+      <div style="margin-left: auto">
+        <div v-if="!isMinimized" style="display: inline-block">
           <q-btn
             round
             :icon="isCompact ? 'fullscreen' : 'fullscreen_exit'"
@@ -28,7 +28,7 @@
             size="sm"
           />
         </div>
-        <div style="display:inline-block">
+        <div style="display: inline-block">
           <q-btn
             round
             :icon="isMinimized ? 'add' : 'remove'"
@@ -44,14 +44,14 @@
         <tr>
           <th style="width: 26px"></th>
           <th style="width: 100%"></th>
-          <th style="width: 52px">
-            {{ damageType === DamageTypeDealt ? "DPS" : "TPS" }}
+          <th style="width: 72px">
+            {{ damageType === DamageTypeDealt ? "Damage" : "Tanked" }}
           </th>
           <th style="width: 48px">
             {{ damageType === DamageTypeDealt ? "D" : "T" }}%
           </th>
-          <th style="width: 72px">
-            {{ damageType === DamageTypeDealt ? "Damage" : "Tanked" }}
+          <th style="width: 52px">
+            {{ damageType === DamageTypeDealt ? "DPS" : "TPS" }}
           </th>
           <th style="width: 48px">CRIT</th>
           <th style="width: 48px">F.A.</th>
@@ -76,14 +76,15 @@
         <q-btn flat size="sm" @click="requestSessionRestart">
           RESET SESSION
         </q-btn>
-        <q-btn v-if="isCompact"
+        <q-btn
+          v-if="isCompact"
           round
           :icon="isCompact ? 'fullscreen' : 'fullscreen_exit'"
           @click="toggleCompactState"
           flat
           size="sm"
         />
-        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -108,7 +109,7 @@ function toggleMinimizedState() {
   });
 }
 function toggleCompactState() {
-  isCompact.value = !isCompact.value
+  isCompact.value = !isCompact.value;
 }
 
 let sessionDuration = ref(0);

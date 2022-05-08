@@ -5,16 +5,16 @@
     </td>
     <td class="ellipsis">{{ player.name }} ({{ player.class }})</td>
     <td class="text-center">
-      {{ numberFormat(DPS) }}
+      {{ abbreviatedDamage[0] }}
+      <span class="ex">
+        {{ abbreviatedDamage[1] }}
+      </span>
     </td>
     <td class="text-center">
       {{ player.percentageTotal }}<span class="ex">%</span>
     </td>
     <td class="text-center">
-      {{ abbreviatedDamage[0] }}
-      <span class="ex">
-        {{ abbreviatedDamage[1] }}
-      </span>
+      {{ numberFormat(DPS) }}
     </td>
     <td class="text-center">
       {{ ((player.hits.crit / player.hits.total) * 100).toFixed(1) }}
