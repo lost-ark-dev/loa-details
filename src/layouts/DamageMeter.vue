@@ -76,6 +76,9 @@ import { Notify } from "quasar";
 
 import TableEntry from "../components/DamageMeter/TableEntry.vue";
 
+import { useSettingsStore } from "../stores/settings";
+const settingsStore = useSettingsStore();
+
 let isMinimized = ref(false);
 function toggleMinimizedState() {
   isMinimized.value = !isMinimized.value;
@@ -158,6 +161,14 @@ function requestSessionRestart() {
 }
 
 onMounted(() => {
+  settingsStore.initSettings();
+
+  window.messageApi.receive("on-settings-change", (value) => {
+    settingsStore.loadSettings(value);
+  });
+
+  window.messageApi.send("window-to-main", { message: "get-settings" });
+
   window.messageApi.receive("pcap-on-state-change", (value) => {
     sessionState.entities = Object.values(value.entities);
     sessionState.damageStatistics = value.damageStatistics;

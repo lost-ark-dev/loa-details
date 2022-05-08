@@ -55,6 +55,10 @@
 </template>
 
 <script setup>
+import { onMounted } from "vue";
+import { useSettingsStore } from "../stores/settings";
+const settingsStore = useSettingsStore();
+
 function minimize() {
   if (process.env.MODE === "electron") {
     window.windowControlApi.minimize();
@@ -72,4 +76,23 @@ function closeApp() {
     window.windowControlApi.close();
   }
 }
+
+let firstSettingsReceive = true;
+onMounted(() => {
+  settingsStore.initSettings();
+
+  window.messageApi.receive("on-settings-change", (value) => {
+    settingsStore.loadSettings(value);
+    if (firstSettingsReceive) {
+      firstSettingsReceive = false;
+      if (settingsStore.settings.general.startMainMinimized) {
+        window.messageApi.send("window-to-main", {
+          message: "minimize-main-window",
+        });
+      }
+    }
+  });
+
+  window.messageApi.send("window-to-main", { message: "get-settings" });
+});
 </script>

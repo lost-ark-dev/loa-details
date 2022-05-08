@@ -12,6 +12,14 @@ const sessionState = new SessionState();
 const Store = require("electron-store");
 const store = new Store();
 
+let appSettings = {};
+try {
+  const settingsStr = store.get("settings");
+  if (settingsStr) appSettings = JSON.parse(store.get("settings"));
+} catch {
+  console.log("setting retrieval failed");
+}
+
 const { ConnectionBuilder } = require("electron-cgi");
 let connection = null; // reserved for electron-cgi connection
 
@@ -100,6 +108,14 @@ ipcMain.on("window-to-main", (event, arg) => {
       );
       damageMeterWindow.setResizable(true);
     }
+  } else if (arg.message === "save-settings") {
+    appSettings = JSON.parse(arg.value);
+    store.set("settings", arg.value);
+    damageMeterWindow.webContents.send("on-settings-change", appSettings);
+  } else if (arg.message === "get-settings") {
+    event.reply("on-settings-change", appSettings);
+  } else if (arg.message === "minimize-main-window") {
+    mainWindow.minimize();
   }
 });
 
