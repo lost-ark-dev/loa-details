@@ -43,6 +43,7 @@
             @click="navigate"
           >
             Settings
+            <q-badge color="red" transparent>NEW</q-badge>
           </div>
         </router-link>
       </div>

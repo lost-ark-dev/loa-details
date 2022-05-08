@@ -22,7 +22,6 @@ export const classes = {
   Shadowhunter: { color: "#0099c6" },
   Sharpshooter: { color: "#dd4477" },
   Sorceress: { color: "#66aa00" },
-  Soreress: { color: "#b82e2e" },
   Soulfist: { color: "#316395" },
   Striker: { color: "#994499" },
   Summoner: { color: "#22aa99" },
