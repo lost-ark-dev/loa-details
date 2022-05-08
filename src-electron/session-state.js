@@ -138,11 +138,13 @@ export class SessionState {
     this.game.entities[dmgOwner.name].damageDealt += damage;
     this.game.entities[dmgTarget.name].damageTaken += damage;
 
-    this.game.entities[dmgOwner.name].hits.total += 1;
-    this.game.entities[dmgOwner.name].hits.crit += critCount;
-    this.game.entities[dmgOwner.name].hits.backAttack += backAttackCount;
-    this.game.entities[dmgOwner.name].hits.frontAttack += frontAttackCount;
-    this.game.entities[dmgOwner.name].hits.counter += counterCount;
+    if (dataSplit[3] !== "Bleed") {
+      this.game.entities[dmgOwner.name].hits.total += 1;
+      this.game.entities[dmgOwner.name].hits.crit += critCount;
+      this.game.entities[dmgOwner.name].hits.backAttack += backAttackCount;
+      this.game.entities[dmgOwner.name].hits.frontAttack += frontAttackCount;
+      this.game.entities[dmgOwner.name].hits.counter += counterCount;
+    }
 
     if (dmgOwner.isPlayer) {
       this.game.damageStatistics.totalDamageDealt += damage;
