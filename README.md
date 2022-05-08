@@ -1,4 +1,4 @@
-![image](https://user-images.githubusercontent.com/29287377/167152332-bc32d441-c085-450d-bde7-557456c0a78d.png)
+![image](https://user-images.githubusercontent.com/29287377/167294110-3cd481e9-2157-4278-8489-77971a6c42f8.png)
 
 # LOA Details (loa-details)
 
