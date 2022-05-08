@@ -59,13 +59,21 @@
           <th style="width: 44px">CNTR</th>
         </tr>
       </thead>
-      <tbody>
+      <tbody v-if="!skillOverlay">
         <TableEntry
           v-for="player in sortedEntities"
           :key="player.id"
           :player="player"
           :showTanked="damageType === DamageTypeTaken"
           :fightDuration="Math.max(1000, fightDuration)"
+          v-on:click="console.log('test')"
+        />
+      </tbody>
+      <tbody v-else>
+        <SkillEntry
+          v-for="skill in sortedEntitiesBySkill"
+          :key="skill.id"
+          :skill="skill"
         />
       </tbody>
     </table>
@@ -94,7 +102,7 @@ import { onMounted, reactive, computed, ref } from "vue";
 import { Notify } from "quasar";
 
 import TableEntry from "../components/DamageMeter/TableEntry.vue";
-
+import SkillEntry from "../components/DamageMeter/SkillEntry.vue";
 import { useSettingsStore } from "../stores/settings";
 const settingsStore = useSettingsStore();
 
@@ -118,6 +126,8 @@ let fightDuration = ref(0);
 const DamageTypeDealt = Symbol("dealt");
 const DamageTypeTaken = Symbol("taken");
 let damageType = ref(DamageTypeDealt);
+let focused = ref("331F8630");
+let skillOverlay = ref(true);
 
 let sessionState = reactive({
   entities: [],
@@ -150,6 +160,17 @@ const sortedEntities = computed(() => {
     entity.percentageTop = getPercentage(entity, "top");
   }
 
+  return res;
+});
+
+const sortedEntitiesBySkill = computed(() => {
+  if(!sessionState.entities["331F8630"])
+    return [];
+
+  const res = Object.values(sessionState.entities["331F8630"].skills)
+    .sort((a, b) =>
+      b.totalDamage - a.totalDamage
+    );
   return res;
 });
 
