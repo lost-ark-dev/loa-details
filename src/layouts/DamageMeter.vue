@@ -18,7 +18,7 @@
           </span>
         </div>
       </div>
-      <div style="margin:auto">
+      <div style="margin-left:auto">
         <div v-if="!isMinimized" style="display:inline-block">
           <q-btn
             round
