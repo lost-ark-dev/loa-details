@@ -1,7 +1,7 @@
 <template>
   <div>
-    <nav class="nav q-electron-drag">
-      <span v-if="!isMinimized" class="time">
+    <nav v-if="!isCompact" class="nav q-electron-drag">
+      <span v-if="!isMinimized && !isCompact" class="time">
         {{ millisToMinutesAndSeconds(fightDuration) }}
       </span>
       <div class="info-box">
@@ -18,18 +18,29 @@
           </span>
         </div>
       </div>
-      <div style="margin-left: auto">
-        <q-btn
-          round
-          :icon="isMinimized ? 'add' : 'remove'"
-          @click="toggleMinimizedState"
-          flat
-          size="sm"
-        />
+      <div style="margin-left:auto">
+        <div v-if="!isMinimized" style="display:inline-block">
+          <q-btn
+            round
+            :icon="isCompact ? 'fullscreen' : 'fullscreen_exit'"
+            @click="toggleCompactState"
+            flat
+            size="sm"
+          />
+        </div>
+        <div style="display:inline-block">
+          <q-btn
+            round
+            :icon="isMinimized ? 'add' : 'remove'"
+            @click="toggleMinimizedState"
+            flat
+            size="sm"
+          />
+        </div>
       </div>
     </nav>
     <table v-if="!isMinimized" class="damage-meter-table">
-      <thead>
+      <thead class="q-electron-drag">
         <tr>
           <th style="width: 26px"></th>
           <th style="width: 100%"></th>
@@ -65,7 +76,14 @@
         <q-btn flat size="sm" @click="requestSessionRestart">
           RESET SESSION
         </q-btn>
-      </div>
+        <q-btn v-if="isCompact"
+          round
+          :icon="isCompact ? 'fullscreen' : 'fullscreen_exit'"
+          @click="toggleCompactState"
+          flat
+          size="sm"
+        />
+        </div>
     </div>
   </div>
 </template>
@@ -80,6 +98,7 @@ import { useSettingsStore } from "../stores/settings";
 const settingsStore = useSettingsStore();
 
 let isMinimized = ref(false);
+let isCompact = ref(false);
 function toggleMinimizedState() {
   isMinimized.value = !isMinimized.value;
 
@@ -87,6 +106,9 @@ function toggleMinimizedState() {
     message: "toggle-damage-meter-minimized-state",
     value: isMinimized.value,
   });
+}
+function toggleCompactState() {
+  isCompact.value = !isCompact.value
 }
 
 let sessionDuration = ref(0);
