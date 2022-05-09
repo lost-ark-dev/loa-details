@@ -20,6 +20,8 @@ const entityTemplate = {
 
 export class SessionState {
   constructor() {
+    this.dontResetOnZoneChange = false;
+
     this.resetTimer = null;
     this.resetState();
 
@@ -32,13 +34,17 @@ export class SessionState {
   }
 
   resetState() {
-    this.resetTimer = null;
     console.log("resetState()");
+
+    this.resetTimer = null;
+
+    const curTime = +new Date();
 
     this.game = {
       version: 1,
       lastBroadcastedVersion: 0,
-      startedOn: +new Date(),
+      startedOn: curTime,
+      lastCombatPacket: curTime,
       fightStartedOn: 0,
       entities: {},
       damageStatistics: {
@@ -68,7 +74,7 @@ export class SessionState {
 
   onNewZone(value) {
     console.log("New Zone:", value);
-    if (this.resetTimer == null) {
+    if (this.dontResetOnZoneChange === false && this.resetTimer == null) {
       console.log("Setting a reset timer");
       this.resetTimer = setTimeout(this.resetState.bind(this), 6000);
       this.eventListenerWindows.message.forEach((wndw) =>
@@ -162,8 +168,9 @@ export class SessionState {
       );
     }
 
-    if (this.game.fightStartedOn === 0) this.game.fightStartedOn = +new Date();
-
+    const curTime = +new Date();
+    if (this.game.fightStartedOn === 0) this.game.fightStartedOn = curTime;
+    this.game.lastCombatPacket = curTime;
     this.game.version += 1;
   }
 

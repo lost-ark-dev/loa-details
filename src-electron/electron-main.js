@@ -16,8 +16,10 @@ let appSettings = {};
 try {
   const settingsStr = store.get("settings");
   if (settingsStr) appSettings = JSON.parse(store.get("settings"));
-} catch {
-  console.log("setting retrieval failed");
+  sessionState.dontResetOnZoneChange =
+    appSettings.damageMeter.functionality.dontResetOnZoneChange;
+} catch (e) {
+  console.log("setting retrieval failed:", e);
 }
 
 const { ConnectionBuilder } = require("electron-cgi");
@@ -112,6 +114,8 @@ ipcMain.on("window-to-main", (event, arg) => {
     appSettings = JSON.parse(arg.value);
     store.set("settings", arg.value);
     damageMeterWindow.webContents.send("on-settings-change", appSettings);
+    sessionState.dontResetOnZoneChange =
+      appSettings.damageMeter.functionality.dontResetOnZoneChange;
   } else if (arg.message === "get-settings") {
     event.reply("on-settings-change", appSettings);
   } else if (arg.message === "minimize-main-window") {

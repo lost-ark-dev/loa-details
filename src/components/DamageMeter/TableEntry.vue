@@ -10,25 +10,43 @@
         {{ abbreviatedDamage[1] }}
       </span>
     </td>
-    <td class="text-center">
+    <td
+      v-if="settingsStore.settings.damageMeter.tabs.damagePercent.enabled"
+      class="text-center"
+    >
       {{ player.percentageTotal }}<span class="ex">%</span>
     </td>
-    <td class="text-center">
+    <td
+      v-if="settingsStore.settings.damageMeter.tabs.dps.enabled"
+      class="text-center"
+    >
       {{ numberFormat(DPS) }}
     </td>
-    <td class="text-center">
+    <td
+      v-if="settingsStore.settings.damageMeter.tabs.critRate.enabled"
+      class="text-center"
+    >
       {{ ((player.hits.crit / player.hits.total) * 100).toFixed(1) }}
       <span class="ex">%</span>
     </td>
-    <td class="text-center">
+    <td
+      v-if="settingsStore.settings.damageMeter.tabs.faRate.enabled"
+      class="text-center"
+    >
       {{ ((player.hits.frontAttack / player.hits.total) * 100).toFixed(1) }}
       <span class="ex">%</span>
     </td>
-    <td class="text-center">
+    <td
+      v-if="settingsStore.settings.damageMeter.tabs.baRate.enabled"
+      class="text-center"
+    >
       {{ ((player.hits.backAttack / player.hits.total) * 100).toFixed(1) }}
       <span class="ex">%</span>
     </td>
-    <td class="text-center">
+    <td
+      v-if="settingsStore.settings.damageMeter.tabs.counterCount.enabled"
+      class="text-center"
+    >
       {{ player.hits.counter }}
     </td>
     <div
@@ -46,6 +64,9 @@
 <script setup>
 import { computed } from "vue";
 import { classes } from "../../constants/classes";
+
+import { useSettingsStore } from "../../stores/settings";
+const settingsStore = useSettingsStore();
 
 const props = defineProps({
   player: Object,
@@ -86,7 +107,8 @@ function getClassImage(className) {
 }
 
 function getClassColor(className) {
-  if (className in classes) return classes[className].color;
+  if (className in settingsStore.settings.damageMeter.classes)
+    return settingsStore.settings.damageMeter.classes[className].color;
   return "#353535";
 }
 </script>
