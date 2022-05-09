@@ -33,7 +33,10 @@
         />
       </div>
     </nav>
-    <table v-if="!isMinimized && !skillOverlay" class="damage-meter-table">
+    <table
+      v-if="!isMinimized && overlayType === OverlayTypeDamages"
+      class="damage-meter-table"
+    >
       <thead class="q-electron-drag">
         <tr>
           <th style="width: 26px"></th>
@@ -86,40 +89,49 @@
           :player="player"
           :showTanked="damageType === DamageTypeTaken"
           :fightDuration="Math.max(1000, fightDuration)"
-          @click="focus(player)"
+          @click="focusPlayer(player)"
         />
       </tbody>
     </table>
-    <table class="damage-meter-table" v-else>
+    <table
+      v-if="!isMinimized && overlayType === OverlayTypeSkills"
+      class="damage-meter-table"
+    >
       <thead class="q-electron-drag">
         <tr>
           <th style="width: 26px"></th>
           <th style="width: 100%"></th>
-          <th style="width: 72px">
-            Damage
-          </th>
-          <th style="width: 48px">
-            D%
-          </th>
-          <th style="width: 52px">
-            DPS
-          </th>
+          <th style="width: 72px">Damage</th>
+          <th style="width: 48px">D%</th>
+          <th style="width: 52px">DPS</th>
           <th style="width: 44px">HITS</th>
         </tr>
       </thead>
       <tbody>
         <SkillEntry
-          v-for="skill in sortedEntitiesBySkill"
-          :key="skill.id"
+          v-for="skill in sortedSkills"
+          :key="skill.name"
           :skill="skill"
+          :className="focusedPlayerClass"
           :fightDuration="Math.max(1000, fightDuration)"
-          @click.right="skillOverlay = false"
         />
       </tbody>
     </table>
     <div v-if="!isMinimized" class="footer">
-      <q-btn flat size="sm" @click="changeDamageType(DamageTypeDealt)">DMG</q-btn>
-      <q-btn flat size="sm" @click="changeDamageType(DamageTypeTaken)">TANK</q-btn>
+      <div v-if="overlayType === OverlayTypeDamages">
+        <q-btn flat size="sm" @click="damageType = DamageTypeDealt">
+          DMG
+        </q-btn>
+        <q-btn flat size="sm" @click="damageType = DamageTypeTaken">
+          TANK
+        </q-btn>
+      </div>
+      <div v-else>
+        <q-btn flat size="sm" @click="overlayType = OverlayTypeDamages">
+          BACK
+        </q-btn>
+      </div>
+
       <div style="margin-left: auto">
         <span v-if="settingsStore.settings.damageMeter.design.compactDesign">
           {{ millisToMinutesAndSeconds(fightDuration) }}
@@ -133,11 +145,12 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref, computed } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import { Notify } from "quasar";
 
 import TableEntry from "../components/DamageMeter/TableEntry.vue";
 import SkillEntry from "../components/DamageMeter/SkillEntry.vue";
+
 import { useSettingsStore } from "../stores/settings";
 const settingsStore = useSettingsStore();
 
@@ -153,23 +166,25 @@ function toggleMinimizedState() {
   });
 }
 
-const sessionDuration = ref(0);
-const fightDuration = ref(0);
-
 const DamageTypeDealt = Symbol("dealt");
 const DamageTypeTaken = Symbol("taken");
+const damageType = ref(DamageTypeDealt);
 
-let damageType = ref(DamageTypeDealt);
-let focused = ref("#");
-let skillOverlay = ref(false);
-function changeDamageType(type) {
-  skillOverlay.value = false;
-  damageType.value = type;
+const OverlayTypeDamages = Symbol("damage-overlay");
+const OverlayTypeSkills = Symbol("skill-overlay");
+const overlayType = ref(OverlayTypeDamages);
+
+const focusedPlayer = ref("#");
+const focusedPlayerClass = ref("");
+function focusPlayer(player) {
+  focusedPlayer.value = player.name;
+  focusedPlayerClass.value = player.class;
+  calculateSkills();
+  overlayType.value = OverlayTypeSkills;
 }
-function focus(player) {
-  focused.value = player.name;
-  skillOverlay.value = true;
-}
+
+const sessionDuration = ref(0);
+const fightDuration = ref(0);
 
 const sessionState = reactive({
   entities: [],
@@ -192,12 +207,6 @@ function sortEntities() {
           : entity.damageTaken > 0)
     )
     .sort((a, b) => {
-      console.log(
-        b.name,
-        settingsStore.settings.damageMeter.design.pinUserToTop &&
-          b.name === "You"
-      );
-
       if (settingsStore.settings.damageMeter.design.pinUserToTop) {
         if (a.name === "You") return -1e69;
         else if (b.name === "You") return 1e69; // nice
@@ -225,26 +234,32 @@ function sortEntities() {
   }
 
   sortedEntities.value = res;
+  calculateSkills();
 }
 
-const sortedEntitiesBySkill = computed(() => {
-  const entity = sessionState.entities.find((e) => {
-    return e.name === focused.value;
-  });
-  if(!entity)
-    return [];
+const sortedSkills = ref([]);
+function calculateSkills() {
+  sortedSkills.value = [];
+  if (focusedPlayer.value === "#") return;
 
-  const skills = Object.values(entity.skills)
-    .sort((a, b) =>
-      b.totalDamage - a.totalDamage
-    );
-  for(let i = 0; i < skills.length; i++) {
-    skills[i].damagePercent = ((skills[i].totalDamage  / entity.damageDealt) * 100).toFixed(1);
-    skills[i].id = i;
+  const entity = sessionState.entities.find((e) => {
+    return e.name === focusedPlayer.value;
+  });
+  if (!entity) return;
+
+  const res = Object.values(entity.skills).sort(
+    (a, b) => b.totalDamage - a.totalDamage
+  );
+
+  for (const skill of res) {
+    skill.damagePercent = (
+      (skill.totalDamage / entity.damageDealt) *
+      100
+    ).toFixed(1);
   }
 
-  return skills;
-});
+  sortedSkills.value = res;
+}
 
 function getPercentage(player, dmgType, relativeTo) {
   let a = player.damageDealt;

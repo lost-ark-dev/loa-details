@@ -1,9 +1,7 @@
 <template>
   <tr>
-    <td class="td-class-img">
-
-    </td>
-    <td class="ellipsis">{{skill.name}}</td>
+    <td class="td-class-img"></td>
+    <td class="ellipsis">{{ skill.name }}</td>
     <td class="text-center">
       {{ abbreviatedDamage[0] }}
       <span class="ex">
@@ -17,25 +15,27 @@
       {{ numberFormat(DPS) }}
     </td>
     <td class="text-center">
-      {{skill.useCount}}
+      {{ skill.useCount }}
     </td>
     <div
       class="player-bar"
       :style="`
               width:${skill.damagePercent}%;
-              background:${getRowColor()};}
+              background:${getClassColor(className)};}
               `"
-    >
-    </div>
+    ></div>
   </tr>
 </template>
 
 <script setup>
 import { computed } from "vue";
-import { classes } from "../../constants/classes";
+
+import { useSettingsStore } from "../../stores/settings";
+const settingsStore = useSettingsStore();
 
 const props = defineProps({
   skill: Object,
+  className: String,
   fightDuration: Number,
 });
 
@@ -47,9 +47,10 @@ const abbreviatedDamage = computed(() => {
   return abbreviateNumber(props.skill.totalDamage);
 });
 
-function getRowColor() {
-  const c = Object.values(classes);
-  return c[(props.skill.id + 4) % c.length].color;
+function getClassColor(className) {
+  if (className in settingsStore.settings.damageMeter.classes)
+    return settingsStore.settings.damageMeter.classes[className].color;
+  return "#353535";
 }
 
 function numberFormat(n) {
