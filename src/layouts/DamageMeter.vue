@@ -256,6 +256,10 @@ function calculateSkills() {
       (skill.totalDamage / entity.damageDealt) *
       100
     ).toFixed(1);
+    skill.relativePercent = (
+      (skill.totalDamage / res[0].totalDamage ) *
+      100
+    ).toFixed(1);
   }
 
   sortedSkills.value = res;
