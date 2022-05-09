@@ -20,7 +20,7 @@
     <div
       class="player-bar"
       :style="`
-              width:${skill.damagePercent}%;
+              width:${skill.relativePercent}%;
               background:${getClassColor(className)};}
               `"
     ></div>
