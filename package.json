@@ -1,6 +1,6 @@
 {
   "name": "loa-details",
-  "version": "0.0.8",
+  "version": "0.1.4",
   "description": "Damage meter for Lost Ark",
   "productName": "LOA Details",
   "author": "Eren Kara <erenkyi0@gmail.com>",
@@ -15,7 +15,9 @@
     "@quasar/extras": "^1.0.0",
     "add": "^2.0.6",
     "electron-cgi": "^1.0.6",
+    "electron-log": "^4.4.7",
     "electron-store": "^8.0.1",
+    "electron-updater": "^5.0.1",
     "lodash": "^4.17.21",
     "pinia": "^2.0.11",
     "quasar": "^2.6.0",

@@ -1,5 +1,6 @@
 import { timeout } from "./util/timeout";
 const _ = require("lodash");
+import log from "electron-log";
 
 const classRegex = /(.*)( )\(([^)]+)\)/;
 
@@ -26,6 +27,8 @@ const entityTemplate = {
 
 export class SessionState {
   constructor() {
+    this.dontResetOnZoneChange = false;
+
     this.resetTimer = null;
     this.resetState();
 
@@ -38,13 +41,17 @@ export class SessionState {
   }
 
   resetState() {
+    log.debug("Resetting state");
+
     this.resetTimer = null;
-    console.log("resetState()");
+
+    const curTime = +new Date();
 
     this.game = {
       version: 1,
       lastBroadcastedVersion: 0,
-      startedOn: +new Date(),
+      startedOn: curTime,
+      lastCombatPacket: curTime,
       fightStartedOn: 0,
       entities: {},
       damageStatistics: {
@@ -65,7 +72,7 @@ export class SessionState {
   }
 
   onMessage(value) {
-    console.log("Message:", value);
+    log.debug("onMessage:", value);
 
     this.eventListenerWindows.message.forEach((wndw) =>
       wndw.webContents.send("pcap-on-message", value)
@@ -73,9 +80,10 @@ export class SessionState {
   }
 
   onNewZone(value) {
-    console.log("New Zone:", value);
-    if (this.resetTimer == null) {
-      console.log("Setting a reset timer");
+    log.debug("New Zone:", value);
+
+    if (this.dontResetOnZoneChange === false && this.resetTimer == null) {
+      log.debug("Setting a reset timer.");
       this.resetTimer = setTimeout(this.resetState.bind(this), 6000);
       this.eventListenerWindows.message.forEach((wndw) =>
         wndw.webContents.send("pcap-on-message", "new-zone")
@@ -99,12 +107,12 @@ export class SessionState {
   }
 
   onCombatEvent(value) {
-    console.log("Combat Event:", value);
+    log.debug("Combat Event:", value);
 
-    const dataSplit = value.split(",");
+    const dataSplit = value.split("|#|");
 
-    const dmgOwner = this.disassembleEntityFromPacket(dataSplit[1]),
-      dmgTarget = this.disassembleEntityFromPacket(dataSplit[2]);
+    const dmgOwner = this.disassembleEntityFromPacket(dataSplit[0]),
+      dmgTarget = this.disassembleEntityFromPacket(dataSplit[1]);
 
     if (!(dmgOwner.name in this.game.entities))
       this.game.entities[dmgOwner.name] = {
@@ -137,15 +145,15 @@ export class SessionState {
 
     let damage;
     try {
-      damage = parseInt(dataSplit[4]);
+      damage = parseInt(dataSplit[3]);
     } catch {
       damage = 0;
     }
 
-    const critCount = dataSplit[5] === "1" ? 1 : 0;
-    const backAttackCount = dataSplit[6] === "1" ? 1 : 0;
-    const frontAttackCount = dataSplit[7] === "1" ? 1 : 0;
-    const counterCount = dataSplit[8] === "1" ? 1 : 0;
+    const critCount = dataSplit[4] === "1" ? 1 : 0;
+    const backAttackCount = dataSplit[5] === "1" ? 1 : 0;
+    const frontAttackCount = dataSplit[6] === "1" ? 1 : 0;
+    const counterCount = dataSplit[7] === "1" ? 1 : 0;
 
     this.game.entities[dmgOwner.name].skills[skillName].name = skillName;
     this.game.entities[dmgOwner.name].skills[skillName].totalDamage += damage;
@@ -153,7 +161,7 @@ export class SessionState {
     this.game.entities[dmgOwner.name].damageDealt += damage;
     this.game.entities[dmgTarget.name].damageTaken += damage;
 
-    if (dataSplit[3] !== "Bleed") {
+    if (dataSplit[2] !== "Bleed") {
       this.game.entities[dmgOwner.name].hits.total += 1;
       this.game.entities[dmgOwner.name].hits.crit += critCount;
       this.game.entities[dmgOwner.name].hits.backAttack += backAttackCount;
@@ -177,8 +185,9 @@ export class SessionState {
       );
     }
 
-    if (this.game.fightStartedOn === 0) this.game.fightStartedOn = +new Date();
-
+    const curTime = +new Date();
+    if (this.game.fightStartedOn === 0) this.game.fightStartedOn = curTime;
+    this.game.lastCombatPacket = curTime;
     this.game.version += 1;
   }
 

@@ -1,7 +1,12 @@
 <template>
   <div>
-    <nav v-if="!isCompact" class="nav q-electron-drag">
-      <span v-if="!isMinimized && !isCompact" class="time">
+    <nav
+      v-if="
+        !settingsStore.settings.damageMeter.design.compactDesign || isMinimized
+      "
+      class="nav q-electron-drag"
+    >
+      <span v-if="!isMinimized" class="time">
         {{ millisToMinutesAndSeconds(fightDuration) }}
       </span>
       <div class="info-box">
@@ -19,24 +24,13 @@
         </div>
       </div>
       <div style="margin-left: auto">
-        <div v-if="!isMinimized" style="display: inline-block">
-          <q-btn
-            round
-            :icon="isCompact ? 'fullscreen' : 'fullscreen_exit'"
-            @click="toggleCompactState"
-            flat
-            size="sm"
-          />
-        </div>
-        <div style="display: inline-block">
-          <q-btn
-            round
-            :icon="isMinimized ? 'add' : 'remove'"
-            @click="toggleMinimizedState"
-            flat
-            size="sm"
-          />
-        </div>
+        <q-btn
+          round
+          :icon="isMinimized ? 'add' : 'remove'"
+          @click="toggleMinimizedState"
+          flat
+          size="sm"
+        />
       </div>
     </nav>
     <table v-if="!isMinimized && !skillOverlay" class="damage-meter-table">
@@ -47,16 +41,42 @@
           <th style="width: 72px">
             {{ damageType === DamageTypeDealt ? "Damage" : "Tanked" }}
           </th>
-          <th style="width: 48px">
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.damagePercent.enabled"
+            style="width: 48px"
+          >
             {{ damageType === DamageTypeDealt ? "D" : "T" }}%
           </th>
-          <th style="width: 52px">
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.dps.enabled"
+            style="width: 52px"
+          >
             {{ damageType === DamageTypeDealt ? "DPS" : "TPS" }}
           </th>
-          <th style="width: 48px">CRIT</th>
-          <th style="width: 48px">F.A.</th>
-          <th style="width: 48px">B.A.</th>
-          <th style="width: 44px">CNTR</th>
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.critRate.enabled"
+            style="width: 48px"
+          >
+            CRIT
+          </th>
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.faRate.enabled"
+            style="width: 48px"
+          >
+            F.A.
+          </th>
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.baRate.enabled"
+            style="width: 48px"
+          >
+            B.A.
+          </th>
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.counterCount.enabled"
+            style="width: 44px"
+          >
+            CNTR
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -101,24 +121,19 @@
       <q-btn flat size="sm" @click="changeDamageType(DamageTypeDealt)">DMG</q-btn>
       <q-btn flat size="sm" @click="changeDamageType(DamageTypeTaken)">TANK</q-btn>
       <div style="margin-left: auto">
+        <span v-if="settingsStore.settings.damageMeter.design.compactDesign">
+          {{ millisToMinutesAndSeconds(fightDuration) }}
+        </span>
         <q-btn flat size="sm" @click="requestSessionRestart">
           RESET SESSION
         </q-btn>
-        <q-btn
-          v-if="isCompact"
-          round
-          :icon="isCompact ? 'fullscreen' : 'fullscreen_exit'"
-          @click="toggleCompactState"
-          flat
-          size="sm"
-        />
       </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, reactive, computed, ref } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import { Notify } from "quasar";
 
 import TableEntry from "../components/DamageMeter/TableEntry.vue";
@@ -126,8 +141,9 @@ import SkillEntry from "../components/DamageMeter/SkillEntry.vue";
 import { useSettingsStore } from "../stores/settings";
 const settingsStore = useSettingsStore();
 
-let isMinimized = ref(false);
-let isCompact = ref(false);
+const isMinimized = ref(false);
+const isAutoMinimized = ref(false);
+
 function toggleMinimizedState() {
   isMinimized.value = !isMinimized.value;
 
@@ -136,15 +152,13 @@ function toggleMinimizedState() {
     value: isMinimized.value,
   });
 }
-function toggleCompactState() {
-  isCompact.value = !isCompact.value;
-}
 
-let sessionDuration = ref(0);
-let fightDuration = ref(0);
+const sessionDuration = ref(0);
+const fightDuration = ref(0);
 
 const DamageTypeDealt = Symbol("dealt");
 const DamageTypeTaken = Symbol("taken");
+
 let damageType = ref(DamageTypeDealt);
 let focused = ref("#");
 let skillOverlay = ref(false);
@@ -157,7 +171,7 @@ function focus(player) {
   skillOverlay.value = true;
 }
 
-let sessionState = reactive({
+const sessionState = reactive({
   entities: [],
   startedOn: +new Date(),
   damageStatistics: {
@@ -167,8 +181,8 @@ let sessionState = reactive({
     topDamageTaken: 0,
   },
 });
-
-const sortedEntities = computed(() => {
+const sortedEntities = reactive([]);
+function sortEntities() {
   const res = sessionState.entities
     .filter(
       (entity) =>
@@ -188,8 +202,8 @@ const sortedEntities = computed(() => {
     entity.percentageTop = getPercentage(entity, "top");
   }
 
-  return res;
-});
+  Object.assign(sortedEntities, res);
+}
 
 const sortedEntitiesBySkill = computed(() => {
   const entity = sessionState.entities.find((e) => {
@@ -227,8 +241,8 @@ function getPercentage(player, relativeTo) {
 }
 
 function millisToMinutesAndSeconds(millis) {
-  let minutes = Math.floor(millis / 60000);
-  let seconds = ((millis % 60000) / 1000).toFixed(0);
+  const minutes = Math.floor(millis / 60000);
+  const seconds = ((millis % 60000) / 1000).toFixed(0);
   return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
 }
 
@@ -250,10 +264,12 @@ onMounted(() => {
   window.messageApi.send("window-to-main", { message: "get-settings" });
 
   window.messageApi.receive("pcap-on-state-change", (value) => {
-    sessionState.entities = Object.values(value.entities);
     sessionState.damageStatistics = value.damageStatistics;
     sessionState.startedOn = value.startedOn;
     sessionState.fightStartedOn = value.fightStartedOn;
+    sessionState.lastCombatPacket = value.lastCombatPacket;
+    sessionState.entities = Object.values(value.entities);
+    sortEntities();
   });
 
   window.messageApi.receive("pcap-on-message", (value) => {
@@ -288,10 +304,37 @@ onMounted(() => {
   });
 
   setInterval(() => {
-    sessionDuration.value = +new Date() - sessionState.startedOn;
+    const curTime = +new Date();
+
+    sessionDuration.value = curTime - sessionState.startedOn;
+
     if (sessionState.fightStartedOn > 0)
-      fightDuration.value = +new Date() - sessionState.fightStartedOn;
+      fightDuration.value = curTime - sessionState.fightStartedOn;
     else fightDuration.value = 0;
+
+    if (settingsStore.settings.damageMeter.functionality.autoMinimize) {
+      let sendResizeMessage = false;
+      const diff = curTime - sessionState.lastCombatPacket;
+      if (!isAutoMinimized.value && diff >= 60000) {
+        isMinimized.value = true;
+        isAutoMinimized.value = true;
+        sendResizeMessage = true;
+      }
+      if (isAutoMinimized.value && diff < 60000) {
+        isMinimized.value = false;
+        isAutoMinimized.value = false;
+        sendResizeMessage = true;
+      }
+
+      if (sendResizeMessage) {
+        window.messageApi.send("window-to-main", {
+          message: "toggle-damage-meter-minimized-state",
+          value: isMinimized.value,
+        });
+
+        sendResizeMessage = false;
+      }
+    }
   }, 1000);
 });
 </script>
