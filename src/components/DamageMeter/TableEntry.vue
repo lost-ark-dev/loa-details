@@ -14,7 +14,10 @@
       v-if="settingsStore.settings.damageMeter.tabs.damagePercent.enabled"
       class="text-center"
     >
-      {{ player.percentageTotal }}<span class="ex">%</span>
+      {{
+        showTanked ? player.tankPercentageTotal : player.damagePercentageTotal
+      }}
+      <span class="ex">%</span>
     </td>
     <td
       v-if="settingsStore.settings.damageMeter.tabs.dps.enabled"
@@ -52,7 +55,11 @@
     <div
       class="player-bar"
       :style="`
-              width:${player.percentageTop}%;
+              width:${
+                showTanked
+                  ? player.tankPercentageTop
+                  : player.damagePercentageTop
+              }%;
               background:${getClassColor(player.class)}
               `"
     >

@@ -1,4 +1,3 @@
-import { timeout } from "./util/timeout";
 const _ = require("lodash");
 import log from "electron-log";
 
@@ -31,7 +30,7 @@ export class SessionState {
       message: [],
     };
 
-    this.broadcastStateChange();
+    setInterval(this.broadcastStateChange.bind(this), 250);
   }
 
   resetState() {
@@ -42,8 +41,6 @@ export class SessionState {
     const curTime = +new Date();
 
     this.game = {
-      version: 1,
-      lastBroadcastedVersion: 0,
       startedOn: curTime,
       lastCombatPacket: curTime,
       fightStartedOn: 0,
@@ -173,21 +170,11 @@ export class SessionState {
     const curTime = +new Date();
     if (this.game.fightStartedOn === 0) this.game.fightStartedOn = curTime;
     this.game.lastCombatPacket = curTime;
-    this.game.version += 1;
   }
 
-  async broadcastStateChange() {
-    const ver = this.game.version;
-
-    if (this.game.lastBroadcastedVersion != ver) {
-      this.game.lastBroadcastedVersion = ver;
-
-      this.eventListenerWindows.stateChange.forEach((wndw) =>
-        wndw.webContents.send("pcap-on-state-change", this.game)
-      );
-    }
-
-    await timeout(100);
-    this.broadcastStateChange();
+  broadcastStateChange() {
+    this.eventListenerWindows.stateChange.forEach((wndw) =>
+      wndw.webContents.send("pcap-on-state-change", this.game)
+    );
   }
 }

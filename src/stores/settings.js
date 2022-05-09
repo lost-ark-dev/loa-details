@@ -7,6 +7,7 @@ export const useSettingsStore = defineStore("settings", {
     settings: {
       general: {
         startMainMinimized: false,
+        useWinpcap: false,
       },
       damageMeter: {
         functionality: {
@@ -15,6 +16,7 @@ export const useSettingsStore = defineStore("settings", {
         },
         design: {
           compactDesign: false,
+          pinUserToTop: false,
         },
         tabs: {
           damagePercent: {
