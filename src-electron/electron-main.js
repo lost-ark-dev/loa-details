@@ -1,15 +1,24 @@
 import { app, dialog, nativeTheme, ipcMain } from "electron";
 import { initialize } from "@electron/remote/main";
-import { createMainWindow, createDamageMeterWindow } from "./windows";
+import { autoUpdater } from "electron-updater";
+import log from "electron-log";
 import path from "path";
 import os from "os";
-
-initialize();
+const Store = require("electron-store");
 
 import { SessionState } from "./session-state";
-const sessionState = new SessionState();
 
-const Store = require("electron-store");
+import { createMainWindow, createDamageMeterWindow } from "./windows";
+
+autoUpdater.logger = log;
+autoUpdater.logger.transports.file.level = "info";
+
+initialize();
+log.info("App starting...");
+
+const sessionState = new SessionState();
+log.info("Created new session state.");
+
 const store = new Store();
 
 let appSettings = {};
@@ -18,8 +27,10 @@ try {
   if (settingsStr) appSettings = JSON.parse(store.get("settings"));
   sessionState.dontResetOnZoneChange =
     appSettings.damageMeter.functionality.dontResetOnZoneChange;
+
+  log.info("Found and applied settings.");
 } catch (e) {
-  console.log("setting retrieval failed:", e);
+  log.info("Setting retrieval failed: " + e);
 }
 
 const { ConnectionBuilder } = require("electron-cgi");
@@ -39,6 +50,8 @@ try {
 let mainWindow, damageMeterWindow;
 
 app.whenReady().then(() => {
+  autoUpdater.checkForUpdatesAndNotify();
+
   try {
     if (process.env.DEBUGGING) {
       connection = new ConnectionBuilder()
@@ -49,13 +62,16 @@ app.whenReady().then(() => {
         .connectTo("LostArkLogger.exe")
         .build();
     }
+    log.info("Started LostArkLogger.exe");
   } catch (e) {
+    log.error("Error while trying to open packet capturer: " + e);
+
     dialog.showErrorBox(
       "Error while trying to open packet capturer",
       "Error: " + e.message
     );
 
-    console.log("Exiting app...");
+    log.info("Exiting app...");
     app.exit();
   }
 
@@ -63,11 +79,16 @@ app.whenReady().then(() => {
   connection.on("new-zone", (value) => sessionState.onNewZone(value));
   connection.on("combat-event", (value) => sessionState.onCombatEvent(value));
   connection.onDisconnect = () => {
+    log.error(
+      "The connection to the Lost Ark Packet Capture was lost for some reason. Exiting app..."
+    );
+
     dialog.showErrorBox(
       "Error",
       "The connection to the Lost Ark Packet Capture was lost for some reason. Exiting app..."
     );
 
+    log.info("Exiting app...");
     app.exit();
   };
 
@@ -124,12 +145,14 @@ ipcMain.on("window-to-main", (event, arg) => {
 });
 
 app.on("window-all-closed", () => {
+  log.info("Window-all-closed fired");
   if (platform !== "darwin") {
     app.quit();
   }
 });
 
 app.on("activate", () => {
+  log.info("activate fired");
   if (mainWindow === null) {
     createMainWindow(mainWindow);
   }

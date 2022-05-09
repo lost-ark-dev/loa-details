@@ -1,5 +1,6 @@
 import { timeout } from "./util/timeout";
 const _ = require("lodash");
+import log from "electron-log";
 
 const classRegex = /(.*)( )\(([^)]+)\)/;
 
@@ -34,7 +35,7 @@ export class SessionState {
   }
 
   resetState() {
-    console.log("resetState()");
+    log.debug("Resetting state");
 
     this.resetTimer = null;
 
@@ -65,7 +66,7 @@ export class SessionState {
   }
 
   onMessage(value) {
-    console.log("Message:", value);
+    log.debug("onMessage:", value);
 
     this.eventListenerWindows.message.forEach((wndw) =>
       wndw.webContents.send("pcap-on-message", value)
@@ -73,9 +74,10 @@ export class SessionState {
   }
 
   onNewZone(value) {
-    console.log("New Zone:", value);
+    log.debug("New Zone:", value);
+
     if (this.dontResetOnZoneChange === false && this.resetTimer == null) {
-      console.log("Setting a reset timer");
+      log.debug("Setting a reset timer.");
       this.resetTimer = setTimeout(this.resetState.bind(this), 6000);
       this.eventListenerWindows.message.forEach((wndw) =>
         wndw.webContents.send("pcap-on-message", "new-zone")
@@ -99,7 +101,7 @@ export class SessionState {
   }
 
   onCombatEvent(value) {
-    console.log("Combat Event:", value);
+    log.debug("Combat Event:", value);
 
     const dataSplit = value.split(",");
 
