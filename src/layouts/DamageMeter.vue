@@ -33,7 +33,7 @@
         />
       </div>
     </nav>
-    <table v-if="!isMinimized" class="damage-meter-table">
+    <table v-if="!isMinimized && !skillOverlay" class="damage-meter-table">
       <thead class="q-electron-drag">
         <tr>
           <th style="width: 26px"></th>
@@ -86,12 +86,40 @@
           :player="player"
           :showTanked="damageType === DamageTypeTaken"
           :fightDuration="Math.max(1000, fightDuration)"
+          @click="focus(player)"
+        />
+      </tbody>
+    </table>
+    <table class="damage-meter-table" v-else>
+      <thead class="q-electron-drag">
+        <tr>
+          <th style="width: 26px"></th>
+          <th style="width: 100%"></th>
+          <th style="width: 72px">
+            Damage
+          </th>
+          <th style="width: 48px">
+            D%
+          </th>
+          <th style="width: 52px">
+            DPS
+          </th>
+          <th style="width: 52px">COUNT</th>
+        </tr>
+      </thead>
+      <tbody>
+        <SkillEntry
+          v-for="skill in sortedEntitiesBySkill"
+          :key="skill.id"
+          :skill="skill"
+          :fightDuration="Math.max(1000, fightDuration)"
+          @click.right="skillOverlay = false"
         />
       </tbody>
     </table>
     <div v-if="!isMinimized" class="footer">
-      <q-btn flat size="sm" @click="damageType = DamageTypeDealt">DMG</q-btn>
-      <q-btn flat size="sm" @click="damageType = DamageTypeTaken">TANK</q-btn>
+      <q-btn flat size="sm" @click="changeDamageType(DamageTypeDealt)">DMG</q-btn>
+      <q-btn flat size="sm" @click="changeDamageType(DamageTypeTaken)">TANK</q-btn>
       <div style="margin-left: auto">
         <span v-if="settingsStore.settings.damageMeter.design.compactDesign">
           {{ millisToMinutesAndSeconds(fightDuration) }}
@@ -109,7 +137,7 @@ import { onMounted, reactive, ref } from "vue";
 import { Notify } from "quasar";
 
 import TableEntry from "../components/DamageMeter/TableEntry.vue";
-
+import SkillEntry from "../components/DamageMeter/SkillEntry.vue";
 import { useSettingsStore } from "../stores/settings";
 const settingsStore = useSettingsStore();
 
@@ -130,7 +158,18 @@ const fightDuration = ref(0);
 
 const DamageTypeDealt = Symbol("dealt");
 const DamageTypeTaken = Symbol("taken");
-const damageType = ref(DamageTypeDealt);
+
+let damageType = ref(DamageTypeDealt);
+let focused = ref("#");
+let skillOverlay = ref(false);
+function changeDamageType(type) {
+  skillOverlay.value = false;
+  damageType.value = type;
+}
+function focus(player) {
+  focused.value = player.name;
+  skillOverlay.value = true;
+}
 
 const sessionState = reactive({
   entities: [],
@@ -165,6 +204,25 @@ function sortEntities() {
 
   Object.assign(sortedEntities, res);
 }
+
+const sortedEntitiesBySkill = computed(() => {
+  const entity = sessionState.entities.find((e) => {
+    return e.name === focused.value;
+  });
+  if(!entity)
+    return [];
+
+  const skills = Object.values(entity.skills)
+    .sort((a, b) =>
+      b.totalDamage - a.totalDamage
+    );
+  for(let i = 0; i < skills.length; i++) {
+    skills[i].damagePercent = ((skills[i].totalDamage  / entity.damageDealt) * 100).toFixed(1);
+    skills[i].id = i;
+  }
+
+  return skills;
+});
 
 function getPercentage(player, relativeTo) {
   let a = player.damageDealt;
