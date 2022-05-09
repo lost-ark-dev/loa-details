@@ -103,10 +103,10 @@ export class SessionState {
   onCombatEvent(value) {
     log.debug("Combat Event:", value);
 
-    const dataSplit = value.split(",");
+    const dataSplit = value.split("|#|");
 
-    const dmgOwner = this.disassembleEntityFromPacket(dataSplit[1]),
-      dmgTarget = this.disassembleEntityFromPacket(dataSplit[2]);
+    const dmgOwner = this.disassembleEntityFromPacket(dataSplit[0]),
+      dmgTarget = this.disassembleEntityFromPacket(dataSplit[1]);
 
     if (!(dmgOwner.name in this.game.entities))
       this.game.entities[dmgOwner.name] = {
@@ -129,24 +129,24 @@ export class SessionState {
       this.game.entities[dmgOwner.name].isPlayer = true;
     }
 
-    //const skillName = dataSplit[3]; // might use it later
+    //const skillName = dataSplit[2]; // might use it later
 
     let damage;
     try {
-      damage = parseInt(dataSplit[4]);
+      damage = parseInt(dataSplit[3]);
     } catch {
       damage = 0;
     }
 
-    const critCount = dataSplit[5] === "1" ? 1 : 0;
-    const backAttackCount = dataSplit[6] === "1" ? 1 : 0;
-    const frontAttackCount = dataSplit[7] === "1" ? 1 : 0;
-    const counterCount = dataSplit[8] === "1" ? 1 : 0;
+    const critCount = dataSplit[4] === "1" ? 1 : 0;
+    const backAttackCount = dataSplit[5] === "1" ? 1 : 0;
+    const frontAttackCount = dataSplit[6] === "1" ? 1 : 0;
+    const counterCount = dataSplit[7] === "1" ? 1 : 0;
 
     this.game.entities[dmgOwner.name].damageDealt += damage;
     this.game.entities[dmgTarget.name].damageTaken += damage;
 
-    if (dataSplit[3] !== "Bleed") {
+    if (dataSplit[2] !== "Bleed") {
       this.game.entities[dmgOwner.name].hits.total += 1;
       this.game.entities[dmgOwner.name].hits.crit += critCount;
       this.game.entities[dmgOwner.name].hits.backAttack += backAttackCount;
