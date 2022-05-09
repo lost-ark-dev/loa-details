@@ -181,7 +181,7 @@ const sessionState = reactive({
     topDamageTaken: 0,
   },
 });
-const sortedEntities = reactive([]);
+const sortedEntities = ref([]);
 function sortEntities() {
   const res = sessionState.entities
     .filter(
@@ -191,18 +191,40 @@ function sortEntities() {
           ? entity.damageDealt > 0
           : entity.damageTaken > 0)
     )
-    .sort((a, b) =>
-      damageType.value === DamageTypeDealt
+    .sort((a, b) => {
+      console.log(
+        b.name,
+        settingsStore.settings.damageMeter.design.pinUserToTop &&
+          b.name === "You"
+      );
+
+      if (settingsStore.settings.damageMeter.design.pinUserToTop) {
+        if (a.name === "You") return -1e69;
+        else if (b.name === "You") return 1e69; // nice
+      }
+
+      return damageType.value === DamageTypeDealt
         ? b.damageDealt - a.damageDealt
-        : b.damageTaken - a.damageTaken
-    );
+        : b.damageTaken - a.damageTaken;
+    });
 
   for (const entity of res) {
-    entity.percentageTotal = getPercentage(entity, "total");
-    entity.percentageTop = getPercentage(entity, "top");
+    entity.damagePercentageTotal = getPercentage(
+      entity,
+      DamageTypeDealt,
+      "total"
+    );
+    entity.damagePercentageTop = getPercentage(entity, DamageTypeDealt, "top");
+
+    entity.tankPercentageTotal = getPercentage(
+      entity,
+      DamageTypeTaken,
+      "total"
+    );
+    entity.tankPercentageTop = getPercentage(entity, DamageTypeTaken, "top");
   }
 
-  Object.assign(sortedEntities, res);
+  sortedEntities.value = res;
 }
 
 const sortedEntitiesBySkill = computed(() => {
@@ -226,10 +248,10 @@ const sortedEntitiesBySkill = computed(() => {
 
 function getPercentage(player, relativeTo) {
   let a = player.damageDealt;
-  if (damageType.value === DamageTypeTaken) a = player.damageTaken;
+  if (dmgType === DamageTypeTaken) a = player.damageTaken;
 
   let b;
-  if (damageType.value === DamageTypeDealt) {
+  if (dmgType === DamageTypeDealt) {
     if (relativeTo === "top") b = sessionState.damageStatistics.topDamageDealt;
     else b = sessionState.damageStatistics.totalDamageDealt;
   } else {
@@ -274,28 +296,30 @@ onMounted(() => {
 
   window.messageApi.receive("pcap-on-message", (value) => {
     if (value === "new-zone") {
-      Notify.create({
-        progress: true,
-        timeout: 5000,
-        message: "Changed zone, resetting session.",
-        color: "primary",
-        actions: [
-          {
-            label: "Cancel",
-            color: "dark",
-            handler: () => {
-              window.messageApi.send("window-to-main", {
-                message: "cancel-reset-session",
-              });
+      if (!isMinimized.value) {
+        Notify.create({
+          progress: true,
+          timeout: 5000,
+          message: "Changed zone, resetting session.",
+          color: "primary",
+          actions: [
+            {
+              label: "Cancel",
+              color: "dark",
+              handler: () => {
+                window.messageApi.send("window-to-main", {
+                  message: "cancel-reset-session",
+                });
 
-              Notify.create({
-                message:
-                  "Reset cancelled. Session won't reset until you click reset or change zones again.",
-              });
+                Notify.create({
+                  message:
+                    "Reset cancelled. Session won't reset until you click reset or change zones again.",
+                });
+              },
             },
-          },
-        ],
-      });
+          ],
+        });
+      }
     } else {
       Notify.create({
         message: value,

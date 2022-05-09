@@ -53,13 +53,18 @@ app.whenReady().then(() => {
   autoUpdater.checkForUpdatesAndNotify();
 
   try {
+    const params = appSettings?.general?.useWinpcap ? "useWinpcap" : "";
+
     if (process.env.DEBUGGING) {
       connection = new ConnectionBuilder()
-        .connectTo(path.resolve(__dirname, "../../binary/LostArkLogger.exe"))
+        .connectTo(
+          path.resolve(__dirname, "../../binary/LostArkLogger.exe"),
+          params
+        )
         .build();
     } else {
       connection = new ConnectionBuilder()
-        .connectTo("LostArkLogger.exe")
+        .connectTo("LostArkLogger.exe", params)
         .build();
     }
     log.info("Started LostArkLogger.exe");

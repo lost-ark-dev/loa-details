@@ -59,6 +59,24 @@
       </q-item-section>
     </q-item>
 
+    <q-item tag="label">
+      <q-item-section side top>
+        <q-checkbox
+          v-model="settingsStore.settings.damageMeter.design.pinUserToTop"
+        />
+      </q-item-section>
+
+      <q-item-section>
+        <q-item-label>Pin my bar on top</q-item-label>
+        <q-item-label caption>
+          Pins the current player's bar to the top regardless of the damage
+          dealt/tanked.
+          <br />Note: This won't work if you open the app mid-fight instead of
+          opening it before the fight.
+        </q-item-label>
+      </q-item-section>
+    </q-item>
+
     <q-separator spaced />
     <q-item-label header>Tabs</q-item-label>
 
