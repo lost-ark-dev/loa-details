@@ -39,7 +39,7 @@
         </div>
       </div>
     </nav>
-    <table v-if="!isMinimized" class="damage-meter-table">
+    <table v-if="!isMinimized && !skillOverlay" class="damage-meter-table">
       <thead class="q-electron-drag">
         <tr>
           <th style="width: 26px"></th>
@@ -59,27 +59,47 @@
           <th style="width: 44px">CNTR</th>
         </tr>
       </thead>
-      <tbody v-if="!skillOverlay">
+      <tbody>
         <TableEntry
           v-for="player in sortedEntities"
           :key="player.id"
           :player="player"
           :showTanked="damageType === DamageTypeTaken"
           :fightDuration="Math.max(1000, fightDuration)"
-          v-on:click="console.log('test')"
+          @click="focus(player)"
         />
       </tbody>
-      <tbody v-else>
+    </table>
+    <table class="damage-meter-table" v-else>
+      <thead class="q-electron-drag">
+        <tr>
+          <th style="width: 26px"></th>
+          <th style="width: 100%"></th>
+          <th style="width: 72px">
+            Damage
+          </th>
+          <th style="width: 48px">
+            D%
+          </th>
+          <th style="width: 52px">
+            DPS
+          </th>
+          <th style="width: 52px">COUNT</th>
+        </tr>
+      </thead>
+      <tbody>
         <SkillEntry
           v-for="skill in sortedEntitiesBySkill"
           :key="skill.id"
           :skill="skill"
+          :fightDuration="Math.max(1000, fightDuration)"
+          @click.right="skillOverlay = false"
         />
       </tbody>
     </table>
     <div v-if="!isMinimized" class="footer">
-      <q-btn flat size="sm" @click="damageType = DamageTypeDealt">DMG</q-btn>
-      <q-btn flat size="sm" @click="damageType = DamageTypeTaken">TANK</q-btn>
+      <q-btn flat size="sm" @click="changeDamageType(DamageTypeDealt)">DMG</q-btn>
+      <q-btn flat size="sm" @click="changeDamageType(DamageTypeTaken)">TANK</q-btn>
       <div style="margin-left: auto">
         <q-btn flat size="sm" @click="requestSessionRestart">
           RESET SESSION
@@ -126,8 +146,16 @@ let fightDuration = ref(0);
 const DamageTypeDealt = Symbol("dealt");
 const DamageTypeTaken = Symbol("taken");
 let damageType = ref(DamageTypeDealt);
-let focused = ref("331F8630");
-let skillOverlay = ref(true);
+let focused = ref("#");
+let skillOverlay = ref(false);
+function changeDamageType(type) {
+  skillOverlay.value = false;
+  damageType.value = type;
+}
+function focus(player) {
+  focused.value = player.name;
+  skillOverlay.value = true;
+}
 
 let sessionState = reactive({
   entities: [],
@@ -164,14 +192,22 @@ const sortedEntities = computed(() => {
 });
 
 const sortedEntitiesBySkill = computed(() => {
-  if(!sessionState.entities["331F8630"])
+  const entity = sessionState.entities.find((e) => {
+    return e.name === focused.value;
+  });
+  if(!entity)
     return [];
 
-  const res = Object.values(sessionState.entities["331F8630"].skills)
+  const skills = Object.values(entity.skills)
     .sort((a, b) =>
       b.totalDamage - a.totalDamage
     );
-  return res;
+  for(let i = 0; i < skills.length; i++) {
+    skills[i].damagePercent = ((skills[i].totalDamage  / entity.damageDealt) * 100).toFixed(1);
+    skills[i].id = i;
+  }
+
+  return skills;
 });
 
 function getPercentage(player, relativeTo) {

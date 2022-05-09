@@ -147,7 +147,6 @@ export class SessionState {
     const frontAttackCount = dataSplit[7] === "1" ? 1 : 0;
     const counterCount = dataSplit[8] === "1" ? 1 : 0;
 
-    console.log(  this.game.entities)
     this.game.entities[dmgOwner.name].skills[skillName].name = skillName;
     this.game.entities[dmgOwner.name].skills[skillName].totalDamage += damage;
     this.game.entities[dmgOwner.name].skills[skillName].useCount += 1;
