@@ -197,6 +197,13 @@ module.exports = configure(function (/* ctx */) {
             to: "LostArkLogger.exe",
           },
         ],
+        publish: [
+          {
+            provider: "github",
+            owner: "karaeren",
+            repo: "loa-details",
+          },
+        ],
       },
     },
 
