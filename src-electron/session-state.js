@@ -132,7 +132,7 @@ export class SessionState {
       this.game.entities[dmgOwner.name].isPlayer = true;
     }
 
-    let skillName = dataSplit[3]; // might use it later
+    let skillName = dataSplit[2]; // might use it later
     if(!skillName) skillName = "Unknown";
     if (!(skillName in this.game.entities[dmgOwner.name].skills))
       this.game.entities[dmgOwner.name].skills[skillName] = {

@@ -104,7 +104,7 @@
           <th style="width: 52px">
             DPS
           </th>
-          <th style="width: 52px">COUNT</th>
+          <th style="width: 44px">HITS</th>
         </tr>
       </thead>
       <tbody>
@@ -133,7 +133,7 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from "vue";
+import { onMounted, reactive, ref, computed } from "vue";
 import { Notify } from "quasar";
 
 import TableEntry from "../components/DamageMeter/TableEntry.vue";
@@ -246,10 +246,9 @@ const sortedEntitiesBySkill = computed(() => {
   return skills;
 });
 
-function getPercentage(player, relativeTo) {
+function getPercentage(player, dmgType, relativeTo) {
   let a = player.damageDealt;
   if (dmgType === DamageTypeTaken) a = player.damageTaken;
-
   let b;
   if (dmgType === DamageTypeDealt) {
     if (relativeTo === "top") b = sessionState.damageStatistics.topDamageDealt;
@@ -258,7 +257,6 @@ function getPercentage(player, relativeTo) {
     if (relativeTo === "top") b = sessionState.damageStatistics.topDamageTaken;
     else b = sessionState.damageStatistics.totalDamageTaken;
   }
-
   return ((a / b) * 100).toFixed(1);
 }
 
