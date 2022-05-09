@@ -90,7 +90,7 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, computed, ref } from "vue";
+import { onMounted, reactive, ref } from "vue";
 import { Notify } from "quasar";
 
 import TableEntry from "../components/DamageMeter/TableEntry.vue";
@@ -98,8 +98,8 @@ import TableEntry from "../components/DamageMeter/TableEntry.vue";
 import { useSettingsStore } from "../stores/settings";
 const settingsStore = useSettingsStore();
 
-let isMinimized = ref(false);
-let isCompact = ref(false);
+const isMinimized = ref(false);
+const isCompact = ref(false);
 function toggleMinimizedState() {
   isMinimized.value = !isMinimized.value;
 
@@ -112,14 +112,14 @@ function toggleCompactState() {
   isCompact.value = !isCompact.value;
 }
 
-let sessionDuration = ref(0);
-let fightDuration = ref(0);
+const sessionDuration = ref(0);
+const fightDuration = ref(0);
 
 const DamageTypeDealt = Symbol("dealt");
 const DamageTypeTaken = Symbol("taken");
-let damageType = ref(DamageTypeDealt);
+const damageType = ref(DamageTypeDealt);
 
-let sessionState = reactive({
+const sessionState = reactive({
   entities: [],
   startedOn: +new Date(),
   damageStatistics: {
@@ -129,8 +129,8 @@ let sessionState = reactive({
     topDamageTaken: 0,
   },
 });
-
-const sortedEntities = computed(() => {
+const sortedEntities = reactive([]);
+function sortEntities() {
   const res = sessionState.entities
     .filter(
       (entity) =>
@@ -150,8 +150,8 @@ const sortedEntities = computed(() => {
     entity.percentageTop = getPercentage(entity, "top");
   }
 
-  return res;
-});
+  Object.assign(sortedEntities, res);
+}
 
 function getPercentage(player, relativeTo) {
   let a = player.damageDealt;
@@ -170,8 +170,8 @@ function getPercentage(player, relativeTo) {
 }
 
 function millisToMinutesAndSeconds(millis) {
-  let minutes = Math.floor(millis / 60000);
-  let seconds = ((millis % 60000) / 1000).toFixed(0);
+  const minutes = Math.floor(millis / 60000);
+  const seconds = ((millis % 60000) / 1000).toFixed(0);
   return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
 }
 
@@ -193,10 +193,12 @@ onMounted(() => {
   window.messageApi.send("window-to-main", { message: "get-settings" });
 
   window.messageApi.receive("pcap-on-state-change", (value) => {
-    sessionState.entities = Object.values(value.entities);
     sessionState.damageStatistics = value.damageStatistics;
     sessionState.startedOn = value.startedOn;
     sessionState.fightStartedOn = value.fightStartedOn;
+
+    sessionState.entities = Object.values(value.entities);
+    sortEntities();
   });
 
   window.messageApi.receive("pcap-on-message", (value) => {
