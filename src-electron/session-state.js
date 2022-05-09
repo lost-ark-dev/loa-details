@@ -6,8 +6,8 @@ const classRegex = /(.*)( )\(([^)]+)\)/;
 const skillTemplate = {
   name: "",
   useCount: 0,
-  totalDamage: 0
-}
+  totalDamage: 0,
+};
 const entityTemplate = {
   name: "",
   class: "",
@@ -132,12 +132,11 @@ export class SessionState {
       this.game.entities[dmgOwner.name].isPlayer = true;
     }
 
-    let skillName = dataSplit[2]; // might use it later
-    if(!skillName) skillName = "Unknown";
+    const skillName = dataSplit[2] || "Unknown";
     if (!(skillName in this.game.entities[dmgOwner.name].skills))
       this.game.entities[dmgOwner.name].skills[skillName] = {
         ..._.cloneDeep(skillTemplate),
-        ...skillName,
+        ...{ name: skillName },
       };
 
     let damage;
@@ -152,10 +151,10 @@ export class SessionState {
     const frontAttackCount = dataSplit[6] === "1" ? 1 : 0;
     const counterCount = dataSplit[7] === "1" ? 1 : 0;
 
-    this.game.entities[dmgOwner.name].skills[skillName].name = skillName;
     this.game.entities[dmgOwner.name].skills[skillName].totalDamage += damage;
     this.game.entities[dmgOwner.name].skills[skillName].useCount += 1;
     this.game.entities[dmgOwner.name].damageDealt += damage;
+
     this.game.entities[dmgTarget.name].damageTaken += damage;
 
     if (dataSplit[2] !== "Bleed") {
