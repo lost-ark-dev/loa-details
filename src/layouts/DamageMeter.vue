@@ -99,7 +99,7 @@
     >
       <thead class="q-electron-drag">
         <tr>
-          <th style="width: 26px"></th>
+          <th style="width: 32px"></th>
           <th style="width: 100%"></th>
           <th style="width: 72px">Damage</th>
           <th style="width: 48px">D%</th>
@@ -485,7 +485,7 @@ li {
   font-size: 10px;
   color: rgb(189, 189, 189);
 }
-.td-class-img {
+.td-class-img, .td-skill-img {
   background-image: linear-gradient(
     to right,
     rgba(0, 0, 0, 0.5),
@@ -497,6 +497,12 @@ li {
   margin-left: 4px;
   margin-top: 4px;
 }
+.td-skill-img img {
+  width: 20px;
+  margin-left: 6px;
+  margin-top: 4px;
+}
+
 .player-bar {
   position: absolute;
   top: 0;
