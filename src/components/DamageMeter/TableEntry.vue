@@ -23,7 +23,10 @@
       v-if="settingsStore.settings.damageMeter.tabs.dps.enabled"
       class="text-center"
     >
-      {{ numberFormat(DPS) }}
+      {{ DPS[0] }}
+      <span class="ex">
+        {{ DPS[1] }}
+      </span>
     </td>
     <td
       v-if="settingsStore.settings.damageMeter.tabs.critRate.enabled"
@@ -90,7 +93,7 @@ const abbreviatedDamage = computed(() => {
 const DPS = computed(() => {
   let a = props.player.damageDealt;
   if (props.showTanked) a = props.player.damageTaken;
-  return (a / (props.fightDuration / 1000)).toFixed(0);
+  return abbreviateNumber((a / (props.fightDuration / 1000)).toFixed(0));
 });
 
 function numberFormat(n) {

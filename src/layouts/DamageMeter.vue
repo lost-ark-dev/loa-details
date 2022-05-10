@@ -339,6 +339,8 @@ onMounted(() => {
     isFightPaused.value = false;
     fightPausedOn = 0;
     fightPausedForMs = 0;
+    overlayType.value = OverlayTypeDamages;
+    damageType.value = DamageTypeDealt;
   });
 
   window.messageApi.receive("pcap-on-message", (value) => {
