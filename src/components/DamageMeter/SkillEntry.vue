@@ -70,11 +70,14 @@ function abbreviateNumber(n) {
 function getSkillImage(name) {
   const s = skills.find((k) => k.name == name);
 
-  if (typeof s !== undefined) {
+  if (s != null) {
     return new URL(
       `../../assets/images/skills/${s.id}_${s.name}.png`,
       import.meta.url
     ).href;
   }
+
+  return new URL(`../../assets/images/skills/unknown.png`, import.meta.url)
+    .href;
 }
 </script>
