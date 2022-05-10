@@ -121,6 +121,7 @@
           :skill="skill"
           :className="focusedPlayerClass"
           :fightDuration="Math.max(1000, fightDuration)"
+          @click.right="overlayType = OverlayTypeDamages"
         />
       </tbody>
     </table>
