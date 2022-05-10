@@ -408,9 +408,12 @@ onMounted(() => {
       let sendResizeMessage = false;
       const diff = curTime - sessionState.lastCombatPacket;
       if (!isAutoMinimized.value && diff >= 60000) {
-        isMinimized.value = true;
-        isAutoMinimized.value = true;
-        sendResizeMessage = true;
+        if (!isMinimized.value) {
+          // don't try to minimize if it's already
+          isMinimized.value = true;
+          isAutoMinimized.value = true;
+          sendResizeMessage = true;
+        }
       }
       if (isAutoMinimized.value && diff < 60000) {
         isMinimized.value = false;
