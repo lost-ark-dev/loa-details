@@ -34,9 +34,37 @@
       <q-item-section>
         <q-item-label>Auto Minimize</q-item-label>
         <q-item-label caption>
-          Minimizes the damage meter after 60 seconds of inactivitiy and will go
-          back to it's non minimized state on combat.
+          Minimizes the damage meter after
+          {{
+            settingsStore.settings.damageMeter.functionality.autoMinimizeTimer
+          }}
+          seconds of inactivitiy and will go back to it's non minimized state on
+          combat.
         </q-item-label>
+      </q-item-section>
+    </q-item>
+
+    <q-item>
+      <q-item-section side>
+        <q-icon name="access_time" />
+      </q-item-section>
+      <q-item-section>
+        <q-slider
+          :model-value="
+            settingsStore.settings.damageMeter.functionality.autoMinimizeTimer
+          "
+          @change="
+            (val) => {
+              settingsStore.settings.damageMeter.functionality.autoMinimizeTimer =
+                val;
+            }
+          "
+          :min="0"
+          :max="180"
+          label
+          :label-value="`Auto minimize after ${settingsStore.settings.damageMeter.functionality.autoMinimizeTimer} seconds.`"
+          label-always
+        />
       </q-item-section>
     </q-item>
 

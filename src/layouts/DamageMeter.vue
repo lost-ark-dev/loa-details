@@ -407,7 +407,12 @@ onMounted(() => {
     if (settingsStore.settings.damageMeter.functionality.autoMinimize) {
       let sendResizeMessage = false;
       const diff = curTime - sessionState.lastCombatPacket;
-      if (!isAutoMinimized.value && diff >= 60000) {
+      if (
+        !isAutoMinimized.value &&
+        diff >=
+          settingsStore.settings.damageMeter.functionality.autoMinimizeTimer *
+            1000
+      ) {
         if (!isMinimized.value) {
           // don't try to minimize if it's already
           isMinimized.value = true;
@@ -415,7 +420,12 @@ onMounted(() => {
           sendResizeMessage = true;
         }
       }
-      if (isAutoMinimized.value && diff < 60000) {
+      if (
+        isAutoMinimized.value &&
+        diff <
+          settingsStore.settings.damageMeter.functionality.autoMinimizeTimer *
+            1000
+      ) {
         isMinimized.value = false;
         isAutoMinimized.value = false;
         sendResizeMessage = true;

@@ -14,6 +14,7 @@ export const useSettingsStore = defineStore("settings", {
         functionality: {
           dontResetOnZoneChange: false,
           autoMinimize: false,
+          autoMinimizeTimer: 60,
         },
         design: {
           compactDesign: false,
