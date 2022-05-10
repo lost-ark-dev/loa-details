@@ -2,7 +2,7 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-bar class="q-electron-drag">
-        <div>Lost Ark Details - v0.1.6</div>
+        <div>Lost Ark Details - v0.1.7</div>
 
         <q-space />
 

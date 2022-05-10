@@ -1,5 +1,9 @@
 const routes = [
   {
+    path: "/prelauncher",
+    component: () => import("layouts/PrelauncherLayout.vue"),
+  },
+  {
     path: "/",
     component: () => import("layouts/MainLayout.vue"),
     children: [

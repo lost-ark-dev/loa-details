@@ -8,7 +8,11 @@ const Store = require("electron-store");
 
 import { SessionState } from "./session-state";
 
-import { createMainWindow, createDamageMeterWindow } from "./windows";
+import {
+  createPrelauncherWindow,
+  createMainWindow,
+  createDamageMeterWindow,
+} from "./windows";
 
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = "info";
@@ -47,11 +51,48 @@ try {
   }
 } catch (_) {}
 
-let mainWindow, damageMeterWindow;
+let prelauncherWindow, mainWindow, damageMeterWindow;
 
 app.whenReady().then(() => {
-  autoUpdater.checkForUpdatesAndNotify();
+  prelauncherWindow = createPrelauncherWindow(prelauncherWindow);
+  prelauncherWindow.on("show", () => {
+    autoUpdater.checkForUpdates();
+  });
+});
 
+function prelauncherMessage(value) {
+  log.info(value);
+  prelauncherWindow.webContents.send("prelauncher-message", value);
+}
+
+autoUpdater.on("checking-for-update", () => {
+  prelauncherMessage("Checking for updates...");
+});
+autoUpdater.on("update-available", (info) => {
+  prelauncherMessage("Found a new update! Starting download...");
+});
+autoUpdater.on("update-not-available", (info) => {
+  prelauncherMessage("Starting LOA Details!");
+
+  startApplication();
+
+  prelauncherWindow.close();
+  prelauncherWindow = null;
+});
+autoUpdater.on("error", (err) => {
+  prelauncherMessage("Error during update: " + err);
+});
+autoUpdater.on("download-progress", (progressObj) => {
+  prelauncherMessage(
+    `Downloading new update (${progressObj.percent.toFixed(0)}%)`
+  );
+});
+autoUpdater.on("update-downloaded", (info) => {
+  prelauncherMessage("Starting updater...");
+  autoUpdater.quitAndInstall(false, true); // isSilent=false, forceRunAfter=true
+});
+
+function startApplication() {
   try {
     const params = appSettings?.general?.useWinpcap ? "useWinpcap" : "";
 
@@ -103,10 +144,9 @@ app.whenReady().then(() => {
     store,
     sessionState
   );
-});
+}
 
 let damageMeterWindowOldSize, damageMeterWindowOldMinimumSize;
-
 ipcMain.on("window-to-main", (event, arg) => {
   if (arg.message === "reset-session") {
     sessionState.resetState();
