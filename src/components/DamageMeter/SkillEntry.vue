@@ -1,6 +1,8 @@
 <template>
   <tr>
-    <td class="td-class-img"></td>
+    <td class="td-skill-img">
+      <img :src="getSkillImage(skill.name)" />
+    </td>
     <td class="ellipsis">{{ skill.name }}</td>
     <td class="text-center">
       {{ abbreviatedDamage[0] }}
@@ -21,7 +23,8 @@
       class="player-bar"
       :style="`
               width:${skill.relativePercent}%;
-              background:${getClassColor(className)};}
+              background:${getClassColor(className)};
+              transition: 200ms;}
               `"
     ></div>
   </tr>
@@ -29,7 +32,7 @@
 
 <script setup>
 import { computed } from "vue";
-
+import { skills } from "../../constants/skills.js"
 import { useSettingsStore } from "../../stores/settings";
 const settingsStore = useSettingsStore();
 
@@ -63,5 +66,14 @@ function abbreviateNumber(n) {
   if (n >= 1e6 && n < 1e9) return [+(n / 1e6).toFixed(1), "m"];
   if (n >= 1e9 && n < 1e12) return [+(n / 1e9).toFixed(1), "b"];
   if (n >= 1e12) return [+(n / 1e12).toFixed(1), "t"];
+}
+
+function getSkillImage(name) {
+  const s = skills.filter((k) => k.name == name);
+
+  if(s.length > 0) {
+    const imgPath = `../src/assets/images/skills/${s[0].id}_${s[0].name}.png`
+    return imgPath;
+  }
 }
 </script>
