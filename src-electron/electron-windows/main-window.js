@@ -5,6 +5,7 @@ import path from "path";
 export function createMainWindow(mainWindow) {
   mainWindow = new BrowserWindow({
     icon: path.resolve(__dirname, "icons/icon.png"), // tray icon
+    show: false,
     width: 740,
     height: 600,
     frame: false,
@@ -19,7 +20,9 @@ export function createMainWindow(mainWindow) {
   });
 
   enable(mainWindow.webContents);
-  mainWindow.loadURL(process.env.APP_URL);
+  mainWindow.loadURL(process.env.APP_URL).then(() => {
+    mainWindow.show();
+  });
 
   if (process.env.DEBUGGING) {
     // if on DEV or Production with debug enabled

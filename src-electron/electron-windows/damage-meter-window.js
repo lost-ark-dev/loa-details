@@ -8,14 +8,15 @@ const store = new Store();
 export function createDamageMeterWindow(damageMeterWindow, sessionState) {
   damageMeterWindow = new BrowserWindow({
     icon: path.resolve(__dirname, "icons/icon.png"),
-    autoHideMenuBar: true,
+    show: false,
     width: 512,
     height: 200,
+    minWidth: 360,
+    minHeight: 124,
     frame: false,
     transparent: true,
     resizable: true,
-    minWidth: 430,
-    minHeight: 124,
+    autoHideMenuBar: true,
     fullscreenable: false,
     alwaysOnTop: true,
     useContentSize: true,
@@ -27,7 +28,9 @@ export function createDamageMeterWindow(damageMeterWindow, sessionState) {
   });
 
   enable(damageMeterWindow.webContents);
-  damageMeterWindow.loadURL(process.env.APP_URL + "#/damage-meter");
+  damageMeterWindow.loadURL(process.env.APP_URL + "#/damage-meter").then(() => {
+    damageMeterWindow.show();
+  });
   damageMeterWindow.setAlwaysOnTop(true, "level");
 
   // Event listeners
