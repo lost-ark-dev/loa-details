@@ -1,17 +1,31 @@
 <template>
   <div>
     <nav
-      v-if="
-        !settingsStore.settings.damageMeter.design.compactDesign || isMinimized
-      "
       class="nav q-electron-drag"
+      :class="
+        settingsStore.settings.damageMeter.design.compactDesign && !isMinimized
+          ? 'compact-nav'
+          : ''
+      "
     >
-      <span v-if="!isMinimized" class="time">
+      <span
+        v-if="
+          !isMinimized &&
+          !settingsStore.settings.damageMeter.design.compactDesign
+        "
+        class="time"
+      >
         {{ millisToMinutesAndSeconds(fightDuration) }}
       </span>
       <div class="info-box">
-        <span>LOA Details v{{ settingsStore.settings.appVersion }}</span>
-        <br />
+        <div
+          v-if="
+            !settingsStore.settings.damageMeter.design.compactDesign ||
+            isMinimized
+          "
+        >
+          LOA Details v{{ settingsStore.settings.appVersion }}
+        </div>
         <div v-if="!isMinimized">
           <span style="margin-right: 12px">
             Total DMG
@@ -25,6 +39,7 @@
       </div>
       <div style="margin-left: auto">
         <q-btn
+          v-if="!isMinimized"
           round
           :icon="isFightPaused ? 'play_arrow' : 'pause'"
           @click="toggleFightPause"
@@ -142,6 +157,8 @@
 
       <div style="margin-left: auto">
         <span v-if="settingsStore.settings.damageMeter.design.compactDesign">
+          v{{ settingsStore.settings.appVersion }}
+          &nbsp;&nbsp;&nbsp;&nbsp;
           {{ millisToMinutesAndSeconds(fightDuration) }}
         </span>
         <q-btn flat size="sm" @click="requestSessionRestart">
@@ -474,6 +491,9 @@ li {
   height: 64px;
   font-size: 14px;
   padding: 0 8px;
+}
+.compact-nav {
+  height: 32px;
 }
 .footer {
   height: 32px !important;
