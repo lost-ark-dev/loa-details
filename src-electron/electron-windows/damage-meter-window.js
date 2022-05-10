@@ -1,12 +1,11 @@
 import { BrowserWindow } from "electron";
 import { enable } from "@electron/remote/main";
+import Store from "electron-store";
 import path from "path";
 
-export function createDamageMeterWindow(
-  damageMeterWindow,
-  store,
-  sessionState
-) {
+const store = new Store();
+
+export function createDamageMeterWindow(damageMeterWindow, sessionState) {
   damageMeterWindow = new BrowserWindow({
     icon: path.resolve(__dirname, "icons/icon.png"),
     autoHideMenuBar: true,

@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { classes } from "../constants/classes";
-import _ from "lodash";
+import { merge } from "lodash";
 
 export const useSettingsStore = defineStore("settings", {
   state: () => ({
@@ -50,14 +50,14 @@ export const useSettingsStore = defineStore("settings", {
   }),
   actions: {
     initSettings() {
-      _.merge(this.settings.damageMeter.classes, classes);
+      merge(this.settings.damageMeter.classes, classes);
       for (const className of Object.keys(this.settings.damageMeter.classes)) {
         this.settings.damageMeter.classes[className].defaultColor =
           this.settings.damageMeter.classes[className].color;
       }
     },
     loadSettings(settingsToLoad) {
-      _.merge(this.settings, settingsToLoad);
+      merge(this.settings, settingsToLoad);
       console.log("new settings", settingsToLoad);
     },
   },

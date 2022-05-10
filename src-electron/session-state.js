@@ -1,13 +1,8 @@
-const _ = require("lodash");
+import { cloneDeep } from "lodash";
 import log from "electron-log";
 
 const classRegex = /(.*)( )\(([^)]+)\)/;
 
-const skillTemplate = {
-  name: "",
-  useCount: 0,
-  totalDamage: 0,
-};
 const entityTemplate = {
   name: "",
   class: "",
@@ -22,6 +17,12 @@ const entityTemplate = {
     frontAttack: 0,
     counter: 0,
   },
+};
+
+const skillTemplate = {
+  name: "",
+  useCount: 0,
+  totalDamage: 0,
 };
 
 export class SessionState {
@@ -113,13 +114,13 @@ export class SessionState {
 
     if (!(dmgOwner.name in this.game.entities))
       this.game.entities[dmgOwner.name] = {
-        ..._.cloneDeep(entityTemplate),
+        ...cloneDeep(entityTemplate),
         ...dmgOwner,
       };
 
     if (!(dmgTarget.name in this.game.entities))
       this.game.entities[dmgTarget.name] = {
-        ..._.cloneDeep(entityTemplate),
+        ...cloneDeep(entityTemplate),
         ...dmgTarget,
       };
 
@@ -135,7 +136,7 @@ export class SessionState {
     const skillName = dataSplit[2] || "Unknown";
     if (!(skillName in this.game.entities[dmgOwner.name].skills))
       this.game.entities[dmgOwner.name].skills[skillName] = {
-        ..._.cloneDeep(skillTemplate),
+        ...cloneDeep(skillTemplate),
         ...{ name: skillName },
       };
 

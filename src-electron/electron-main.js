@@ -1,48 +1,35 @@
 import { app, dialog, nativeTheme, ipcMain } from "electron";
 import { initialize } from "@electron/remote/main";
 import { autoUpdater } from "electron-updater";
+import { ConnectionBuilder } from "electron-cgi";
 import log from "electron-log";
 import path from "path";
 import os from "os";
-const Store = require("electron-store");
-
-import { SessionState } from "./session-state";
 
 import {
   createPrelauncherWindow,
   createMainWindow,
   createDamageMeterWindow,
-} from "./windows";
+} from "./electron-windows";
+
+import { getSettings, saveSettings } from "./util/app-settings";
+import { SessionState } from "./session-state";
 
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = "info";
 
 initialize();
-log.info("App starting...");
 
 const sessionState = new SessionState();
-log.info("Created new session state.");
 
-const store = new Store();
+let appSettings = getSettings();
+sessionState.dontResetOnZoneChange =
+  appSettings?.damageMeter?.functionality?.dontResetOnZoneChange;
 
-let appSettings = {};
-try {
-  const settingsStr = store.get("settings");
-  if (settingsStr) appSettings = JSON.parse(store.get("settings"));
-  sessionState.dontResetOnZoneChange =
-    appSettings.damageMeter.functionality.dontResetOnZoneChange;
-
-  log.info("Found and applied settings.");
-} catch (e) {
-  log.info("Setting retrieval failed: " + e);
-}
-
-const { ConnectionBuilder } = require("electron-cgi");
 let connection = null; // reserved for electron-cgi connection
 
 // needed in case process is undefined under Linux
 const platform = process.platform || os.platform();
-
 try {
   if (platform === "win32" && nativeTheme.shouldUseDarkColors === true) {
     require("fs").unlinkSync(
@@ -53,17 +40,22 @@ try {
 
 let prelauncherWindow, mainWindow, damageMeterWindow;
 
-app.whenReady().then(() => {
-  prelauncherWindow = createPrelauncherWindow(prelauncherWindow);
-  prelauncherWindow.on("show", () => {
-    autoUpdater.checkForUpdates();
-  });
-});
-
 function prelauncherMessage(value) {
   log.info(value);
   prelauncherWindow.webContents.send("prelauncher-message", value);
 }
+
+app.whenReady().then(() => {
+  // Don't create prelauncher if debugging
+  if (!process.env.DEBUGGING) {
+    prelauncherWindow = createPrelauncherWindow(prelauncherWindow);
+    prelauncherWindow.on("show", () => {
+      autoUpdater.checkForUpdates();
+    });
+  } else {
+    startApplication();
+  }
+});
 
 autoUpdater.on("checking-for-update", () => {
   prelauncherMessage("Checking for updates...");
@@ -139,14 +131,11 @@ function startApplication() {
   };
 
   mainWindow = createMainWindow(mainWindow);
-  damageMeterWindow = createDamageMeterWindow(
-    damageMeterWindow,
-    store,
-    sessionState
-  );
+  damageMeterWindow = createDamageMeterWindow(damageMeterWindow, sessionState);
 }
 
 let damageMeterWindowOldSize, damageMeterWindowOldMinimumSize;
+
 ipcMain.on("window-to-main", (event, arg) => {
   if (arg.message === "reset-session") {
     sessionState.resetState();
@@ -178,7 +167,7 @@ ipcMain.on("window-to-main", (event, arg) => {
     }
   } else if (arg.message === "save-settings") {
     appSettings = JSON.parse(arg.value);
-    store.set("settings", arg.value);
+    saveSettings(arg.value);
     damageMeterWindow.webContents.send("on-settings-change", appSettings);
     sessionState.dontResetOnZoneChange =
       appSettings.damageMeter.functionality.dontResetOnZoneChange;
