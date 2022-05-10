@@ -55,91 +55,105 @@
         />
       </div>
     </nav>
-    <table
+    <div
       v-if="!isMinimized && overlayType === OverlayTypeDamages"
-      class="damage-meter-table"
+      class="table-wrapper"
+      :style="`height: calc(100vh - 32px - ${
+        settingsStore.settings.damageMeter.design.compactDesign ? '32' : '64'
+      }px);`"
     >
-      <thead class="q-electron-drag">
-        <tr>
-          <th style="width: 26px"></th>
-          <th style="width: 100%"></th>
-          <th style="width: 72px">
-            {{ damageType === DamageTypeDealt ? "Damage" : "Tanked" }}
-          </th>
-          <th
-            v-if="settingsStore.settings.damageMeter.tabs.damagePercent.enabled"
-            style="width: 48px"
-          >
-            {{ damageType === DamageTypeDealt ? "D" : "T" }}%
-          </th>
-          <th
-            v-if="settingsStore.settings.damageMeter.tabs.dps.enabled"
-            style="width: 52px"
-          >
-            {{ damageType === DamageTypeDealt ? "DPS" : "TPS" }}
-          </th>
-          <th
-            v-if="settingsStore.settings.damageMeter.tabs.critRate.enabled"
-            style="width: 48px"
-          >
-            CRIT
-          </th>
-          <th
-            v-if="settingsStore.settings.damageMeter.tabs.faRate.enabled"
-            style="width: 48px"
-          >
-            F.A.
-          </th>
-          <th
-            v-if="settingsStore.settings.damageMeter.tabs.baRate.enabled"
-            style="width: 48px"
-          >
-            B.A.
-          </th>
-          <th
-            v-if="settingsStore.settings.damageMeter.tabs.counterCount.enabled"
-            style="width: 44px"
-          >
-            CNTR
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        <TableEntry
-          v-for="player in sortedEntities"
-          :key="player.id"
-          :player="player"
-          :showTanked="damageType === DamageTypeTaken"
-          :fightDuration="Math.max(1000, fightDuration)"
-          @click="focusPlayer(player)"
-        />
-      </tbody>
-    </table>
-    <table
+      <table class="damage-meter-table">
+        <thead class="q-electron-drag">
+          <tr>
+            <th style="width: 26px"></th>
+            <th style="width: 100%"></th>
+            <th style="width: 72px">
+              {{ damageType === DamageTypeDealt ? "Damage" : "Tanked" }}
+            </th>
+            <th
+              v-if="
+                settingsStore.settings.damageMeter.tabs.damagePercent.enabled
+              "
+              style="width: 48px"
+            >
+              {{ damageType === DamageTypeDealt ? "D" : "T" }}%
+            </th>
+            <th
+              v-if="settingsStore.settings.damageMeter.tabs.dps.enabled"
+              style="width: 52px"
+            >
+              {{ damageType === DamageTypeDealt ? "DPS" : "TPS" }}
+            </th>
+            <th
+              v-if="settingsStore.settings.damageMeter.tabs.critRate.enabled"
+              style="width: 48px"
+            >
+              CRIT
+            </th>
+            <th
+              v-if="settingsStore.settings.damageMeter.tabs.faRate.enabled"
+              style="width: 48px"
+            >
+              F.A.
+            </th>
+            <th
+              v-if="settingsStore.settings.damageMeter.tabs.baRate.enabled"
+              style="width: 48px"
+            >
+              B.A.
+            </th>
+            <th
+              v-if="
+                settingsStore.settings.damageMeter.tabs.counterCount.enabled
+              "
+              style="width: 44px"
+            >
+              CNTR
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <TableEntry
+            v-for="player in sortedEntities"
+            :key="player.id"
+            :player="player"
+            :showTanked="damageType === DamageTypeTaken"
+            :fightDuration="Math.max(1000, fightDuration)"
+            @click="focusPlayer(player)"
+          />
+        </tbody>
+      </table>
+    </div>
+    <div
       v-if="!isMinimized && overlayType === OverlayTypeSkills"
-      class="damage-meter-table"
+      class="table-wrapper"
+      :style="`height: calc(100vh - 32px - ${
+        settingsStore.settings.damageMeter.design.compactDesign ? '32' : '64'
+      }px);`"
     >
-      <thead class="q-electron-drag">
-        <tr>
-          <th style="width: 32px"></th>
-          <th style="width: 100%"></th>
-          <th style="width: 72px">Damage</th>
-          <th style="width: 48px">D%</th>
-          <th style="width: 52px">DPS</th>
-          <th style="width: 44px">HITS</th>
-        </tr>
-      </thead>
-      <tbody>
-        <SkillEntry
-          v-for="skill in sortedSkills"
-          :key="skill.name"
-          :skill="skill"
-          :className="focusedPlayerClass"
-          :fightDuration="Math.max(1000, fightDuration)"
-          @click.right="overlayType = OverlayTypeDamages"
-        />
-      </tbody>
-    </table>
+      <table class="damage-meter-table">
+        <thead class="q-electron-drag">
+          <tr>
+            <th style="width: 32px"></th>
+            <th style="width: 100%"></th>
+            <th style="width: 72px">Damage</th>
+            <th style="width: 48px">D%</th>
+            <th style="width: 52px">DPS</th>
+            <th style="width: 44px">HITS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <SkillEntry
+            v-for="skill in sortedSkills"
+            :key="skill.name"
+            :skill="skill"
+            :className="focusedPlayerClass"
+            :fightDuration="Math.max(1000, fightDuration)"
+            @click.right="overlayType = OverlayTypeDamages"
+          />
+        </tbody>
+      </table>
+    </div>
     <div v-if="!isMinimized" class="footer">
       <div v-if="overlayType === OverlayTypeDamages">
         <q-btn flat size="sm" @click="damageType = DamageTypeDealt">
@@ -529,6 +543,12 @@ li {
   margin-left: 12px;
   font-size: 11px;
 }
+.table-wrapper {
+  overflow-y: scroll;
+}
+.table-wrapper::-webkit-scrollbar {
+  display: none;
+}
 .damage-meter-table {
   font-family: "Segoe UI", "Segoe UI", "sans-serif";
   z-index: 100;
@@ -536,8 +556,13 @@ li {
   table-layout: fixed;
   border-collapse: collapse;
 }
+.damage-meter-table thead {
+  position: sticky;
+  top: 0;
+  background: black;
+  z-index: 10000;
+}
 .damage-meter-table thead tr {
-  background: rgba(0, 0, 0, 0.5);
   color: rgb(189, 189, 189);
   font-size: 11px;
 }
