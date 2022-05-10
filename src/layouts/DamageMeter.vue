@@ -257,7 +257,7 @@ function calculateSkills() {
       100
     ).toFixed(1);
     skill.relativePercent = (
-      (skill.totalDamage / res[0].totalDamage ) *
+      (skill.totalDamage / res[0].totalDamage) *
       100
     ).toFixed(1);
   }
@@ -485,7 +485,8 @@ li {
   font-size: 10px;
   color: rgb(189, 189, 189);
 }
-.td-class-img, .td-skill-img {
+.td-class-img,
+.td-skill-img {
   background-image: linear-gradient(
     to right,
     rgba(0, 0, 0, 0.5),
@@ -510,5 +511,6 @@ li {
   z-index: -100;
   opacity: 0.75;
   height: 28px;
+  transition: 100ms;
 }
 </style>

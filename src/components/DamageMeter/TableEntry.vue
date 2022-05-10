@@ -61,7 +61,6 @@
                   : player.damagePercentageTop
               }%;
               background:${getClassColor(player.class)};
-              transition: 200ms;}
               `"
     >
       <!-- Player percentage bar -->
@@ -108,10 +107,13 @@ function abbreviateNumber(n) {
 
 function getClassImage(className) {
   if (className in classes)
-    return new URL(`../../assets/images/classes/${className}.png`, import.meta.url)
-      .href;
+    return new URL(
+      `../../assets/images/classes/${className}.png`,
+      import.meta.url
+    ).href;
 
-  return new URL(`../../assets/images/classes/Warrior.png`, import.meta.url).href;
+  return new URL(`../../assets/images/classes/Warrior.png`, import.meta.url)
+    .href;
 }
 
 function getClassColor(className) {
