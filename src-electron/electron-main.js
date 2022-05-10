@@ -25,6 +25,7 @@ const sessionState = new SessionState();
 let appSettings = getSettings();
 sessionState.dontResetOnZoneChange =
   appSettings?.damageMeter?.functionality?.dontResetOnZoneChange;
+appSettings.appVersion = app.getVersion();
 
 let connection = null; // reserved for electron-cgi connection
 

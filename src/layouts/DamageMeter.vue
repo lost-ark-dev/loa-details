@@ -10,7 +10,7 @@
         {{ millisToMinutesAndSeconds(fightDuration) }}
       </span>
       <div class="info-box">
-        <span>LOA Details</span>
+        <span>LOA Details v{{ settingsStore.settings.appVersion }}</span>
         <br />
         <div v-if="!isMinimized">
           <span style="margin-right: 12px">
@@ -24,6 +24,13 @@
         </div>
       </div>
       <div style="margin-left: auto">
+        <q-btn
+          round
+          :icon="isFightPaused ? 'play_arrow' : 'pause'"
+          @click="toggleFightPause"
+          flat
+          size="sm"
+        />
         <q-btn
           round
           :icon="isMinimized ? 'add' : 'remove'"
@@ -186,6 +193,22 @@ function focusPlayer(player) {
 const sessionDuration = ref(0);
 const fightDuration = ref(0);
 
+const isFightPaused = ref(false);
+let fightPausedOn = 0,
+  fightPausedForMs = 0;
+
+function toggleFightPause() {
+  if (fightDuration.value === 0) return;
+
+  if (!isFightPaused.value) {
+    fightPausedOn = +new Date();
+    isFightPaused.value = true;
+  } else {
+    fightPausedForMs += +new Date() - fightPausedOn;
+    isFightPaused.value = false;
+  }
+}
+
 const sessionState = reactive({
   entities: [],
   startedOn: +new Date(),
@@ -311,6 +334,12 @@ onMounted(() => {
     sortEntities();
   });
 
+  window.messageApi.receive("pcap-on-reset-state", (value) => {
+    isFightPaused.value = false;
+    fightPausedOn = 0;
+    fightPausedForMs = 0;
+  });
+
   window.messageApi.receive("pcap-on-message", (value) => {
     if (value === "new-zone") {
       if (!isMinimized.value) {
@@ -349,9 +378,11 @@ onMounted(() => {
 
     sessionDuration.value = curTime - sessionState.startedOn;
 
-    if (sessionState.fightStartedOn > 0)
-      fightDuration.value = curTime - sessionState.fightStartedOn;
-    else fightDuration.value = 0;
+    if (sessionState.fightStartedOn > 0) {
+      if (!isFightPaused.value)
+        fightDuration.value =
+          curTime - sessionState.fightStartedOn - fightPausedForMs;
+    } else fightDuration.value = 0;
 
     if (settingsStore.settings.damageMeter.functionality.autoMinimize) {
       let sendResizeMessage = false;

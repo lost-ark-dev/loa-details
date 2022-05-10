@@ -29,13 +29,14 @@ export class SessionState {
   constructor() {
     this.dontResetOnZoneChange = false;
 
-    this.resetTimer = null;
-    this.resetState();
-
     this.eventListenerWindows = {
       stateChange: [],
+      resetState: [],
       message: [],
     };
+
+    this.resetTimer = null;
+    this.resetState();
 
     setInterval(this.broadcastStateChange.bind(this), 250);
   }
@@ -59,6 +60,10 @@ export class SessionState {
         topDamageTaken: 0,
       },
     };
+
+    this.eventListenerWindows.resetState.forEach((wndw) => {
+      if (wndw != null) wndw.webContents.send("pcap-on-reset-state", "1");
+    });
   }
   cancelReset() {
     if (this.resetTimer) clearTimeout(this.resetTimer);

@@ -14,6 +14,7 @@ contextBridge.exposeInMainWorld("messageApi", {
       "prelauncher-message",
       "pcap-on-message",
       "pcap-on-state-change",
+      "pcap-on-reset-state",
       "on-settings-change",
     ];
 

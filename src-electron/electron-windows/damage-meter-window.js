@@ -36,6 +36,7 @@ export function createDamageMeterWindow(damageMeterWindow, sessionState) {
   // Event listeners
   sessionState.addEventListenerWindow("message", damageMeterWindow);
   sessionState.addEventListenerWindow("stateChange", damageMeterWindow);
+  sessionState.addEventListenerWindow("resetState", damageMeterWindow);
 
   const damageMeterWindow_w = store.get("damagemeter.width"),
     damagemeterWindow_h = store.get("damagemeter.height");

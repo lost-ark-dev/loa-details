@@ -5,6 +5,7 @@ import { merge } from "lodash";
 export const useSettingsStore = defineStore("settings", {
   state: () => ({
     settings: {
+      appVersion: "",
       general: {
         startMainMinimized: false,
         useWinpcap: false,
