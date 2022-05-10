@@ -24,7 +24,6 @@
       :style="`
               width:${skill.relativePercent}%;
               background:${getClassColor(className)};
-              transition: 200ms;}
               `"
     ></div>
   </tr>
@@ -32,7 +31,7 @@
 
 <script setup>
 import { computed } from "vue";
-import { skills } from "../../constants/skills.js"
+import { skills } from "../../constants/skills.js";
 import { useSettingsStore } from "../../stores/settings";
 const settingsStore = useSettingsStore();
 
@@ -69,11 +68,16 @@ function abbreviateNumber(n) {
 }
 
 function getSkillImage(name) {
-  const s = skills.filter((k) => k.name == name);
+  const s = skills.find((k) => k.name == name);
 
-  if(s.length > 0) {
-    const imgPath = `../src/assets/images/skills/${s[0].id}_${s[0].name}.png`
-    return imgPath;
+  if (s != null) {
+    return new URL(
+      `../../assets/images/skills/${s.id}_${s.name}.png`,
+      import.meta.url
+    ).href;
   }
+
+  return new URL(`../../assets/images/skills/unknown.png`, import.meta.url)
+    .href;
 }
 </script>
