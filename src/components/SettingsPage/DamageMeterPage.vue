@@ -59,7 +59,7 @@
                 val;
             }
           "
-          :min="0"
+          :min="15"
           :max="180"
           label
           :label-value="`Auto minimize after ${settingsStore.settings.damageMeter.functionality.autoMinimizeTimer} seconds.`"
