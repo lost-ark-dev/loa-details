@@ -188,8 +188,9 @@ export class SessionState {
   }
 
   broadcastStateChange() {
-    this.eventListenerWindows.stateChange.forEach((wndw) =>
-      wndw.webContents.send("pcap-on-state-change", this.game)
-    );
+    this.eventListenerWindows.stateChange.forEach((wndw) => {
+      if (wndw != null)
+        wndw.webContents.send("pcap-on-state-change", this.game);
+    });
   }
 }
