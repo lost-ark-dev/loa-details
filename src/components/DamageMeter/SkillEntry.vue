@@ -72,7 +72,7 @@ function getSkillImage(name) {
 
   if (s != null) {
     return new URL(
-      `../../assets/images/skills/${s.id}_${s.name}.png`,
+      `../../assets/images/skills/${s.id}_${s.name.replace(":", "-")}.png`,
       import.meta.url
     ).href;
   }
