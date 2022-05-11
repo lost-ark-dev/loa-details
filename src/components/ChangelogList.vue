@@ -29,6 +29,7 @@ const changes = ref([
     * Added an option to hide main window to system tray at startup. This means you won't have to see
     it get minimized at startup and it also means there will be only 1 window at the dock.
     (Minimizing at startup is still an available option).
+    * Now you can set auto minimizer's minimum time to 5 seconds instead of 15.
   `,
   },
   {
