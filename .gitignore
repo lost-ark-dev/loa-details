@@ -31,3 +31,4 @@ yarn-error.log*
 binary/*
 oo2net_9_win64.dll
 logs/*
+electron-cgi.log
