@@ -19,6 +19,13 @@ import { ref, onMounted } from "vue";
 
 const changes = ref([
   {
+    version: "0.2.0",
+    mdFormattedLog: `
+    * Updated changelog page.
+    * 
+  `,
+  },
+  {
     version: "0.1.9",
     mdFormattedLog: `
     * Logs are now saved under "Documents\LOA Details\Logs" and they won't get deleted once you update.
