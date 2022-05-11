@@ -62,7 +62,11 @@ export class SessionState {
     };
 
     this.eventListenerWindows.resetState.forEach((wndw) => {
-      if (wndw != null) wndw.webContents.send("pcap-on-reset-state", "1");
+      try {
+        wndw.webContents.send("pcap-on-reset-state", "1");
+      } catch (e) {
+        log.error(e);
+      }
     });
   }
   cancelReset() {
@@ -77,9 +81,13 @@ export class SessionState {
   onMessage(value) {
     log.debug("onMessage:", value);
 
-    this.eventListenerWindows.message.forEach((wndw) =>
-      wndw.webContents.send("pcap-on-message", value)
-    );
+    this.eventListenerWindows.message.forEach((wndw) => {
+      try {
+        wndw.webContents.send("pcap-on-message", value);
+      } catch (e) {
+        log.error(e);
+      }
+    });
   }
 
   onNewZone(value) {
@@ -88,9 +96,13 @@ export class SessionState {
     if (this.dontResetOnZoneChange === false && this.resetTimer == null) {
       log.debug("Setting a reset timer.");
       this.resetTimer = setTimeout(this.resetState.bind(this), 6000);
-      this.eventListenerWindows.message.forEach((wndw) =>
-        wndw.webContents.send("pcap-on-message", "new-zone")
-      );
+      this.eventListenerWindows.message.forEach((wndw) => {
+        try {
+          wndw.webContents.send("pcap-on-message", "new-zone");
+        } catch (e) {
+          log.error(e);
+        }
+      });
     }
   }
 
@@ -194,8 +206,11 @@ export class SessionState {
 
   broadcastStateChange() {
     this.eventListenerWindows.stateChange.forEach((wndw) => {
-      if (wndw != null)
+      try {
         wndw.webContents.send("pcap-on-state-change", this.game);
+      } catch (e) {
+        log.error(e);
+      }
     });
   }
 }

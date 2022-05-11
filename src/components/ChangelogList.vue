@@ -30,6 +30,7 @@ const changes = ref([
     it get minimized at startup and it also means there will be only 1 window at the dock.
     (Minimizing at startup is still an available option).
     * Now you can set auto minimizer's minimum time to 5 seconds instead of 15.
+    * Fixed a bug where it would give error boxes saying 'Object has been destroyed'.
   `,
   },
   {
