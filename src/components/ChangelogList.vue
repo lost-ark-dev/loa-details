@@ -22,7 +22,7 @@ const changes = ref([
     version: "0.2.0",
     mdFormattedLog: `
     * Updated changelog page.
-    * 
+    * If auto minimized, won't reopen until combat happens. Meaning it won't maximize on zone changes.
   `,
   },
   {
