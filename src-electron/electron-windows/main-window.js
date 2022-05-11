@@ -2,7 +2,7 @@ import { app, BrowserWindow } from "electron";
 import { enable } from "@electron/remote/main";
 import path from "path";
 
-export function createMainWindow(mainWindow) {
+export function createMainWindow(mainWindow, appSettings) {
   mainWindow = new BrowserWindow({
     icon: path.resolve(__dirname, "icons/icon.png"), // tray icon
     show: false,
@@ -19,9 +19,12 @@ export function createMainWindow(mainWindow) {
     },
   });
 
+  let startHidden = false;
+  if (appSettings?.general?.startMainHidden) startHidden = true;
+
   enable(mainWindow.webContents);
   mainWindow.loadURL(process.env.APP_URL).then(() => {
-    mainWindow.show();
+    if (!startHidden) mainWindow.show();
   });
 
   if (process.env.DEBUGGING) {

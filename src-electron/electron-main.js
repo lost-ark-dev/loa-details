@@ -1,4 +1,12 @@
-import { app, dialog, nativeTheme, ipcMain } from "electron";
+import {
+  app,
+  dialog,
+  nativeTheme,
+  ipcMain,
+  Menu,
+  Tray,
+  Notification,
+} from "electron";
 import { initialize } from "@electron/remote/main";
 import { autoUpdater } from "electron-updater";
 import { ConnectionBuilder } from "electron-cgi";
@@ -16,6 +24,8 @@ import { getSettings, saveSettings } from "./util/app-settings";
 import { SessionState } from "./session-state";
 
 let prelauncherWindow, mainWindow, damageMeterWindow;
+let tray = null;
+let isQuiting;
 
 const appLockKey = { myKey: "loa-details" };
 const gotTheLock = app.requestSingleInstanceLock(appLockKey);
@@ -102,6 +112,32 @@ autoUpdater.on("update-downloaded", (info) => {
 });
 
 function startApplication() {
+  tray = new Tray(
+    process.env.DEBUGGING
+      ? path.resolve(__dirname, "../../src-electron/icons/icon.png")
+      : path.resolve(__dirname, "icons/icon.png")
+  );
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: "Show LOA Details",
+      click() {
+        mainWindow.show();
+        if (mainWindow.isMinimized()) mainWindow.restore();
+        mainWindow.focus();
+      },
+    },
+    {
+      label: "Quit",
+      click() {
+        isQuiting = true;
+        app.quit();
+      },
+    },
+  ]);
+
+  tray.setToolTip("LOA Details");
+  tray.setContextMenu(contextMenu);
+
   try {
     const params = [];
     if (appSettings?.general?.useWinpcap) params.push("useWinpcap");
@@ -150,8 +186,25 @@ function startApplication() {
     app.exit();
   };
 
-  mainWindow = createMainWindow(mainWindow);
+  mainWindow = createMainWindow(mainWindow, appSettings);
   damageMeterWindow = createDamageMeterWindow(damageMeterWindow, sessionState);
+
+  mainWindow.on("close", function (event) {
+    let hideToTray = true; // this is on by default
+    if (appSettings?.general?.closeToSystemTray === false) hideToTray = false;
+
+    if (!isQuiting && hideToTray) {
+      event.preventDefault();
+      mainWindow.hide();
+
+      new Notification({
+        title: "LOA Details",
+        body: "Main window is hidden to system tray. Right click the icon to restore main window.",
+      }).show();
+
+      event.returnValue = false;
+    }
+  });
 }
 
 let damageMeterWindowOldSize, damageMeterWindowOldMinimumSize;
@@ -210,4 +263,8 @@ app.on("activate", () => {
   if (mainWindow === null) {
     createMainWindow(mainWindow);
   }
+});
+
+app.on("before-quit", function () {
+  isQuiting = true;
 });

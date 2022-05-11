@@ -4,15 +4,45 @@
 
     <q-item tag="label">
       <q-item-section side top>
+        <q-checkbox v-model="settingsStore.settings.general.startMainHidden" />
+      </q-item-section>
+
+      <q-item-section>
+        <q-item-label>Start Main Window Hidden</q-item-label>
+        <q-item-label caption>
+          Hides the main window (this window) to system tray on startup, only
+          the damage meter will be visible.
+        </q-item-label>
+      </q-item-section>
+    </q-item>
+
+    <q-item tag="label">
+      <q-item-section side top>
         <q-checkbox
           v-model="settingsStore.settings.general.startMainMinimized"
         />
       </q-item-section>
 
       <q-item-section>
-        <q-item-label>Hide Main App on Startup</q-item-label>
+        <q-item-label>Start Minimized</q-item-label>
         <q-item-label caption>
-          Start the main app (this window) minimized.
+          Minimizes the main window (this window) on startup.
+        </q-item-label>
+      </q-item-section>
+    </q-item>
+
+    <q-item tag="label">
+      <q-item-section side top>
+        <q-checkbox
+          v-model="settingsStore.settings.general.closeToSystemTray"
+        />
+      </q-item-section>
+
+      <q-item-section>
+        <q-item-label>Minimize to Tray</q-item-label>
+        <q-item-label caption>
+          Hitting X will send main LOA Details window to system tray instead of
+          closing the app.
         </q-item-label>
       </q-item-section>
     </q-item>

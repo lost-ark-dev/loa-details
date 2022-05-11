@@ -23,6 +23,12 @@ const changes = ref([
     mdFormattedLog: `
     * Updated changelog page.
     * If auto minimized, won't reopen until combat happens. Meaning it won't maximize on zone changes.
+    * Can only open 1 instance of LOA Details now.
+    * Added system tray.
+    * Hitting X on the main window will hide it to system tray by default instead of closing the app (can be changed in Settings).
+    * Added an option to hide main window to system tray at startup. This means you won't have to see
+    it get minimized at startup and it also means there will be only 1 window at the dock.
+    (Minimizing at startup is still an available option).
   `,
   },
   {

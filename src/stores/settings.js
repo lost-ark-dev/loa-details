@@ -7,7 +7,9 @@ export const useSettingsStore = defineStore("settings", {
     settings: {
       appVersion: "",
       general: {
+        startMainHidden: false,
         startMainMinimized: false,
+        closeToSystemTray: true,
         useWinpcap: false,
         server: "steam",
       },
