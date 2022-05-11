@@ -87,18 +87,21 @@ autoUpdater.on("update-downloaded", (info) => {
 
 function startApplication() {
   try {
-    const params = appSettings?.general?.useWinpcap ? "useWinpcap" : "";
+    const params = [];
+    if (appSettings?.general?.useWinpcap) params.push("useWinpcap");
+    if (appSettings?.general?.server === "russia") params.push("russiaClient");
+    if (appSettings?.general?.server === "korea") params.push("koreaClient");
 
     if (process.env.DEBUGGING) {
       connection = new ConnectionBuilder()
         .connectTo(
           path.resolve(__dirname, "../../binary/LostArkLogger.exe"),
-          params
+          ...params
         )
         .build();
     } else {
       connection = new ConnectionBuilder()
-        .connectTo("LostArkLogger.exe", params)
+        .connectTo("LostArkLogger.exe", ...params)
         .build();
     }
     log.info("Started LostArkLogger.exe");

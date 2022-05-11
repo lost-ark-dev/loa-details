@@ -9,6 +9,7 @@ export const useSettingsStore = defineStore("settings", {
       general: {
         startMainMinimized: false,
         useWinpcap: false,
+        server: "steam",
       },
       damageMeter: {
         functionality: {
