@@ -35,7 +35,6 @@ export function createMainWindow(mainWindow) {
   }
 
   mainWindow.on("closed", () => {
-    mainWindow = null;
     app.quit();
   });
 

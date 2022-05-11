@@ -1,4 +1,4 @@
-import { BrowserWindow } from "electron";
+import { app, BrowserWindow } from "electron";
 import { enable } from "@electron/remote/main";
 import Store from "electron-store";
 import path from "path";
@@ -73,7 +73,7 @@ export function createDamageMeterWindow(damageMeterWindow, sessionState) {
   });
 
   damageMeterWindow.on("closed", () => {
-    damageMeterWindow = null;
+    app.quit();
   });
 
   return damageMeterWindow;

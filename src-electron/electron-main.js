@@ -15,6 +15,24 @@ import {
 import { getSettings, saveSettings } from "./util/app-settings";
 import { SessionState } from "./session-state";
 
+let prelauncherWindow, mainWindow, damageMeterWindow;
+
+const appLockKey = { myKey: "loa-details" };
+const gotTheLock = app.requestSingleInstanceLock(appLockKey);
+if (!gotTheLock) {
+  app.quit();
+} else {
+  // set up a listener for "second-instance", this will fire if a second instance is requested
+  // second instance won't get the lock and it will quit itself, we can also focus on our window
+  app.on("second-instance", () => {
+    // Someone tried to run a second instance, we should focus our window.
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
+}
+
 autoUpdater.logger = log;
 autoUpdater.logger.transports.file.level = "info";
 
@@ -38,8 +56,6 @@ try {
     );
   }
 } catch (_) {}
-
-let prelauncherWindow, mainWindow, damageMeterWindow;
 
 function prelauncherMessage(value) {
   log.info(value);
