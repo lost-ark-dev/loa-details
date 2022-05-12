@@ -22,6 +22,7 @@ import {
 
 import { getSettings, saveSettings } from "./util/app-settings";
 import { SessionState } from "./session-state";
+import { parseLogs, getParsedLogs, getLogData } from "./log-files/helper";
 
 let prelauncherWindow, mainWindow, damageMeterWindow;
 let tray = null;
@@ -248,6 +249,13 @@ ipcMain.on("window-to-main", (event, arg) => {
     event.reply("on-settings-change", appSettings);
   } else if (arg.message === "minimize-main-window") {
     mainWindow.minimize();
+  } else if (arg.message === "get-parsed-logs") {
+    parseLogs();
+    const parsedLogs = getParsedLogs();
+    event.reply("parsed-logs-list", parsedLogs);
+  } else if (arg.message === "get-parsed-log") {
+    const logData = getLogData(arg.value);
+    event.reply("parsed-log", logData);
   }
 });
 

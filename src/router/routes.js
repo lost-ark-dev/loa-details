@@ -9,7 +9,7 @@ const routes = [
     children: [
       { path: "", component: () => import("pages/IndexPage.vue") },
       { path: "/settings", component: () => import("pages/SettingsPage.vue") },
-      { path: "/logs", component: () => import("pages/Soon.vue") },
+      { path: "/logs", component: () => import("pages/LogsPage.vue") },
     ],
   },
   {

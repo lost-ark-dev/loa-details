@@ -16,6 +16,8 @@ contextBridge.exposeInMainWorld("messageApi", {
       "pcap-on-state-change",
       "pcap-on-reset-state",
       "on-settings-change",
+      "parsed-logs-list",
+      "parsed-log",
     ];
 
     if (validChannels.includes(channel)) {
