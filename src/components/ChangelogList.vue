@@ -19,6 +19,12 @@ import { ref, onMounted } from "vue";
 
 const changes = ref([
   {
+    version: "0.2.2",
+    mdFormattedLog: `
+    * Fixed a typo with the log folder structure that resulted in crashes.
+  `,
+  },
+  {
     version: "0.2.1",
     mdFormattedLog: `
     * Updated LostArkLogger to work after the maintenance patch.
@@ -60,15 +66,6 @@ const changes = ref([
     * You can right click a skill to go back to damage meter display.
     * When session is reset, damage meter goes back to default (damage meter, display damage mode).
     * DPS column is now abbreviated (ex: 728,327 > 728k).
-  `,
-  },
-  {
-    version: "0.1.7",
-    mdFormattedLog: `
-    * Player skill damages are now relative to their max skill damage instead of total damage.
-    * Skills now have skill images.
-    * Player bar has an animation now.
-    * New updater, finally you won't have to close the application and re-open it etc...
   `,
   },
 ]);
