@@ -9,7 +9,7 @@ const path = require("path");
 const customParseFormat = require("dayjs/plugin/customParseFormat");
 dayjs.extend(customParseFormat);
 
-const logFolder = path.join(getPath("documents"), "LOA Details", "logs");
+const logFolder = path.join(getPath("documents"), "LOA Details", "Logs");
 const parsedLogFolder = path.join(logFolder, "parsed");
 if (!fs.existsSync(parsedLogFolder)) {
   fs.mkdirSync(parsedLogFolder);
