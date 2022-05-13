@@ -19,6 +19,12 @@ import { ref, onMounted } from "vue";
 
 const changes = ref([
   {
+    version: "0.2.1",
+    mdFormattedLog: `
+    * Updated LostArkLogger to work after the maintenance patch.
+  `,
+  },
+  {
     version: "0.2.0",
     mdFormattedLog: `
     * Updated changelog page.
