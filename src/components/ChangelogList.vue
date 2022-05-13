@@ -19,9 +19,10 @@ import { ref, onMounted } from "vue";
 
 const changes = ref([
   {
-    version: "0.2.2",
+    version: "0.2.3",
     mdFormattedLog: `
     * Fixed a typo with the log folder structure that resulted in crashes.
+    * Creating missing log folders now.
   `,
   },
   {
