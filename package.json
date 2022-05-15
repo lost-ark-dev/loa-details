@@ -1,11 +1,13 @@
 {
-  "name": "loa-details",
-  "version": "0.2.3",
+  "name": "loa-details-v2",
+  "version": "0.2.5",
   "description": "Damage meter for Lost Ark",
   "productName": "LOA Details",
   "author": "Eren Kara <erenkyi0@gmail.com>",
   "private": true,
   "scripts": {
+    "dev": "quasar dev -m electron",
+    "build": "quasar build -m electron",
     "lint": "eslint --ext .js,.vue ./",
     "format": "prettier --write \"**/*.{js,vue,css,html,md,json}\" --ignore-path .gitignore",
     "test": "echo \"No test specified\" && exit 0"
@@ -14,6 +16,7 @@
     "@electron/remote": "^2.0.8",
     "@quasar/extras": "^1.0.0",
     "add": "^2.0.6",
+    "axios": "^0.27.2",
     "dayjs": "^1.11.2",
     "electron-cgi": "^1.0.6",
     "electron-log": "^4.4.7",

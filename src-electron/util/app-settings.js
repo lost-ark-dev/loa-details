@@ -7,8 +7,11 @@ export function getSettings() {
   let appSettings = {};
 
   try {
-    const settingsStr = store.get("settings");
-    if (settingsStr) appSettings = JSON.parse(store.get("settings"));
+    let settingsStr = store.get("settings");
+    console.log(settingsStr);
+    if (typeof settingsStr === 'object') settingsStr = JSON.stringify(settingsStr);
+
+    if (settingsStr) appSettings = JSON.parse(settingsStr);
 
     log.info("Found and applied settings.");
   } catch (e) {
@@ -19,5 +22,7 @@ export function getSettings() {
 }
 
 export function saveSettings(settings) {
+  if (typeof settings === 'object') settings = JSON.stringify(settings);
   store.set("settings", settings);
+  // log.debug(`Saved settings: ${settings}`);
 }

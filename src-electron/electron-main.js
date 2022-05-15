@@ -6,6 +6,7 @@ import {
   Menu,
   Tray,
   Notification,
+  shell,
 } from "electron";
 import { initialize } from "@electron/remote/main";
 import { autoUpdater } from "electron-updater";
@@ -100,7 +101,21 @@ autoUpdater.on("update-not-available", (info) => {
   prelauncherWindow = null;
 });
 autoUpdater.on("error", (err) => {
-  prelauncherMessage("Error during update: " + err);
+  prelauncherMessage({ error: { message: "Failed To Update", reason: err.message }});
+
+  let counter = 0;
+  const startTimer = setInterval(() => {
+    prelauncherMessage({ error: { message: "Failed To Update", reason: `Starting in ${6 - counter} seconds...` }});
+    if (counter >= 5) {
+      clearInterval(startTimer);
+
+      startApplication();
+
+      prelauncherWindow.close();
+      prelauncherWindow = null;
+    }
+    counter++;
+  }, 1000)
 });
 autoUpdater.on("download-progress", (progressObj) => {
   prelauncherMessage(
@@ -145,6 +160,7 @@ function startApplication() {
     if (appSettings?.general?.server === "russia") params.push("russiaClient");
     if (appSettings?.general?.server === "korea") params.push("koreaClient");
 
+    log.debug(`DEBUGGING?: ${process.env.DEBUGGING}`);
     if (process.env.DEBUGGING) {
       connection = new ConnectionBuilder()
         .connectTo(
@@ -178,17 +194,19 @@ function startApplication() {
       "The connection to the Lost Ark Packet Capture was lost for some reason. Exiting app..."
     );
 
-    dialog.showErrorBox(
-      "Error",
-      "The connection to the Lost Ark Packet Capture was lost for some reason. Exiting app..."
-    );
+    // dialog.showErrorBox(
+    //   "Error",
+    //   "The connection to the Lost Ark Packet Capture was lost for some reason. Exiting app..."
+    // );
 
     log.info("Exiting app...");
     app.exit();
   };
 
   mainWindow = createMainWindow(mainWindow, appSettings);
-  damageMeterWindow = createDamageMeterWindow(damageMeterWindow, sessionState);
+  damageMeterWindow = createDamageMeterWindow(damageMeterWindow, sessionState, appSettings);
+
+  sessionState.addEventListenerWindow("settings", mainWindow);
 
   mainWindow.on("close", function (event) {
     let hideToTray = true; // this is on by default
@@ -211,6 +229,7 @@ function startApplication() {
 let damageMeterWindowOldSize, damageMeterWindowOldMinimumSize;
 
 ipcMain.on("window-to-main", (event, arg) => {
+  log.debug("window-to-main");
   if (arg.message === "reset-session") {
     sessionState.resetState();
   } else if (arg.message === "cancel-reset-session") {
@@ -242,9 +261,12 @@ ipcMain.on("window-to-main", (event, arg) => {
   } else if (arg.message === "save-settings") {
     appSettings = JSON.parse(arg.value);
     saveSettings(arg.value);
+
+    damageMeterWindow.setOpacity(appSettings.damageMeter.design.opacity);
     damageMeterWindow.webContents.send("on-settings-change", appSettings);
-    sessionState.dontResetOnZoneChange =
-      appSettings.damageMeter.functionality.dontResetOnZoneChange;
+    if (arg.source) mainWindow.webContents.send("on-settings-change", appSettings); // Update main window when logs are toggled
+
+    sessionState.dontResetOnZoneChange = appSettings.damageMeter.functionality.dontResetOnZoneChange;
   } else if (arg.message === "get-settings") {
     event.reply("on-settings-change", appSettings);
   } else if (arg.message === "minimize-main-window") {
@@ -256,6 +278,10 @@ ipcMain.on("window-to-main", (event, arg) => {
   } else if (arg.message === "get-parsed-log") {
     const logData = getLogData(arg.value);
     event.reply("parsed-log", logData);
+  } else if (arg.message === "open-url") {
+    shell.openExternal(arg.value);
+    // event.reply("open-url-success", true);
+    log.debug(`Opened external link ${arg.value}`);
   }
 });
 

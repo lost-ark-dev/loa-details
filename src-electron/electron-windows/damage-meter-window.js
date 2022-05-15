@@ -5,7 +5,7 @@ import path from "path";
 
 const store = new Store();
 
-export function createDamageMeterWindow(damageMeterWindow, sessionState) {
+export function createDamageMeterWindow(damageMeterWindow, sessionState, appSettings) {
   damageMeterWindow = new BrowserWindow({
     icon: path.resolve(__dirname, "icons/icon.png"),
     show: false,
@@ -15,6 +15,7 @@ export function createDamageMeterWindow(damageMeterWindow, sessionState) {
     minHeight: 124,
     frame: false,
     transparent: true,
+    opacity: appSettings?.damageMeter?.design?.opacity || 0.9,
     resizable: true,
     autoHideMenuBar: true,
     fullscreenable: false,

@@ -194,35 +194,23 @@ export function parseLogText(textContent) {
     const [
       timeStamp,
       sourceEntity,
+      sourceEntityId,
       targetEntity,
+      targetEntityId,
+      abilityId,
+      abilitySubId,
       abilityName,
       damageValue,
+      healValue,
+      shieldValue,
+      staggerValue,
       isCrit,
       isBackAttack,
       isFrontalAttack,
       isCounterAttack,
     ] = lineSplit;
 
-    // TODO: Replace logger timestamp and use day.js instead
-    const splitTs = timeStamp.split(/[\.\:]/g).map((s) => Number(s));
-    if (
-      splitTs.some((n) => Number.isNaN(n) || n === undefined) ||
-      splitTs.length !== 7
-    ) {
-      console.error(`Cannot split timestamp to 7 segments: ${timeStamp}`);
-      continue;
-    }
-
-    const timeStampDate = new Date(
-      splitTs[0] + 2000,
-      splitTs[1] - 1,
-      splitTs[2],
-      splitTs[3],
-      splitTs[4],
-      Math.floor(splitTs[5]),
-      100 * splitTs[6]
-    );
-    // TODO END
+    const timeStampDate = new Date(timeStamp);
 
     const damageInstance = {
       timeStamp: timeStampDate,

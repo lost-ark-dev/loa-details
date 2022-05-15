@@ -13,6 +13,17 @@ export const useSettingsStore = defineStore("settings", {
         useWinpcap: false,
         server: "steam",
       },
+      uploads: {
+        uploadLogs: false,
+        uploadKey: "",
+        apiUrl: process.env.DEBUGGING ? "http://localhost" : "https://api.dps.arsha.io",
+        uploadEndpoint: "/logs/upload",
+        loginUrl: process.env.DEBUGGING ? "http://localhost:8080" : "https://dps.arsha.io",
+        region: "",
+        server: "",
+        openOnUpload: false,
+        recentSessions: [],
+      },
       damageMeter: {
         functionality: {
           dontResetOnZoneChange: false,
@@ -22,6 +33,7 @@ export const useSettingsStore = defineStore("settings", {
         design: {
           compactDesign: false,
           pinUserToTop: false,
+          opacity: 0.9,
         },
         tabs: {
           damagePercent: {

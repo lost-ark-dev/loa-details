@@ -2,7 +2,7 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-bar class="q-electron-drag">
-        <div>LOA Details v{{ settingsStore.settings.appVersion }}</div>
+        <div>LOA Details² v{{ settingsStore.settings.appVersion }}</div>
 
         <q-space />
 

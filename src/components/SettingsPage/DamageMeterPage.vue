@@ -105,6 +105,33 @@
       </q-item-section>
     </q-item>
 
+    <q-item-label header>Window Opacity</q-item-label>
+    <q-item>
+      <q-item-section side>
+        <q-icon name="opacity" />
+      </q-item-section>
+      <q-item-section>
+        <q-slider
+          :model-value="
+            settingsStore.settings.damageMeter.design.opacity
+          "
+          @change="
+            (val) => {
+              settingsStore.settings.damageMeter.design.opacity =
+                val;
+            }
+          "
+          :min="0.1"
+          :max="1"
+          :step="0.1"
+          label
+          :label-value="`Opacity: ${settingsStore.settings.damageMeter.design.opacity}`"
+          label-always
+          :markers="true"
+        />
+      </q-item-section>
+    </q-item>
+
     <q-separator spaced />
     <q-item-label header>Tabs</q-item-label>
 

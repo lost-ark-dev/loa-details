@@ -186,7 +186,7 @@ module.exports = configure(function (/* ctx */) {
       builder: {
         // https://www.electron.build/configuration/configuration
 
-        appId: "loa-details",
+        appId: "loa-details-v2",
         win: {
           target: "nsis",
           requestedExecutionLevel: "requireAdministrator",
@@ -200,7 +200,7 @@ module.exports = configure(function (/* ctx */) {
         publish: [
           {
             provider: "github",
-            owner: "karaeren",
+            owner: "guy0090",
             repo: "loa-details",
           },
         ],
