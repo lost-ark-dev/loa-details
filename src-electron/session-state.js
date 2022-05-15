@@ -78,7 +78,7 @@ export class SessionState {
       const encounter = this.reformatStateForUpload(this.game);
       fs.writeFileSync(encounterFile, JSON.stringify(encounter));
 
-      if (getSettings().uploads.uploadLogs) {
+      if (getSettings().uploads?.uploadLogs || false) {
         this.uploadSession(encounter).then((success) => {
           log.debug("Upload successful:", success);
         }).catch((err) => {
@@ -288,8 +288,8 @@ export class SessionState {
     let reformatted = {
       started: clone.fightStartedOn,
       ended: clone.lastCombatPacket,
-      server: settings.uploads.server ?? "Unknown",
-      region: settings.uploads.region ?? "Unknown",
+      server: settings?.uploads?.server ?? "Unknown",
+      region: settings?.uploads?.region ?? "Unknown",
       encounter: "Unknown",
       entities: [],
       damageStatistics: clone.damageStatistics,
