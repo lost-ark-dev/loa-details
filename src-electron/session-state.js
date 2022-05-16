@@ -7,7 +7,6 @@ import { saveSettings, getSettings } from "./util/app-settings";
 import { Gzip } from "./util/compression";
 import axios from "axios";
 import { shell } from "electron";
-import { mainWindow } from "./electron-main";
 
 const classRegex = /(.*)( )\(([^)]+)\)/;
 
