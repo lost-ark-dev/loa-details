@@ -188,6 +188,7 @@ function startApplication() {
 
   connection.on("message", (value) => sessionState.onMessage(value));
   connection.on("new-zone", (value) => sessionState.onNewZone(value));
+  connection.on("raid-end", (value) => sessionState.onRaidEnd(value));
   connection.on("combat-event", (value) => sessionState.onCombatEvent(value));
   connection.onDisconnect = () => {
     log.error(

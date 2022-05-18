@@ -8,7 +8,7 @@ export function getSettings() {
 
   try {
     let settingsStr = store.get("settings_v2");
-    console.log(settingsStr);
+    // log.debug(settingsStr);
     if (typeof settingsStr === 'object') settingsStr = JSON.stringify(settingsStr);
 
     if (settingsStr) appSettings = JSON.parse(settingsStr);

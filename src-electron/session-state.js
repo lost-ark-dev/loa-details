@@ -148,6 +148,22 @@ export class SessionState {
     }
   }
 
+  onRaidEnd(value) {
+    log.debug("Raid ended:" , value);
+
+    if (value === "PKTRaidBossKillNotify") {
+      log.debug("Pausing on raid end.");
+      // this.resetTimer = setTimeout(this.resetState.bind(this), 5000);
+      this.eventListenerWindows.message.forEach((wndw) => {
+        try {
+          wndw.webContents.send("pcap-on-message", "raid-end");
+        } catch (e) {
+          log.error(e);
+        }
+      });
+    }
+  }
+
   disassembleEntityFromPacket(value) {
     const isPlayer = value.includes("("); // has class name
 
@@ -203,11 +219,12 @@ export class SessionState {
       logLine.skillId = id !== "0" ? id : "0";
     }
 
-    if (!(logLine.skillId in this.game.entities[dmgOwner.name].skills))
+    if (!(logLine.skillId in this.game.entities[dmgOwner.name].skills)) {
       this.game.entities[dmgOwner.name].skills[logLine.skillId] = {
         ...cloneDeep(skillTemplate),
         ...{ name: logLine.skillName },
       };
+    }
 
     try {
       logLine.damage = parseInt(logLine.damage);
@@ -220,10 +237,20 @@ export class SessionState {
     const frontAttackCount = logLine.frontAttack === "1" ? 1 : 0;
     const counterCount = logLine.counter === "1" ? 1 : 0;
 
-    if (this.game.entities[dmgOwner.name].skills[logLine.skillId].timestamps)
-      this.game.entities[dmgOwner.name].skills[logLine.skillId].timestamps.push(logLine.timestamp);
-    else
-      this.game.entities[dmgOwner.name].skills[logLine.skillId].timestamps = [logLine.timestamp];
+    const skillEntry = {
+      isCrit: logLine.critical === "1",
+      isBackAttack: logLine.backAttack === "1",
+      isFrontAttack: logLine.frontAttack === "1",
+      isCounter: logLine.counter === "1",
+      damage: logLine.damage,
+      timestamp: logLine.timestamp,
+    };
+
+    if (this.game.entities[dmgOwner.name].skills[logLine.skillId].history) {
+      this.game.entities[dmgOwner.name].skills[logLine.skillId].history.push(skillEntry);
+    } else {
+      this.game.entities[dmgOwner.name].skills[logLine.skillId].history = [skillEntry];
+    }
 
     this.game.entities[dmgOwner.name].skills[logLine.skillId].totalDamage += logLine.damage;
     this.game.entities[dmgOwner.name].skills[logLine.skillId].useCount += 1;
@@ -256,7 +283,10 @@ export class SessionState {
     }
 
     const curTime = +new Date();
-    if (this.game.fightStartedOn === 0) this.game.fightStartedOn = curTime;
+    if (this.game.fightStartedOn === 0) {
+      this.game.startedOn = curTime;
+      this.game.fightStartedOn = curTime;
+    }
     this.game.lastCombatPacket = curTime;
   }
 
@@ -308,7 +338,7 @@ export class SessionState {
             id: parseInt(skillId),
             useCount: skill.useCount,
             totalDamage: skill.totalDamage,
-            timestamps: skill.timestamps,
+            history: skill.history,
           };
         }),
         stats: {

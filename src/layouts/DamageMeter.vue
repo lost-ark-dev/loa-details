@@ -426,6 +426,16 @@ onMounted(() => {
           ],
         });
       }
+    } else if (value === "raid-end") {
+      if (!isFightPaused.value) toggleFightPause()
+      if (!isMinimized.value) {
+        Notify.create({
+          progress: true,
+          timeout: 5000,
+          message: "Encounter ended, pausing session.",
+          color: "primary",
+        });
+      }
     } else if (typeof value === 'object' && value.name === "session-upload") {
       if (value.failed) {
         Notify.create({
