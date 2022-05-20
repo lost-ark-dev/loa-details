@@ -181,7 +181,7 @@ export class SessionState {
   }
 
   onCombatEvent(value) {
-    // log.debug("Combat Event");
+    log.debug("Combat Event");
 
     const logLine = new SessionLogLine(value.split(";"));
     const dmgOwner = this.disassembleEntityFromPacket(logLine.sourceEntity)
