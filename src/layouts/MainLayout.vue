@@ -43,9 +43,13 @@
             @click="navigate"
           >
             Settings
-            <q-badge color="red" transparent>NEW</q-badge>
           </div>
         </router-link>
+        <div class="q-ml-md cursor-pointer non-selectable" @click="openPatreon">
+          <q-icon name="fa-brands fa-patreon" />
+          Patreon
+          <q-badge color="green" transparent>SUPPORT</q-badge>
+        </div>
       </div>
     </q-header>
 
@@ -76,6 +80,13 @@ function closeApp() {
   if (process.env.MODE === "electron") {
     window.windowControlApi.close();
   }
+}
+
+function openPatreon() {
+  window.messageApi.send("window-to-main", {
+    message: "open-link",
+    value: "https://www.patreon.com/loadetails",
+  });
 }
 
 let firstSettingsReceive = true;

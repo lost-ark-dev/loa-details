@@ -6,6 +6,7 @@ import {
   Menu,
   Tray,
   Notification,
+  shell,
 } from "electron";
 import { initialize } from "@electron/remote/main";
 import { autoUpdater } from "electron-updater";
@@ -13,6 +14,7 @@ import { ConnectionBuilder } from "electron-cgi";
 import log from "electron-log";
 import path from "path";
 import os from "os";
+import Store from "electron-store";
 
 import {
   createPrelauncherWindow,
@@ -23,6 +25,8 @@ import {
 import { getSettings, saveSettings } from "./util/app-settings";
 import { SessionState } from "./session-state";
 import { parseLogs, getParsedLogs, getLogData } from "./log-files/helper";
+
+const store = new Store();
 
 let prelauncherWindow, mainWindow, damageMeterWindow;
 let tray = null;
@@ -173,6 +177,7 @@ function startApplication() {
   connection.on("message", (value) => sessionState.onMessage(value));
   connection.on("new-zone", (value) => sessionState.onNewZone(value));
   connection.on("combat-event", (value) => sessionState.onCombatEvent(value));
+  //connection.on("debug", (value) => console.log("DEBUG:", value));
   connection.onDisconnect = () => {
     log.error(
       "The connection to the Lost Ark Packet Capture was lost for some reason. Exiting app..."
@@ -186,6 +191,24 @@ function startApplication() {
     log.info("Exiting app...");
     app.exit();
   };
+
+  const dontShowPatreonBox = store.get("dont_show_patreon_box");
+  if (!dontShowPatreonBox) {
+    const userSelection = dialog.showMessageBoxSync(mainWindow, {
+      type: "info",
+      title: "Support LOA Details",
+      message: "Would you like to support this project by donating on Patreon?",
+      buttons: ["No", "Yes"],
+      defaultId: 0,
+      cancelId: 0,
+    });
+
+    if (userSelection === 1) {
+      shell.openExternal("https://www.patreon.com/loadetails");
+    }
+
+    store.set("dont_show_patreon_box", "true");
+  }
 
   mainWindow = createMainWindow(mainWindow, appSettings);
   damageMeterWindow = createDamageMeterWindow(damageMeterWindow, sessionState);
@@ -256,6 +279,8 @@ ipcMain.on("window-to-main", (event, arg) => {
   } else if (arg.message === "get-parsed-log") {
     const logData = getLogData(arg.value);
     event.reply("parsed-log", logData);
+  } else if (arg.message === "open-link") {
+    shell.openExternal(arg.value);
   }
 });
 

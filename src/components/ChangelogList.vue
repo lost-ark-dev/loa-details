@@ -1,7 +1,5 @@
 <template>
-  <h5 style="margin-left: 16px; margin-bottom: 0">
-    Changelog (for the last 5 versions)
-  </h5>
+  <h5 style="margin-left: 16px; margin-bottom: 0">changelog</h5>
   <q-list padding>
     <q-item v-for="change in changes" :key="change.version">
       <q-item-section>
@@ -18,6 +16,15 @@
 import { ref, onMounted } from "vue";
 
 const changes = ref([
+  {
+    version: "0.2.4",
+    mdFormattedLog: `
+    * Updated LostArkLogger so it works after the new patch.
+    - This also means player names appear correctly once again.
+    * Fixed a bug with the logger that resulted in packets not being captured after zone change.
+    * Added a Patreon page in case you want to support the development of LOA Details (not related to the main project).
+  `,
+  },
   {
     version: "0.2.3",
     mdFormattedLog: `
