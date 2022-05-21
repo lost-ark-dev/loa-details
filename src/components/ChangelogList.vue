@@ -20,6 +20,7 @@ const changes = ref([
     version: "0.2.6",
     mdFormattedLog: `
     * Changed communication method of the packet capturer and electron app from stdin/out to http server.
+    * Fixed an issue where the logger was crashing during loading screens.
   `,
   },
   {
