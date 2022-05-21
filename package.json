@@ -15,7 +15,6 @@
     "@quasar/extras": "^1.0.0",
     "add": "^2.0.6",
     "dayjs": "^1.11.2",
-    "electron-cgi": "^1.0.6",
     "electron-log": "^4.4.7",
     "electron-store": "^8.0.1",
     "electron-updater": "^5.0.1",

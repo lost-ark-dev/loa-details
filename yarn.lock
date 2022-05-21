@@ -1472,13 +1472,6 @@ electron-builder@^22.4.0:
     update-notifier "^5.1.0"
     yargs "^17.0.1"
 
-electron-cgi@^1.0.6:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/electron-cgi/-/electron-cgi-1.0.6.tgz#1c0e3b16d9a8e57f7e7506d9534e9bc70fc62c2a"
-  integrity sha512-QjhRZtWgokc6Ox/a7CTgUHclz/IX5jn9qxpmyqjaYkI28AShWM8Yw6TwG5jIxGTOmAYsZsRicZlSeXAKL7u4PQ==
-  dependencies:
-    uuid "^3.3.2"
-
 electron-log@^4.4.7:
   version "4.4.7"
   resolved "https://registry.yarnpkg.com/electron-log/-/electron-log-4.4.7.tgz#d55b7232c019521694c3503d2109e5a49cb49dd0"
@@ -4395,11 +4388,6 @@ utils-merge@1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/utils-merge/-/utils-merge-1.0.1.tgz#9f95710f50a267947b2ccc124741c1028427e713"
   integrity sha1-n5VxD1CiZ5R7LMwSR0HBAoQn5xM=
-
-uuid@^3.3.2:
-  version "3.4.0"
-  resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.4.0.tgz#b23e4358afa8a202fe7a100af1f5f883f02007ee"
-  integrity sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==
 
 v8-compile-cache@^2.0.3:
   version "2.3.0"

@@ -10,7 +10,8 @@ import {
 } from "electron";
 import { initialize } from "@electron/remote/main";
 import { autoUpdater } from "electron-updater";
-import { ConnectionBuilder } from "electron-cgi";
+import { setupBridge, httpServerEventEmitter } from "./packet-capture-bridge";
+
 import log from "electron-log";
 import path from "path";
 import os from "os";
@@ -59,8 +60,6 @@ let appSettings = getSettings();
 sessionState.dontResetOnZoneChange =
   appSettings?.damageMeter?.functionality?.dontResetOnZoneChange;
 appSettings.appVersion = app.getVersion();
-
-let connection = null; // reserved for electron-cgi connection
 
 // needed in case process is undefined under Linux
 const platform = process.platform || os.platform();
@@ -143,54 +142,20 @@ function startApplication() {
   tray.setToolTip("LOA Details");
   tray.setContextMenu(contextMenu);
 
-  try {
-    const params = [];
-    if (appSettings?.general?.useWinpcap) params.push("useWinpcap");
-    if (appSettings?.general?.server === "russia") params.push("russiaClient");
-    if (appSettings?.general?.server === "korea") params.push("koreaClient");
+  setupBridge(appSettings);
 
-    if (process.env.DEBUGGING) {
-      connection = new ConnectionBuilder()
-        .connectTo(
-          path.resolve(__dirname, "../../binary/LostArkLogger.exe"),
-          ...params
-        )
-        .build();
-    } else {
-      connection = new ConnectionBuilder()
-        .connectTo("LostArkLogger.exe", ...params)
-        .build();
-    }
-    log.info("Started LostArkLogger.exe");
-  } catch (e) {
-    log.error("Error while trying to open packet capturer: " + e);
-
-    dialog.showErrorBox(
-      "Error while trying to open packet capturer",
-      "Error: " + e.message
-    );
-
-    log.info("Exiting app...");
-    app.exit();
-  }
-
-  connection.on("message", (value) => sessionState.onMessage(value));
-  connection.on("new-zone", (value) => sessionState.onNewZone(value));
-  connection.on("combat-event", (value) => sessionState.onCombatEvent(value));
-  //connection.on("debug", (value) => console.log("DEBUG:", value));
-  connection.onDisconnect = () => {
-    log.error(
-      "The connection to the Lost Ark Packet Capture was lost for some reason. Exiting app..."
-    );
-
-    dialog.showErrorBox(
-      "Error",
-      "The connection to the Lost Ark Packet Capture was lost for some reason. Exiting app..."
-    );
-
-    log.info("Exiting app...");
-    app.exit();
-  };
+  httpServerEventEmitter.on("message", (value) =>
+    sessionState.onMessage(value)
+  );
+  httpServerEventEmitter.on("new-zone", (value) =>
+    sessionState.onNewZone(value)
+  );
+  httpServerEventEmitter.on("combat-event", (value) =>
+    sessionState.onCombatEvent(value)
+  );
+  httpServerEventEmitter.on("debug", (data) => {
+    console.log("debug:", data);
+  });
 
   const dontShowPatreonBox = store.get("dont_show_patreon_box");
   if (!dontShowPatreonBox) {
