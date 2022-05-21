@@ -151,7 +151,7 @@ export class SessionState {
   onRaidEnd(value) {
     log.debug("Raid ended:" , value);
 
-    if (value === "PKTRaidBossKillNotify") {
+    if (value) {
       log.debug("Pausing on raid end.");
       // this.resetTimer = setTimeout(this.resetState.bind(this), 5000);
       this.eventListenerWindows.message.forEach((wndw) => {
