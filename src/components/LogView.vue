@@ -114,7 +114,32 @@
             <th style="width: 72px">Damage</th>
             <th style="width: 48px">D%</th>
             <th style="width: 52px">DPS</th>
-            <th style="width: 44px">HITS</th>
+            <th
+              v-if="settingsStore.settings.damageMeter.tabs.critRate.enabled"
+              style="width: 48px"
+            >
+              CRIT
+            </th>
+            <th
+              v-if="settingsStore.settings.damageMeter.tabs.faRate.enabled"
+              style="width: 48px"
+            >
+              F.A.
+            </th>
+            <th
+              v-if="settingsStore.settings.damageMeter.tabs.baRate.enabled"
+              style="width: 48px"
+            >
+              B.A.
+            </th>
+            <th
+              v-if="
+                settingsStore.settings.damageMeter.tabs.counterCount.enabled
+              "
+              style="width: 44px"
+            >
+              CNTR
+            </th>
           </tr>
         </thead>
         <tbody>

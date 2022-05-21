@@ -16,8 +16,44 @@
     <td class="text-center">
       {{ numberFormat(DPS) }}
     </td>
-    <td class="text-center">
-      {{ skill.useCount }}
+    <td
+      v-if="settingsStore.settings.damageMeter.tabs.critRate.enabled"
+      class="text-center"
+    >
+      {{
+        skill.hits.total > 0
+          ? ((skill.hits.crit / skill.hits.total) * 100).toFixed(1)
+          : (0).toFixed(1)
+      }}
+      <span class="ex">%</span>
+    </td>
+    <td
+      v-if="settingsStore.settings.damageMeter.tabs.faRate.enabled"
+      class="text-center"
+    >
+      {{
+        skill.hits.total > 0
+          ? ((skill.hits.frontAttack / skill.hits.total) * 100).toFixed(1)
+          : (0).toFixed(1)
+      }}
+      <span class="ex">%</span>
+    </td>
+    <td
+      v-if="settingsStore.settings.damageMeter.tabs.baRate.enabled"
+      class="text-center"
+    >
+      {{
+        skill.hits.total > 0
+          ? ((skill.hits.backAttack / skill.hits.total) * 100).toFixed(1)
+          : (0).toFixed(1)
+      }}
+      <span class="ex">%</span>
+    </td>
+    <td
+      v-if="settingsStore.settings.damageMeter.tabs.counterCount.enabled"
+      class="text-center"
+    >
+      {{ skill.hits.counter }}
     </td>
     <div
       class="player-bar"

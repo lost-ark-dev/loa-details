@@ -21,6 +21,7 @@ const changes = ref([
     mdFormattedLog: `
     * Updated LostArkLogger to fix some bugs.
     * You can now visualize your logs on the log viewer and sort by encounters! This also means you can visualize your old logs prior to this update.
+    * When viewing skill data of a player, you can now view special attack rates such as crit rate, front attack rate etc... per skill.
   `,
   },
   {

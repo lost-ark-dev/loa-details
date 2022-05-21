@@ -25,8 +25,14 @@ const entityTemplate = {
 
 const skillTemplate = {
   name: "",
-  useCount: 0,
   totalDamage: 0,
+  hits: {
+    total: 0,
+    crit: 0,
+    backAttack: 0,
+    frontAttack: 0,
+    counter: 0,
+  },
 };
 
 function disassembleEntityFromPacket(value) {
@@ -106,9 +112,7 @@ function createEncounter(
     const counterCount = damageEvent.isCounterAttack ? 1 : 0;
 
     game.entities[dmgOwner.name].skills[skillName].totalDamage += damage;
-    game.entities[dmgOwner.name].skills[skillName].useCount += 1;
     game.entities[dmgOwner.name].damageDealt += damage;
-
     game.entities[dmgTarget.name].damageTaken += damage;
 
     if (skillName !== "Bleed") {
@@ -117,6 +121,15 @@ function createEncounter(
       game.entities[dmgOwner.name].hits.backAttack += backAttackCount;
       game.entities[dmgOwner.name].hits.frontAttack += frontAttackCount;
       game.entities[dmgOwner.name].hits.counter += counterCount;
+
+      game.entities[dmgOwner.name].skills[skillName].hits.total += 1;
+      game.entities[dmgOwner.name].skills[skillName].hits.crit += critCount;
+      game.entities[dmgOwner.name].skills[skillName].hits.backAttack +=
+        backAttackCount;
+      game.entities[dmgOwner.name].skills[skillName].hits.frontAttack +=
+        frontAttackCount;
+      game.entities[dmgOwner.name].skills[skillName].hits.counter +=
+        counterCount;
     }
 
     if (dmgOwner.isPlayer) {

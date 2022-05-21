@@ -21,8 +21,14 @@ const entityTemplate = {
 
 const skillTemplate = {
   name: "",
-  useCount: 0,
   totalDamage: 0,
+  hits: {
+    total: 0,
+    crit: 0,
+    backAttack: 0,
+    frontAttack: 0,
+    counter: 0,
+  },
 };
 
 export class SessionState {
@@ -170,9 +176,7 @@ export class SessionState {
     const counterCount = dataSplit[7] === "1" ? 1 : 0;
 
     this.game.entities[dmgOwner.name].skills[skillName].totalDamage += damage;
-    this.game.entities[dmgOwner.name].skills[skillName].useCount += 1;
     this.game.entities[dmgOwner.name].damageDealt += damage;
-
     this.game.entities[dmgTarget.name].damageTaken += damage;
 
     if (dataSplit[2] !== "Bleed") {
@@ -181,6 +185,16 @@ export class SessionState {
       this.game.entities[dmgOwner.name].hits.backAttack += backAttackCount;
       this.game.entities[dmgOwner.name].hits.frontAttack += frontAttackCount;
       this.game.entities[dmgOwner.name].hits.counter += counterCount;
+
+      this.game.entities[dmgOwner.name].skills[skillName].hits.total += 1;
+      this.game.entities[dmgOwner.name].skills[skillName].hits.crit +=
+        critCount;
+      this.game.entities[dmgOwner.name].skills[skillName].hits.backAttack +=
+        backAttackCount;
+      this.game.entities[dmgOwner.name].skills[skillName].hits.frontAttack +=
+        frontAttackCount;
+      this.game.entities[dmgOwner.name].skills[skillName].hits.counter +=
+        counterCount;
     }
 
     if (dmgOwner.isPlayer) {
