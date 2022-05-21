@@ -17,6 +17,12 @@ import { ref, onMounted } from "vue";
 
 const changes = ref([
   {
+    version: "0.2.6",
+    mdFormattedLog: `
+    * Changed communication method of the packet capturer and electron app from stdin/out to http server.
+  `,
+  },
+  {
     version: "0.2.5",
     mdFormattedLog: `
     * Updated LostArkLogger to fix some bugs.
