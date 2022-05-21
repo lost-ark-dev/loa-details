@@ -19,6 +19,22 @@ import { ref, onMounted } from "vue";
 
 const changes = ref([
   {
+    version: "0.3.6",
+    mdFormattedLog: `
+    * Fixes to packet definitions
+    * * Crit and damage modifiers
+    * * Pause on bosses dying/raid wiping
+    `
+  },
+  {
+    version: "0.2.4 - 0.3.5",
+    mdFormattedLog: `
+    * Added uploading to web.
+    * Fixes to packet definitions
+    * Added auto pause on raid end (only working for bosses)
+    `
+  },
+  {
     version: "0.2.3",
     mdFormattedLog: `
     * Fixed a typo with the log folder structure that resulted in crashes.
