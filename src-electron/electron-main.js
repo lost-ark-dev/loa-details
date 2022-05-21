@@ -154,7 +154,7 @@ function startApplication() {
     sessionState.onCombatEvent(value)
   );
   httpServerEventEmitter.on("debug", (data) => {
-    console.log("debug:", data);
+    log.info("debug:", data);
   });
 
   const dontShowPatreonBox = store.get("dont_show_patreon_box");

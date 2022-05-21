@@ -91,7 +91,6 @@ function getClassColor(className) {
 }
 
 const DPS = computed(() => {
-  console.log(props.skill);
   return abbreviateNumber(
     (props.skill.totalDamage / (props.fightDuration / 1000)).toFixed(0)
   );
