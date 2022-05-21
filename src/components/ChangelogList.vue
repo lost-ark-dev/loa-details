@@ -1,5 +1,5 @@
 <template>
-  <h5 style="margin-left: 16px; margin-bottom: 0">changelog</h5>
+  <h5 style="margin-left: 16px; margin-bottom: 0">Changelog</h5>
   <q-list padding>
     <q-item v-for="change in changes" :key="change.version">
       <q-item-section>
@@ -16,6 +16,13 @@
 import { ref, onMounted } from "vue";
 
 const changes = ref([
+  {
+    version: "0.2.5",
+    mdFormattedLog: `
+    * Updated LostArkLogger to fix some bugs.
+    * You can now visualize your logs on the log viewer and sort by encounters! This also means you can visualize your old logs prior to this update.
+  `,
+  },
   {
     version: "0.2.4",
     mdFormattedLog: `
