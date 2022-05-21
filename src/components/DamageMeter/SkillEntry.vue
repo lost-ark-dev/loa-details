@@ -14,7 +14,10 @@
       {{ skill.damagePercent }}<span class="ex">%</span>
     </td>
     <td class="text-center">
-      {{ numberFormat(DPS) }}
+      {{ DPS[0] }}
+      <span class="ex">
+        {{ DPS[1] }}
+      </span>
     </td>
     <td
       v-if="settingsStore.settings.damageMeter.tabs.critRate.enabled"
@@ -77,10 +80,6 @@ const props = defineProps({
   fightDuration: Number,
 });
 
-const DPS = computed(() => {
-  return (props.skill.totalDamage / (props.fightDuration / 1000)).toFixed(0);
-});
-
 const abbreviatedDamage = computed(() => {
   return abbreviateNumber(props.skill.totalDamage);
 });
@@ -91,9 +90,12 @@ function getClassColor(className) {
   return "#353535";
 }
 
-function numberFormat(n) {
-  return new Intl.NumberFormat("en-US").format(n);
-}
+const DPS = computed(() => {
+  console.log(props.skill);
+  return abbreviateNumber(
+    (props.skill.totalDamage / (props.fightDuration / 1000)).toFixed(0)
+  );
+});
 
 function abbreviateNumber(n) {
   if (n < 1e3) return [n, ""];
