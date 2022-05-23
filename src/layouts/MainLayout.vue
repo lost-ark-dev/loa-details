@@ -45,11 +45,11 @@
             Settings
           </div>
         </router-link>
-        <div class="q-ml-md cursor-pointer non-selectable" @click="openPatreon">
+        <!-- <div class="q-ml-md cursor-pointer non-selectable" @click="openPatreon">
           <q-icon name="fa-brands fa-patreon" />
           Patreon
           <q-badge color="green" transparent>SUPPORT</q-badge>
-        </div>
+        </div> -->
       </div>
     </q-header>
 
