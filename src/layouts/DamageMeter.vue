@@ -432,8 +432,24 @@ onMounted(() => {
         Notify.create({
           progress: true,
           timeout: 5000,
-          message: "Encounter ended, pausing session.",
+          message: "Encounter ended, resetting session.",
           color: "primary",
+          actions: [
+            {
+              label: "Cancel",
+              color: "dark",
+              handler: () => {
+                window.messageApi.send("window-to-main", {
+                  message: "cancel-reset-session",
+                });
+
+                Notify.create({
+                  message:
+                    "Reset cancelled. Session won't reset until you click reset or change zones again.",
+                });
+              },
+            },
+          ],
         });
       }
     } else if (typeof value === 'object' && value.name === "session-upload") {

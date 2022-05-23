@@ -10,6 +10,10 @@ import { shell } from "electron";
 
 const classRegex = /(.*)( )\(([^)]+)\)/;
 
+const base64Decode = (str) => {
+  return Buffer.from(str, "base64").toString("utf8");
+};
+
 const entityTemplate = {
   name: "",
   class: "",
@@ -37,19 +41,21 @@ export class SessionLogLine {
     this.timestamp = parseInt(line[0]);
     this.sourceEntity = line[1];
     this.sourceEntityId = line[2];
-    this.destinationEntity = line[3];
-    this.destinationEntityId = line[4];
-    this.skillId = line[5] || "0";
-    this.skillSubId = line[6] || "0";
-    this.skillName = line[7] || "";
-    this.damage = line[8];
-    this.heal = line[9];
-    this.shield = line[10];
-    this.stagger = line[11];
-    this.critical = line[12];
-    this.backAttack = line[13];
-    this.frontAttack = line[14];
-    this.counter = line[15];
+    this.sourceEntityType = line[3];
+    this.destinationEntity = line[4];
+    this.destinationEntityId = line[5];
+    this.destinationEntityType = line[6];
+    this.skillId = line[7] || "0";
+    this.skillSubId = line[8] || "0";
+    this.skillName = line[9] || "";
+    this.damage = line[10];
+    this.heal = line[11];
+    this.shield = line[12];
+    this.stagger = line[13];
+    this.critical = line[14];
+    this.backAttack = line[15];
+    this.frontAttack = line[16];
+    this.counter = line[17];
   }
 }
 
@@ -75,7 +81,9 @@ export class SessionState {
     if (this.game && this.game.fightStartedOn !== 0) {
       const encounterFile = `${encountersFolder}/encounter-${+new Date()}.json`;
       const encounter = this.reformatStateForUpload(this.game);
-      fs.writeFileSync(encounterFile, JSON.stringify(encounter));
+      fs.writeFile(encounterFile, JSON.stringify(this.reformatStateForUpload(this.game, true)), (err) => {
+        if (err) log.error(err);
+      });
 
       if (getSettings().uploads?.uploadLogs || false) {
         this.uploadSession(encounter).then((success) => {
@@ -137,7 +145,7 @@ export class SessionState {
 
     if (this.dontResetOnZoneChange === false && this.resetTimer == null) {
       log.debug("Setting a reset timer.");
-      this.resetTimer = setTimeout(this.resetState.bind(this), 5000);
+      this.resetTimer = setTimeout(this.resetState.bind(this), 5500);
       this.eventListenerWindows.message.forEach((wndw) => {
         try {
           wndw.webContents.send("pcap-on-message", "new-zone");
@@ -151,9 +159,9 @@ export class SessionState {
   onRaidEnd(value) {
     log.debug("Raid ended:" , value);
 
-    if (value !== "PKTRaidResult") {
-      log.debug("Pausing on raid end.");
-      // this.resetTimer = setTimeout(this.resetState.bind(this), 5000);
+    if (value !== "PKTRaidResult" && this.resetTimer == null) {
+      log.debug("Resetting on raid end.");
+      this.resetTimer = setTimeout(this.resetState.bind(this), 5500);
       this.eventListenerWindows.message.forEach((wndw) => {
         try {
           wndw.webContents.send("pcap-on-message", "raid-end");
@@ -182,112 +190,118 @@ export class SessionState {
 
   onCombatEvent(value) {
     log.debug("Combat Event");
-
-    const logLine = new SessionLogLine(value.split(";"));
-    const dmgOwner = this.disassembleEntityFromPacket(logLine.sourceEntity)
-    const dmgTarget = this.disassembleEntityFromPacket(logLine.destinationEntity);
-
-    if (!(dmgOwner.name in this.game.entities))
-      this.game.entities[dmgOwner.name] = {
-        ...cloneDeep(entityTemplate),
-        ...dmgOwner,
-      };
-
-    if (!(dmgTarget.name in this.game.entities))
-      this.game.entities[dmgTarget.name] = {
-        ...cloneDeep(entityTemplate),
-        ...dmgTarget,
-      };
-
-    if (
-      dmgOwner.class &&
-      dmgOwner.name in this.game.entities &&
-      dmgOwner.class !== this.game.entities[dmgOwner.name].class
-    ) {
-      this.game.entities[dmgOwner.name].class = dmgOwner.class;
-      this.game.entities[dmgOwner.name].isPlayer = true;
-    }
-
-    if (logLine.skillId === "0" && logLine.skillSubId !== "0") {
-      let id = logLine.skillSubId.substring(0, logLine.skillSubId.length-1);
-      if (dmgOwner.isPlayer && !this.classSkillExists(dmgOwner.classId, id)) {
-        log.debug(`Skill ${logLine.skillSubId} is a skill effect`);
-        // Is most likely a skill effect
-        id = logLine.skillSubId;
-        logLine.skillName = skillEffects[id];
-      }
-      logLine.skillId = id !== "0" ? id : "0";
-    }
-
-    if (!(logLine.skillId in this.game.entities[dmgOwner.name].skills)) {
-      this.game.entities[dmgOwner.name].skills[logLine.skillId] = {
-        ...cloneDeep(skillTemplate),
-        ...{ name: logLine.skillName },
-      };
-    }
-
     try {
-      logLine.damage = parseInt(logLine.damage);
-    } catch {
-      logLine.damage = 0;
+      const decoded = base64Decode(value);
+      const logLine = new SessionLogLine(decoded.split(";"));
+      log.debug(decoded);
+
+      const dmgOwner = this.disassembleEntityFromPacket(logLine.sourceEntity)
+      const dmgTarget = this.disassembleEntityFromPacket(logLine.destinationEntity);
+
+      if (!(dmgOwner.name in this.game.entities))
+        this.game.entities[dmgOwner.name] = {
+          ...cloneDeep(entityTemplate),
+          ...dmgOwner,
+        };
+
+      if (!(dmgTarget.name in this.game.entities))
+        this.game.entities[dmgTarget.name] = {
+          ...cloneDeep(entityTemplate),
+          ...dmgTarget,
+        };
+
+      if (
+        dmgOwner.class &&
+        dmgOwner.name in this.game.entities &&
+        dmgOwner.class !== this.game.entities[dmgOwner.name].class
+      ) {
+        this.game.entities[dmgOwner.name].class = dmgOwner.class;
+        this.game.entities[dmgOwner.name].isPlayer = true;
+      }
+
+      if (logLine.skillId === "0" && logLine.skillSubId !== "0") {
+        let id = logLine.skillSubId.substring(0, logLine.skillSubId.length-1);
+        if (dmgOwner.isPlayer && !this.classSkillExists(dmgOwner.classId, id)) {
+          log.debug(`Skill ${logLine.skillSubId} is a skill effect`);
+          // Is most likely a skill effect
+          id = logLine.skillSubId;
+          logLine.skillName = skillEffects[id];
+        }
+        logLine.skillId = id !== "0" ? id : "0";
+      }
+
+      if (!(logLine.skillId in this.game.entities[dmgOwner.name].skills)) {
+        this.game.entities[dmgOwner.name].skills[logLine.skillId] = {
+          ...cloneDeep(skillTemplate),
+          ...{ name: logLine.skillName },
+        };
+      }
+
+      try {
+        logLine.damage = parseInt(logLine.damage);
+      } catch {
+        logLine.damage = 0;
+      }
+
+      const critCount = logLine.critical === "1" ? 1 : 0;
+      const backAttackCount = logLine.backAttack === "1" ? 1 : 0;
+      const frontAttackCount = logLine.frontAttack === "1" ? 1 : 0;
+      const counterCount = logLine.counter === "1" ? 1 : 0;
+
+      const skillEntry = {
+        isCrit: critCount === 1,
+        isBackAttack: backAttackCount === 1,
+        isFrontAttack: frontAttackCount === 1,
+        isCounter: counterCount === 1,
+        damage: logLine.damage,
+        timestamp: logLine.timestamp,
+      };
+
+      if (this.game.entities[dmgOwner.name].skills[logLine.skillId].history) {
+        this.game.entities[dmgOwner.name].skills[logLine.skillId].history.push(skillEntry);
+      } else {
+        this.game.entities[dmgOwner.name].skills[logLine.skillId].history = [skillEntry];
+      }
+
+      this.game.entities[dmgOwner.name].skills[logLine.skillId].totalDamage += logLine.damage;
+      this.game.entities[dmgOwner.name].skills[logLine.skillId].useCount += 1;
+      this.game.entities[dmgOwner.name].damageDealt += logLine.damage;
+
+      this.game.entities[dmgTarget.name].damageTaken += logLine.damage;
+
+      if (logLine.skillName !== "Bleed") {
+        this.game.entities[dmgOwner.name].hits.total += 1;
+        this.game.entities[dmgOwner.name].hits.crit += critCount;
+        this.game.entities[dmgOwner.name].hits.backAttack += backAttackCount;
+        this.game.entities[dmgOwner.name].hits.frontAttack += frontAttackCount;
+        this.game.entities[dmgOwner.name].hits.counter += counterCount;
+      }
+
+      if (dmgOwner.isPlayer) {
+        this.game.damageStatistics.totalDamageDealt += logLine.damage;
+        this.game.damageStatistics.topDamageDealt = Math.max(
+          this.game.damageStatistics.topDamageDealt,
+          this.game.entities[dmgOwner.name].damageDealt
+        );
+      }
+
+      if (dmgTarget.isPlayer) {
+        this.game.damageStatistics.totalDamageTaken += logLine.damage;
+        this.game.damageStatistics.topDamageTaken = Math.max(
+          this.game.damageStatistics.topDamageTaken,
+          this.game.entities[dmgTarget.name].damageTaken
+        );
+      }
+
+      const curTime = +new Date();
+      if (this.game.fightStartedOn === 0) {
+        this.game.startedOn = curTime;
+        this.game.fightStartedOn = curTime;
+      }
+      this.game.lastCombatPacket = curTime;
+    } catch (logErr) {
+      log.error(logErr);
     }
-
-    const critCount = logLine.critical === "1" ? 1 : 0;
-    const backAttackCount = logLine.backAttack === "1" ? 1 : 0;
-    const frontAttackCount = logLine.frontAttack === "1" ? 1 : 0;
-    const counterCount = logLine.counter === "1" ? 1 : 0;
-
-    const skillEntry = {
-      isCrit: logLine.critical === "1",
-      isBackAttack: logLine.backAttack === "1",
-      isFrontAttack: logLine.frontAttack === "1",
-      isCounter: logLine.counter === "1",
-      damage: logLine.damage,
-      timestamp: logLine.timestamp,
-    };
-
-    if (this.game.entities[dmgOwner.name].skills[logLine.skillId].history) {
-      this.game.entities[dmgOwner.name].skills[logLine.skillId].history.push(skillEntry);
-    } else {
-      this.game.entities[dmgOwner.name].skills[logLine.skillId].history = [skillEntry];
-    }
-
-    this.game.entities[dmgOwner.name].skills[logLine.skillId].totalDamage += logLine.damage;
-    this.game.entities[dmgOwner.name].skills[logLine.skillId].useCount += 1;
-    this.game.entities[dmgOwner.name].damageDealt += logLine.damage;
-
-    this.game.entities[dmgTarget.name].damageTaken += logLine.damage;
-
-    if (logLine.skillName !== "Bleed") {
-      this.game.entities[dmgOwner.name].hits.total += 1;
-      this.game.entities[dmgOwner.name].hits.crit += critCount;
-      this.game.entities[dmgOwner.name].hits.backAttack += backAttackCount;
-      this.game.entities[dmgOwner.name].hits.frontAttack += frontAttackCount;
-      this.game.entities[dmgOwner.name].hits.counter += counterCount;
-    }
-
-    if (dmgOwner.isPlayer) {
-      this.game.damageStatistics.totalDamageDealt += logLine.damage;
-      this.game.damageStatistics.topDamageDealt = Math.max(
-        this.game.damageStatistics.topDamageDealt,
-        this.game.entities[dmgOwner.name].damageDealt
-      );
-    }
-
-    if (dmgTarget.isPlayer) {
-      this.game.damageStatistics.totalDamageTaken += logLine.damage;
-      this.game.damageStatistics.topDamageTaken = Math.max(
-        this.game.damageStatistics.topDamageTaken,
-        this.game.entities[dmgTarget.name].damageTaken
-      );
-    }
-
-    const curTime = +new Date();
-    if (this.game.fightStartedOn === 0) {
-      this.game.startedOn = curTime;
-      this.game.fightStartedOn = curTime;
-    }
-    this.game.lastCombatPacket = curTime;
   }
 
   broadcastStateChange() {
@@ -319,17 +333,17 @@ export class SessionState {
       ended: clone.lastCombatPacket,
       server: settings?.uploads?.server ?? "Unknown",
       region: settings?.uploads?.region ?? "Unknown",
-      encounter: "Unknown",
       entities: [],
       damageStatistics: clone.damageStatistics,
     }
 
     Object.entries(clone.entities).forEach(([entityName, content]) => {
       if (!content.isPlayer && !includeNonPlayers) return;
+      if (includeNonPlayers && !content.isPlayer && entityName === "Unknown Entity") return; // Skip unknown entities
 
       reformatted.entities.push({
         name: entityName,
-        class: parseInt(this.getClassIdFromName(content.class)),
+        class: content.isPlayer ? parseInt(this.getClassIdFromName(content.class)) : entityName,
         isPlayer: content.isPlayer,
         damageDealt: content.damageDealt,
         damageTaken: content.damageTaken,
