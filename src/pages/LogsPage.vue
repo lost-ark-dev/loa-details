@@ -12,6 +12,16 @@
       style="height: calc(100vh - 80px); padding: 8px 16px"
     >
       <div class="flex logs-top-bar">
+        <q-select
+          filled
+          v-model="encounterFilter"
+          multiple
+          clearable
+          :options="encounterOptions"
+          label="Filter encounters"
+          style="width: 250px"
+        />
+
         <q-btn
           style="margin-left: auto"
           unelevated
@@ -23,7 +33,7 @@
 
       <q-table
         title="Logs"
-        :rows="logFiles"
+        :rows="logFilesComputed"
         :columns="columns"
         row-key="filename"
         dark
@@ -50,19 +60,22 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue";
+import { ref, computed, reactive, onMounted } from "vue";
 import dayjs from "dayjs";
 
 import LogView from "src/components/LogView.vue";
 
 const loaderImg = new URL(`../assets/images/loader.gif`, import.meta.url).href;
 
+const encounterFilter = ref(null);
+const encounterOptions = ref([]);
+
 const columns = [
   {
-    name: "filename",
-    field: "filename",
+    name: "encounterName",
+    field: "encounterName",
     align: "left",
-    label: "File name",
+    label: "Encounter",
     sortable: true,
   },
   {
@@ -75,6 +88,13 @@ const columns = [
 ];
 
 const logFiles = ref([]);
+const logFilesComputed = computed(() => {
+  return logFiles.value.filter((x) =>
+    encounterFilter.value
+      ? encounterFilter.value.includes(x.encounterName)
+      : true
+  );
+});
 const logFile = reactive({
   viewingLogFile: false,
   data: {},
@@ -84,8 +104,12 @@ function calculateLogFileList(value) {
   value
     .filter((x) => x.size > 8192)
     .forEach((val) => {
+      if (!encounterOptions.value.includes(val.encounterName))
+        encounterOptions.value.push(val.encounterName);
+
       logFiles.value.push({
         filename: val.filename,
+        encounterName: val.encounterName,
         date: val.date,
         dateText: dayjs(val.date).format("DD/MM/YYYY HH:mm:ss"),
       });
