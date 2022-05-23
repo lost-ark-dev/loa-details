@@ -165,6 +165,7 @@
             >
               CNTR
             </th>
+            <th style="width: 44px">HITS</th>
           </tr>
         </thead>
         <tbody>

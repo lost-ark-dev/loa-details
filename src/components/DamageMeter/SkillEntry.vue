@@ -58,6 +58,9 @@
     >
       {{ skill.hits.counter }}
     </td>
+    <td class="text-center">
+      {{ skill.hits.total }}
+    </td>
     <div
       class="player-bar"
       :style="`
