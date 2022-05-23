@@ -17,6 +17,17 @@ import { ref, onMounted } from "vue";
 
 const changes = ref([
   {
+    version: "0.2.7",
+    mdFormattedLog: `
+    * "TOTAL" column added to skill view on damage meter and log view. It displays the amount of times the skill is used.
+    * Logger now correctly separates log files based on sessions (zones).
+    * Logger now displays correct crit rate.
+    * Log pages now filters out logs that are less than 8 KB in size.
+    * Added encounter names and encounter filters to the log page.
+    * Logs page now remembers the page of the table when you click "Back" on a log view.
+  `,
+  },
+  {
     version: "0.2.6",
     mdFormattedLog: `
     * Changed communication method of the packet capturer and electron app from stdin/out to http server.
