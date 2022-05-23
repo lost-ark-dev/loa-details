@@ -39,6 +39,8 @@
         dark
         color="amber"
         @row-click="onRowClick"
+        :pagination="logsPagination"
+        @update:pagination="onPagination"
       />
     </q-scroll-area>
     <q-scroll-area
@@ -67,6 +69,13 @@ import LogView from "src/components/LogView.vue";
 
 const loaderImg = new URL(`../assets/images/loader.gif`, import.meta.url).href;
 
+const logsPagination = ref({
+  sortBy: "desc",
+  descending: false,
+  page: 1,
+  rowsPerPage: 5,
+});
+
 const encounterFilter = ref(null);
 const encounterOptions = ref([]);
 
@@ -84,6 +93,7 @@ const columns = [
     align: "left",
     label: "Date",
     sortable: true,
+    align: "right",
   },
 ];
 
@@ -123,6 +133,10 @@ function onRowClick(event, row) {
     message: "get-parsed-log",
     value: row.filename,
   });
+}
+
+function onPagination(newPagination) {
+  logsPagination.value = newPagination;
 }
 
 function getLogfiles() {
