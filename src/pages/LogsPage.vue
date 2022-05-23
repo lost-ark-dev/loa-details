@@ -81,13 +81,15 @@ const logFile = reactive({
 });
 
 function calculateLogFileList(value) {
-  value.forEach((val) => {
-    logFiles.value.push({
-      filename: val.filename,
-      date: val.date,
-      dateText: dayjs(val.date).format("DD/MM/YYYY HH:mm:ss"),
+  value
+    .filter((x) => x.size > 8192)
+    .forEach((val) => {
+      logFiles.value.push({
+        filename: val.filename,
+        date: val.date,
+        dateText: dayjs(val.date).format("DD/MM/YYYY HH:mm:ss"),
+      });
     });
-  });
 
   logFiles.value = logFiles.value.reverse();
 }

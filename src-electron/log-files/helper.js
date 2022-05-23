@@ -50,9 +50,12 @@ export function getParsedLogs() {
   const res = [];
 
   for (const filename of parsedLogs) {
+    const stats = fs.statSync(path.join(parsedLogFolder, filename));
+
     res.push({
       filename,
       date: new Date(dayjs(filename.slice(8, -5), "YYYY-MM-DD-HH-mm-ss")),
+      size: stats.size,
     });
   }
 
