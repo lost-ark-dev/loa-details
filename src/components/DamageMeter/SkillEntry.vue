@@ -59,6 +59,12 @@
       {{ skill.hits.counter }}
     </td>
     <td class="text-center">
+      {{ maxDamage[0] }}
+      <span class="ex">
+        {{ maxDamage[1] }}
+      </span>
+    </td>
+    <td class="text-center">
       {{ skill.hits.total }}
     </td>
     <div
@@ -87,17 +93,21 @@ const abbreviatedDamage = computed(() => {
   return abbreviateNumber(props.skill.totalDamage);
 });
 
-function getClassColor(className) {
-  if (className in settingsStore.settings.damageMeter.classes)
-    return settingsStore.settings.damageMeter.classes[className].color;
-  return "#353535";
-}
-
 const DPS = computed(() => {
   return abbreviateNumber(
     (props.skill.totalDamage / (props.fightDuration / 1000)).toFixed(0)
   );
 });
+
+const maxDamage = computed(() => {
+  return abbreviateNumber(props.skill.maxDamage);
+});
+
+function getClassColor(className) {
+  if (className in settingsStore.settings.damageMeter.classes)
+    return settingsStore.settings.damageMeter.classes[className].color;
+  return "#353535";
+}
 
 function abbreviateNumber(n) {
   if (n < 1e3) return [n, ""];

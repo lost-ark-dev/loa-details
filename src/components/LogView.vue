@@ -140,7 +140,8 @@
             >
               CNTR
             </th>
-            <th style="width: 44px">TOTAL</th>
+            <th style="width: 44px">MaxHit</th>
+            <th style="width: 52px">TotalHits</th>
           </tr>
         </thead>
         <tbody>

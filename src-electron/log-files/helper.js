@@ -18,7 +18,8 @@ const logFolder = path.join(mainFolder, "Logs");
 if (!fs.existsSync(logFolder)) {
   fs.mkdirSync(logFolder);
 }
-const parsedLogFolder = path.join(logFolder, "parsed");
+const parsedFolderName = "parsed-v2";
+const parsedLogFolder = path.join(logFolder, parsedFolderName);
 if (!fs.existsSync(parsedLogFolder)) {
   fs.mkdirSync(parsedLogFolder);
 }

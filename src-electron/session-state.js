@@ -22,6 +22,7 @@ const entityTemplate = {
 const skillTemplate = {
   name: "",
   totalDamage: 0,
+  maxDamage: 0,
   hits: {
     total: 0,
     crit: 0,
@@ -176,6 +177,9 @@ export class SessionState {
     const counterCount = dataSplit[7] === "1" ? 1 : 0;
 
     this.game.entities[dmgOwner.name].skills[skillName].totalDamage += damage;
+    if (damage > this.game.entities[dmgOwner.name].skills[skillName].maxDamage)
+      this.game.entities[dmgOwner.name].skills[skillName].maxDamage = damage;
+
     this.game.entities[dmgOwner.name].damageDealt += damage;
     this.game.entities[dmgTarget.name].damageTaken += damage;
 

@@ -26,6 +26,7 @@ const entityTemplate = {
 const skillTemplate = {
   name: "",
   totalDamage: 0,
+  maxDamage: 0,
   hits: {
     total: 0,
     crit: 0,
@@ -112,6 +113,9 @@ function createEncounter(
     const counterCount = damageEvent.isCounterAttack ? 1 : 0;
 
     game.entities[dmgOwner.name].skills[skillName].totalDamage += damage;
+    if (damage > game.entities[dmgOwner.name].skills[skillName].maxDamage)
+      game.entities[dmgOwner.name].skills[skillName].maxDamage = damage;
+
     game.entities[dmgOwner.name].damageDealt += damage;
     game.entities[dmgTarget.name].damageTaken += damage;
 
