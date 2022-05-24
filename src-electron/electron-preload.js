@@ -11,7 +11,7 @@ contextBridge.exposeInMainWorld("messageApi", {
   },
   receive: (channel, func) => {
     let validChannels = [
-      "prelauncher-message",
+      "updater-message",
       "pcap-on-message",
       "pcap-on-state-change",
       "pcap-on-reset-state",

@@ -71,9 +71,14 @@ try {
   }
 } catch (_) {}
 
-function prelauncherMessage(value) {
+function updaterMessage(value) {
   log.info(value);
-  prelauncherWindow.webContents.send("prelauncher-message", value);
+
+  if (typeof prelauncherWindow != "undefined") {
+    prelauncherWindow.webContents.send("updater-message", value);
+  } else if (typeof mainWindow != "undefined") {
+    mainWindow.webContents.send("updater-message", value);
+  }
 }
 
 app.whenReady().then(() => {
@@ -89,30 +94,33 @@ app.whenReady().then(() => {
 });
 
 autoUpdater.on("checking-for-update", () => {
-  prelauncherMessage("Checking for updates...");
+  updaterMessage("Checking for updates...");
 });
 autoUpdater.on("update-available", (info) => {
-  prelauncherMessage("Found a new update! Starting download...");
+  updaterMessage("Found a new update! Starting download...");
 });
 autoUpdater.on("update-not-available", (info) => {
-  prelauncherMessage("Starting LOA Details!");
+  updaterMessage("Starting LOA Details!");
 
-  startApplication();
+  if (typeof mainWindow == "undefined") {
+    startApplication();
 
-  prelauncherWindow.close();
-  prelauncherWindow = null;
+    prelauncherWindow.close();
+    prelauncherWindow = null;
+  }
 });
 autoUpdater.on("error", (err) => {
-  prelauncherMessage("Error during update: " + err);
+  updaterMessage("Error during update: " + err);
 });
 autoUpdater.on("download-progress", (progressObj) => {
-  prelauncherMessage(
-    `Downloading new update (${progressObj.percent.toFixed(0)}%)`
-  );
+  updaterMessage(`Downloading new update (${progressObj.percent.toFixed(0)}%)`);
 });
 autoUpdater.on("update-downloaded", (info) => {
-  prelauncherMessage("Starting updater...");
-  autoUpdater.quitAndInstall(false, true); // isSilent=false, forceRunAfter=true
+  updaterMessage("Starting updater...");
+
+  // only apply update with prelauncher, not after manual update checking
+  if (typeof prelauncherWindow != "undefined")
+    autoUpdater.quitAndInstall(false, true); // isSilent=false, forceRunAfter=true
 });
 
 function startApplication() {
@@ -246,6 +254,10 @@ ipcMain.on("window-to-main", (event, arg) => {
     event.reply("parsed-log", logData);
   } else if (arg.message === "open-link") {
     shell.openExternal(arg.value);
+  } else if (arg.message === "check-for-updates") {
+    autoUpdater.checkForUpdates();
+  } else if (arg.message === "quit-and-install") {
+    autoUpdater.quitAndInstall();
   }
 });
 

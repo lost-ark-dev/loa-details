@@ -50,6 +50,13 @@
           &nbsp;Discord
           <q-badge color="red" transparent>NEW</q-badge>
         </div>
+        <div
+          class="q-ml-md cursor-pointer non-selectable"
+          style="margin-left: auto"
+          @click="updateButton"
+        >
+          {{ updateButtonText }}
+        </div>
       </div>
     </q-header>
 
@@ -60,7 +67,7 @@
 </template>
 
 <script setup>
-import { onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { useSettingsStore } from "../stores/settings";
 const settingsStore = useSettingsStore();
 
@@ -89,6 +96,20 @@ function openDiscord() {
   });
 }
 
+const isUpdateAvailable = ref(false);
+const updateButtonText = ref("Check for Updates");
+function updateButton() {
+  if (!isUpdateAvailable.value) {
+    window.messageApi.send("window-to-main", {
+      message: "check-for-updates",
+    });
+  } else {
+    window.messageApi.send("window-to-main", {
+      message: "quit-and-install",
+    });
+  }
+}
+
 let firstSettingsReceive = true;
 onMounted(() => {
   settingsStore.initSettings();
@@ -104,6 +125,28 @@ onMounted(() => {
       }
     }
   });
+
+  window.messageApi.receive("updater-message", (value) => {
+    if (value === "Starting LOA Details!") {
+      updateButtonText.value = "No Update Found";
+      setTimeout(() => {
+        updateButtonText.value = "Check for Updates";
+      }, 3000);
+    } else if (value === "Starting updater...") {
+      updateButtonText.value = "Install New Update";
+      isUpdateAvailable.value = true;
+    } else {
+      updateButtonText.value = value;
+    }
+  });
+
+  setInterval(() => {
+    if (!isUpdateAvailable.value) {
+      window.messageApi.send("window-to-main", {
+        message: "check-for-updates",
+      });
+    }
+  }, 60000);
 
   window.messageApi.send("window-to-main", { message: "get-settings" });
 });

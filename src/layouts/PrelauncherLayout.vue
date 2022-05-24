@@ -12,7 +12,7 @@ const currentMessage = ref("LOA Details");
 
 const loaderImg = new URL(`../assets/images/loader.gif`, import.meta.url).href;
 onMounted(() => {
-  window.messageApi.receive("prelauncher-message", (value) => {
+  window.messageApi.receive("updater-message", (value) => {
     currentMessage.value = value;
   });
 });
