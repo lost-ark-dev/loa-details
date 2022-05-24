@@ -45,11 +45,11 @@
             Settings
           </div>
         </router-link>
-        <!-- <div class="q-ml-md cursor-pointer non-selectable" @click="openPatreon">
-          <q-icon name="fa-brands fa-patreon" />
-          Patreon
-          <q-badge color="green" transparent>SUPPORT</q-badge>
-        </div> -->
+        <div class="q-ml-md cursor-pointer non-selectable" @click="openDiscord">
+          <q-icon name="fa-brands fa-discord" />
+          &nbsp;Discord
+          <q-badge color="red" transparent>NEW</q-badge>
+        </div>
       </div>
     </q-header>
 
@@ -82,10 +82,10 @@ function closeApp() {
   }
 }
 
-function openPatreon() {
+function openDiscord() {
   window.messageApi.send("window-to-main", {
     message: "open-link",
-    value: "https://www.patreon.com/loadetails",
+    value: "https://discord.gg/yQmN76dnud",
   });
 }
 
