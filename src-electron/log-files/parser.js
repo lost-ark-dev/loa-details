@@ -103,9 +103,12 @@ function createEncounter(
     let damage;
     try {
       damage = parseInt(damageEvent.damageValue);
+      if (isNaN(damage)) damage = 0;
     } catch {
       damage = 0;
     }
+
+    if (skillName === "Bleed" && damage > 10000000) continue; // todo: this is temporary, needs to be fixed on logger
 
     const critCount = damageEvent.isCrit ? 1 : 0;
     const backAttackCount = damageEvent.isBackAttack ? 1 : 0;

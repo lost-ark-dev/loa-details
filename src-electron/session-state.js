@@ -167,9 +167,12 @@ export class SessionState {
     let damage;
     try {
       damage = parseInt(dataSplit[3]);
+      if (isNaN(damage)) damage = 0;
     } catch {
       damage = 0;
     }
+
+    if (skillName === "Bleed" && damage > 10000000) return; // todo: this is temporary, needs to be fixed on logger
 
     const critCount = dataSplit[4] === "1" ? 1 : 0;
     const backAttackCount = dataSplit[5] === "1" ? 1 : 0;
