@@ -161,9 +161,9 @@ export class SessionState {
   onRaidEnd(value) {
     log.debug("Raid ended:" , value);
 
-    if (value !== "PKTRaidResult" && this.resetTimer == null) {
-      log.debug("Resetting on raid end.");
-      this.resetTimer = setTimeout(this.resetState.bind(this), 5500);
+    if (value !== "PKTRaidResult") {
+      log.debug("Pausing on raid end.");
+      // this.resetTimer = setTimeout(this.resetState.bind(this), 5500);
       this.eventListenerWindows.message.forEach((wndw) => {
         try {
           wndw.webContents.send("pcap-on-message", "raid-end");
