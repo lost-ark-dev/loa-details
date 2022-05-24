@@ -207,7 +207,7 @@ ipcMain.on("window-to-main", (event, arg) => {
     }
   } else if (arg.message === "toggle-damage-meter-minimized-state") {
     if (arg.value) {
-      let newW = 150,
+      let newW = 160,
         newY = 64;
 
       damageMeterWindowOldSize = damageMeterWindow.getSize();

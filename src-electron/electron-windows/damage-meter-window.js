@@ -72,6 +72,10 @@ export function createDamageMeterWindow(damageMeterWindow, sessionState) {
     store.set("damagemeter.height", curSize[1]);
   });
 
+  damageMeterWindow.on("focus", () => {
+    damageMeterWindow.setIgnoreMouseEvents(false);
+  });
+
   damageMeterWindow.on("closed", () => {
     app.quit();
   });

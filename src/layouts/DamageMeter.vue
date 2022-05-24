@@ -24,7 +24,10 @@
             isMinimized
           "
         >
-          LOA Details v{{ settingsStore.settings.appVersion }}
+          LOA Details
+          <span v-if="!isMinimized">
+            v{{ settingsStore.settings.appVersion }}
+          </span>
         </div>
         <div v-if="!isMinimized">
           <span style="margin-right: 12px">
@@ -38,6 +41,14 @@
         </div>
       </div>
       <div style="margin-left: auto">
+        <q-btn
+          v-if="!isMinimized"
+          round
+          icon="fa-solid fa-ghost"
+          @click="enableClickthrough"
+          flat
+          size="sm"
+        />
         <q-btn
           v-if="!isMinimized"
           round
@@ -229,6 +240,16 @@ function toggleMinimizedState() {
   window.messageApi.send("window-to-main", {
     message: "toggle-damage-meter-minimized-state",
     value: isMinimized.value,
+  });
+}
+
+function enableClickthrough() {
+  window.windowControlApi.setIgnoreMouseEvents(true);
+  Notify.create({
+    message:
+      "<center>ALT+TAB back to the damage meter window to disable clickthrough.</center>",
+    color: "primary",
+    html: true,
   });
 }
 
