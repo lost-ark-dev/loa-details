@@ -62,8 +62,6 @@ export function createDamageMeterWindow(damageMeterWindow, sessionState) {
     const curPos = damageMeterWindow.getPosition();
     store.set("damagemeter.position.x", curPos[0]);
     store.set("damagemeter.position.y", curPos[1]);
-
-    // replayLogFile("test.log", sessionState); // this is only for debug purpouses
   });
 
   damageMeterWindow.on("resized", () => {
@@ -81,17 +79,4 @@ export function createDamageMeterWindow(damageMeterWindow, sessionState) {
   });
 
   return damageMeterWindow;
-}
-
-function replayLogFile(name, sessionState) {
-  const fs = require("fs");
-  const logdata = fs.readFileSync(
-    path.resolve(__dirname, "../../logs/" + name),
-    "utf8"
-  );
-
-  for (const line of logdata.split("\n")) {
-    if (!line) continue;
-    sessionState.onCombatEvent(line);
-  }
 }
