@@ -3,7 +3,7 @@
     <td class="td-class-img">
       <img :src="getClassImage(player.class)" />
     </td>
-    <td class="ellipsis">{{ player.name }} ({{ player.class }})</td>
+    <td class="ellipsis">{{ player.name }} ({{ player.gearScore !== "0" ? player.gearScore + " " : "" }}{{ player.class }})</td>
     <td class="text-center">
       {{ abbreviatedDamage[0] }}
       <span class="ex">

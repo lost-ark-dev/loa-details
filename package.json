@@ -1,8 +1,8 @@
 {
   "name": "loa-details-v2",
-  "version": "0.3.7",
+  "version": "0.3.8",
   "description": "Damage meter for Lost Ark",
-  "productName": "LOA Details v2",
+  "productName": "LOA Details",
   "author": "Eren Kara <erenkyi0@gmail.com>",
   "private": true,
   "scripts": {

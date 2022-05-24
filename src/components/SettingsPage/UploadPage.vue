@@ -88,7 +88,7 @@
       </q-item-section>
     </q-item>
 
-    <q-item-label header>Recent Uploads <small>The last 25 sessions uploaded to the web.</small></q-item-label>
+    <q-item-label header>Recent Uploads <small>The last 10 sessions uploaded to the web.</small></q-item-label>
 
     <q-item>
       <q-item-section v-if="recentSessions.length === 0">
@@ -98,9 +98,8 @@
       </q-item-section>
       <q-item-section v-else>
         <q-item
-          v-for="session in recentSessions.sort((a,b) =>  b.time - a.time)"
+          v-for="session in recentSessions.sort((a,b) =>  b.createdAt - a.createdAt)"
           :key="session.id"
-          :session="session"
         >
           <q-item-section>
             <q-btn
@@ -111,7 +110,7 @@
             </q-btn>
           </q-item-section>
           <q-item-section>
-            <span> &nbsp; Uploaded: {{ new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'medium' }).format(new Date(session.time)) }}</span>
+            <span> &nbsp; Uploaded: {{ new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'medium' }).format(new Date(session.createdAt)) }}</span>
           </q-item-section>
         </q-item>
       </q-item-section>
@@ -120,7 +119,7 @@
 </template>
 
 <script setup>
-// import { shell } from 'electron';
+import axios from "axios";
 import { onMounted, ref, watch } from "vue";
 import { useSettingsStore } from "../../stores/settings";
 const settingsStore = useSettingsStore();
@@ -437,7 +436,6 @@ onMounted(() => {
 
   recentSessions.value = settingsStore.settings.uploads.recentSessions;
 })
-
 
 function openSite(url) {
   window.messageApi.send("window-to-main", { message: "open-url", value: url });
