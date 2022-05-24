@@ -28,19 +28,27 @@ export function parseLogs() {
   const parsedLogs = fs.readdirSync(parsedLogFolder);
 
   for (const filename of unparsedLogs) {
-    const jsonName = filename.slice(0, -4) + ".json";
-    if (parsedLogs.includes(jsonName)) continue;
-    if (
-      filename.startsWith("LostArk_") &&
-      filename.endsWith(".log") &&
-      filename.length > 12
-    ) {
-      const contents = fs.readFileSync(path.join(logFolder, filename), "utf-8");
-      const parsedLog = parseLogText(contents);
-      fs.writeFileSync(
-        path.join(parsedLogFolder, jsonName),
-        JSON.stringify(parsedLog)
-      );
+    try {
+      const jsonName = filename.slice(0, -4) + ".json";
+      if (parsedLogs.includes(jsonName)) continue;
+      if (
+        filename.startsWith("LostArk_") &&
+        filename.endsWith(".log") &&
+        filename.length > 12
+      ) {
+        const contents = fs.readFileSync(
+          path.join(logFolder, filename),
+          "utf-8"
+        );
+        const parsedLog = parseLogText(contents);
+        fs.writeFileSync(
+          path.join(parsedLogFolder, jsonName),
+          JSON.stringify(parsedLog)
+        );
+      }
+    } catch (e) {
+      log.error(e);
+      continue;
     }
   }
 }
