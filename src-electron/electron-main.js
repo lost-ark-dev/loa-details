@@ -59,8 +59,8 @@ sessionState.dontResetOnZoneChange =
 appSettings.appVersion = app.getVersion();
 
 // Get sessions from last 7 days
-if(appSettings?.uploads?.uploadKey !== "") {
-  getRecentLogs(appSettings.uploads.apiUrl, appSettings.uploads.uploadKey).then((logs) => {
+if(appSettings?.uploads?.uploadKey && appSettings?.uploads?.uploadKey !== "") {
+  getRecentLogs(appSettings?.uploads?.apiUrl, appSettings?.uploads?.uploadKey).then((logs) => {
     appSettings.uploads.recentSessions = logs;
   }).catch((logErr) => {
     log.error(logErr);
