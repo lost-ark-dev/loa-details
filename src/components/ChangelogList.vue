@@ -17,6 +17,15 @@ import { ref, onMounted } from "vue";
 
 const changes = ref([
   {
+    version: "0.2.8",
+    mdFormattedLog: `
+    * Added exception handling when parsing log files to fix crashes when viewing Log page.
+    * Added "Maximum Hits" column to skill view on both damage meter and log viewer. Also changed "Total" column name to "Total Hits" to remove confusion.
+    * Fixed a bug where it would show "Inf%" on Damage percentage column.
+    * Added a clickthrough functionality. Now you can click the "Ghost" icon on damage meter and it will be click through. To be able to click at it again, ALT+TAB into the damage meter window.
+  `,
+  },
+  {
     version: "0.2.7",
     mdFormattedLog: `
     * "TOTAL" column added to skill view on damage meter and log view. It displays the amount of times the skill is used.
