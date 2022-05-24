@@ -21,7 +21,7 @@ const changes = ref([
     mdFormattedLog: `
     * Added exception handling when parsing log files to fix crashes when viewing Log page.
     * Added "Maximum Hits" column to skill view on both damage meter and log viewer. Also changed "Total" column name to "Total Hits" to remove confusion.
-    * Fixed a bug where it would show "Inf%" on Damage percentage column.
+    * Fixed a bug where it would show "Inf%" on Damage percentage column. Also temporarily "fixed" a bug where it would register Bleed attacks with really high damage numbers.
     * Added a clickthrough functionality. Now you can click the "Ghost" icon on damage meter and it will be click through. To be able to click at it again, ALT+TAB into the damage meter window.
   `,
   },
