@@ -170,6 +170,8 @@ import SkillEntry from "../components/DamageMeter/SkillEntry.vue";
 import { useLogViewerStore } from "../stores/log-viewer";
 import { useSettingsStore } from "../stores/settings";
 
+import { cloneDeep } from "lodash";
+
 const logViewerStore = useLogViewerStore();
 const settingsStore = useSettingsStore();
 
@@ -212,9 +214,11 @@ const sortedEntities = ref([]);
 function sortEntities() {
   if (!props.logData?.encounters[logViewerStore.currentEncounterIndex]) return;
 
-  const res = Object.values(
-    props.logData.encounters[logViewerStore.currentEncounterIndex].gameState
-      .entities
+  const res = cloneDeep(
+    Object.values(
+      props.logData.encounters[logViewerStore.currentEncounterIndex].gameState
+        .entities
+    )
   )
     .filter((entity) => entity.isPlayer)
     .sort((a, b) => {
@@ -255,9 +259,11 @@ function calculateSkills() {
   sortedSkills.value = [];
   if (focusedPlayer.value === "#") return;
 
-  const entity = Object.values(
-    props.logData.encounters[logViewerStore.currentEncounterIndex].gameState
-      .entities
+  const entity = cloneDeep(
+    Object.values(
+      props.logData.encounters[logViewerStore.currentEncounterIndex].gameState
+        .entities
+    )
   ).find((e) => {
     return e.name === focusedPlayer.value;
   });
