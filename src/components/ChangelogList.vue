@@ -1,6 +1,6 @@
 <template>
   <h5 style="margin-left: 16px; margin-bottom: 0">
-    Changelog
+    Changelog (for the last 5 versions)
   </h5>
   <q-list padding>
     <q-item v-for="change in changes" :key="change.version">
@@ -18,18 +18,6 @@
 import { ref, onMounted } from "vue";
 
 const changes = ref([
-  {
-    version: "0.3.8",
-    mdFormattedLog: `
-    * Added Gear Score to players in damage meter
-    `
-  },
-  {
-    version: "0.3.7",
-    mdFormattedLog: `
-    * Changed functionality to reset on raid wipe or end.
-    `
-  },
   {
     version: "0.3.6",
     mdFormattedLog: `

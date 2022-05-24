@@ -24,7 +24,6 @@ import {
 import { getSettings, saveSettings } from "./util/app-settings";
 import { SessionState } from "./session-state";
 import { parseLogs, getParsedLogs, getLogData } from "./log-files/helper";
-import { getRecentLogs } from "./util/uploads";
 
 let prelauncherWindow, mainWindow, damageMeterWindow;
 let tray = null;
@@ -58,9 +57,8 @@ sessionState.dontResetOnZoneChange =
   appSettings?.damageMeter?.functionality?.dontResetOnZoneChange;
 appSettings.appVersion = app.getVersion();
 
-// Get sessions from last 7 days
-if(appSettings?.uploads?.uploadKey && appSettings?.uploads?.uploadKey !== "") {
-  getRecentLogs(appSettings?.uploads?.apiUrl, appSettings?.uploads?.uploadKey).then((logs) => {
+if (appSettings?.uploads?.uploadKey && appSettings?.uploads?.uploadKey !== "") {
+  sessionState.getRecentLogs().then((logs) => {
     appSettings.uploads.recentSessions = logs;
   }).catch((logErr) => {
     log.error(logErr);

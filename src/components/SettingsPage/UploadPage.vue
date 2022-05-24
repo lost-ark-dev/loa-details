@@ -100,6 +100,7 @@
         <q-item
           v-for="session in recentSessions.sort((a,b) =>  b.createdAt - a.createdAt)"
           :key="session.id"
+          :session="session"
         >
           <q-item-section>
             <q-btn
@@ -119,7 +120,6 @@
 </template>
 
 <script setup>
-import axios from "axios";
 import { onMounted, ref, watch } from "vue";
 import { useSettingsStore } from "../../stores/settings";
 const settingsStore = useSettingsStore();
@@ -436,6 +436,7 @@ onMounted(() => {
 
   recentSessions.value = settingsStore.settings.uploads.recentSessions;
 })
+
 
 function openSite(url) {
   window.messageApi.send("window-to-main", { message: "open-url", value: url });

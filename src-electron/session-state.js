@@ -3,8 +3,10 @@ import log from "electron-log";
 import fs from "fs";
 import { classes, skills, skillEffects } from './translations/en';
 import { encountersFolder } from './log-files/helper';
-import { getSettings } from "./util/app-settings";
-import { uploadSession } from "./util/uploads";
+import { saveSettings, getSettings } from "./util/app-settings";
+import { Gzip } from "./util/compression";
+import axios from "axios";
+import { shell } from "electron";
 
 const classRegex = /(.*)( )\(([^)]+)\)/;
 
@@ -18,7 +20,6 @@ const entityTemplate = {
   isPlayer: false,
   damageDealt: 0,
   damageTaken: 0,
-  gearScore: 0,
   skills: {},
   hits: {
     total: 0,
@@ -87,7 +88,7 @@ export class SessionState {
       });
 
       if (getSettings().uploads?.uploadLogs || false) {
-        uploadSession(this, encounter).then((success) => {
+        this.uploadSession(encounter).then((success) => {
           log.debug("Upload successful:", success);
         }).catch((err) => {
           log.error(err);
@@ -178,13 +179,14 @@ export class SessionState {
 
     if (isPlayer) {
       const player = classRegex.exec(value);
-      const [ gearScore, className ] = player[3].split(" ")
+       const [ gearScore, className ] = player[3].split(" ")
+
       return {
         name: player[1] || "Unknown Entity",
         class: className,
         classId: this.getClassIdFromName(className),
-        gearScore,
         isPlayer,
+        gearScore,
       };
     } else {
       return { name: value || "Unknown Entity", class: "", isPlayer };
@@ -350,7 +352,7 @@ export class SessionState {
         isPlayer: content.isPlayer,
         damageDealt: content.damageDealt,
         damageTaken: content.damageTaken,
-        gearScore: content.gearScore || 0,
+        gearScore: content.gearScore,
         skills: Object.entries(content.skills).map(([skillId, skill]) => {
           return {
             id: parseInt(skillId),
@@ -389,5 +391,89 @@ export class SessionState {
     } catch {
       return false;
     }
+  }
+
+  uploadSession (session, compress = false) {
+    return new Promise(async (resolve, reject) => {
+      const settings = getSettings();
+      try {
+        const { uploadKey, apiUrl, loginUrl, uploadEndpoint, openOnUpload } = settings.uploads;
+        const apiKey = uploadKey;
+        if (!apiKey || apiKey === "" || apiKey.length !== 32) {
+          log.error("No upload key found");
+          reject(new Error("Invalid API Key"));
+        } else {
+          const upload = JSON.stringify({ key: apiKey, data: session })
+          const uploadUrl = apiUrl + uploadEndpoint;
+          let httpOptions = {
+            url: uploadUrl,
+            method: "PUT",
+            responseType: 'json',
+            headers: {
+              "Content-Type": "application/json",
+              "Content-Length": upload.length,
+            },
+            data: upload,
+          }
+
+          if (compress) {
+            const compressed = await Gzip.compressString(upload);
+            httpOptions.headers = { 'Content-Type': 'application/octet-stream' };
+            httpOptions.data = compressed
+          }
+          log.debug(`Uploading session`);
+
+          axios(httpOptions).then((response) => {
+            log.debug(`Uploaded session to ${uploadUrl}: ${JSON.stringify(response.data)}`);
+
+            this.onMessage({ name: "session-upload", message: `Uploaded Session: ${loginUrl}/logs/${response.data.id}`});
+            if (openOnUpload) shell.openExternal(`${loginUrl}/logs/${response.data.id}`);
+
+            this.getRecentLogs().then((logs) => {
+              settings.uploads.recentSessions = logs;
+              this.broadcastSettingsChange(settings);
+            }).catch((logErr) => {
+              log.error(logErr);
+            })
+
+            resolve(response.data);
+          }).catch((httpErr) => {
+            log.error(httpErr);
+            this.onMessage({ name: "session-upload", message: `Session Upload Failed`, failed: true });
+            reject(new Error(`Failed to upload session`));
+          })
+        }
+      } catch (uploadErr) {
+        log.error(uploadErr);
+        this.onMessage("pcap-on-message", { name: "session-upload", message: `Session Upload Failed`, failed: true });
+        reject(new Error(`Failed to upload session: ${uploadErr.message}`));
+      }
+    })
+  }
+
+  getRecentLogs () {
+    const settings = getSettings();
+    const { uploadKey, apiUrl } = settings.uploads;
+
+    return new Promise((resolve, reject) => {
+      const request = {
+        method: "POST",
+        url: `${apiUrl}/logs/recent`,
+        data: {
+          key: uploadKey,
+          range: { begin: +new Date() - 604799000 }
+        },
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+
+      axios(request).then((response) => {
+        resolve(response.data);
+      }).catch((error) => {
+        log.debug(error);
+        reject(error);
+      });
+    })
   }
 }
