@@ -18,3 +18,5 @@
 </p>
 
 <p align="center">Realtime Damage Meter tool for Lost Ark</p>
+
+![cover](https://user-images.githubusercontent.com/29287377/170253049-2977b373-f875-43cb-a959-35fc21285297.png)
