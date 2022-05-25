@@ -14,8 +14,21 @@ const options = {
 let httpServer;
 let packetCapturerProcess;
 
+const validHosts = ["127.0.0.1:13345", "localhost:13345"];
+function checkHost(requestHost) {
+  if (!requestHost) return false;
+  return validHosts.includes(requestHost);
+}
+
 export function setupBridge(appSettings) {
   httpServer = createServer((req, res) => {
+    const isHostValid = checkHost(req.headers.host);
+    if (!isHostValid) {
+      log.info("Request from invalid host: " + req.headers.host);
+      res.writeHead(403, { "Content-Type": "text/html" });
+      return res.end("Forbidden");
+    }
+
     if (req.method === "POST") {
       // Handle data
       let body = [];
