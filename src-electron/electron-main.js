@@ -84,7 +84,7 @@ function updaterMessage(value) {
 app.whenReady().then(() => {
   // Don't create prelauncher if debugging
   if (!process.env.DEBUGGING) {
-    prelauncherWindow = createPrelauncherWindow(prelauncherWindow);
+    prelauncherWindow = createPrelauncherWindow();
     prelauncherWindow.on("show", () => {
       autoUpdater.checkForUpdates();
     });
@@ -183,8 +183,8 @@ function startApplication() {
     store.set("dont_show_patreon_box", "true");
   }
 
-  mainWindow = createMainWindow(mainWindow, appSettings);
-  damageMeterWindow = createDamageMeterWindow(damageMeterWindow, sessionState);
+  mainWindow = createMainWindow(appSettings);
+  damageMeterWindow = createDamageMeterWindow(sessionState);
 
   mainWindow.on("close", function (event) {
     let hideToTray = true; // this is on by default
@@ -271,7 +271,7 @@ app.on("window-all-closed", () => {
 app.on("activate", () => {
   log.info("activate fired");
   if (mainWindow === null) {
-    createMainWindow(mainWindow);
+    mainWindow = createMainWindow(appSettings);
   }
 });
 

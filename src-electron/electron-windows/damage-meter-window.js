@@ -1,12 +1,10 @@
 import { app, BrowserWindow } from "electron";
 import { enable } from "@electron/remote/main";
-import Store from "electron-store";
 import path from "path";
+import { initWindow } from "../util/window-init";
 
-const store = new Store();
-
-export function createDamageMeterWindow(damageMeterWindow, sessionState) {
-  damageMeterWindow = new BrowserWindow({
+export function createDamageMeterWindow(sessionState) {
+  let damageMeterWindow = new BrowserWindow({
     icon: path.resolve(__dirname, "icons/icon.png"),
     show: false,
     width: 512,
@@ -30,6 +28,8 @@ export function createDamageMeterWindow(damageMeterWindow, sessionState) {
   enable(damageMeterWindow.webContents);
   damageMeterWindow.loadURL(process.env.APP_URL + "#/damage-meter").then(() => {
     damageMeterWindow.show();
+
+    initWindow(damageMeterWindow, "damage_meter");
   });
   damageMeterWindow.setAlwaysOnTop(true, "level");
 
@@ -38,37 +38,13 @@ export function createDamageMeterWindow(damageMeterWindow, sessionState) {
   sessionState.addEventListenerWindow("stateChange", damageMeterWindow);
   sessionState.addEventListenerWindow("resetState", damageMeterWindow);
 
-  const damageMeterWindow_w = store.get("damagemeter.width"),
-    damagemeterWindow_h = store.get("damagemeter.height");
-  if (damageMeterWindow_w && damagemeterWindow_h)
-    damageMeterWindow.setSize(damageMeterWindow_w, damagemeterWindow_h);
-
-  const damageMeterWindow_x = store.get("damagemeter.position.x"),
-    damagemeterWindow_y = store.get("damagemeter.position.y");
-  if (damageMeterWindow_x && damagemeterWindow_y)
-    damageMeterWindow.setPosition(damageMeterWindow_x, damagemeterWindow_y);
-
   if (process.env.DEBUGGING) {
-    // if on DEV or Production with debug enabled
     damageMeterWindow.webContents.openDevTools();
   } else {
-    // we're on production; no access to devtools pls
     damageMeterWindow.webContents.on("devtools-opened", () => {
       damageMeterWindow.webContents.closeDevTools();
     });
   }
-
-  damageMeterWindow.on("moved", () => {
-    const curPos = damageMeterWindow.getPosition();
-    store.set("damagemeter.position.x", curPos[0]);
-    store.set("damagemeter.position.y", curPos[1]);
-  });
-
-  damageMeterWindow.on("resized", () => {
-    const curSize = damageMeterWindow.getSize();
-    store.set("damagemeter.width", curSize[0]);
-    store.set("damagemeter.height", curSize[1]);
-  });
 
   damageMeterWindow.on("focus", () => {
     damageMeterWindow.setIgnoreMouseEvents(false);
