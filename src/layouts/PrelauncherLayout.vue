@@ -12,8 +12,22 @@ const currentMessage = ref("LOA Details");
 
 const loaderImg = new URL(`../assets/images/loader.gif`, import.meta.url).href;
 onMounted(() => {
-  window.messageApi.receive("updater-message", (value) => {
-    currentMessage.value = value;
+  window.messageApi.receive("updater-message", (eventMessage) => {
+    if (eventMessage.message === "checking-for-update") {
+      currentMessage.value = "Checking for updates...";
+    } else if (eventMessage.message === "update-available") {
+      currentMessage.value = "Found a new update! Starting download...";
+    } else if (eventMessage.message === "update-not-available") {
+      currentMessage.value = "Starting LOA Details...";
+    } else if (eventMessage.message === "download-progress") {
+      currentMessage.value = `Downloading update ${eventMessage.value.percent.toFixed(
+        0
+      )}%`;
+    } else if (eventMessage.message === "update-downloaded") {
+      currentMessage.value = "Starting updater...";
+    } else if (eventMessage.message === "error") {
+      currentMessage.value = "Error: " + eventMessage.value;
+    }
   });
 });
 </script>

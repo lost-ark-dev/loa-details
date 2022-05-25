@@ -126,17 +126,25 @@ onMounted(() => {
     }
   });
 
-  window.messageApi.receive("updater-message", (value) => {
-    if (value === "Starting LOA Details!") {
-      updateButtonText.value = "No Update Found";
+  window.messageApi.receive("updater-message", (eventMessage) => {
+    if (eventMessage.message === "checking-for-update") {
+      updateButtonText.value = "Checking for updates...";
+    } else if (eventMessage.message === "update-available") {
+      updateButtonText.value = "Found a new update! Starting download...";
+    } else if (eventMessage.message === "update-not-available") {
+      updateButtonText.value = "No Update";
       setTimeout(() => {
         updateButtonText.value = "Check for Updates";
       }, 3000);
-    } else if (value === "Starting updater...") {
+    } else if (eventMessage.message === "download-progress") {
+      updateButtonText.value = `Downloading update ${eventMessage.value.percent.toFixed(
+        0
+      )}%`;
+    } else if (eventMessage.message === "update-downloaded") {
       updateButtonText.value = "Install New Update";
       isUpdateAvailable.value = true;
-    } else {
-      updateButtonText.value = value;
+    } else if (eventMessage.message === "error") {
+      updateButtonText.value = "Error: " + eventMessage.value;
     }
   });
 

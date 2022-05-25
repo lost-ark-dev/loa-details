@@ -9,7 +9,6 @@ import {
   shell,
 } from "electron";
 import { initialize } from "@electron/remote/main";
-import { autoUpdater } from "electron-updater";
 import { setupBridge, httpServerEventEmitter } from "./packet-capture-bridge";
 
 import log from "electron-log";
@@ -24,7 +23,15 @@ import {
 } from "./electron-windows";
 
 import { getSettings, saveSettings } from "./util/app-settings";
+
+import {
+  updaterEventEmitter,
+  checkForUpdates,
+  quitAndInstall,
+} from "./util/updater";
+
 import { SessionState } from "./session-state";
+
 import { parseLogs, getParsedLogs, getLogData } from "./log-files/helper";
 
 const store = new Store();
@@ -49,9 +56,6 @@ if (!gotTheLock) {
   });
 }
 
-autoUpdater.logger = log;
-autoUpdater.logger.transports.file.level = "info";
-
 initialize();
 
 const sessionState = new SessionState();
@@ -71,56 +75,44 @@ try {
   }
 } catch (_) {}
 
-function updaterMessage(value) {
-  log.info(value);
-
-  if (typeof prelauncherWindow != "undefined") {
-    prelauncherWindow.webContents.send("updater-message", value);
-  } else if (typeof mainWindow != "undefined") {
-    mainWindow.webContents.send("updater-message", value);
-  }
-}
-
 app.whenReady().then(() => {
   // Don't create prelauncher if debugging
   if (!process.env.DEBUGGING) {
     prelauncherWindow = createPrelauncherWindow();
     prelauncherWindow.on("show", () => {
-      autoUpdater.checkForUpdates();
+      checkForUpdates();
     });
   } else {
     startApplication();
   }
 });
 
-autoUpdater.on("checking-for-update", () => {
-  updaterMessage("Checking for updates...");
-});
-autoUpdater.on("update-available", (info) => {
-  updaterMessage("Found a new update! Starting download...");
-});
-autoUpdater.on("update-not-available", (info) => {
-  updaterMessage("Starting LOA Details!");
-
-  if (typeof mainWindow == "undefined") {
+updaterEventEmitter.on("event", (details) => {
+  if (
+    details.message === "update-not-available" &&
+    typeof mainWindow == "undefined"
+  ) {
     startApplication();
 
-    prelauncherWindow.close();
-    prelauncherWindow = null;
+    if (typeof prelauncherWindow != "undefined") {
+      prelauncherWindow.close();
+      prelauncherWindow = null;
+    }
   }
-});
-autoUpdater.on("error", (err) => {
-  updaterMessage("Error during update: " + err);
-});
-autoUpdater.on("download-progress", (progressObj) => {
-  updaterMessage(`Downloading new update (${progressObj.percent.toFixed(0)}%)`);
-});
-autoUpdater.on("update-downloaded", (info) => {
-  updaterMessage("Starting updater...");
 
-  // only apply update with prelauncher, not after manual update checking
-  if (typeof prelauncherWindow != "undefined")
-    autoUpdater.quitAndInstall(false, true); // isSilent=false, forceRunAfter=true
+  // quitAndInstall only when prelauncher is visible (aka startup of application)
+  if (
+    details.message === "update-downloaded" &&
+    typeof prelauncherWindow != "undefined"
+  ) {
+    quitAndInstall(false, true); // isSilent=false, forceRunAfter=true
+  }
+
+  if (typeof prelauncherWindow != "undefined") {
+    prelauncherWindow.webContents.send("updater-message", details);
+  } else if (typeof mainWindow != "undefined") {
+    mainWindow.webContents.send("updater-message", details);
+  }
 });
 
 function startApplication() {
@@ -255,9 +247,9 @@ ipcMain.on("window-to-main", (event, arg) => {
   } else if (arg.message === "open-link") {
     shell.openExternal(arg.value);
   } else if (arg.message === "check-for-updates") {
-    autoUpdater.checkForUpdates();
+    checkForUpdates();
   } else if (arg.message === "quit-and-install") {
-    autoUpdater.quitAndInstall();
+    quitAndInstall();
   }
 });
 
