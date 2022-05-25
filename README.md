@@ -1,6 +1,16 @@
 # LOA Details
 
-Realtime Damage Meter for Lost Ark. Download latest version at [Releases](https://github.com/karaeren/loa-details/releases). The release version has built-in auto updater.
+<p align="center">
+  <a href="https://github.com/karaeren/loa-details/releases/latest">
+    <img src="https://img.shields.io/github/downloads/karaeren/loa-details/total?style=for-the-badge" />
+  </a>
+  <a href="https://discord.gg/yQmN76dnud">
+    <img src="https://img.shields.io/discord/978304863303770113?color=%235865F2&label=Discord&style=for-the-badge" />
+  </a>
+  <br />
+  <img src="https://img.shields.io/github/package-json/v/karaeren/loa-details?style=flat-square" />
+  <img src="https://img.shields.io/github/license/karaeren/loa-details?style=flat-square" />
+</p>
 
-# Releases
-Refer to [karaeren / LostArkLogger](https://github.com/karaeren/LostArkLogger) to get the packet capture service.
+Realtime Damage Meter tool for Lost Ark
+
