@@ -79,7 +79,7 @@ export class LogParser {
       if (+new Date() - entitiesCopy[entity].lastUpdate > 10 * 60 * 1000)
         continue;
 
-      this.updateEntity(entity, {
+      this.updateEntity(entitiesCopy[entity].name, {
         name: entitiesCopy[entity].name,
         class: entitiesCopy[entity].class,
         isPlayer: entitiesCopy[entity].isPlayer,
@@ -153,17 +153,17 @@ export class LogParser {
     }
   }
 
-  updateEntity(entityId, values) {
+  updateEntity(entityName, values) {
     const updateTime = { lastUpdate: +new Date() };
-    if (!(entityId in this.game.entities)) {
-      this.game.entities[entityId] = {
+    if (!(entityName in this.game.entities)) {
+      this.game.entities[entityName] = {
         ...cloneDeep(entityTemplate),
         ...values,
         ...updateTime,
       };
     } else {
-      this.game.entities[entityId] = {
-        ...this.game.entities[entityId],
+      this.game.entities[entityName] = {
+        ...this.game.entities[entityName],
         ...values,
         ...updateTime,
       };
@@ -208,7 +208,7 @@ export class LogParser {
       `onNewPc: ${logLine.id}, ${logLine.name}, ${logLine.classId}, ${logLine.class}`
     );
 
-    this.updateEntity(logLine.id, {
+    this.updateEntity(logLine.name, {
       name: logLine.name,
       class: logLine.class,
       isPlayer: true,
@@ -220,7 +220,7 @@ export class LogParser {
     const logLine = new LogLines.LogNewNpc(lineSplit);
     log.debug(`onNewNpc: ${logLine.id}, ${logLine.name}`);
 
-    this.updateEntity(logLine.id, {
+    this.updateEntity(logLine.name, {
       name: logLine.name,
       isPlayer: false,
     });
@@ -250,16 +250,16 @@ export class LogParser {
       `onDamage: ${logLine.id}, ${logLine.name}, ${logLine.skillId}, ${logLine.skillName}, ${logLine.skillEffectId}, ${logLine.skillEffect}, ${logLine.targetId}, ${logLine.targetName}, ${logLine.damage}`
     );
 
-    this.updateEntity(logLine.id, {
+    this.updateEntity(logLine.name, {
       name: logLine.name,
     });
 
-    this.updateEntity(logLine.targetId, {
+    this.updateEntity(logLine.targetName, {
       name: logLine.targetName,
     });
 
-    if (!(logLine.skillName in this.game.entities[logLine.id].skills)) {
-      this.game.entities[logLine.id].skills[logLine.skillName] = {
+    if (!(logLine.skillName in this.game.entities[logLine.name].skills)) {
+      this.game.entities[logLine.name].skills[logLine.skillName] = {
         ...cloneDeep(skillTemplate),
         ...{ name: logLine.skillName },
       };
@@ -272,37 +272,39 @@ export class LogParser {
     const backAttackCount = logLine.isBackAttack ? 1 : 0;
     const frontAttackCount = logLine.isFrontAttack ? 1 : 0;
 
-    this.game.entities[logLine.id].skills[logLine.skillName].totalDamage +=
+    this.game.entities[logLine.name].skills[logLine.skillName].totalDamage +=
       logLine.damage;
     if (
       logLine.damage >
-      this.game.entities[logLine.id].skills[logLine.skillName].maxDamage
+      this.game.entities[logLine.name].skills[logLine.skillName].maxDamage
     )
-      this.game.entities[logLine.id].skills[logLine.skillName].maxDamage =
+      this.game.entities[logLine.name].skills[logLine.skillName].maxDamage =
         logLine.damage;
 
-    this.game.entities[logLine.id].damageDealt += logLine.damage;
-    this.game.entities[logLine.targetId].damageTaken += logLine.damage;
+    this.game.entities[logLine.name].damageDealt += logLine.damage;
+    this.game.entities[logLine.targetName].damageTaken += logLine.damage;
 
     if (logLine.skillName !== "Bleed") {
-      this.game.entities[logLine.id].hits.total += 1;
-      this.game.entities[logLine.id].hits.crit += critCount;
-      this.game.entities[logLine.id].hits.backAttack += backAttackCount;
-      this.game.entities[logLine.id].hits.frontAttack += frontAttackCount;
+      this.game.entities[logLine.name].hits.total += 1;
+      this.game.entities[logLine.name].hits.crit += critCount;
+      this.game.entities[logLine.name].hits.backAttack += backAttackCount;
+      this.game.entities[logLine.name].hits.frontAttack += frontAttackCount;
 
-      this.game.entities[logLine.id].skills[logLine.skillName].hits.total += 1;
-      this.game.entities[logLine.id].skills[logLine.skillName].hits.crit +=
+      this.game.entities[logLine.name].skills[
+        logLine.skillName
+      ].hits.total += 1;
+      this.game.entities[logLine.name].skills[logLine.skillName].hits.crit +=
         critCount;
-      this.game.entities[logLine.id].skills[
+      this.game.entities[logLine.name].skills[
         logLine.skillName
       ].hits.backAttack += backAttackCount;
-      this.game.entities[logLine.id].skills[
+      this.game.entities[logLine.name].skills[
         logLine.skillName
       ].hits.frontAttack += frontAttackCount;
     }
 
-    const damageOwner = this.game.entities[logLine.id],
-      damageTarget = this.game.entities[logLine.targetId];
+    const damageOwner = this.game.entities[logLine.name],
+      damageTarget = this.game.entities[logLine.targetName];
 
     if (damageOwner.isPlayer) {
       this.game.damageStatistics.totalDamageDealt += logLine.damage;
@@ -340,11 +342,11 @@ export class LogParser {
     const logLine = new LogLines.LogCounterattack(lineSplit);
     log.debug(`onCounterattack: ${logLine.id}, ${logLine.name}`);
 
-    this.updateEntity(logLine.id, {
+    this.updateEntity(logLine.name, {
       name: logLine.name,
     });
 
     // TODO: Add skill name from logger
-    this.game.entities[logLine.id].hits.counter += 1;
+    this.game.entities[logLine.name].hits.counter += 1;
   }
 }
