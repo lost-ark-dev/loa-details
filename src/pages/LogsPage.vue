@@ -171,7 +171,6 @@ const logFilesComputed = computed(() => {
         : true
     )
     .filter((x) => {
-      console.log(x.durationTs, durationSlider.value);
       return x.durationTs / (1000 * 60) >= durationSlider.value;
     });
 });

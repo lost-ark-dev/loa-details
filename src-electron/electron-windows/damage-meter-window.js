@@ -2,9 +2,6 @@ import { app, BrowserWindow } from "electron";
 import { enable } from "@electron/remote/main";
 import path from "path";
 import { initWindow } from "../util/window-init";
-import Store from "electron-store";
-
-const store = new Store();
 
 export function createDamageMeterWindow(logParser, appSettings) {
   let damageMeterWindow = new BrowserWindow({
