@@ -44,7 +44,8 @@ export function createDamageMeterWindow(logParser, appSettings) {
   });
   logParser.eventEmitter.on("state-change", (newState) => {
     try {
-      damageMeterWindow.webContents.send("pcap-on-state-change", newState);
+      if (typeof damageMeterWindow !== "undefined" && damageMeterWindow)
+        damageMeterWindow.webContents.send("pcap-on-state-change", newState);
     } catch (e) {
       log.error(e);
     }
@@ -70,6 +71,7 @@ export function createDamageMeterWindow(logParser, appSettings) {
   });
 
   damageMeterWindow.on("closed", () => {
+    damageMeterWindow = null;
     app.quit();
   });
 
