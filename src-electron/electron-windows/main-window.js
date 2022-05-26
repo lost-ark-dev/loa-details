@@ -23,9 +23,13 @@ export function createMainWindow(appSettings) {
   let startHidden = false;
   if (appSettings?.general?.startMainHidden) startHidden = true;
 
+  let startMinimized = false;
+  if (appSettings?.general?.startMainMinimized) startMinimized = true;
+
   enable(mainWindow.webContents);
   mainWindow.loadURL(process.env.APP_URL).then(() => {
     if (!startHidden) mainWindow.show();
+    if (startMinimized) mainWindow.minimize();
 
     initWindow(mainWindow, "main");
   });

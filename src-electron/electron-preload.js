@@ -47,6 +47,10 @@ contextBridge.exposeInMainWorld("windowControlApi", {
     BrowserWindow.getFocusedWindow().close();
   },
 
+  hide() {
+    BrowserWindow.getFocusedWindow().hide();
+  },
+
   setIgnoreMouseEvents(ignore, options) {
     BrowserWindow.getFocusedWindow().setIgnoreMouseEvents(ignore, options);
   },

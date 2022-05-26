@@ -85,7 +85,12 @@ function toggleMaximize() {
 
 function closeApp() {
   if (process.env.MODE === "electron") {
-    window.windowControlApi.close();
+    let hideToTray = true; // On by default
+    if (settingsStore?.settings?.general?.closeToSystemTray === false)
+      hideToTray = false;
+
+    if (hideToTray) window.windowControlApi.hide();
+    else window.windowControlApi.close();
   }
 }
 
@@ -110,20 +115,11 @@ function updateButton() {
   }
 }
 
-let firstSettingsReceive = true;
 onMounted(() => {
   settingsStore.initSettings();
 
   window.messageApi.receive("on-settings-change", (value) => {
     settingsStore.loadSettings(value);
-    if (firstSettingsReceive) {
-      firstSettingsReceive = false;
-      if (settingsStore.settings.general.startMainMinimized) {
-        window.messageApi.send("window-to-main", {
-          message: "minimize-main-window",
-        });
-      }
-    }
   });
 
   window.messageApi.receive("updater-message", (eventMessage) => {
