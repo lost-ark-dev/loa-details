@@ -37,7 +37,7 @@ import {
   getParsedLogs,
   getLogData,
   logFolder,
-} from "./log-files/helper";
+} from "./log-parser/file-parser";
 
 const store = new Store();
 
@@ -258,14 +258,12 @@ ipcMain.on("window-to-main", (event, arg) => {
 });
 
 app.on("window-all-closed", () => {
-  log.info("Window-all-closed fired");
   if (platform !== "darwin") {
     app.quit();
   }
 });
 
 app.on("activate", () => {
-  log.info("activate fired");
   if (mainWindow === null) {
     mainWindow = createMainWindow(appSettings);
   }

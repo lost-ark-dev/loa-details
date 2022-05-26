@@ -1,42 +1,24 @@
 <template>
   <div>
     <!-- Encounter selection -->
-    <q-select
-      v-model="selectedEncounter"
-      :options="encounterOptions"
-      label="Select Encounter"
-    />
     <div class="info-box">
-      <div v-if="logData.encounters[logViewerStore.currentEncounterIndex]">
+      <div v-if="logData">
         <span style="margin-right: 12px">
           Total DMG
-          {{
-            numberFormat(
-              logData.encounters[logViewerStore.currentEncounterIndex].gameState
-                .damageStatistics.totalDamageDealt
-            )
-          }}
+          {{ numberFormat(logData.damageStatistics.totalDamageDealt) }}
         </span>
         <span style="margin-right: 12px">
           Total TNK
-          {{
-            numberFormat(
-              logData.encounters[logViewerStore.currentEncounterIndex].gameState
-                .damageStatistics.totalDamageTaken
-            )
-          }}
+          {{ numberFormat(logData.damageStatistics.totalDamageTaken) }}
         </span>
       </div>
     </div>
     <div
-      v-if="
-        logData.encounters[logViewerStore.currentEncounterIndex] &&
-        overlayType === OverlayTypeDamages
-      "
+      v-if="logData && overlayType === OverlayTypeDamages"
       class="table-wrapper"
     >
       <table class="damage-meter-table">
-        <thead class="q-electron-drag">
+        <thead>
           <tr>
             <th style="width: 26px"></th>
             <th style="width: 100%"></th>
@@ -91,23 +73,18 @@
             :key="player.name"
             :player="player"
             :showTanked="damageType === DamageTypeTaken"
-            :fightDuration="
-              logData.encounters[logViewerStore.currentEncounterIndex].duration
-            "
+            :fightDuration="logData.duration"
             @click="focusPlayer(player)"
           />
         </tbody>
       </table>
     </div>
     <div
-      v-if="
-        logData.encounters[logViewerStore.currentEncounterIndex] &&
-        overlayType === OverlayTypeSkills
-      "
+      v-if="logData && overlayType === OverlayTypeSkills"
       class="table-wrapper"
     >
       <table class="damage-meter-table">
-        <thead class="q-electron-drag">
+        <thead>
           <tr>
             <th style="width: 32px"></th>
             <th style="width: 100%"></th>
@@ -142,9 +119,7 @@
             :key="skill.name"
             :skill="skill"
             :className="focusedPlayerClass"
-            :fightDuration="
-              logData.encounters[logViewerStore.currentEncounterIndex].duration
-            "
+            :fightDuration="logData.duration"
             @click.right="overlayType = OverlayTypeDamages"
           />
         </tbody>
@@ -159,12 +134,10 @@ import { ref, watch, onMounted } from "vue";
 import TableEntry from "../components/DamageMeter/TableEntry.vue";
 import SkillEntry from "../components/DamageMeter/SkillEntry.vue";
 
-import { useLogViewerStore } from "../stores/log-viewer";
 import { useSettingsStore } from "../stores/settings";
 
 import { cloneDeep } from "lodash";
 
-const logViewerStore = useLogViewerStore();
 const settingsStore = useSettingsStore();
 
 const props = defineProps({
@@ -188,31 +161,10 @@ function focusPlayer(player) {
   calculateSkills();
 }
 
-const encounterOptions = ref([]);
-const selectedEncounter = ref("");
-
-watch(selectedEncounter, (newVal, oldVal) => {
-  for (let i = 0; i < props.logData.encounters.length; i++) {
-    if (props.logData.encounters[i].name === selectedEncounter.value) {
-      logViewerStore.currentEncounterIndex = i;
-      break;
-    }
-  }
-
-  sortEntities();
-});
-
 const sortedEntities = ref([]);
 function sortEntities() {
-  if (!props.logData?.encounters[logViewerStore.currentEncounterIndex]) return;
-
-  const res = cloneDeep(
-    Object.values(
-      props.logData.encounters[logViewerStore.currentEncounterIndex].gameState
-        .entities
-    )
-  )
-    .filter((entity) => entity.isPlayer)
+  const res = cloneDeep(Object.values(props.logData.entities))
+    .filter((entity) => entity.isPlayer && entity.damageDealt > 0)
     .sort((a, b) => {
       if (settingsStore.settings.damageMeter.design.pinUserToTop) {
         if (a.name === "You") return -1e69;
@@ -246,17 +198,10 @@ function sortEntities() {
 
 const sortedSkills = ref([]);
 function calculateSkills() {
-  if (!props.logData?.encounters[logViewerStore.currentEncounterIndex]) return;
-
   sortedSkills.value = [];
   if (focusedPlayer.value === "#") return;
 
-  const entity = cloneDeep(
-    Object.values(
-      props.logData.encounters[logViewerStore.currentEncounterIndex].gameState
-        .entities
-    )
-  ).find((e) => {
+  const entity = cloneDeep(Object.values(props.logData.entities)).find((e) => {
     return e.name === focusedPlayer.value;
   });
   if (!entity) return;
@@ -285,23 +230,15 @@ function getPercentage(player, dmgType, relativeTo) {
   let b;
   if (dmgType === DamageTypeDealt) {
     if (relativeTo === "top") {
-      b =
-        props.logData.encounters[logViewerStore.currentEncounterIndex].gameState
-          .damageStatistics.topDamageDealt;
+      b = props.logData.damageStatistics.topDamageDealt;
     } else {
-      b =
-        props.logData.encounters[logViewerStore.currentEncounterIndex].gameState
-          .damageStatistics.totalDamageDealt;
+      b = props.logData.damageStatistics.totalDamageDealt;
     }
   } else {
     if (relativeTo === "top") {
-      b =
-        props.logData.encounters[logViewerStore.currentEncounterIndex].gameState
-          .damageStatistics.topDamageTaken;
+      b = props.logData.damageStatistics.topDamageTaken;
     } else {
-      b =
-        props.logData.encounters[logViewerStore.currentEncounterIndex].gameState
-          .damageStatistics.totalDamageTaken;
+      b = props.logData.damageStatistics.totalDamageTaken;
     }
   }
   return ((a / b) * 100).toFixed(1);
@@ -312,8 +249,6 @@ function numberFormat(n) {
 }
 
 function onNewLogData() {
-  encounterOptions.value = props.logData.encounters.map((x) => x.name);
-  selectedEncounter.value = encounterOptions.value[0];
   sortEntities();
 }
 

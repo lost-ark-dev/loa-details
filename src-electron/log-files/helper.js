@@ -10,15 +10,11 @@ const path = require("path");
 const customParseFormat = require("dayjs/plugin/customParseFormat");
 dayjs.extend(customParseFormat);
 
-const mainFolder = path.join(getPath("documents"), "LOA Details");
-if (!fs.existsSync(mainFolder)) {
-  fs.mkdirSync(mainFolder);
-}
-export const logFolder = path.join(mainFolder, "Logs");
+export const logFolder = path.join(getPath("documents"), "Lost Ark Logs");
 if (!fs.existsSync(logFolder)) {
   fs.mkdirSync(logFolder);
 }
-const parsedFolderName = "parsed-v2";
+const parsedFolderName = "parsed";
 const parsedLogFolder = path.join(logFolder, parsedFolderName);
 if (!fs.existsSync(parsedLogFolder)) {
   fs.mkdirSync(parsedLogFolder);

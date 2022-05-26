@@ -12,16 +12,6 @@
       style="height: calc(100vh - 80px); padding: 8px 16px"
     >
       <div class="flex logs-top-bar">
-        <q-select
-          filled
-          v-model="encounterFilter"
-          multiple
-          clearable
-          :options="encounterOptions"
-          label="Filter encounters"
-          style="width: 250px"
-        />
-
         <div style="margin-left: auto">
           <q-btn
             unelevated
@@ -37,19 +27,71 @@
             @click="getLogfiles"
           />
         </div>
+        <div style="display: flex; width: 100%; margin: 16px 0">
+          <q-select
+            filled
+            v-model="encounterFilter"
+            multiple
+            clearable
+            :options="encounterOptions"
+            label="Filter encounters"
+            style="width: 250px"
+          />
+
+          <q-slider
+            style="margin: 0 16px"
+            :model-value="durationSlider"
+            @change="
+              (val) => {
+                durationSlider = val;
+              }
+            "
+            color="primary"
+            label-always
+            switch-label-side
+            :label-value="'Minimum ' + durationSlider + ' minutes'"
+            markers
+            marker-labels
+            :min="0"
+            :max="3"
+            :step="0.5"
+          >
+            <template v-slot:marker-label-group="scope">
+              <div
+                v-for="marker in scope.markerList"
+                :key="marker.index"
+                :class="[
+                  `text-blue-${2 + Math.ceil(marker.value / 2)}`,
+                  marker.classes,
+                ]"
+                :style="marker.style"
+                @click="model = marker.value"
+              >
+                {{ marker.value }}
+              </div>
+            </template>
+          </q-slider>
+        </div>
       </div>
 
       <q-table
         title="Logs"
         :rows="logFilesComputed"
         :columns="columns"
+        :visible-columns="visibleColumns"
         row-key="filename"
         dark
         color="amber"
         @row-click="onRowClick"
         :pagination="logsPagination"
         @update:pagination="onPagination"
-      />
+      >
+        <template v-slot:body-cell="props">
+          <q-td :props="props" :style="props.row.rowStyle">
+            {{ props.value }}
+          </q-td>
+        </template>
+      </q-table>
     </q-scroll-area>
     <q-scroll-area
       v-if="logFile.viewingLogFile"
@@ -70,7 +112,7 @@
 </template>
 
 <script setup>
-import { ref, computed, reactive, onMounted } from "vue";
+import { ref, computed, watch, reactive, onMounted } from "vue";
 import dayjs from "dayjs";
 
 import LogView from "src/components/LogView.vue";
@@ -85,9 +127,16 @@ const logsPagination = ref({
 });
 
 const encounterFilter = ref(null);
+const durationSlider = ref(0);
 const encounterOptions = ref([]);
 
 const columns = [
+  {
+    name: "rowStyle",
+    field: "rowStyle",
+    align: "left",
+    label: "",
+  },
   {
     name: "encounterName",
     field: "encounterName",
@@ -96,42 +145,71 @@ const columns = [
     sortable: true,
   },
   {
+    name: "duration",
+    field: "duration",
+    align: "left",
+    label: "Duration",
+    sortable: true,
+  },
+  {
     name: "dateText",
     field: "dateText",
     align: "left",
-    label: "Date",
+    label: "Session Date",
     sortable: true,
     align: "right",
   },
 ];
+const visibleColumns = ref(["encounterName", "duration", "dateText"]);
 
 const logFiles = ref([]);
 const logFilesComputed = computed(() => {
-  return logFiles.value.filter((x) =>
-    encounterFilter.value
-      ? encounterFilter.value.includes(x.encounterName)
-      : true
-  );
+  return logFiles.value
+    .filter((x) =>
+      encounterFilter.value && encounterFilter.value.length > 0
+        ? encounterFilter.value.includes(x.encounterName)
+        : true
+    )
+    .filter((x) => {
+      console.log(x.durationTs, durationSlider.value);
+      return x.durationTs / (1000 * 60) >= durationSlider.value;
+    });
 });
 const logFile = reactive({
   viewingLogFile: false,
   data: {},
 });
 
+function millisToMinutesAndSeconds(millis) {
+  const minutes = Math.floor(millis / 60000);
+  const seconds = ((millis % 60000) / 1000).toFixed(0);
+  return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+}
+
 function calculateLogFileList(value) {
-  value
-    .filter((x) => x.size > 8192)
-    .forEach((val) => {
-      if (!encounterOptions.value.includes(val.encounterName))
-        encounterOptions.value.push(val.encounterName);
+  let i = 0;
+  value.forEach((val) => {
+    i++;
+
+    val.parsedContents.encounters.forEach((val_encounter) => {
+      if (
+        !encounterOptions.value.includes(
+          val_encounter.mostDamageTakenEntity.name
+        )
+      )
+        encounterOptions.value.push(val_encounter.mostDamageTakenEntity.name);
 
       logFiles.value.push({
-        filename: val.filename,
-        encounterName: val.encounterName,
+        rowStyle: i % 2 === 0 ? "background:#e3cc2640" : "",
+        filename: val_encounter.encounterFile,
+        encounterName: val_encounter.mostDamageTakenEntity.name,
         date: val.date,
         dateText: dayjs(val.date).format("DD/MM/YYYY HH:mm:ss"),
+        durationTs: val_encounter.duration,
+        duration: millisToMinutesAndSeconds(val_encounter.duration),
       });
     });
+  });
 
   logFiles.value = logFiles.value.reverse();
 }

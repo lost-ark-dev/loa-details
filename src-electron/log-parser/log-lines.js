@@ -3,7 +3,7 @@ import { tryParseInt } from "../util/helpers";
 // logId = 0
 export class LogMessage {
   constructor(lineSplit) {
-    //this.timestamp = lineSplit[1];
+    this.timestamp = new Date(lineSplit[1]);
     this.message = lineSplit[2];
   }
 }
@@ -11,7 +11,7 @@ export class LogMessage {
 // logId = 1
 export class LogInitEnv {
   constructor(lineSplit) {
-    //this.timestamp = lineSplit[1];
+    this.timestamp = new Date(lineSplit[1]);
     this.playerId = lineSplit[2];
   }
 }
@@ -26,7 +26,7 @@ export class LogPhaseTransition {
 // logId = 3
 export class LogNewPc {
   constructor(lineSplit) {
-    //this.timestamp = lineSplit[1];
+    this.timestamp = new Date(lineSplit[1]);
     this.id = lineSplit[2];
     this.name = lineSplit[3] || "Unknown Entity";
     this.classId = tryParseInt(lineSplit[4]);
@@ -40,7 +40,7 @@ export class LogNewPc {
 // logId = 4
 export class LogNewNpc {
   constructor(lineSplit) {
-    //this.timestamp = lineSplit[1];
+    this.timestamp = new Date(lineSplit[1]);
     this.id = lineSplit[2];
     //this.npcId = tryParseInt(lineSplit[3]);
     this.name = lineSplit[4] || "Unknown Entity";
@@ -73,7 +73,7 @@ export class LogSkillStage {
 // logId = 8
 export class LogDamage {
   constructor(lineSplit) {
-    //this.timestamp = lineSplit[1];
+    this.timestamp = new Date(lineSplit[1]);
     this.id = lineSplit[2];
     this.name = lineSplit[3] || "Unknown Entity";
     this.skillId = tryParseInt(lineSplit[4]);
@@ -95,7 +95,7 @@ export class LogDamage {
 // logId = 9
 export class LogHeal {
   constructor(lineSplit) {
-    //this.timestamp = lineSplit[1];
+    this.timestamp = new Date(lineSplit[1]);
     this.id = lineSplit[2];
     this.name = lineSplit[3] || "Unknown Entity";
     /* this.healAmount = tryParseInt(lineSplit[4]);
@@ -113,7 +113,7 @@ export class LogBuff {
 // logId = 11
 export class LogCounterattack {
   constructor(lineSplit) {
-    //this.timestamp = lineSplit[1];
+    this.timestamp = new Date(lineSplit[1]);
     this.id = lineSplit[2];
     this.name = lineSplit[3] || "Unknown Entity";
     /* this.targetId = lineSplit[4];

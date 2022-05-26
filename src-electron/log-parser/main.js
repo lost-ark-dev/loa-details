@@ -37,15 +37,16 @@ const skillTemplate = {
 
 export class LogParser {
   constructor(isLive = false) {
-    this.isLive = isLive;
-
     this.eventEmitter = new EventEmitter();
-
+    this.isLive = isLive;
     this.resetTimer = null;
     this.dontResetOnZoneChange = false;
     this.resetState();
+    this.encounters = [];
 
-    setInterval(this.broadcastStateChange.bind(this), 100);
+    if (this.isLive) {
+      setInterval(this.broadcastStateChange.bind(this), 100);
+    }
   }
 
   resetState() {
@@ -84,6 +85,16 @@ export class LogParser {
         isPlayer: entitiesCopy[entity].isPlayer,
       });
     }
+  }
+  splitEncounter() {
+    const curState = cloneDeep(this.game);
+    if (
+      curState.fightStartedOn != 0 && // no combat packets
+      (curState.damageStatistics.totalDamageDealt != 0 ||
+        curState.damageStatistics.totalDamageTaken) // no player damage dealt OR taken
+    )
+      this.encounters.push(curState);
+    this.resetState();
   }
 
   broadcastStateChange() {
@@ -174,7 +185,7 @@ export class LogParser {
         this.eventEmitter.emit("message", "new-zone");
       }
     } else {
-      // TODO: Log parser
+      this.splitEncounter();
     }
   }
 
@@ -302,9 +313,9 @@ export class LogParser {
       );
     }
 
-    const curTime = +new Date();
-    if (this.game.fightStartedOn === 0) this.game.fightStartedOn = curTime;
-    this.game.lastCombatPacket = curTime;
+    if (this.game.fightStartedOn === 0)
+      this.game.fightStartedOn = +logLine.timestamp;
+    this.game.lastCombatPacket = +logLine.timestamp;
   }
 
   // logId = 9
