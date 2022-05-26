@@ -52,12 +52,6 @@
       }}
       <span class="ex">%</span>
     </td>
-    <td
-      v-if="settingsStore.settings.damageMeter.tabs.counterCount.enabled"
-      class="text-center"
-    >
-      {{ skill.hits.counter }}
-    </td>
     <td class="text-center">
       {{ maxDamage[0] }}
       <span class="ex">

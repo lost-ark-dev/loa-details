@@ -132,14 +132,6 @@
             >
               B.A.
             </th>
-            <th
-              v-if="
-                settingsStore.settings.damageMeter.tabs.counterCount.enabled
-              "
-              style="width: 44px"
-            >
-              CNTR
-            </th>
             <th style="width: 44px">MaxHit</th>
             <th style="width: 52px">TotalHits</th>
           </tr>
