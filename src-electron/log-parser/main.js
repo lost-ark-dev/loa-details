@@ -8,6 +8,7 @@ import { tryParseInt } from "../util/helpers";
 const REMOVE_OVERKILL_DAMAGE = true; // TODO: add this to settings
 
 const entityTemplate = {
+  lastUpdate: 0,
   name: "",
   class: "",
   isPlayer: false,
@@ -52,8 +53,6 @@ export class LogParser {
   resetState() {
     log.debug("Resetting state");
 
-    this.resetTimer = null;
-
     const curTime = +new Date();
 
     this.game = {
@@ -71,20 +70,25 @@ export class LogParser {
 
     this.eventEmitter.emit("reset-state");
   }
-  cancelReset() {
-    if (this.resetTimer) clearTimeout(this.resetTimer);
-    this.resetTimer = null;
-  }
   softReset() {
+    this.resetTimer = null;
     const entitiesCopy = cloneDeep(this.game.entities);
     this.resetState();
     for (const entity of Object.keys(entitiesCopy)) {
+      // don't keep entity if it hasn't been updated in 10 minutes
+      if (+new Date() - entitiesCopy[entity].lastUpdate > 10 * 60 * 1000)
+        continue;
+
       this.updateEntity(entity, {
         name: entitiesCopy[entity].name,
         class: entitiesCopy[entity].class,
         isPlayer: entitiesCopy[entity].isPlayer,
       });
     }
+  }
+  cancelReset() {
+    if (this.resetTimer) clearTimeout(this.resetTimer);
+    this.resetTimer = null;
   }
   splitEncounter() {
     const curState = cloneDeep(this.game);
@@ -150,15 +154,18 @@ export class LogParser {
   }
 
   updateEntity(entityId, values) {
+    const updateTime = { lastUpdate: +new Date() };
     if (!(entityId in this.game.entities)) {
       this.game.entities[entityId] = {
         ...cloneDeep(entityTemplate),
         ...values,
+        ...updateTime,
       };
     } else {
       this.game.entities[entityId] = {
         ...this.game.entities[entityId],
         ...values,
+        ...updateTime,
       };
     }
   }
@@ -181,7 +188,7 @@ export class LogParser {
     if (this.isLive) {
       if (this.dontResetOnZoneChange === false && this.resetTimer == null) {
         log.debug("Setting a reset timer");
-        this.resetTimer = setTimeout(this.resetState.bind(this), 6000);
+        this.resetTimer = setTimeout(this.softReset.bind(this), 6000);
         this.eventEmitter.emit("message", "new-zone");
       }
     } else {
