@@ -1,13 +1,4 @@
-import {
-  app,
-  dialog,
-  nativeTheme,
-  ipcMain,
-  Menu,
-  Tray,
-  Notification,
-  shell,
-} from "electron";
+import { app, dialog, nativeTheme, ipcMain, Menu, Tray, shell } from "electron";
 import { initialize } from "@electron/remote/main";
 import { setupBridge, httpServerEventEmitter } from "./http-bridge";
 
