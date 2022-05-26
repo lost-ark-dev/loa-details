@@ -9,7 +9,7 @@ import {
   shell,
 } from "electron";
 import { initialize } from "@electron/remote/main";
-import { setupBridge, httpServerEventEmitter } from "./packet-capture-bridge";
+import { setupBridge, httpServerEventEmitter } from "./http-bridge";
 
 import log from "electron-log";
 import path from "path";
@@ -43,7 +43,6 @@ const store = new Store();
 
 let prelauncherWindow, mainWindow, damageMeterWindow;
 let tray = null;
-let isQuiting;
 
 const appLockKey = { myKey: "loa-details" };
 const gotTheLock = app.requestSingleInstanceLock(appLockKey);
@@ -150,7 +149,6 @@ function startApplication() {
     {
       label: "Quit",
       click() {
-        isQuiting = true;
         app.quit();
       },
     },
@@ -189,23 +187,6 @@ function startApplication() {
 
   mainWindow = createMainWindow(appSettings);
   damageMeterWindow = createDamageMeterWindow(logParser);
-
-  mainWindow.on("close", function (event) {
-    let hideToTray = true; // this is on by default
-    if (appSettings?.general?.closeToSystemTray === false) hideToTray = false;
-
-    if (!isQuiting && hideToTray) {
-      event.preventDefault();
-      mainWindow.hide();
-
-      new Notification({
-        title: "LOA Details",
-        body: "Main window is hidden to system tray. Right click the icon to restore main window.",
-      }).show();
-
-      event.returnValue = false;
-    }
-  });
 }
 
 let damageMeterWindowOldSize, damageMeterWindowOldMinimumSize;
@@ -278,8 +259,4 @@ app.on("activate", () => {
   if (mainWindow === null) {
     mainWindow = createMainWindow(appSettings);
   }
-});
-
-app.on("before-quit", function () {
-  isQuiting = true;
 });
