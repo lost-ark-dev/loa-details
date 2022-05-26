@@ -32,7 +32,7 @@ import {
 
 import { SessionState } from "./session-state";
 
-import { parseLogs, getParsedLogs, getLogData } from "./log-files/helper";
+import { parseLogs, getParsedLogs, getLogData, getLogDirectory } from "./log-files/helper";
 
 const store = new Store();
 
@@ -241,6 +241,9 @@ ipcMain.on("window-to-main", (event, arg) => {
     parseLogs();
     const parsedLogs = getParsedLogs();
     event.reply("parsed-logs-list", parsedLogs);
+  } else if (arg.message === "open-log-directory") {
+    const parsedLogFolder = getLogDirectory();
+    shell.openPath(parsedLogFolder);
   } else if (arg.message === "get-parsed-log") {
     const logData = getLogData(arg.value);
     event.reply("parsed-log", logData);
