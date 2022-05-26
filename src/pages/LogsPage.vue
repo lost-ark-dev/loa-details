@@ -26,6 +26,13 @@
           style="margin-left: auto"
           unelevated
           color="primary"
+          label="Open Folder"
+          @click="openLogDirectory"
+        />
+        <q-btn
+          style="margin-left: auto"
+          unelevated
+          color="primary"
           label="Refresh"
           @click="getLogfiles"
         />
@@ -142,6 +149,10 @@ function onPagination(newPagination) {
 function getLogfiles() {
   logFiles.value = [];
   window.messageApi.send("window-to-main", { message: "get-parsed-logs" });
+}
+
+function openLogDirectory() {
+  window.messageApi.send("window-to-main", { message: "open-log-directory" });
 }
 
 onMounted(() => {

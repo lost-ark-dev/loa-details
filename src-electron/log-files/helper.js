@@ -96,3 +96,8 @@ export function getLogData(filename) {
   );
   return JSON.parse(contents);
 }
+
+
+export function getLogDirectory() {
+  return parsedLogFolder;
+}
