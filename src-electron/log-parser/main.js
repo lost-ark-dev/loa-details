@@ -295,7 +295,7 @@ export class LogParser {
     }
 
     if (damageTarget.isPlayer) {
-      this.game.damageStatistics.totalDamageTaken += damage;
+      this.game.damageStatistics.totalDamageTaken += logLine.damage;
       this.game.damageStatistics.topDamageTaken = Math.max(
         this.game.damageStatistics.topDamageTaken,
         damageTarget.damageTaken
