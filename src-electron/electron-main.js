@@ -9,11 +9,12 @@ import {
   shell,
 } from "electron";
 import { initialize } from "@electron/remote/main";
-import { autoUpdater } from "electron-updater";
-import { ConnectionBuilder } from "electron-cgi";
+import { setupBridge, httpServerEventEmitter } from "./packet-capture-bridge";
+
 import log from "electron-log";
 import path from "path";
 import os from "os";
+import Store from "electron-store";
 
 import {
   createPrelauncherWindow,
@@ -22,8 +23,23 @@ import {
 } from "./electron-windows";
 
 import { getSettings, saveSettings } from "./util/app-settings";
-import { SessionState } from "./session-state";
-import { parseLogs, getParsedLogs, getLogData } from "./log-files/helper";
+
+import {
+  updaterEventEmitter,
+  checkForUpdates,
+  quitAndInstall,
+} from "./util/updater";
+
+import { LogParser } from "./log-parser/main";
+
+import {
+  parseLogs,
+  getParsedLogs,
+  getLogData,
+  logFolder,
+} from "./log-parser/file-parser";
+
+const store = new Store();
 
 let prelauncherWindow, mainWindow, damageMeterWindow;
 let tray = null;
@@ -45,25 +61,23 @@ if (!gotTheLock) {
   });
 }
 
-autoUpdater.logger = log;
-autoUpdater.logger.transports.file.level = "info";
-
 initialize();
 
-const sessionState = new SessionState();
+const logParser = new LogParser((isLive = true));
 
 let appSettings = getSettings();
-sessionState.dontResetOnZoneChange =
+
+logParser.dontResetOnZoneChange =
   appSettings?.damageMeter?.functionality?.dontResetOnZoneChange;
 appSettings.appVersion = app.getVersion();
 
-if (appSettings?.uploads?.uploadKey && appSettings?.uploads?.uploadKey !== "") {
-  sessionState.getRecentLogs().then((logs) => {
-    appSettings.uploads.recentSessions = logs;
-  }).catch((logErr) => {
-    log.error(logErr);
-  })
-}
+// if (appSettings?.uploads?.uploadKey && appSettings?.uploads?.uploadKey !== "") {
+//   sessionState.getRecentLogs().then((logs) => {
+//     appSettings.uploads.recentSessions = logs;
+//   }).catch((logErr) => {
+//     log.error(logErr);
+//   })
+// }
 
 let connection = null; // reserved for electron-cgi connection
 
@@ -77,62 +91,44 @@ try {
   }
 } catch (_) {}
 
-function prelauncherMessage(value) {
-  log.info(value);
-  prelauncherWindow.webContents.send("prelauncher-message", value);
-}
-
 app.whenReady().then(() => {
   // Don't create prelauncher if debugging
   if (!process.env.DEBUGGING) {
-    prelauncherWindow = createPrelauncherWindow(prelauncherWindow);
+    prelauncherWindow = createPrelauncherWindow();
     prelauncherWindow.on("show", () => {
-      autoUpdater.checkForUpdates();
+      checkForUpdates();
     });
   } else {
     startApplication();
   }
 });
 
-autoUpdater.on("checking-for-update", () => {
-  prelauncherMessage("Checking for updates...");
-});
-autoUpdater.on("update-available", (info) => {
-  prelauncherMessage("Found a new update! Starting download...");
-});
-autoUpdater.on("update-not-available", (info) => {
-  prelauncherMessage("Starting LOA Details!");
+updaterEventEmitter.on("event", (details) => {
+  if (
+    details.message === "update-not-available" &&
+    typeof mainWindow == "undefined"
+  ) {
+    startApplication();
 
-  startApplication();
-
-  prelauncherWindow.close();
-  prelauncherWindow = null;
-});
-autoUpdater.on("error", (err) => {
-  prelauncherMessage({ error: { message: "Failed To Update", reason: err.message }});
-
-  let counter = 0;
-  const startTimer = setInterval(() => {
-    prelauncherMessage({ error: { message: "Failed To Update", reason: `Starting in ${6 - counter} seconds...` }});
-    if (counter >= 5) {
-      clearInterval(startTimer);
-
-      startApplication();
-
+    if (typeof prelauncherWindow != "undefined") {
       prelauncherWindow.close();
       prelauncherWindow = null;
     }
-    counter++;
-  }, 1000)
-});
-autoUpdater.on("download-progress", (progressObj) => {
-  prelauncherMessage(
-    `Downloading new update (${progressObj.percent.toFixed(0)}%)`
-  );
-});
-autoUpdater.on("update-downloaded", (info) => {
-  prelauncherMessage("Starting updater...");
-  autoUpdater.quitAndInstall(false, true); // isSilent=false, forceRunAfter=true
+  }
+
+  // quitAndInstall only when prelauncher is visible (aka startup of application)
+  if (
+    details.message === "update-downloaded" &&
+    typeof prelauncherWindow != "undefined"
+  ) {
+    quitAndInstall(false, true); // isSilent=false, forceRunAfter=true
+  }
+
+  if (typeof prelauncherWindow != "undefined") {
+    prelauncherWindow.webContents.send("updater-message", details);
+  } else if (typeof mainWindow != "undefined") {
+    mainWindow.webContents.send("updater-message", details);
+  }
 });
 
 function startApplication() {
@@ -162,60 +158,36 @@ function startApplication() {
   tray.setToolTip("LOA Details");
   tray.setContextMenu(contextMenu);
 
-  try {
-    const params = [];
-    if (appSettings?.general?.useWinpcap) params.push("useWinpcap");
-    if (appSettings?.general?.server === "russia") params.push("russiaClient");
-    if (appSettings?.general?.server === "korea") params.push("koreaClient");
+  setupBridge(appSettings);
 
-    log.debug(`DEBUGGING?: ${process.env.DEBUGGING}`);
-    if (process.env.DEBUGGING) {
-      connection = new ConnectionBuilder()
-        .connectTo(
-          path.resolve(__dirname, "../../binary/LostArkLogger.exe"),
-          ...params
-        )
-        .build();
-    } else {
-      connection = new ConnectionBuilder()
-        .connectTo("LostArkLogger.exe", ...params)
-        .build();
+  httpServerEventEmitter.on("packet", (value) => {
+    logParser.parseLogLine(value);
+  });
+
+  httpServerEventEmitter.on("debug", (data) => {
+    log.info("debug:", data);
+  });
+
+  const dontShowPatreonBox = store.get("dont_show_patreon_box");
+  if (!dontShowPatreonBox) {
+    const userSelection = dialog.showMessageBoxSync(mainWindow, {
+      type: "info",
+      title: "Support LOA Details",
+      message: "Would you like to support this project by donating on Patreon?",
+      buttons: ["No", "Yes"],
+      defaultId: 0,
+      cancelId: 0,
+    });
+
+    if (userSelection === 1) {
+      shell.openExternal("https://www.patreon.com/loadetails");
     }
-    log.info("Started LostArkLogger.exe");
-  } catch (e) {
-    log.error("Error while trying to open packet capturer: " + e);
 
-    dialog.showErrorBox(
-      "Error while trying to open packet capturer",
-      "Error: " + e.message
-    );
-
-    log.info("Exiting app...");
-    app.exit();
+    store.set("dont_show_patreon_box", "true");
   }
 
-  connection.on("message", (value) => sessionState.onMessage(value));
-  connection.on("new-zone", (value) => sessionState.onNewZone(value));
-  connection.on("raid-end", (value) => sessionState.onRaidEnd(value));
-  connection.on("combat-event", (value) => sessionState.onCombatEvent(value));
-  connection.onDisconnect = () => {
-    log.error(
-      "The connection to the Lost Ark Packet Capture was lost for some reason. Exiting app..."
-    );
-
-    // dialog.showErrorBox(
-    //   "Error",
-    //   "The connection to the Lost Ark Packet Capture was lost for some reason. Exiting app..."
-    // );
-
-    log.info("Exiting app...");
-    app.exit();
-  };
-
-  mainWindow = createMainWindow(mainWindow, appSettings);
-  damageMeterWindow = createDamageMeterWindow(damageMeterWindow, sessionState, appSettings);
-
-  sessionState.addEventListenerWindow("settings", mainWindow);
+  mainWindow = createMainWindow(appSettings);
+  damageMeterWindow = createDamageMeterWindow(logParser, appSettings);
 
   mainWindow.on("close", function (event) {
     let hideToTray = true; // this is on by default
@@ -240,14 +212,15 @@ let damageMeterWindowOldSize, damageMeterWindowOldMinimumSize;
 ipcMain.on("window-to-main", (event, arg) => {
   log.debug("window-to-main");
   if (arg.message === "reset-session") {
-    sessionState.resetState();
+    //logParser.resetState();
+    logParser.softReset();
   } else if (arg.message === "cancel-reset-session") {
-    if (sessionState.resetTimer) {
-      sessionState.cancelReset();
+    if (logParser.resetTimer) {
+      logParser.cancelReset();
     }
   } else if (arg.message === "toggle-damage-meter-minimized-state") {
     if (arg.value) {
-      let newW = 150,
+      let newW = 160,
         newY = 64;
 
       damageMeterWindowOldSize = damageMeterWindow.getSize();
@@ -275,7 +248,7 @@ ipcMain.on("window-to-main", (event, arg) => {
     damageMeterWindow.webContents.send("on-settings-change", appSettings);
     if (arg.source) mainWindow.webContents.send("on-settings-change", appSettings); // Update main window when logs are toggled
 
-    sessionState.dontResetOnZoneChange = appSettings.damageMeter.functionality.dontResetOnZoneChange;
+    // sessionState.dontResetOnZoneChange = appSettings.damageMeter.functionality.dontResetOnZoneChange;
   } else if (arg.message === "get-settings") {
     event.reply("on-settings-change", appSettings);
   } else if (arg.message === "minimize-main-window") {
@@ -284,27 +257,29 @@ ipcMain.on("window-to-main", (event, arg) => {
     parseLogs();
     const parsedLogs = getParsedLogs();
     event.reply("parsed-logs-list", parsedLogs);
+  } else if (arg.message === "open-log-directory") {
+    shell.openPath(logFolder);
   } else if (arg.message === "get-parsed-log") {
     const logData = getLogData(arg.value);
     event.reply("parsed-log", logData);
-  } else if (arg.message === "open-url") {
+  } else if (arg.message === "open-link") {
     shell.openExternal(arg.value);
-    // event.reply("open-url-success", true);
-    log.debug(`Opened external link ${arg.value}`);
+  } else if (arg.message === "check-for-updates") {
+    checkForUpdates();
+  } else if (arg.message === "quit-and-install") {
+    quitAndInstall();
   }
 });
 
 app.on("window-all-closed", () => {
-  log.info("Window-all-closed fired");
   if (platform !== "darwin") {
     app.quit();
   }
 });
 
 app.on("activate", () => {
-  log.info("activate fired");
   if (mainWindow === null) {
-    createMainWindow(mainWindow);
+    mainWindow = createMainWindow(appSettings);
   }
 });
 

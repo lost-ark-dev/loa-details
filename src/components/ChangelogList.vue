@@ -1,7 +1,5 @@
 <template>
-  <h5 style="margin-left: 16px; margin-bottom: 0">
-    Changelog (for the last 5 versions)
-  </h5>
+  <h5 style="margin-left: 16px; margin-bottom: 0">Changelog</h5>
   <q-list padding>
     <q-item v-for="change in changes" :key="change.version">
       <q-item-section>
@@ -15,24 +13,67 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 
 const changes = ref([
   {
-    version: "0.3.6",
+    version: "0.2.9",
     mdFormattedLog: `
-    * Fixes to packet definitions
-    * * Crit and damage modifiers
-    * * Pause on bosses dying/raid wiping
-    `
+    * Added an option to check for updates on the main window. It also automatically checks for update once every hour now.
+    * Added a stylized mokoko icon.
+    * Refactored a lot of code.
+    * Now it remembers the size and position of the main window as well.
+    * Added a security feature to only accept packets from localhost.
+    * Updated LostArKLogger. The logging system has changed a lot which also opened doors for new possibilites that'll come in the future releases.
+    * Log folder has moved into "Documents/Lost Ark Logs" from of "Documents/LOA Details/Logs". The logging system has also changed which made old logs incompatible. You can delete the "LOA Details" folder in your documents if you'd like.
+    * Added a "Open Folder" button to logs page.
+    * Now each encounter is listed on the log page instead of each session. Also added "Encounter Duration" to logs page.
+    * Added a slider to filter out logs under X minutes.
+  `,
   },
   {
-    version: "0.2.4 - 0.3.5",
+    version: "0.2.8",
     mdFormattedLog: `
-    * Added uploading to web.
-    * Fixes to packet definitions
-    * Added auto pause on raid end (only working for bosses)
-    `
+    * Added exception handling when parsing log files to fix crashes when viewing Log page.
+    * Added "Maximum Hits" column to skill view on both damage meter and log viewer. Also changed "Total" column name to "Total Hits" to remove confusion.
+    * Fixed a bug where it would show "Inf%" on Damage percentage column. Also temporarily "fixed" a bug where it would register Bleed attacks with really high damage numbers.
+    * Added a clickthrough functionality. Now you can click the "Ghost" icon on damage meter and it will be click through. To be able to click at it again, ALT+TAB into the damage meter window.
+  `,
+  },
+  {
+    version: "0.2.7",
+    mdFormattedLog: `
+    * "TOTAL" column added to skill view on damage meter and log view. It displays the amount of times the skill is used.
+    * Logger now correctly separates log files based on sessions (zones).
+    * Logger now displays correct crit rate.
+    * Log pages now filters out logs that are less than 8 KB in size.
+    * Added encounter names and encounter filters to the log page.
+    * Logs page now remembers the page of the table when you click "Back" on a log view.
+  `,
+  },
+  {
+    version: "0.2.6",
+    mdFormattedLog: `
+    * Changed communication method of the packet capturer and electron app from stdin/out to http server.
+    * Fixed an issue where the logger was crashing during loading screens.
+  `,
+  },
+  {
+    version: "0.2.5",
+    mdFormattedLog: `
+    * Updated LostArkLogger to fix some bugs.
+    * You can now visualize your logs on the log viewer and sort by encounters! This also means you can visualize your old logs prior to this update.
+    * When viewing skill data of a player, you can now view special attack rates such as crit rate, front attack rate etc... per skill.
+  `,
+  },
+  {
+    version: "0.2.4",
+    mdFormattedLog: `
+    * Updated LostArkLogger so it works after the new patch.
+    - This also means player names appear correctly once again.
+    * Fixed a bug with the logger that resulted in packets not being captured after zone change.
+    * Added a Patreon page in case you want to support the development of LOA Details (not related to the main project).
+  `,
   },
   {
     version: "0.2.3",

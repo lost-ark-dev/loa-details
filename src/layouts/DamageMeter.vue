@@ -24,7 +24,10 @@
             isMinimized
           "
         >
-          LOA Details² v{{ settingsStore.settings.appVersion }}
+          LOA Details
+          <span v-if="!isMinimized">
+            v{{ settingsStore.settings.appVersion }}
+          </span>
         </div>
         <div v-if="!isMinimized">
           <span style="margin-right: 12px">
@@ -38,6 +41,14 @@
         </div>
       </div>
       <div style="margin-left: auto">
+        <q-btn
+          v-if="!isMinimized"
+          round
+          icon="fa-solid fa-ghost"
+          @click="enableClickthrough"
+          flat
+          size="sm"
+        />
         <q-btn
           v-if="!isMinimized"
           round
@@ -139,7 +150,26 @@
             <th style="width: 72px">Damage</th>
             <th style="width: 48px">D%</th>
             <th style="width: 52px">DPS</th>
-            <th style="width: 44px">HITS</th>
+            <th
+              v-if="settingsStore.settings.damageMeter.tabs.critRate.enabled"
+              style="width: 48px"
+            >
+              CRIT
+            </th>
+            <th
+              v-if="settingsStore.settings.damageMeter.tabs.faRate.enabled"
+              style="width: 48px"
+            >
+              F.A.
+            </th>
+            <th
+              v-if="settingsStore.settings.damageMeter.tabs.baRate.enabled"
+              style="width: 48px"
+            >
+              B.A.
+            </th>
+            <th style="width: 44px">MaxHit</th>
+            <th style="width: 52px">TotalHits</th>
           </tr>
         </thead>
         <tbody>
@@ -213,6 +243,16 @@ function toggleMinimizedState() {
   window.messageApi.send("window-to-main", {
     message: "toggle-damage-meter-minimized-state",
     value: isMinimized.value,
+  });
+}
+
+function enableClickthrough() {
+  window.windowControlApi.setIgnoreMouseEvents(true);
+  Notify.create({
+    message:
+      "<center>ALT+TAB back to the damage meter window to disable clickthrough.</center>",
+    color: "primary",
+    html: true,
   });
 }
 

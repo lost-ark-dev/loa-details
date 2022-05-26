@@ -96,10 +96,6 @@ const DPS = computed(() => {
   return abbreviateNumber((a / (props.fightDuration / 1000)).toFixed(0));
 });
 
-function numberFormat(n) {
-  return new Intl.NumberFormat("en-US").format(n);
-}
-
 function abbreviateNumber(n) {
   if (n < 1e3) return [n, ""];
   if (n >= 1e3 && n < 1e6) return [+(n / 1e3).toFixed(1), "k"];

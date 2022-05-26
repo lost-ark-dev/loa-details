@@ -2,7 +2,7 @@
   <q-layout view="lHh Lpr lFf">
     <q-header elevated>
       <q-bar class="q-electron-drag">
-        <div>LOA Details² v{{ settingsStore.settings.appVersion }}</div>
+        <div>LOA Details v{{ settingsStore.settings.appVersion }}</div>
 
         <q-space />
 
@@ -43,9 +43,20 @@
             @click="navigate"
           >
             Settings
-            <!-- <q-badge color="red" transparent>NEW</q-badge> -->
           </div>
         </router-link>
+        <div class="q-ml-md cursor-pointer non-selectable" @click="openDiscord">
+          <q-icon name="fa-brands fa-discord" />
+          &nbsp;Discord
+          <q-badge color="red" transparent>NEW</q-badge>
+        </div>
+        <div
+          class="q-ml-md cursor-pointer non-selectable"
+          style="margin-left: auto"
+          @click="updateButton"
+        >
+          {{ updateButtonText }}
+        </div>
       </div>
     </q-header>
 
@@ -56,7 +67,7 @@
 </template>
 
 <script setup>
-import { onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { useSettingsStore } from "../stores/settings";
 const settingsStore = useSettingsStore();
 
@@ -78,6 +89,27 @@ function closeApp() {
   }
 }
 
+function openDiscord() {
+  window.messageApi.send("window-to-main", {
+    message: "open-link",
+    value: "https://discord.gg/yQmN76dnud",
+  });
+}
+
+const isUpdateAvailable = ref(false);
+const updateButtonText = ref("Check for Updates");
+function updateButton() {
+  if (!isUpdateAvailable.value) {
+    window.messageApi.send("window-to-main", {
+      message: "check-for-updates",
+    });
+  } else {
+    window.messageApi.send("window-to-main", {
+      message: "quit-and-install",
+    });
+  }
+}
+
 let firstSettingsReceive = true;
 onMounted(() => {
   settingsStore.initSettings();
@@ -93,6 +125,36 @@ onMounted(() => {
       }
     }
   });
+
+  window.messageApi.receive("updater-message", (eventMessage) => {
+    if (eventMessage.message === "checking-for-update") {
+      updateButtonText.value = "Checking for updates...";
+    } else if (eventMessage.message === "update-available") {
+      updateButtonText.value = "Found a new update! Starting download...";
+    } else if (eventMessage.message === "update-not-available") {
+      updateButtonText.value = "No Update";
+      setTimeout(() => {
+        updateButtonText.value = "Check for Updates";
+      }, 3000);
+    } else if (eventMessage.message === "download-progress") {
+      updateButtonText.value = `Downloading update ${eventMessage.value.percent.toFixed(
+        0
+      )}%`;
+    } else if (eventMessage.message === "update-downloaded") {
+      updateButtonText.value = "Install New Update";
+      isUpdateAvailable.value = true;
+    } else if (eventMessage.message === "error") {
+      updateButtonText.value = "Error: " + eventMessage.value;
+    }
+  });
+
+  setInterval(() => {
+    if (!isUpdateAvailable.value) {
+      window.messageApi.send("window-to-main", {
+        message: "check-for-updates",
+      });
+    }
+  }, 60000);
 
   window.messageApi.send("window-to-main", { message: "get-settings" });
 });

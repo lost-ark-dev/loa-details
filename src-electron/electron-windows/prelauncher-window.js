@@ -2,8 +2,8 @@ import { BrowserWindow } from "electron";
 import { enable } from "@electron/remote/main";
 import path from "path";
 
-export function createPrelauncherWindow(prelauncherWindow) {
-  prelauncherWindow = new BrowserWindow({
+export function createPrelauncherWindow() {
+  let prelauncherWindow = new BrowserWindow({
     icon: path.resolve(__dirname, "icons/icon.png"),
     autoHideMenuBar: true,
     show: false,

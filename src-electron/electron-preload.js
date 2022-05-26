@@ -11,7 +11,7 @@ contextBridge.exposeInMainWorld("messageApi", {
   },
   receive: (channel, func) => {
     let validChannels = [
-      "prelauncher-message",
+      "updater-message",
       "pcap-on-message",
       "pcap-on-state-change",
       "pcap-on-reset-state",
@@ -19,7 +19,6 @@ contextBridge.exposeInMainWorld("messageApi", {
       "save-settings",
       "parsed-logs-list",
       "parsed-log",
-      "open-url",
     ];
 
     if (validChannels.includes(channel)) {
@@ -46,5 +45,9 @@ contextBridge.exposeInMainWorld("windowControlApi", {
 
   close() {
     BrowserWindow.getFocusedWindow().close();
+  },
+
+  setIgnoreMouseEvents(ignore, options) {
+    BrowserWindow.getFocusedWindow().setIgnoreMouseEvents(ignore, options);
   },
 });

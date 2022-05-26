@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { classes } from "../constants/classes";
 import { merge } from "lodash";
 
-export const useSettingsStore = defineStore("settings_v2", {
+export const useSettingsStore = defineStore("settings", {
   state: () => ({
     settings: {
       appVersion: "",

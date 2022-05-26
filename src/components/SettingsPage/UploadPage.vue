@@ -439,6 +439,6 @@ onMounted(() => {
 
 
 function openSite(url) {
-  window.messageApi.send("window-to-main", { message: "open-url", value: url });
+  window.messageApi.send("window-to-main", { message: "open-link", value: url });
 }
 </script>

@@ -14,10 +14,52 @@
       {{ skill.damagePercent }}<span class="ex">%</span>
     </td>
     <td class="text-center">
-      {{ numberFormat(DPS) }}
+      {{ DPS[0] }}
+      <span class="ex">
+        {{ DPS[1] }}
+      </span>
+    </td>
+    <td
+      v-if="settingsStore.settings.damageMeter.tabs.critRate.enabled"
+      class="text-center"
+    >
+      {{
+        skill.hits.total > 0
+          ? ((skill.hits.crit / skill.hits.total) * 100).toFixed(1)
+          : (0).toFixed(1)
+      }}
+      <span class="ex">%</span>
+    </td>
+    <td
+      v-if="settingsStore.settings.damageMeter.tabs.faRate.enabled"
+      class="text-center"
+    >
+      {{
+        skill.hits.total > 0
+          ? ((skill.hits.frontAttack / skill.hits.total) * 100).toFixed(1)
+          : (0).toFixed(1)
+      }}
+      <span class="ex">%</span>
+    </td>
+    <td
+      v-if="settingsStore.settings.damageMeter.tabs.baRate.enabled"
+      class="text-center"
+    >
+      {{
+        skill.hits.total > 0
+          ? ((skill.hits.backAttack / skill.hits.total) * 100).toFixed(1)
+          : (0).toFixed(1)
+      }}
+      <span class="ex">%</span>
     </td>
     <td class="text-center">
-      {{ skill.useCount }}
+      {{ maxDamage[0] }}
+      <span class="ex">
+        {{ maxDamage[1] }}
+      </span>
+    </td>
+    <td class="text-center">
+      {{ skill.hits.total }}
     </td>
     <div
       class="player-bar"
@@ -41,22 +83,24 @@ const props = defineProps({
   fightDuration: Number,
 });
 
-const DPS = computed(() => {
-  return (props.skill.totalDamage / (props.fightDuration / 1000)).toFixed(0);
-});
-
 const abbreviatedDamage = computed(() => {
   return abbreviateNumber(props.skill.totalDamage);
+});
+
+const DPS = computed(() => {
+  return abbreviateNumber(
+    (props.skill.totalDamage / (props.fightDuration / 1000)).toFixed(0)
+  );
+});
+
+const maxDamage = computed(() => {
+  return abbreviateNumber(props.skill.maxDamage);
 });
 
 function getClassColor(className) {
   if (className in settingsStore.settings.damageMeter.classes)
     return settingsStore.settings.damageMeter.classes[className].color;
   return "#353535";
-}
-
-function numberFormat(n) {
-  return new Intl.NumberFormat("en-US").format(n);
 }
 
 function abbreviateNumber(n) {

@@ -7,7 +7,7 @@ export function getSettings() {
   let appSettings = {};
 
   try {
-    let settingsStr = store.get("settings_v2");
+    let settingsStr = store.get(process.env.DEBUGGING ? "settings_dev" : "settings");
     // log.debug(settingsStr);
     if (typeof settingsStr === 'object') settingsStr = JSON.stringify(settingsStr);
 
@@ -23,6 +23,6 @@ export function getSettings() {
 
 export function saveSettings(settings) {
   if (typeof settings === 'object') settings = JSON.stringify(settings);
-  store.set("settings_v2", settings);
+  store.set(process.env.DEBUGGING ? "settings_dev" : "settings", settings);
   // log.debug(`Saved settings: ${settings}`);
 }

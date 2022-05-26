@@ -18,17 +18,21 @@ const error= ref(false);
 
 const loaderImg = new URL(`../assets/images/loader.gif`, import.meta.url).href;
 onMounted(() => {
-  window.messageApi.receive("prelauncher-message", (value) => {
-    if (typeof value === 'object') {
-      if (value.error) {
-        error.value = true;
-        errorMessage.value = value.error.reason;
-        currentMessage.value = value.error.message
-      } else {
-        currentMessage.value = value.message;
-      }
-    } else {
-      currentMessage.value = value;
+  window.messageApi.receive("updater-message", (eventMessage) => {
+    if (eventMessage.message === "checking-for-update") {
+      currentMessage.value = "Checking for updates...";
+    } else if (eventMessage.message === "update-available") {
+      currentMessage.value = "Found a new update! Starting download...";
+    } else if (eventMessage.message === "update-not-available") {
+      currentMessage.value = "Starting LOA Details...";
+    } else if (eventMessage.message === "download-progress") {
+      currentMessage.value = `Downloading update ${eventMessage.value.percent.toFixed(
+        0
+      )}%`;
+    } else if (eventMessage.message === "update-downloaded") {
+      currentMessage.value = "Starting updater...";
+    } else if (eventMessage.message === "error") {
+      currentMessage.value = "Error: " + eventMessage.value;
     }
   });
 });
