@@ -137,6 +137,7 @@ function startApplication() {
       ? path.resolve(__dirname, "../../src-electron/icons/icon.png")
       : path.resolve(__dirname, "icons/icon.png")
   );
+
   const contextMenu = Menu.buildFromTemplate([
     {
       label: "Show LOA Details",
@@ -191,15 +192,47 @@ function startApplication() {
 
 let damageMeterWindowOldSize, damageMeterWindowOldMinimumSize;
 
-ipcMain.on("window-to-main", (event, arg) => {
-  if (arg.message === "reset-session") {
-    //logParser.resetState();
+const ipcFunctions = {
+  "reset-session": (event, arg) => {
     logParser.softReset();
-  } else if (arg.message === "cancel-reset-session") {
+  },
+  "cancel-reset-session": (event, arg) => {
     if (logParser.resetTimer) {
       logParser.cancelReset();
     }
-  } else if (arg.message === "toggle-damage-meter-minimized-state") {
+  },
+  "save-settings": (event, arg) => {
+    appSettings = JSON.parse(arg.value);
+    saveSettings(arg.value);
+    damageMeterWindow.webContents.send("on-settings-change", appSettings);
+    logParser.dontResetOnZoneChange =
+      appSettings.damageMeter.functionality.dontResetOnZoneChange;
+  },
+  "get-settings": (event, arg) => {
+    event.reply("on-settings-change", appSettings);
+  },
+  "get-parsed-logs": (event, arg) => {
+    parseLogs();
+    const parsedLogs = getParsedLogs();
+    event.reply("parsed-logs-list", parsedLogs);
+  },
+  "get-parsed-log": (event, arg) => {
+    const logData = getLogData(arg.value);
+    event.reply("parsed-log", logData);
+  },
+  "open-log-directory": (event, arg) => {
+    shell.openPath(logFolder);
+  },
+  "check-for-updates": (event, arg) => {
+    checkForUpdates();
+  },
+  "quit-and-install": (event, arg) => {
+    quitAndInstall();
+  },
+  "open-link": (event, arg) => {
+    shell.openExternal(arg.value);
+  },
+  "toggle-damage-meter-minimized-state": (event, arg) => {
     if (arg.value) {
       let newW = 160,
         newY = 64;
@@ -221,32 +254,16 @@ ipcMain.on("window-to-main", (event, arg) => {
       );
       damageMeterWindow.setResizable(true);
     }
-  } else if (arg.message === "save-settings") {
-    appSettings = JSON.parse(arg.value);
-    saveSettings(arg.value);
-    damageMeterWindow.webContents.send("on-settings-change", appSettings);
-    logParser.dontResetOnZoneChange =
-      appSettings.damageMeter.functionality.dontResetOnZoneChange;
-  } else if (arg.message === "get-settings") {
-    event.reply("on-settings-change", appSettings);
-  } else if (arg.message === "minimize-main-window") {
-    mainWindow.minimize();
-  } else if (arg.message === "get-parsed-logs") {
-    parseLogs();
-    const parsedLogs = getParsedLogs();
-    event.reply("parsed-logs-list", parsedLogs);
-  } else if (arg.message === "open-log-directory") {
-    shell.openPath(logFolder);
-  } else if (arg.message === "get-parsed-log") {
-    const logData = getLogData(arg.value);
-    event.reply("parsed-log", logData);
-  } else if (arg.message === "open-link") {
-    shell.openExternal(arg.value);
-  } else if (arg.message === "check-for-updates") {
-    checkForUpdates();
-  } else if (arg.message === "quit-and-install") {
-    quitAndInstall();
-  }
+  },
+};
+
+ipcMain.on("window-to-main", (event, arg) => {
+  const ipcFunction =
+    ipcFunctions[arg.message] ||
+    (() => {
+      log.error("Unknown winodw-to-main message: " + arg.message);
+    });
+  ipcFunction(event, arg);
 });
 
 app.on("window-all-closed", () => {

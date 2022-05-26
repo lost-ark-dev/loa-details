@@ -115,20 +115,11 @@ function updateButton() {
   }
 }
 
-let firstSettingsReceive = true;
 onMounted(() => {
   settingsStore.initSettings();
 
   window.messageApi.receive("on-settings-change", (value) => {
     settingsStore.loadSettings(value);
-    if (firstSettingsReceive) {
-      firstSettingsReceive = false;
-      if (settingsStore.settings.general.startMainMinimized) {
-        window.messageApi.send("window-to-main", {
-          message: "minimize-main-window",
-        });
-      }
-    }
   });
 
   window.messageApi.receive("updater-message", (eventMessage) => {
