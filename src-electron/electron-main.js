@@ -71,14 +71,6 @@ logParser.dontResetOnZoneChange =
   appSettings?.damageMeter?.functionality?.dontResetOnZoneChange;
 appSettings.appVersion = app.getVersion();
 
-// if (appSettings?.uploads?.uploadKey && appSettings?.uploads?.uploadKey !== "") {
-//   sessionState.getRecentLogs().then((logs) => {
-//     appSettings.uploads.recentSessions = logs;
-//   }).catch((logErr) => {
-//     log.error(logErr);
-//   })
-// }
-
 let connection = null; // reserved for electron-cgi connection
 
 // needed in case process is undefined under Linux

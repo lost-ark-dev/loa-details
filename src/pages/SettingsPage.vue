@@ -9,7 +9,7 @@
     >
       <q-tab name="general" icon="display_settings" label="General" />
       <q-tab name="damage_meter" icon="speed" label="Damage Meter" />
-      <q-tab name="upload_logs" icon="cloud_upload" label="Log Uploading" />
+      <!-- <q-tab name="upload_logs" icon="cloud_upload" label="Log Uploading" /> -->
       <q-tab name="log" icon="article" label="Log " />
     </q-tabs>
     <q-scroll-area style="height: calc(100vh - 124px); padding: 8px 16px">
