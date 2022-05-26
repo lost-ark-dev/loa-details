@@ -17,6 +17,21 @@ import { ref } from "vue";
 
 const changes = ref([
   {
+    version: "0.2.9",
+    mdFormattedLog: `
+    * Added an option to check for updates on the main window. It also automatically checks for update once every hour now.
+    * Added a stylized mokoko icon.
+    * Refactored a lot of code.
+    * Now it remembers the size and position of the main window as well.
+    * Added a security feature to only accept packets from localhost.
+    * Updated LostArKLogger. The logging system has changed a lot which also opened doors for new possibilites that'll come in the future releases.
+    * Log folder has moved into "Documents/Lost Ark Logs" from of "Documents/LOA Details/Logs". The logging system has also changed which made old logs incompatible. You can delete the "LOA Details" folder in your documents if you'd like.
+    * Added a "Open Folder" button to logs page.
+    * Now each encounter is listed on the log page instead of each session. Also added "Encounter Duration" to logs page.
+    * Added a slider to filter out logs under X minutes.
+  `,
+  },
+  {
     version: "0.2.8",
     mdFormattedLog: `
     * Added exception handling when parsing log files to fix crashes when viewing Log page.
