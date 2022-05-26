@@ -38,11 +38,8 @@ export function setupBridge(appSettings) {
       });
 
       req.on("end", function () {
-        // Message structure => Channel and message split with "|===|"
-        // channel|===|args
         const parsedBody = Buffer.concat(body).toString();
-        const message = parsedBody.split("|===|");
-        httpServerEventEmitter.emit(message[0], message[1]);
+        httpServerEventEmitter.emit("packet", parsedBody);
 
         res.writeHead(200, { "Content-Type": "text/html" });
         res.end("Ok!");

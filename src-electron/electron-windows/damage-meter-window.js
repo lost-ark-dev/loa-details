@@ -3,7 +3,7 @@ import { enable } from "@electron/remote/main";
 import path from "path";
 import { initWindow } from "../util/window-init";
 
-export function createDamageMeterWindow(sessionState) {
+export function createDamageMeterWindow(logParser) {
   let damageMeterWindow = new BrowserWindow({
     icon: path.resolve(__dirname, "icons/icon.png"),
     show: false,
@@ -34,9 +34,27 @@ export function createDamageMeterWindow(sessionState) {
   damageMeterWindow.setAlwaysOnTop(true, "level");
 
   // Event listeners
-  sessionState.addEventListenerWindow("message", damageMeterWindow);
-  sessionState.addEventListenerWindow("stateChange", damageMeterWindow);
-  sessionState.addEventListenerWindow("resetState", damageMeterWindow);
+  logParser.eventEmitter.on("reset-state", () => {
+    try {
+      damageMeterWindow.webContents.send("pcap-on-reset-state", "1");
+    } catch (e) {
+      log.error(e);
+    }
+  });
+  logParser.eventEmitter.on("state-change", (newState) => {
+    try {
+      damageMeterWindow.webContents.send("pcap-on-state-change", newState);
+    } catch (e) {
+      log.error(e);
+    }
+  });
+  logParser.eventEmitter.on("message", (val) => {
+    try {
+      damageMeterWindow.webContents.send("pcap-on-message", val);
+    } catch (e) {
+      log.error(e);
+    }
+  });
 
   if (process.env.DEBUGGING) {
     damageMeterWindow.webContents.openDevTools();

@@ -30,7 +30,7 @@ import {
   quitAndInstall,
 } from "./util/updater";
 
-import { SessionState } from "./session-state";
+import { LogParser } from "./log-parser/main";
 
 import {
   parseLogs,
@@ -63,10 +63,11 @@ if (!gotTheLock) {
 
 initialize();
 
-const sessionState = new SessionState();
+const logParser = new LogParser((isLive = true));
 
 let appSettings = getSettings();
-sessionState.dontResetOnZoneChange =
+
+logParser.dontResetOnZoneChange =
   appSettings?.damageMeter?.functionality?.dontResetOnZoneChange;
 appSettings.appVersion = app.getVersion();
 
@@ -149,15 +150,10 @@ function startApplication() {
 
   setupBridge(appSettings);
 
-  httpServerEventEmitter.on("message", (value) =>
-    sessionState.onMessage(value)
-  );
-  httpServerEventEmitter.on("new-zone", (value) =>
-    sessionState.onNewZone(value)
-  );
-  httpServerEventEmitter.on("combat-event", (value) =>
-    sessionState.onCombatEvent(value)
-  );
+  httpServerEventEmitter.on("packet", (value) => {
+    logParser.parseLogLine(value);
+  });
+
   httpServerEventEmitter.on("debug", (data) => {
     log.info("debug:", data);
   });
@@ -181,7 +177,7 @@ function startApplication() {
   }
 
   mainWindow = createMainWindow(appSettings);
-  damageMeterWindow = createDamageMeterWindow(sessionState);
+  damageMeterWindow = createDamageMeterWindow(logParser);
 
   mainWindow.on("close", function (event) {
     let hideToTray = true; // this is on by default
@@ -205,10 +201,11 @@ let damageMeterWindowOldSize, damageMeterWindowOldMinimumSize;
 
 ipcMain.on("window-to-main", (event, arg) => {
   if (arg.message === "reset-session") {
-    sessionState.resetState();
+    //logParser.resetState();
+    logParser.softReset();
   } else if (arg.message === "cancel-reset-session") {
-    if (sessionState.resetTimer) {
-      sessionState.cancelReset();
+    if (logParser.resetTimer) {
+      logParser.cancelReset();
     }
   } else if (arg.message === "toggle-damage-meter-minimized-state") {
     if (arg.value) {
@@ -236,7 +233,7 @@ ipcMain.on("window-to-main", (event, arg) => {
     appSettings = JSON.parse(arg.value);
     saveSettings(arg.value);
     damageMeterWindow.webContents.send("on-settings-change", appSettings);
-    sessionState.dontResetOnZoneChange =
+    logParser.dontResetOnZoneChange =
       appSettings.damageMeter.functionality.dontResetOnZoneChange;
   } else if (arg.message === "get-settings") {
     event.reply("on-settings-change", appSettings);
