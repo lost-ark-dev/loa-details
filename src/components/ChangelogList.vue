@@ -17,6 +17,13 @@ import { ref } from "vue";
 
 const changes = ref([
   {
+    version: "0.3.0",
+    mdFormattedLog: `
+    * Fixed a bug with auto updater.
+    * Fixed a bug with windows that caused error boxes to appear when trying to quit.
+  `,
+  },
+  {
     version: "0.2.9",
     mdFormattedLog: `
     * Added an option to check for updates on the main window. It also automatically checks for update once every hour now.
