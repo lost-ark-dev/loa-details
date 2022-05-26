@@ -30,6 +30,8 @@ export function parseLogs() {
     try {
       const filenameSlice = filename.slice(0, -4);
       const jsonName = filenameSlice + ".json";
+      const logStats = fs.statSync(path.join(logFolder, filename));
+
       if (parsedLogs.includes(jsonName)) {
         const oldParsedLog = fs.readFileSync(
           path.join(parsedLogFolder, jsonName),
@@ -38,10 +40,12 @@ export function parseLogs() {
         const parsedOldLog = JSON.parse(oldParsedLog);
 
         // if parsed version is less than current version, delete it and re-parse it
+        // or if parsed mtime is
         // if not, skip this log
         if (
           !parsedOldLog.logParserVersion ||
-          parsedOldLog.logParserVersion < logParserVersion
+          parsedOldLog.logParserVersion < logParserVersion ||
+          logStats.mtime > new Date(parsedOldLog.mtime)
         ) {
           log.info("Deleting old version of parsed log");
           fs.unlinkSync(path.join(parsedLogFolder, jsonName));
@@ -68,7 +72,11 @@ export function parseLogs() {
         logParser.splitEncounter();
         const encounters = logParser.encounters;
         if (encounters.length > 0) {
-          const masterLog = { logParserVersion, encounters: [] };
+          const masterLog = {
+            logParserVersion,
+            mtime: logStats.mtime,
+            encounters: [],
+          };
           for (const encounter of encounters) {
             const duration =
               encounter.lastCombatPacket - encounter.fightStartedOn;
