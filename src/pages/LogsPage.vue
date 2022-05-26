@@ -22,20 +22,21 @@
           style="width: 250px"
         />
 
-        <q-btn
-          style="margin-left: auto"
-          unelevated
-          color="primary"
-          label="Open Folder"
-          @click="openLogDirectory"
-        />
-        <q-btn
-          style="margin-left: auto"
-          unelevated
-          color="primary"
-          label="Refresh"
-          @click="getLogfiles"
-        />
+        <div style="margin-left: auto">
+          <q-btn
+            unelevated
+            color="primary"
+            label="Open Folder"
+            @click="openLogDirectory"
+          />
+          <q-btn
+            style="margin-left: 16px"
+            unelevated
+            color="primary"
+            label="Refresh"
+            @click="getLogfiles"
+          />
+        </div>
       </div>
 
       <q-table

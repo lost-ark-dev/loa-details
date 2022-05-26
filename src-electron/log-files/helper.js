@@ -14,7 +14,7 @@ const mainFolder = path.join(getPath("documents"), "LOA Details");
 if (!fs.existsSync(mainFolder)) {
   fs.mkdirSync(mainFolder);
 }
-const logFolder = path.join(mainFolder, "Logs");
+export const logFolder = path.join(mainFolder, "Logs");
 if (!fs.existsSync(logFolder)) {
   fs.mkdirSync(logFolder);
 }
@@ -95,9 +95,4 @@ export function getLogData(filename) {
     "utf-8"
   );
   return JSON.parse(contents);
-}
-
-
-export function getLogDirectory() {
-  return parsedLogFolder;
 }
