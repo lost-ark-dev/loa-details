@@ -93,14 +93,30 @@ app.whenReady().then(() => {
   }
 });
 
+let prelauncherStatus = "open";
+
 updaterEventEmitter.on("event", (details) => {
   if (
+    typeof prelauncherWindow !== "undefined" &&
+    prelauncherWindow &&
+    prelauncherWindow.webContents
+  ) {
+    prelauncherWindow.webContents.send("updater-message", details);
+  } else if (
+    typeof mainWindow !== "undefined" &&
+    mainWindow &&
+    mainWindow.webContents
+  ) {
+    mainWindow.webContents.send("updater-message", details);
+  }
+
+  if (
     details.message === "update-not-available" &&
-    typeof mainWindow == "undefined"
+    prelauncherStatus === "open"
   ) {
     startApplication();
-
     if (typeof prelauncherWindow != "undefined") {
+      prelauncherStatus = "closed";
       prelauncherWindow.close();
       prelauncherWindow = null;
     }
@@ -109,15 +125,10 @@ updaterEventEmitter.on("event", (details) => {
   // quitAndInstall only when prelauncher is visible (aka startup of application)
   if (
     details.message === "update-downloaded" &&
-    typeof prelauncherWindow != "undefined"
+    typeof prelauncherWindow != "undefined" &&
+    prelauncherWindow
   ) {
     quitAndInstall(false, true); // isSilent=false, forceRunAfter=true
-  }
-
-  if (typeof prelauncherWindow != "undefined") {
-    prelauncherWindow.webContents.send("updater-message", details);
-  } else if (typeof mainWindow != "undefined") {
-    mainWindow.webContents.send("updater-message", details);
   }
 });
 
