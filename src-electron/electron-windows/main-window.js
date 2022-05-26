@@ -41,6 +41,7 @@ export function createMainWindow(appSettings) {
   }
 
   mainWindow.on("closed", () => {
+    mainWindow = null;
     app.quit();
   });
 
