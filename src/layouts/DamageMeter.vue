@@ -264,29 +264,7 @@ function enableClickthrough() {
 }
 
 // Temorarily hardcoded, changing when packets allow it
-const bosses = [
-  "Ur'nil",
-  "Lumerus",
-  "Icy Legoros",
-  "Vertus",
-  "Chromanium",
-  "Nacrasena",
-  "Flame Fox Yoho",
-  "Tytalos",
-  "Dark Legoros",
-  "Helgaia",
-  "Calventus",
-  "Achates",
-  "Frost Helgaia",
-  "Lava Chromanium",
-  "Levanos",
-  "Alberhastic",
-  "Armored Nacrasena",
-  "Igrexion",
-  "Night Fox Yoho",
-  "Velganos",
-  "Deskaluda"
-]
+const bosses = /^(Ur'nil|Lumerus|Icy Legoros|Vertus|Chromanium|Nacrasena|Flame Fox Yoho|Tytalos|Dark Legoros|Helgaia|Calventus|Achates|Frost Helgaia|Lava Chromanium|Levanos|Alberhastic|Armored Nacrasena|Igrexion|Night Fox Yoho|Velganos|Deskaluda)[+]?$/g
 
 const DamageTypeDealt = Symbol("dealt");
 const DamageTypeTaken = Symbol("taken");
@@ -374,7 +352,7 @@ function sortEntities() {
     entity.tankPercentageTop = getPercentage(entity, DamageTypeTaken, "top");
   }
 
-  const boss = sessionState.entities.find((entity) => bosses.includes(entity.name) && entity.maxHp > 0);
+  const boss = sessionState.entities.find((entity) => bosses.test(entity.name) && entity.maxHp > 0);
   if (boss) {
     bossEntity.value = boss;
     isBossFight.value = true;
