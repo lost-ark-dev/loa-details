@@ -17,6 +17,7 @@
       </q-item-section>
     </q-item>
 
+    <q-item-label header>Minimum Fight Duration</q-item-label>
     <q-item>
       <q-item-section side>
         <q-icon name="access_time" />
