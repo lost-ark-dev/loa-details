@@ -26,6 +26,24 @@
       <q-item-section side top>
         <q-checkbox
           v-model="
+            settingsStore.settings.damageMeter.functionality
+              .pauseOnPhaseTransition
+          "
+        />
+      </q-item-section>
+
+      <q-item-section>
+        <q-item-label>Pause meter on raid wipes or phase transitions</q-item-label>
+        <q-item-label caption>
+          If enabled, it will try to pause whenever a boss dies, a new phase begins/ends or when the raid wipes.
+        </q-item-label>
+      </q-item-section>
+    </q-item>
+
+    <q-item tag="label">
+      <q-item-section side top>
+        <q-checkbox
+          v-model="
             settingsStore.settings.damageMeter.functionality.autoMinimize
           "
         />
@@ -68,6 +86,22 @@
       </q-item-section>
     </q-item>
 
+    <q-item tag="label">
+      <q-item-section side top>
+        <q-checkbox
+          v-model="
+            settingsStore.settings.damageMeter.functionality.removeOverkillDamage
+          "
+        />
+      </q-item-section>
+      <q-item-section>
+        <q-item-label>Remove Overkill Damage</q-item-label>
+        <q-item-label caption>
+          If the last hit on a mob does more damage than it has HP remaining, remove the excess damage.
+        </q-item-label>
+      </q-item-section>
+    </q-item>
+
     <q-separator spaced />
     <q-item-label header>Design</q-item-label>
 
@@ -102,6 +136,33 @@
           <br />Note: This won't work if you open the app mid-fight instead of
           opening it before the fight.
         </q-item-label>
+      </q-item-section>
+    </q-item>
+
+    <q-item-label header>Window Opacity</q-item-label>
+    <q-item>
+      <q-item-section side>
+        <q-icon name="opacity" />
+      </q-item-section>
+      <q-item-section>
+        <q-slider
+          :model-value="
+            settingsStore.settings.damageMeter.design.opacity
+          "
+          @change="
+            (val) => {
+              settingsStore.settings.damageMeter.design.opacity =
+                val;
+            }
+          "
+          :min="0.1"
+          :max="1"
+          :step="0.1"
+          label
+          :label-value="`Opacity: ${settingsStore.settings.damageMeter.design.opacity}`"
+          label-always
+          :markers="true"
+        />
       </q-item-section>
     </q-item>
 

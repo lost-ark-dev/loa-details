@@ -2,8 +2,9 @@ import { app, BrowserWindow } from "electron";
 import { enable } from "@electron/remote/main";
 import path from "path";
 import { initWindow } from "../util/window-init";
+import log from "electron-log";
 
-export function createDamageMeterWindow(logParser) {
+export function createDamageMeterWindow(logParser, appSettings) {
   let damageMeterWindow = new BrowserWindow({
     icon: path.resolve(__dirname, "icons/icon.png"),
     show: false,
@@ -13,6 +14,7 @@ export function createDamageMeterWindow(logParser) {
     minHeight: 124,
     frame: false,
     transparent: true,
+    opacity: appSettings?.damageMeter?.design?.opacity || 0.9,
     resizable: true,
     autoHideMenuBar: true,
     fullscreenable: false,
@@ -43,8 +45,9 @@ export function createDamageMeterWindow(logParser) {
   });
   logParser.eventEmitter.on("state-change", (newState) => {
     try {
-      if (typeof damageMeterWindow !== "undefined" && damageMeterWindow)
+      if (typeof damageMeterWindow !== "undefined" && damageMeterWindow) {
         damageMeterWindow.webContents.send("pcap-on-state-change", newState);
+      }
     } catch (e) {
       log.error(e);
     }

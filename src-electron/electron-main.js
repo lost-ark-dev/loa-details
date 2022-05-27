@@ -59,6 +59,13 @@ let appSettings = getSettings();
 
 logParser.dontResetOnZoneChange =
   appSettings?.damageMeter?.functionality?.dontResetOnZoneChange;
+
+logParser.pauseOnPhaseTransition =
+  appSettings?.damageMeter?.functionality?.pauseOnPhaseTransition;
+
+logParser.removeOverkillDamage =
+  appSettings?.damageMeter?.functionality?.removeOverkillDamage;
+
 appSettings.appVersion = app.getVersion();
 
 // needed in case process is undefined under Linux
@@ -178,7 +185,7 @@ function startApplication() {
   }
 
   mainWindow = createMainWindow(appSettings);
-  damageMeterWindow = createDamageMeterWindow(logParser);
+  damageMeterWindow = createDamageMeterWindow(logParser, appSettings);
 }
 
 let damageMeterWindowOldSize, damageMeterWindowOldMinimumSize;
@@ -198,6 +205,14 @@ const ipcFunctions = {
     damageMeterWindow.webContents.send("on-settings-change", appSettings);
     logParser.dontResetOnZoneChange =
       appSettings.damageMeter.functionality.dontResetOnZoneChange;
+
+    logParser.removeOverkillDamage =
+      appSettings.damageMeter.functionality.removeOverkillDamage;
+
+    logParser.pauseOnPhaseTransition =
+      appSettings.damageMeter.functionality.pauseOnPhaseTransition;
+
+      damageMeterWindow.setOpacity(appSettings.damageMeter.design.opacity);
   },
   "get-settings": (event, arg) => {
     event.reply("on-settings-change", appSettings);

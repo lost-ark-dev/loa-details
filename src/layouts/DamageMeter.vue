@@ -204,7 +204,20 @@
           v{{ settingsStore.settings.appVersion }}
           &nbsp;&nbsp;&nbsp;&nbsp;
           {{ millisToMinutesAndSeconds(fightDuration) }}
+          &nbsp;&nbsp;
         </span>
+        <!-- Temporarily disabled
+        <q-btn
+          v-if="isUploadTokenValid()"
+          size="sm"
+          :color="settingsStore.settings.uploads.uploadLogs ? 'primary' : 'red'"
+          :glossy="false"
+          :ripple="false"
+          @click="toggleUploading()"
+        >
+          Upload: {{ settingsStore.settings.uploads.uploadLogs ? 'ON' : 'OFF' }}
+        </q-btn>&nbsp;
+        -->
         <q-btn flat size="sm" @click="requestSessionRestart">
           RESET SESSION
         </q-btn>
@@ -291,6 +304,7 @@ const sessionState = reactive({
     topDamageTaken: 0,
   },
 });
+
 const sortedEntities = ref([]);
 function sortEntities() {
   const res = sessionState.entities
@@ -388,6 +402,21 @@ function requestSessionRestart() {
   window.messageApi.send("window-to-main", { message: "reset-session" });
 }
 
+function toggleUploading () {
+  settingsStore.settings.uploads.uploadLogs = !settingsStore.settings.uploads.uploadLogs;
+  window.messageApi.send("window-to-main", {
+    message: "save-settings",
+    value: JSON.stringify(settingsStore.settings),
+    source: "meter",
+  });
+  // window.messageApi.send("window-to-main", { message: "save-settings", value: settingsStore.settings });
+}
+
+function isUploadTokenValid () {
+  const key = settingsStore.settings.uploads.uploadKey;
+  return key.length === 32;
+}
+
 onMounted(() => {
   settingsStore.initSettings();
 
@@ -438,6 +467,32 @@ onMounted(() => {
               },
             },
           ],
+        });
+      }
+    } else if (value === "raid-end") {
+      if (!isFightPaused.value) toggleFightPause()
+      if (!isMinimized.value) {
+        Notify.create({
+          progress: true,
+          timeout: 5000,
+          message: "Encounter ended, pausing session.",
+          color: "primary",
+        });
+      }
+    } else if (typeof value === 'object' && value.name === "session-upload") {
+      if (value.failed) {
+        Notify.create({
+            progress: true,
+            timeout: 5000,
+            message: value.message,
+            color: "red",
+        });
+      } else {
+        Notify.create({
+            progress: true,
+            timeout: 5000,
+            message: value.message,
+            color: "primary",
         });
       }
     } else {

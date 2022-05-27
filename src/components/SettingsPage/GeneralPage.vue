@@ -63,9 +63,9 @@
 
     <q-item tag="label">
       <q-item-section side top>
-        <q-item-label>Server</q-item-label>
+        <q-item-label>Game Region</q-item-label>
         <q-item-label caption>
-          Select the server you're playing on. Program needs to be restarted
+          Select the region you're playing on. Program needs to be restarted
           after changing.
         </q-item-label>
       </q-item-section>
@@ -95,7 +95,8 @@ const serverOptions = ref([
     value: "korea",
   },
 ]);
-const serverModel = ref("");
+
+var serverModel = ref("");
 
 watch(serverModel, (newVal, oldVal) => {
   settingsStore.settings.general.server = newVal.value;

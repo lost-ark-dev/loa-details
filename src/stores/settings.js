@@ -13,15 +13,29 @@ export const useSettingsStore = defineStore("settings", {
         useWinpcap: false,
         server: "steam",
       },
+      uploads: {
+        uploadLogs: false,
+        uploadKey: "",
+        apiUrl: process.env.UPLOADS_API_URL,
+        uploadEndpoint: "/logs/upload",
+        loginUrl: process.env.UPLOADS_LOGIN_URL,
+        region: "",
+        server: "",
+        openOnUpload: false,
+        recentSessions: [],
+      },
       damageMeter: {
         functionality: {
           dontResetOnZoneChange: false,
+          removeOverkillDamage: true,
+          pauseOnPhaseTransition: false,
           autoMinimize: false,
           autoMinimizeTimer: 60,
         },
         design: {
           compactDesign: false,
           pinUserToTop: false,
+          opacity: 0.9,
         },
         tabs: {
           damagePercent: {

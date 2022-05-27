@@ -1,7 +1,7 @@
 <template>
   <div class="flex column items-center justify-center prelauncher">
     <img class="loader-img" :src="loaderImg" />
-    <span>{{ currentMessage }}</span>
+    <span class="loader-msg">{{ currentMessage }}</span>
   </div>
 </template>
 
@@ -39,5 +39,9 @@ onMounted(() => {
 }
 .loader-img {
   width: 128px;
+}
+
+.loader-msg {
+  text-align: center;
 }
 </style>

@@ -16,6 +16,7 @@ contextBridge.exposeInMainWorld("messageApi", {
       "pcap-on-state-change",
       "pcap-on-reset-state",
       "on-settings-change",
+      "save-settings",
       "parsed-logs-list",
       "parsed-log",
     ];

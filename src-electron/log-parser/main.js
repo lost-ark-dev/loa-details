@@ -5,8 +5,6 @@ import { EventEmitter } from "events";
 import * as LogLines from "./log-lines";
 import { tryParseInt } from "../util/helpers";
 
-const REMOVE_OVERKILL_DAMAGE = true; // TODO: add this to settings
-
 const entityTemplate = {
   lastUpdate: 0,
   name: "",
@@ -15,6 +13,8 @@ const entityTemplate = {
   damageDealt: 0,
   damageTaken: 0,
   skills: {},
+  currentHp: 0,
+  maxHp: 0,
   hits: {
     total: 0,
     crit: 0,
@@ -42,6 +42,8 @@ export class LogParser {
     this.isLive = isLive;
     this.resetTimer = null;
     this.dontResetOnZoneChange = false;
+    this.pauseOnPhaseTransition = false;
+    this.removeOverkillDamage = true;
     this.resetState();
     this.encounters = [];
 
@@ -52,7 +54,6 @@ export class LogParser {
 
   resetState() {
     log.debug("Resetting state");
-
     const curTime = +new Date();
 
     this.game = {
@@ -83,6 +84,8 @@ export class LogParser {
         name: entitiesCopy[entity].name,
         class: entitiesCopy[entity].class,
         isPlayer: entitiesCopy[entity].isPlayer,
+        maxHp: entitiesCopy[entity].maxHp,
+        currentHp: entitiesCopy[entity].currentHp,
       });
     }
   }
@@ -120,9 +123,9 @@ export class LogParser {
       case 1:
         this.onInitEnv(lineSplit);
         break;
-      /* case 2:
+      case 2:
         this.onPhaseTransition(lineSplit);
-        break; */
+        break;
       case 3:
         this.onNewPc(lineSplit);
         break;
@@ -151,6 +154,8 @@ export class LogParser {
         this.onCounterattack(lineSplit);
         break;
     }
+
+    this.broadcastStateChange();
   }
 
   updateEntity(entityName, values) {
@@ -189,6 +194,7 @@ export class LogParser {
       if (this.dontResetOnZoneChange === false && this.resetTimer == null) {
         log.debug("Setting a reset timer");
         this.resetTimer = setTimeout(this.softReset.bind(this), 6000);
+        // this.resetTimer = setTimeout(this.resetState.bind(this), 6000);
         this.eventEmitter.emit("message", "new-zone");
       }
     } else {
@@ -196,33 +202,39 @@ export class LogParser {
     }
   }
 
-  /* // logId = 2
+  // logId = 2
   onPhaseTransition(lineSplit) {
-    // TODO: encounter end?
-  } */
+    log.debug("onPhaseTransition");
+    // Temporary until packet for each type of raid end is sent
+    if (this.pauseOnPhaseTransition) this.eventEmitter.emit("message", "raid-end");
+  }
 
   // logId = 3
   onNewPc(lineSplit) {
     const logLine = new LogLines.LogNewPc(lineSplit);
     log.debug(
-      `onNewPc: ${logLine.id}, ${logLine.name}, ${logLine.classId}, ${logLine.class}`
+      `onNewPc: ${logLine.id}, ${logLine.name}, ${logLine.classId}, ${logLine.class}, ${logLine.currentHp}, ${logLine.maxHp}`
     );
 
     this.updateEntity(logLine.name, {
       name: logLine.name,
       class: logLine.class,
       isPlayer: true,
+      currentHp: logLine.currentHp,
+      maxHp: logLine.maxHp
     });
   }
 
   // logId = 4
   onNewNpc(lineSplit) {
     const logLine = new LogLines.LogNewNpc(lineSplit);
-    log.debug(`onNewNpc: ${logLine.id}, ${logLine.name}`);
+    log.debug(`onNewNpc: ${logLine.id}, ${logLine.name}, ${logLine.currentHp}, ${logLine.maxHp}`);
 
     this.updateEntity(logLine.name, {
       name: logLine.name,
       isPlayer: false,
+      currentHp: logLine.currentHp,
+      maxHp: logLine.maxHp
     });
   }
 
@@ -247,7 +259,7 @@ export class LogParser {
 
     const logLine = new LogLines.LogDamage(lineSplit);
     log.debug(
-      `onDamage: ${logLine.id}, ${logLine.name}, ${logLine.skillId}, ${logLine.skillName}, ${logLine.skillEffectId}, ${logLine.skillEffect}, ${logLine.targetId}, ${logLine.targetName}, ${logLine.damage}`
+      `onDamage: ${logLine.id}, ${logLine.name}, ${logLine.skillId}, ${logLine.skillName}, ${logLine.skillEffectId}, ${logLine.skillEffect}, ${logLine.targetId}, ${logLine.targetName}, ${logLine.damage}, ${logLine.currentHp}, ${logLine.maxHp}`
     );
 
     this.updateEntity(logLine.name, {
@@ -256,7 +268,17 @@ export class LogParser {
 
     this.updateEntity(logLine.targetName, {
       name: logLine.targetName,
+      currentHp: logLine.currentHp,
+      maxHp: logLine.maxHp
     });
+
+    const damageOwner = this.game.entities[logLine.name];
+    const damageTarget = this.game.entities[logLine.targetName];
+
+    if (!damageTarget.isPlayer && this.removeOverkillDamage && logLine.currentHp < 0) {
+      log.debug(`Removing ${logLine.currentHp} overkill damage`)
+      logLine.damage = logLine.damage + logLine.currentHp;
+    }
 
     if (!(logLine.skillName in this.game.entities[logLine.name].skills)) {
       this.game.entities[logLine.name].skills[logLine.skillName] = {
@@ -302,9 +324,6 @@ export class LogParser {
         logLine.skillName
       ].hits.frontAttack += frontAttackCount;
     }
-
-    const damageOwner = this.game.entities[logLine.name],
-      damageTarget = this.game.entities[logLine.targetName];
 
     if (damageOwner.isPlayer) {
       this.game.damageStatistics.totalDamageDealt += logLine.damage;

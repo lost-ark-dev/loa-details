@@ -227,6 +227,7 @@ function onPagination(newPagination) {
 function getLogfiles() {
   logFiles.value = [];
   window.messageApi.send("window-to-main", { message: "get-parsed-logs" });
+  // Async: window.messageApi.send("window-to-main", { message: "get-parsed-logs", async: true });
 }
 
 function openLogDirectory() {
