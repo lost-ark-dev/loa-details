@@ -17,6 +17,16 @@ import { ref } from "vue";
 
 const changes = ref([
   {
+    version: "0.3.1",
+    mdFormattedLog: `
+    * Added an option in settings to auto pause on wipes/phase changes/(guardian) boss deaths
+    * Added an option to remove overkill damage
+    * Added an option to change the opacity of damage meter (default is 0.9 meaning 90%).
+
+    Thanks to guy0090@Github for adding most of these changes.
+  `,
+  },
+  {
     version: "0.3.0",
     mdFormattedLog: `
     * Fixed a bug with auto updater.
