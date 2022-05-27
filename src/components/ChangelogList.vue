@@ -22,7 +22,10 @@ const changes = ref([
     * Added an option in settings to auto pause on wipes/phase changes/(guardian) boss deaths
     * Added an option to remove overkill damage
     * Added an option to change the opacity of damage meter (default is 0.9 meaning 90%).
-
+    * Added a log settings page, moved "minimum fight duration" setting to there and it's saved now.
+    * Added an option to log settings to create an encounter on phase transition. With this setting, each Valtan wipe etc... will be seen as a single encounter on logs page.
+    * Added a "wipe parsed logs" button to the logs settings page.
+    
     Thanks to guy0090@Github for adding most of these changes.
   `,
   },
