@@ -154,8 +154,6 @@ export class LogParser {
         this.onCounterattack(lineSplit);
         break;
     }
-
-    this.broadcastStateChange();
   }
 
   updateEntity(entityName, values) {
@@ -194,7 +192,6 @@ export class LogParser {
       if (this.dontResetOnZoneChange === false && this.resetTimer == null) {
         log.debug("Setting a reset timer");
         this.resetTimer = setTimeout(this.softReset.bind(this), 6000);
-        // this.resetTimer = setTimeout(this.resetState.bind(this), 6000);
         this.eventEmitter.emit("message", "new-zone");
       }
     } else {
@@ -206,7 +203,8 @@ export class LogParser {
   onPhaseTransition(lineSplit) {
     log.debug("onPhaseTransition");
     // Temporary until packet for each type of raid end is sent
-    if (this.pauseOnPhaseTransition) this.eventEmitter.emit("message", "raid-end");
+    if (this.pauseOnPhaseTransition)
+      this.eventEmitter.emit("message", "raid-end");
   }
 
   // logId = 3
@@ -221,20 +219,22 @@ export class LogParser {
       class: logLine.class,
       isPlayer: true,
       currentHp: logLine.currentHp,
-      maxHp: logLine.maxHp
+      maxHp: logLine.maxHp,
     });
   }
 
   // logId = 4
   onNewNpc(lineSplit) {
     const logLine = new LogLines.LogNewNpc(lineSplit);
-    log.debug(`onNewNpc: ${logLine.id}, ${logLine.name}, ${logLine.currentHp}, ${logLine.maxHp}`);
+    log.debug(
+      `onNewNpc: ${logLine.id}, ${logLine.name}, ${logLine.currentHp}, ${logLine.maxHp}`
+    );
 
     this.updateEntity(logLine.name, {
       name: logLine.name,
       isPlayer: false,
       currentHp: logLine.currentHp,
-      maxHp: logLine.maxHp
+      maxHp: logLine.maxHp,
     });
   }
 
@@ -269,14 +269,18 @@ export class LogParser {
     this.updateEntity(logLine.targetName, {
       name: logLine.targetName,
       currentHp: logLine.currentHp,
-      maxHp: logLine.maxHp
+      maxHp: logLine.maxHp,
     });
 
     const damageOwner = this.game.entities[logLine.name];
     const damageTarget = this.game.entities[logLine.targetName];
 
-    if (!damageTarget.isPlayer && this.removeOverkillDamage && logLine.currentHp < 0) {
-      log.debug(`Removing ${logLine.currentHp} overkill damage`)
+    if (
+      !damageTarget.isPlayer &&
+      this.removeOverkillDamage &&
+      logLine.currentHp < 0
+    ) {
+      log.debug(`Removing ${logLine.currentHp} overkill damage`);
       logLine.damage = logLine.damage + logLine.currentHp;
     }
 
