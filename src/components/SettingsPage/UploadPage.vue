@@ -10,15 +10,25 @@
       <q-item-section>
         <q-item-label>Open On Upload</q-item-label>
         <q-item-label caption>
-          Enable to automatically open the uploaded session in your default browser.
+          Enable to automatically open the uploaded session in your default
+          browser.
         </q-item-label>
       </q-item-section>
     </q-item>
 
-    <q-item tag="label" :disable="settingsStore.settings.uploads.uploadKey.length < 32 || settingsStore.settings.uploads.uploadKey.length > 32">
+    <q-item
+      tag="label"
+      :disable="
+        settingsStore.settings.uploads.uploadKey.length < 32 ||
+        settingsStore.settings.uploads.uploadKey.length > 32
+      "
+    >
       <q-item-section side top>
         <q-checkbox
-          :disable="settingsStore.settings.uploads.uploadKey.length < 32 || settingsStore.settings.uploads.uploadKey.length > 32"
+          :disable="
+            settingsStore.settings.uploads.uploadKey.length < 32 ||
+            settingsStore.settings.uploads.uploadKey.length > 32
+          "
           v-model="settingsStore.settings.uploads.uploadLogs"
         />
       </q-item-section>
@@ -26,7 +36,8 @@
       <q-item-section>
         <q-item-label>Upload Logged DPS</q-item-label>
         <q-item-label caption>
-          Enable to upload your sessions to the web. Requires the "Upload Key" to be set.
+          Enable to upload your sessions to the web. Requires the "Upload Key"
+          to be set.
         </q-item-label>
       </q-item-section>
     </q-item>
@@ -35,20 +46,31 @@
       <q-item-section left>
         <q-item-label>Upload Key</q-item-label>
         <q-item-label caption>
-          An API key is required to upload logged sessions.<br>
-          Login at <span @click="openSite(settingsStore.settings.uploads.loginUrl)" class="text-primary" style="cursor: pointer;">{{ settingsStore.settings.uploads.loginUrl }}</span> to get one.
+          An API key is required to upload logged sessions.<br />
+          Login at
+          <span
+            @click="openSite(settingsStore.settings.uploads.loginUrl)"
+            class="text-primary"
+            style="cursor: pointer"
+            >{{ settingsStore.settings.uploads.loginUrl }}</span
+          >
+          to get one.
         </q-item-label>
       </q-item-section>
       <q-item-section right>
-        <q-input v-model="uploadKey" :type="isPwd ? 'password' : 'text'" label="API Key">
-        <template v-slot:append>
-          <q-icon
-            :name="isPwd ? 'visibility_off' : 'visibility'"
-            class="cursor-pointer"
-            @click="isPwd = !isPwd"
-          />
-        </template>
-      </q-input>
+        <q-input
+          v-model="uploadKey"
+          :type="isPwd ? 'password' : 'text'"
+          label="API Key"
+        >
+          <template v-slot:append>
+            <q-icon
+              :name="isPwd ? 'visibility_off' : 'visibility'"
+              class="cursor-pointer"
+              @click="isPwd = !isPwd"
+            />
+          </template>
+        </q-input>
       </q-item-section>
     </q-item>
 
@@ -88,7 +110,10 @@
       </q-item-section>
     </q-item>
 
-    <q-item-label header>Recent Uploads <small>The last 10 sessions uploaded to the web.</small></q-item-label>
+    <q-item-label header
+      >Recent Uploads
+      <small>The last 10 sessions uploaded to the web.</small></q-item-label
+    >
 
     <q-item>
       <q-item-section v-if="recentSessions.length === 0">
@@ -98,20 +123,34 @@
       </q-item-section>
       <q-item-section v-else>
         <q-item
-          v-for="session in recentSessions.sort((a,b) =>  b.createdAt - a.createdAt)"
+          v-for="session in recentSessions.sort(
+            (a, b) => b.createdAt - a.createdAt
+          )"
           :key="session.id"
           :session="session"
         >
           <q-item-section>
             <q-btn
               color="primary"
-              @click="openSite(`${settingsStore.settings.uploads.loginUrl}/logs/${session.id}`)"
+              @click="
+                openSite(
+                  `${settingsStore.settings.uploads.loginUrl}/logs/${session.id}`
+                )
+              "
             >
               {{ session.id || "Invalid ID" }}
             </q-btn>
           </q-item-section>
           <q-item-section>
-            <span> &nbsp; Uploaded: {{ new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'medium' }).format(new Date(session.createdAt)) }}</span>
+            <span>
+              &nbsp; Uploaded:
+              {{
+                new Intl.DateTimeFormat("en-US", {
+                  dateStyle: "medium",
+                  timeStyle: "medium",
+                }).format(new Date(session.createdAt))
+              }}</span
+            >
           </q-item-section>
         </q-item>
       </q-item-section>
@@ -128,6 +167,7 @@ const selectedRegion = ref("");
 const selectedServer = ref("");
 const recentSessions = ref([]);
 
+// TODO: move this to constants once (if) the uploader becomes available
 const regions = [
   {
     label: "NA West",
@@ -160,7 +200,7 @@ const regions = [
 ];
 
 const servers = {
-  "na_west": [
+  na_west: [
     {
       label: "Mari",
       value: "mari",
@@ -171,7 +211,7 @@ const servers = {
     },
     {
       label: "Rohendel",
-      value: "rohendel"
+      value: "rohendel",
     },
     {
       label: "Valtan",
@@ -188,9 +228,9 @@ const servers = {
     {
       label: "Shandi",
       value: "shandi",
-    }
+    },
   ],
-  "na_east": [
+  na_east: [
     {
       label: "Azena",
       value: "azena",
@@ -250,9 +290,9 @@ const servers = {
     {
       label: "Danube",
       value: "danube",
-    }
+    },
   ],
-  "eu_central": [
+  eu_central: [
     {
       label: "Neria",
       value: "neria",
@@ -328,9 +368,9 @@ const servers = {
     {
       label: "Mokoko",
       value: "mokoko",
-    }
+    },
   ],
-  "eu_west": [
+  eu_west: [
     {
       label: "Rethramis",
       value: "rethramis",
@@ -362,9 +402,9 @@ const servers = {
     {
       label: "Punika",
       value: "punika",
-    }
+    },
   ],
-  "sa": [
+  sa: [
     {
       label: "Kazeros",
       value: "kazeros",
@@ -400,10 +440,10 @@ const servers = {
     {
       label: "Prideholme",
       value: "prideholme",
-    }
+    },
   ],
-  "kr": [],
-  "ru": [],
+  kr: [],
+  ru: [],
 };
 
 const isPwd = ref(true);
@@ -411,10 +451,10 @@ const uploadKey = ref(settingsStore.settings.uploads.uploadKey);
 
 window.messageApi.receive("settings-changed", (value) => {
   settingsStore.loadSettings(value);
-})
+});
 
 watch(uploadKey, (newVal, oldVal) => {
-  if (newVal.length !== 32)  settingsStore.settings.uploads.uploadLogs = false;
+  if (newVal.length !== 32) settingsStore.settings.uploads.uploadLogs = false;
 
   settingsStore.settings.uploads.uploadKey = newVal;
 });
@@ -422,7 +462,7 @@ watch(uploadKey, (newVal, oldVal) => {
 watch(selectedRegion, (newVal, oldVal) => {
   settingsStore.settings.uploads.region = !newVal ? "" : newVal.value;
 
-  if (!newVal || newVal && oldVal) selectedServer.value = "";
+  if (!newVal || (newVal && oldVal)) selectedServer.value = "";
 });
 
 watch(selectedServer, (newVal, oldVal) => {
@@ -430,15 +470,23 @@ watch(selectedServer, (newVal, oldVal) => {
 });
 
 onMounted(() => {
-  selectedRegion.value = regions.find((x) => x.value === settingsStore.settings.uploads.region);
+  selectedRegion.value = regions.find(
+    (x) => x.value === settingsStore.settings.uploads.region
+  );
   const serverSection = servers[settingsStore.settings.uploads.region];
-  selectedServer.value = !serverSection ? "" : serverSection.find((x) => x.value === settingsStore.settings.uploads.server);
+  selectedServer.value = !serverSection
+    ? ""
+    : serverSection.find(
+        (x) => x.value === settingsStore.settings.uploads.server
+      );
 
   recentSessions.value = settingsStore.settings.uploads.recentSessions;
-})
-
+});
 
 function openSite(url) {
-  window.messageApi.send("window-to-main", { message: "open-link", value: url });
+  window.messageApi.send("window-to-main", {
+    message: "open-link",
+    value: url,
+  });
 }
 </script>
