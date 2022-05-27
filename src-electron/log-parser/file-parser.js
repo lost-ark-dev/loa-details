@@ -158,9 +158,217 @@ export function getParsedLogs() {
       continue;
     }
   }
-
   return res;
 }
+
+/* ASYNC TESTING
+export function verifyOldLog(logStats, jsonName) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(
+      path.join(parsedLogFolder, jsonName),
+      "utf-8",
+      (err, data) => {
+        if (err) {
+          reject(err);
+        } else {
+          const parsedOldLog = JSON.parse(data);
+
+          // if parsed version is less than current version, delete it and re-parse it
+          // or if parsed mtime is
+          // if not, skip this log
+          if (
+            !parsedOldLog.logParserVersion ||
+            parsedOldLog.logParserVersion < logParserVersion ||
+            logStats.mtime > new Date(parsedOldLog.mtime)
+          ) {
+            log.info("Deleting old version of parsed log");
+            fs.unlinkSync(path.join(parsedLogFolder, jsonName));
+            reject(new Error("Invalid old file, re-parsing"));
+          } else {
+            resolve("Nothing to do");
+          };
+        }
+      }
+    );
+  })
+}
+
+export function parseLogAsync(logStats, filename) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(
+      path.join(logFolder, filename),
+      "utf-8",
+      (err, contents) => {
+        if (err) {
+          log.info(`Error parsing log: ${filename}, ${err.message}`);
+          reject(err);
+        } else {
+          log.info(`Parsing individual log: ${filename}`);
+          const logParser = new LogParser((isLive = false));
+
+          const lines = contents.split("\n").filter((x) => x != null && x != "");
+          for (const line of lines) {
+            logParser.parseLogLine(line);
+          }
+          logParser.splitEncounter();
+          const encounters = logParser.encounters;
+          if (encounters.length > 0) {
+            const masterLog = {
+              logParserVersion,
+              mtime: logStats.mtime,
+              encounters: [],
+            };
+
+            const writes = [];
+            for (const encounter of encounters) {
+              const duration =
+                encounter.lastCombatPacket - encounter.fightStartedOn;
+
+              let mostDamageTakenEntity = {
+                name: "",
+                damageTaken: 0,
+                isPlayer: false,
+              };
+
+              for (const i of Object.values(encounter.entities)) {
+                if (i.damageTaken > mostDamageTakenEntity.damageTaken) {
+                  mostDamageTakenEntity = {
+                    name: i.name,
+                    damageTaken: i.damageTaken,
+                    isPlayer: i.isPlayer,
+                  };
+                }
+              }
+
+              const encounterDetails = {
+                duration,
+                mostDamageTakenEntity,
+              };
+
+              const encounterId = uuidv4();
+              const encounterFile = `${filenameSlice}_${encounterId}_encounter.json`;
+              masterLog.encounters.push({
+                encounterId,
+                encounterFile,
+                ...encounterDetails,
+              });
+
+              writes.push(new Promise((resolveWrite, rejectWrite) => {
+                fs.writeFile(
+                  path.join(parsedLogFolder, encounterFile),
+                  JSON.stringify({
+                    ...encounter,
+                    ...encounterDetails,
+                  }),
+                  (encounterWriteErr) => {
+                    if (encounterWriteErr) {
+                      log.error(`Error saving parsed log: ${encounterWriteErr.message}`)
+                      rejectWrite(encounterWriteErr);
+                    } else {
+                      resolveWrite();
+                    }
+                  }
+                );
+              }));
+            }
+
+            Promise.all(writes).then(() => {
+              fs.writeFile(
+                path.join(parsedLogFolder, jsonName),
+                JSON.stringify(masterLog),
+                (masterLogWriteErr) => {
+                  if (masterLogWriteErr) reject(masterLogWriteErr);
+                  else resolve();
+                }
+              );
+            }).catch((err) => {
+              log.error(`Error saving parsed log: ${err.message}`)
+              reject(err);
+            });
+          } else {
+            resolve();
+          }
+        }
+      }
+    );
+  })
+}
+
+export function parseLogsAsync() {
+  return new Promise(async (resolve, reject) => {
+    // Not going to async these calls
+    const unparsedLogs = fs.readdirSync(logFolder);
+    const parsedLogs = fs.readdirSync(parsedLogFolder);
+
+    const operations = []
+    for (const filename of unparsedLogs) {
+      log.info(`Parsing ${filename}`);
+      const filenameSlice = filename.slice(0, -4);
+      const jsonName = filenameSlice + ".json";
+      const logStats = fs.statSync(path.join(logFolder, filename));
+
+      if (parsedLogs.includes(jsonName)) {
+        try {
+          await verifyOldLog(logStats, jsonName)
+          log.info(`Old Log ${jsonName} is valid, skipping`)
+          continue;
+        } catch (err) {
+          log.info(`Old Log ${jsonName} is invalid, parsing`)
+          operations.push(parseLogAsync(logStats, filename));
+        }
+      } else if (
+        filename.startsWith("LostArk_") &&
+        filename.endsWith(".log") &&
+        filename.length > 12
+      ) {
+        log.info(`Parsing log ${filename}`);
+        operations.push(parseLogAsync(logStats, filename));
+      }
+    }
+    Promise.all(operations).then(resolve).catch(reject);
+  })
+}
+
+export function getParsedLogsAsync() {
+  return new Promise((resolve, reject) => {
+    fs.readdir(parsedLogFolder, (readDirErr, parsedLogs) => {
+      if (readDirErr) {
+        reject(readDirErr)
+      } else {
+        const res = [];
+
+        for (const filename of parsedLogs) {
+          try {
+            if (filename.slice(0, -5).endsWith("encounter")) continue;
+            res.push(new Promise((parseResolve, parseReject) => {
+              fs.readFile(path.join(parsedLogFolder, filename), "utf-8", (readFileErr, contents) => {
+                if (readFileErr) {
+                  parseReject(readFileErr)
+                } else {
+                  const parsedContents = JSON.parse(contents);
+                  const data = {
+                    filename,
+                    parsedContents,
+                    date: new Date(dayjs(filename.slice(8, -5), "YYYY-MM-DD-HH-mm-ss")),
+                  }
+                  parseResolve(data);
+                }
+              });
+            }));
+          } catch (e) {
+            log.error(e);
+            continue;
+          }
+        }
+        Promise.all(res).then((data) => {
+          resolve(data)
+        }).catch(reject)
+      }
+    });
+  });
+}
+*/
+
 
 export function getLogData(filename) {
   try {

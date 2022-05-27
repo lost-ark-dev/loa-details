@@ -200,7 +200,7 @@ module.exports = configure(function (/* ctx */) {
         publish: [
           {
             provider: "github",
-            owner: "guy0090",
+            owner: "karaeren",
             repo: "loa-details",
           },
         ],

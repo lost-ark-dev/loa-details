@@ -59,6 +59,13 @@ let appSettings = getSettings();
 
 logParser.dontResetOnZoneChange =
   appSettings?.damageMeter?.functionality?.dontResetOnZoneChange;
+
+logParser.pauseOnPhaseTransition =
+  appSettings?.damageMeter?.functionality?.pauseOnPhaseTransition;
+
+logParser.removeOverkillDamage =
+  appSettings?.damageMeter?.functionality?.removeOverkillDamage;
+
 appSettings.appVersion = app.getVersion();
 
 let connection = null; // reserved for electron-cgi connection
@@ -200,6 +207,14 @@ const ipcFunctions = {
     damageMeterWindow.webContents.send("on-settings-change", appSettings);
     logParser.dontResetOnZoneChange =
       appSettings.damageMeter.functionality.dontResetOnZoneChange;
+
+    logParser.removeOverkillDamage =
+      appSettings.damageMeter.functionality.removeOverkillDamage;
+
+    logParser.pauseOnPhaseTransition =
+      appSettings.damageMeter.functionality.pauseOnPhaseTransition;
+
+      damageMeterWindow.setOpacity(appSettings.damageMeter.design.opacity);
   },
   "get-settings": (event, arg) => {
     event.reply("on-settings-change", appSettings);

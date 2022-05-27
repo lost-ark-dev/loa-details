@@ -66,6 +66,11 @@
         />
       </div>
     </nav>
+    <q-linear-progress v-if="sessionState.isBossFight" size="30px" :value="getBossStatus().percent" color="red">
+        <div class="absolute-full flex flex-center">
+          <q-badge color="transparent" text-color="white" :label="getBossStatus().status" />
+        </div>
+      </q-linear-progress>
     <div
       v-if="!isMinimized && overlayType === OverlayTypeDamages"
       class="table-wrapper"
@@ -206,6 +211,7 @@
           {{ millisToMinutesAndSeconds(fightDuration) }}
           &nbsp;&nbsp;
         </span>
+        <!-- Temporarily disabled
         <q-btn
           v-if="isUploadTokenValid()"
           size="sm"
@@ -216,6 +222,7 @@
         >
           Upload: {{ settingsStore.settings.uploads.uploadLogs ? 'ON' : 'OFF' }}
         </q-btn>&nbsp;
+        -->
         <q-btn flat size="sm" @click="requestSessionRestart">
           RESET SESSION
         </q-btn>
@@ -255,6 +262,31 @@ function enableClickthrough() {
     html: true,
   });
 }
+
+// Temorarily hardcoded, changing when packets allow it
+const bosses = [
+  "Ur'nil",
+  "Lumerus",
+  "Icy Legoros",
+  "Vertus",
+  "Chromanium",
+  "Nacrasena",
+  "Flame Fox Yoho",
+  "Tytalos",
+  "Dark Legoros",
+  "Helgaia",
+  "Calventus",
+  "Achates",
+  "Frost Helgaia",
+  "Lava Chromanium",
+  "Levanos",
+  "Alberhastic",
+  "Armored Nacrasena",
+  "Igrexion",
+  "Night Fox Yoho",
+  "Velganos",
+  "Deskaluda"
+]
 
 const DamageTypeDealt = Symbol("dealt");
 const DamageTypeTaken = Symbol("taken");
@@ -301,7 +333,10 @@ const sessionState = reactive({
     totalDamageTaken: 0,
     topDamageTaken: 0,
   },
+  isBossFight: false,
 });
+
+const bossEntity = ref({});
 const sortedEntities = ref([]);
 function sortEntities() {
   const res = sessionState.entities
@@ -339,6 +374,15 @@ function sortEntities() {
     entity.tankPercentageTop = getPercentage(entity, DamageTypeTaken, "top");
   }
 
+  const boss = sessionState.entities.find((entity) => bosses.includes(entity.name) && entity.maxHp > 0);
+  if (boss) {
+    bossEntity.value = boss;
+    sessionState.isBossFight = true;
+  } else {
+     bossEntity.value = {};
+    sessionState.isBossFight = false;
+  }
+
   sortedEntities.value = res;
   calculateSkills();
 }
@@ -369,6 +413,25 @@ function calculateSkills() {
   }
 
   sortedSkills.value = res;
+}
+
+function getBossStatus() {
+  const bossName =  bossEntity.value.name;
+  const bossMaxHP =  bossEntity.value.maxHp;
+  const bossCurrentHP =  bossEntity.value.currentHp;
+  const overkill = bossCurrentHP < 0;
+
+  const percentHp = (bossCurrentHP / bossMaxHP) * 100;
+
+  let status = `${bossName} ${bossCurrentHP}/${bossMaxHP} (${percentHp.toFixed(2)}%)`
+  if (overkill) {
+    status = `${bossName} | ${0} (${bossCurrentHP})/${bossMaxHP} (0%)`
+  }
+
+  return {
+    status,
+    percent: percentHp.toFixed(2) / 100
+  };
 }
 
 function getPercentage(player, dmgType, relativeTo) {
@@ -438,6 +501,8 @@ onMounted(() => {
     fightPausedForMs = 0;
     overlayType.value = OverlayTypeDamages;
     damageType.value = DamageTypeDealt;
+    sessionState.isBossFight = false;
+    bossEntity.value = {};
   });
 
   window.messageApi.receive("pcap-on-message", (value) => {

@@ -27,6 +27,8 @@ export const useSettingsStore = defineStore("settings", {
       damageMeter: {
         functionality: {
           dontResetOnZoneChange: false,
+          removeOverkillDamage: true,
+          pauseOnPhaseTransition: false,
           autoMinimize: false,
           autoMinimizeTimer: 60,
         },

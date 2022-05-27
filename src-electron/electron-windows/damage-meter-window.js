@@ -2,6 +2,7 @@ import { app, BrowserWindow } from "electron";
 import { enable } from "@electron/remote/main";
 import path from "path";
 import { initWindow } from "../util/window-init";
+import log from "electron-log";
 
 export function createDamageMeterWindow(logParser, appSettings) {
   let damageMeterWindow = new BrowserWindow({
@@ -44,8 +45,9 @@ export function createDamageMeterWindow(logParser, appSettings) {
   });
   logParser.eventEmitter.on("state-change", (newState) => {
     try {
-      if (typeof damageMeterWindow !== "undefined" && damageMeterWindow)
+      if (typeof damageMeterWindow !== "undefined" && damageMeterWindow) {
         damageMeterWindow.webContents.send("pcap-on-state-change", newState);
+      }
     } catch (e) {
       log.error(e);
     }

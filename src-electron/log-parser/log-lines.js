@@ -31,9 +31,9 @@ export class LogNewPc {
     this.name = lineSplit[3] || "Unknown Entity";
     this.classId = tryParseInt(lineSplit[4]);
     this.class = lineSplit[5] || "UnknownClass";
-    /* this.level = tryParseInt(lineSplit[6]);
+    /* this.level = tryParseInt(lineSplit[6]); */
     this.currentHp = tryParseInt(lineSplit[7]);
-    this.maxHp = tryParseInt(lineSplit[8]); */
+    this.maxHp = tryParseInt(lineSplit[8]);
   }
 }
 
@@ -44,8 +44,8 @@ export class LogNewNpc {
     this.id = lineSplit[2];
     //this.npcId = tryParseInt(lineSplit[3]);
     this.name = lineSplit[4] || "Unknown Entity";
-    /* this.currentHp = tryParseInt(lineSplit[5]);
-    this.maxHp = tryParseInt(lineSplit[6]); */
+    this.currentHp = tryParseInt(lineSplit[5]);
+    this.maxHp = tryParseInt(lineSplit[6]);
   }
 }
 
@@ -87,8 +87,8 @@ export class LogDamage {
     this.isCrit = lineSplit[12] == 1;
     this.isBackAttack = lineSplit[13] == 1;
     this.isFrontAttack = lineSplit[14] == 1;
-    /* this.currentHp = tryParseInt(lineSplit[15]);
-    this.maxHp = tryParseInt(lineSplit[16]); */
+    this.currentHp = tryParseInt(lineSplit[15]);
+    this.maxHp = tryParseInt(lineSplit[16]);
   }
 }
 

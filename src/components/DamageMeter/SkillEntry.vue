@@ -113,6 +113,7 @@ function abbreviateNumber(n) {
 
 function getSkillImage(name) {
   const s = skills.find((k) => k.name == name);
+  if (s.name === "Bleed") s.id = 0; // Not sure if this might fuck something else
 
   if (s != null) {
     return new URL(

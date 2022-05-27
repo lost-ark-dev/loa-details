@@ -26,6 +26,24 @@
       <q-item-section side top>
         <q-checkbox
           v-model="
+            settingsStore.settings.damageMeter.functionality
+              .pauseOnPhaseTransition
+          "
+        />
+      </q-item-section>
+
+      <q-item-section>
+        <q-item-label>Pause meter on raid wipes or phase transitions</q-item-label>
+        <q-item-label caption>
+          If enabled, it will try to pause whenever a boss dies, a new phase begins/ends or when the raid wipes.
+        </q-item-label>
+      </q-item-section>
+    </q-item>
+
+    <q-item tag="label">
+      <q-item-section side top>
+        <q-checkbox
+          v-model="
             settingsStore.settings.damageMeter.functionality.autoMinimize
           "
         />
@@ -65,6 +83,22 @@
           :label-value="`Auto minimize after ${settingsStore.settings.damageMeter.functionality.autoMinimizeTimer} seconds.`"
           label-always
         />
+      </q-item-section>
+    </q-item>
+
+    <q-item tag="label">
+      <q-item-section side top>
+        <q-checkbox
+          v-model="
+            settingsStore.settings.damageMeter.functionality.removeOverkillDamage
+          "
+        />
+      </q-item-section>
+      <q-item-section>
+        <q-item-label>Remove Overkill Damage</q-item-label>
+        <q-item-label caption>
+          If the last hit on a mob does more damage than it has HP remaining, remove the excess damage.
+        </q-item-label>
       </q-item-section>
     </q-item>
 
