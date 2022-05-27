@@ -81,7 +81,6 @@ export const useSettingsStore = defineStore("settings", {
     },
     loadSettings(settingsToLoad) {
       merge(this.settings, settingsToLoad);
-      console.log("new settings", settingsToLoad);
     },
   },
 });
