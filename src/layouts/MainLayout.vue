@@ -117,6 +117,11 @@ function updateButton() {
 
 onMounted(() => {
   settingsStore.initSettings();
+  // save it to disk incase something new was added
+  window.messageApi.send("window-to-main", {
+    message: "save-settings",
+    value: JSON.stringify(settingsStore.settings),
+  });
 
   window.messageApi.receive("on-settings-change", (value) => {
     settingsStore.loadSettings(value);
