@@ -25,6 +25,7 @@ const changes = ref([
     * Added a log settings page, moved "minimum fight duration" setting to there and it's saved now.
     * Added an option to log settings to create an encounter on phase transition. With this setting, each Valtan wipe etc... will be seen as a single encounter on logs page.
     * Added a "wipe parsed logs" button to the logs settings page.
+    * Made the log parsing asnychronous and added a progress bar. Now the window won't get frozen and you'll be able to see the parsing progression.
     
     Thanks to guy0090@Github for adding most of these changes.
   `,
