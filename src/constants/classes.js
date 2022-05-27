@@ -8,7 +8,7 @@ export const classes = {
   Destroyer: { color: "#7b9aa2" },
   Deathblade: { color: "#a91a16" },
   FemaleGunner: { color: "#541165" },
-  Glaivier: { color: "#f6da6a" },
+  Glavier: { color: "#f6da6a" },
   Gunlancer: { color: "#E1907E" },
   Gunner: { color: "#184B4D" },
   Gunslinger: { color: "#6bcec2" },

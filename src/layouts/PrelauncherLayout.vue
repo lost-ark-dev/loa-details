@@ -2,10 +2,6 @@
   <div class="flex column items-center justify-center prelauncher">
     <img class="loader-img" :src="loaderImg" />
     <span class="loader-msg">{{ currentMessage }}</span>
-    <div v-if="error">
-      <br>
-      <span class="ellipsis">{{ errorMessage }}</span>
-    </div>
   </div>
 </template>
 
@@ -13,8 +9,6 @@
 import { onMounted, ref } from "vue";
 
 const currentMessage = ref("LOA Details");
-const errorMessage = ref("");
-const error= ref(false);
 
 const loaderImg = new URL(`../assets/images/loader.gif`, import.meta.url).href;
 onMounted(() => {

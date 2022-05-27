@@ -16,9 +16,9 @@ export const useSettingsStore = defineStore("settings", {
       uploads: {
         uploadLogs: false,
         uploadKey: "",
-        apiUrl: process.env.DEBUGGING ? "http://localhost" : "https://api.dps.arsha.io",
+        apiUrl: process.env.UPLOADS_API_URL,
         uploadEndpoint: "/logs/upload",
-        loginUrl: process.env.DEBUGGING ? "http://localhost:8080" : "https://dps.arsha.io",
+        loginUrl: process.env.UPLOADS_LOGIN_URL,
         region: "",
         server: "",
         openOnUpload: false,

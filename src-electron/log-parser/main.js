@@ -80,14 +80,12 @@ export class LogParser {
       if (+new Date() - entitiesCopy[entity].lastUpdate > 10 * 60 * 1000)
         continue;
 
-      const currentHp = entitiesCopy[entity].currentHp;
-      const maxHp = entitiesCopy[entity].maxHp;
       this.updateEntity(entitiesCopy[entity].name, {
         name: entitiesCopy[entity].name,
         class: entitiesCopy[entity].class,
         isPlayer: entitiesCopy[entity].isPlayer,
-        maxHp: currentHp > 0 ? maxHp : 0,
-        currentHp: currentHp > 0 ? currentHp : 0,
+        maxHp: entitiesCopy[entity].maxHp,
+        currentHp: entitiesCopy[entity].currentHp,
       });
     }
   }
@@ -205,7 +203,7 @@ export class LogParser {
   }
 
   // logId = 2
-  onPhaseTransition() {
+  onPhaseTransition(lineSplit) {
     log.debug("onPhaseTransition");
     // Temporary until packet for each type of raid end is sent
     if (this.pauseOnPhaseTransition) this.eventEmitter.emit("message", "raid-end");
@@ -278,7 +276,7 @@ export class LogParser {
     const damageTarget = this.game.entities[logLine.targetName];
 
     if (!damageTarget.isPlayer && this.removeOverkillDamage && logLine.currentHp < 0) {
-      log.info(`Removing ${logLine.currentHp} overkill damage`)
+      log.debug(`Removing ${logLine.currentHp} overkill damage`)
       logLine.damage = logLine.damage + logLine.currentHp;
     }
 

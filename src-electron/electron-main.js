@@ -68,8 +68,6 @@ logParser.removeOverkillDamage =
 
 appSettings.appVersion = app.getVersion();
 
-let connection = null; // reserved for electron-cgi connection
-
 // needed in case process is undefined under Linux
 const platform = process.platform || os.platform();
 try {

@@ -47,7 +47,7 @@ export function parseLogs() {
           parsedOldLog.logParserVersion < logParserVersion ||
           logStats.mtime > new Date(parsedOldLog.mtime)
         ) {
-          log.info("Deleting old version of parsed log");
+          log.debug("Deleting old version of parsed log");
           fs.unlinkSync(path.join(parsedLogFolder, jsonName));
         } else continue;
       }
@@ -181,7 +181,7 @@ export function verifyOldLog(logStats, jsonName) {
             parsedOldLog.logParserVersion < logParserVersion ||
             logStats.mtime > new Date(parsedOldLog.mtime)
           ) {
-            log.info("Deleting old version of parsed log");
+            log.debug("Deleting old version of parsed log");
             fs.unlinkSync(path.join(parsedLogFolder, jsonName));
             reject(new Error("Invalid old file, re-parsing"));
           } else {
@@ -200,10 +200,10 @@ export function parseLogAsync(logStats, filename) {
       "utf-8",
       (err, contents) => {
         if (err) {
-          log.info(`Error parsing log: ${filename}, ${err.message}`);
+          log.debug(`Error parsing log: ${filename}, ${err.message}`);
           reject(err);
         } else {
-          log.info(`Parsing individual log: ${filename}`);
+          log.debug(`Parsing individual log: ${filename}`);
           const logParser = new LogParser((isLive = false));
 
           const lines = contents.split("\n").filter((x) => x != null && x != "");
@@ -302,7 +302,7 @@ export function parseLogsAsync() {
 
     const operations = []
     for (const filename of unparsedLogs) {
-      log.info(`Parsing ${filename}`);
+      log.debug(`Parsing ${filename}`);
       const filenameSlice = filename.slice(0, -4);
       const jsonName = filenameSlice + ".json";
       const logStats = fs.statSync(path.join(logFolder, filename));
@@ -310,10 +310,10 @@ export function parseLogsAsync() {
       if (parsedLogs.includes(jsonName)) {
         try {
           await verifyOldLog(logStats, jsonName)
-          log.info(`Old Log ${jsonName} is valid, skipping`)
+          log.debug(`Old Log ${jsonName} is valid, skipping`)
           continue;
         } catch (err) {
-          log.info(`Old Log ${jsonName} is invalid, parsing`)
+          log.debug(`Old Log ${jsonName} is invalid, parsing`)
           operations.push(parseLogAsync(logStats, filename));
         }
       } else if (
@@ -321,7 +321,7 @@ export function parseLogsAsync() {
         filename.endsWith(".log") &&
         filename.length > 12
       ) {
-        log.info(`Parsing log ${filename}`);
+        log.debug(`Parsing log ${filename}`);
         operations.push(parseLogAsync(logStats, filename));
       }
     }
