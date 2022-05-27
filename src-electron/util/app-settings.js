@@ -1,5 +1,6 @@
 import Store from "electron-store";
 import log from "electron-log";
+import { cloneDeep } from "lodash";
 
 const store = new Store();
 
@@ -8,10 +9,10 @@ export function getSettings() {
 
   try {
     let settingsStr = store.get("settings");
-    // log.debug(settingsStr);
-    if (typeof settingsStr === 'object') settingsStr = JSON.stringify(settingsStr);
 
-    if (settingsStr) appSettings = JSON.parse(settingsStr);
+    if (typeof settingsStr === "object") appSettings = cloneDeep(settingsStr);
+    else if (typeof settingsStr === "string")
+      appSettings = JSON.parse(settingsStr);
 
     log.info("Found and applied settings.");
   } catch (e) {
@@ -22,7 +23,9 @@ export function getSettings() {
 }
 
 export function saveSettings(settings) {
-  if (typeof settings === 'object') settings = JSON.stringify(settings);
-  store.set("settings", settings);
-  // log.debug(`Saved settings: ${settings}`);
+  if (typeof settings === "object")
+    store.set("settings", JSON.stringify(settings));
+  else store.set("settings", settings);
+
+  log.info(`Saved settings: ${settings}`);
 }
