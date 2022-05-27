@@ -43,6 +43,7 @@ export class LogParser {
     this.resetTimer = null;
     this.dontResetOnZoneChange = false;
     this.pauseOnPhaseTransition = false;
+    this.splitOnPhaseTransition = false;
     this.removeOverkillDamage = true;
     this.resetState();
     this.encounters = [];
@@ -196,6 +197,7 @@ export class LogParser {
       }
     } else {
       this.splitEncounter();
+      this.eventEmitter.emit("message", "new-zone");
     }
   }
 
@@ -203,8 +205,13 @@ export class LogParser {
   onPhaseTransition(lineSplit) {
     log.debug("onPhaseTransition");
     // Temporary until packet for each type of raid end is sent
-    if (this.pauseOnPhaseTransition)
+    if (this.isLive && this.pauseOnPhaseTransition)
       this.eventEmitter.emit("message", "raid-end");
+
+    if (!this.isLive && this.splitOnPhaseTransition) {
+      this.splitEncounter();
+      this.eventEmitter.emit("message", "raid-end");
+    }
   }
 
   // logId = 3

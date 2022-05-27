@@ -65,6 +65,10 @@ export const useSettingsStore = defineStore("settings", {
         },
         classes: {},
       },
+      logs: {
+        minimumDurationInMinutes: 0.0,
+        splitOnPhaseTransition: true,
+      },
     },
   }),
   actions: {

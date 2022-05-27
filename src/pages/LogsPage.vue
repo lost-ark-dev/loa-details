@@ -5,14 +5,34 @@
       class="flex column items-center justify-center spinner"
     >
       <img class="loader-img" :src="loaderImg" />
-      <span>Fetching logs...</span>
+      <span>Parsing logs...</span>
+      <div v-if="isReceivingParserStatus" style="text-align: center">
+        <q-linear-progress
+          :value="parserStatus.completedJobs / parserStatus.totalJobs"
+          class="q-mt-md"
+          style="width: 128px"
+        />
+        <div style="margin-top: 8px">
+          {{ parserStatus.completedJobs }} / {{ parserStatus.totalJobs }}
+        </div>
+      </div>
     </div>
     <q-scroll-area
       v-if="logFiles.length > 0 && !logFile.viewingLogFile"
       style="height: calc(100vh - 80px); padding: 8px 16px"
     >
       <div class="flex logs-top-bar">
-        <div style="margin-left: auto">
+        <q-select
+          filled
+          v-model="encounterFilter"
+          multiple
+          clearable
+          :options="encounterOptions"
+          label="Filter encounters"
+          style="width: 250px"
+        />
+
+        <div>
           <q-btn
             unelevated
             color="primary"
@@ -26,51 +46,6 @@
             label="Refresh"
             @click="getLogfiles"
           />
-        </div>
-        <div style="display: flex; width: 100%; margin: 16px 0">
-          <q-select
-            filled
-            v-model="encounterFilter"
-            multiple
-            clearable
-            :options="encounterOptions"
-            label="Filter encounters"
-            style="width: 250px"
-          />
-
-          <q-slider
-            style="margin: 0 16px"
-            :model-value="durationSlider"
-            @change="
-              (val) => {
-                durationSlider = val;
-              }
-            "
-            color="primary"
-            label-always
-            switch-label-side
-            :label-value="'Minimum ' + durationSlider + ' minutes'"
-            markers
-            marker-labels
-            :min="0"
-            :max="3"
-            :step="0.5"
-          >
-            <template v-slot:marker-label-group="scope">
-              <div
-                v-for="marker in scope.markerList"
-                :key="marker.index"
-                :class="[
-                  `text-blue-${2 + Math.ceil(marker.value / 2)}`,
-                  marker.classes,
-                ]"
-                :style="marker.style"
-                @click="model = marker.value"
-              >
-                {{ marker.value }}
-              </div>
-            </template>
-          </q-slider>
         </div>
       </div>
 
@@ -117,6 +92,9 @@ import dayjs from "dayjs";
 
 import LogView from "src/components/LogView.vue";
 
+import { useSettingsStore } from "../stores/settings";
+const settingsStore = useSettingsStore();
+
 const loaderImg = new URL(`../assets/images/loader.gif`, import.meta.url).href;
 
 const logsPagination = ref({
@@ -127,7 +105,6 @@ const logsPagination = ref({
 });
 
 const encounterFilter = ref(null);
-const durationSlider = ref(0);
 const encounterOptions = ref([]);
 
 const columns = [
@@ -171,7 +148,10 @@ const logFilesComputed = computed(() => {
         : true
     )
     .filter((x) => {
-      return x.durationTs / (1000 * 60) >= durationSlider.value;
+      return (
+        x.durationTs / (1000 * 60) >=
+        settingsStore.settings.logs.minimumDurationInMinutes
+      );
     });
 });
 const logFile = reactive({
@@ -234,16 +214,34 @@ function openLogDirectory() {
   window.messageApi.send("window-to-main", { message: "open-log-directory" });
 }
 
+const isReceivingParserStatus = ref(false);
+const parserStatus = ref({
+  completedJobs: 0,
+  totalJobs: 0,
+});
+
 onMounted(() => {
   getLogfiles();
 
   window.messageApi.receive("parsed-logs-list", (value) => {
+    isReceivingParserStatus.value = false;
+    parserStatus.value = {
+      completedJobs: 0,
+      totalJobs: 0,
+    };
     calculateLogFileList(value);
   });
 
   window.messageApi.receive("parsed-log", (value) => {
     logFile.data = value;
     logFile.viewingLogFile = true;
+  });
+
+  window.messageApi.receive("log-parser-status", (value) => {
+    if (value.completedJobs && value.totalJobs) {
+      isReceivingParserStatus.value = true;
+      parserStatus.value = value;
+    }
   });
 });
 </script>
@@ -257,6 +255,8 @@ onMounted(() => {
   width: 128px;
 }
 .logs-top-bar {
+  align-items: center;
+  justify-content: space-between;
   padding: 16px 0;
 }
 </style>

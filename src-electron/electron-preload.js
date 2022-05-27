@@ -18,6 +18,7 @@ contextBridge.exposeInMainWorld("messageApi", {
       "on-settings-change",
       "parsed-logs-list",
       "parsed-log",
+      "log-parser-status",
     ];
 
     if (validChannels.includes(channel)) {

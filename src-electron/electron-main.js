@@ -27,6 +27,7 @@ import {
   parseLogs,
   getParsedLogs,
   getLogData,
+  wipeParsedLogs,
   logFolder,
 } from "./log-parser/file-parser";
 
@@ -217,14 +218,17 @@ const ipcFunctions = {
   "get-settings": (event, arg) => {
     event.reply("on-settings-change", appSettings);
   },
-  "get-parsed-logs": (event, arg) => {
-    parseLogs();
-    const parsedLogs = getParsedLogs();
-    event.reply("parsed-logs-list", parsedLogs);
+  "get-parsed-logs": async (event, arg) => {
+    await parseLogs(event, appSettings?.logs?.splitOnPhaseTransition);
+    const parsedLogs = await getParsedLogs();
+    await event.reply("parsed-logs-list", parsedLogs);
   },
-  "get-parsed-log": (event, arg) => {
-    const logData = getLogData(arg.value);
-    event.reply("parsed-log", logData);
+  "get-parsed-log": async (event, arg) => {
+    const logData = await getLogData(arg.value);
+    await event.reply("parsed-log", logData);
+  },
+  "wipe-parsed-logs": async (event, args) => {
+    await wipeParsedLogs();
   },
   "open-log-directory": (event, arg) => {
     shell.openPath(logFolder);
