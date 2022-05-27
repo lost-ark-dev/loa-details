@@ -58,7 +58,7 @@ module.exports = configure(function (/* ctx */) {
       env: {
         UPLOADS_API_URL: "https://api.dps.arsha.io",
         UPLOADS_LOGIN_URL: "https://dps.arsha.io",
-      }
+      },
 
       // vueRouterBase,
       // vueDevtools,

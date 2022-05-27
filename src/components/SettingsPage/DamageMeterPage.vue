@@ -33,9 +33,12 @@
       </q-item-section>
 
       <q-item-section>
-        <q-item-label>Pause meter on raid wipes or phase transitions</q-item-label>
+        <q-item-label>
+          Pause meter on raid wipes or phase transitions
+        </q-item-label>
         <q-item-label caption>
-          If enabled, it will try to pause whenever a boss dies, a new phase begins/ends or when the raid wipes.
+          If enabled, it will try to pause whenever a boss dies, a new phase
+          begins/ends or when the raid wipes.
         </q-item-label>
       </q-item-section>
     </q-item>
@@ -90,14 +93,16 @@
       <q-item-section side top>
         <q-checkbox
           v-model="
-            settingsStore.settings.damageMeter.functionality.removeOverkillDamage
+            settingsStore.settings.damageMeter.functionality
+              .removeOverkillDamage
           "
         />
       </q-item-section>
       <q-item-section>
         <q-item-label>Remove Overkill Damage</q-item-label>
         <q-item-label caption>
-          If the last hit on a mob does more damage than it has HP remaining, remove the excess damage.
+          If the last hit on a mob does more damage than it has HP remaining,
+          remove the excess damage.
         </q-item-label>
       </q-item-section>
     </q-item>
@@ -146,13 +151,10 @@
       </q-item-section>
       <q-item-section>
         <q-slider
-          :model-value="
-            settingsStore.settings.damageMeter.design.opacity
-          "
+          :model-value="settingsStore.settings.damageMeter.design.opacity"
           @change="
             (val) => {
-              settingsStore.settings.damageMeter.design.opacity =
-                val;
+              settingsStore.settings.damageMeter.design.opacity = val;
             }
           "
           :min="0.1"

@@ -212,7 +212,7 @@ const ipcFunctions = {
     logParser.pauseOnPhaseTransition =
       appSettings.damageMeter.functionality.pauseOnPhaseTransition;
 
-      damageMeterWindow.setOpacity(appSettings.damageMeter.design.opacity);
+    damageMeterWindow.setOpacity(appSettings.damageMeter.design.opacity);
   },
   "get-settings": (event, arg) => {
     event.reply("on-settings-change", appSettings);

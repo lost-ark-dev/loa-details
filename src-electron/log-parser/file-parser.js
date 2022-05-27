@@ -369,7 +369,6 @@ export function getParsedLogsAsync() {
 }
 */
 
-
 export function getLogData(filename) {
   try {
     const contents = fs.readFileSync(
