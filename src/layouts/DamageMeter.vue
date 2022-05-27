@@ -66,7 +66,7 @@
         />
       </div>
     </nav>
-    <q-linear-progress v-if="sessionState.isBossFight" size="30px" :value="getBossStatus().percent" color="red">
+    <q-linear-progress v-if="isBossFight" size="30px" :value="getBossStatus().percent" color="red">
         <div class="absolute-full flex flex-center">
           <q-badge color="transparent" text-color="white" :label="getBossStatus().status" />
         </div>
@@ -333,9 +333,9 @@ const sessionState = reactive({
     totalDamageTaken: 0,
     topDamageTaken: 0,
   },
-  isBossFight: false,
 });
 
+const isBossFight = ref(false);
 const bossEntity = ref({});
 const sortedEntities = ref([]);
 function sortEntities() {
@@ -377,10 +377,10 @@ function sortEntities() {
   const boss = sessionState.entities.find((entity) => bosses.includes(entity.name) && entity.maxHp > 0);
   if (boss) {
     bossEntity.value = boss;
-    sessionState.isBossFight = true;
+    isBossFight.value = true;
   } else {
-     bossEntity.value = {};
-    sessionState.isBossFight = false;
+    bossEntity.value = {};
+    isBossFight.value = false;
   }
 
   sortedEntities.value = res;
@@ -501,7 +501,7 @@ onMounted(() => {
     fightPausedForMs = 0;
     overlayType.value = OverlayTypeDamages;
     damageType.value = DamageTypeDealt;
-    sessionState.isBossFight = false;
+    isBossFight.value = false;
     bossEntity.value = {};
   });
 
