@@ -14,8 +14,14 @@ export function initWindow(window, name) {
       window.setSize(windowOptions.width, windowOptions.height);
     }
 
-    if (windowOptions.X && windowOptions.Y)
+    if (
+      typeof windowOptions.X === "number" &&
+      typeof windowOptions.Y === "number" &&
+      !isNaN(windowOptions.X) &&
+      !isNaN(windowOptions.Y)
+    ) {
       window.setPosition(windowOptions.X, windowOptions.Y);
+    }
   }
 
   window.on(`moved`, () => {
