@@ -13,6 +13,8 @@
         </span>
       </div>
     </div>
+    <q-btn flat size="sm" @click="damageType = 'dmg'"> DMG </q-btn>
+    <q-btn flat size="sm" @click="damageType = 'tank'"> TANK </q-btn>
     <DamageMeterTable
       v-if="logData"
       :session-state="logData"
@@ -32,7 +34,7 @@ const props = defineProps({
   logData: Object,
 });
 
-const damageType = ref("dmg"); // todo add tank button
+const damageType = ref("dmg");
 </script>
 
 <style>
