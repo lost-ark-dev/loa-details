@@ -9,11 +9,12 @@
       "
     >
       <span
-        v-if="
-          !isMinimized &&
-          !settingsStore.settings.damageMeter.design.compactDesign
+        v-if="!isMinimized"
+        :class="
+          settingsStore.settings.damageMeter.design.compactDesign
+            ? 'time-compact'
+            : 'time'
         "
-        class="time"
       >
         {{ millisToMinutesAndSeconds(fightDuration) }}
       </span>
@@ -83,9 +84,6 @@
       <div style="margin-left: auto">
         <span v-if="settingsStore.settings.damageMeter.design.compactDesign">
           v{{ settingsStore.settings.appVersion }}
-          &nbsp;&nbsp;&nbsp;&nbsp;
-          {{ millisToMinutesAndSeconds(fightDuration) }}
-          &nbsp;&nbsp;
         </span>
         <q-btn flat size="sm" @click="requestSessionRestart">
           RESET SESSION
@@ -344,6 +342,14 @@ li {
   width: 100%;
   bottom: 0;
   left: 0;
+}
+.compact-nav .time-compact,
+.compact-nav .info-box {
+  margin-top: 2px;
+}
+.nav .time-compact {
+  font-size: 11px;
+  color: #fff;
 }
 .nav .time {
   font-size: 32px;
