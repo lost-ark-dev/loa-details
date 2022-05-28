@@ -17,6 +17,16 @@ import { ref } from "vue";
 
 const changes = ref([
   {
+    version: "0.3.4",
+    mdFormattedLog: `
+    * Refactored a lot of UI code about the damage meter.
+    * Added DMG/TANK buttons to log viewer.
+    * Updated damage meter compact design.
+    * Hid encounters that are less than 1 seconds on the log viewer.
+    * Fixed a bug with the windows not remembering their last position.
+  `,
+  },
+  {
     version: "0.3.1",
     mdFormattedLog: `
     * Added an option in settings to auto pause on wipes/phase changes/(guardian) boss deaths
@@ -26,7 +36,7 @@ const changes = ref([
     * Added an option to log settings to create an encounter on phase transition. With this setting, each Valtan wipe etc... will be seen as a single encounter on logs page.
     * Added a "wipe parsed logs" button to the logs settings page.
     * Made the log parsing asnychronous and added a progress bar. Now the window won't get frozen and you'll be able to see the parsing progression.
-    
+
     Thanks to guy0090@Github for adding most of these changes.
   `,
   },
