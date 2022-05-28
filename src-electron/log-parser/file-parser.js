@@ -16,7 +16,7 @@ if (!fs.existsSync(logFolder)) {
   fs.mkdirSync(logFolder);
 }
 
-const logParserVersion = 2;
+const logParserVersion = 3;
 const parsedFolderName = "parsed";
 const parsedLogFolder = path.join(logFolder, parsedFolderName);
 if (!fs.existsSync(parsedLogFolder)) {
@@ -96,6 +96,8 @@ export async function parseLogs(event, splitOnPhaseTransition) {
           for await (const encounter of encounters) {
             const duration =
               encounter.lastCombatPacket - encounter.fightStartedOn;
+
+            if (duration <= 1000) continue;
 
             let mostDamageTakenEntity = {
               name: "",
