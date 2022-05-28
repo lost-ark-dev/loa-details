@@ -13,3 +13,11 @@ export function abbreviateNumber(n) {
   if (n >= 1e9 && n < 1e12) return [+(n / 1e9).toFixed(1), "b"];
   if (n >= 1e12) return [+(n / 1e12).toFixed(1), "t"];
 }
+
+// takes milliseconds in numbers and returns string with minutes:seconds
+// ex: 60000 => 01:00
+export function millisToMinutesAndSeconds(millis) {
+  const minutes = Math.floor(millis / 60000);
+  const seconds = ((millis % 60000) / 1000).toFixed(0);
+  return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+}

@@ -81,7 +81,7 @@
           :key="player.id"
           :player="player"
           :showTanked="damageType === 'tank'"
-          :fightDuration="Math.max(1000, sessionState.duration)"
+          :fightDuration="Math.max(1000, duration)"
           @click="focusPlayer(player)"
         />
       </tbody>
@@ -91,7 +91,7 @@
           :key="skill.name"
           :skill="skill"
           :className="focusedPlayerClass"
-          :fightDuration="Math.max(1000, sessionState.duration)"
+          :fightDuration="Math.max(1000, duration)"
           @click.right="focusedPlayer = '#'"
         />
       </tbody>
@@ -114,6 +114,7 @@ const props = defineProps({
     type: String,
     default: "dmg",
   },
+  duration: Number,
 });
 const entitiesCopy = ref([]);
 
@@ -136,6 +137,8 @@ const sortedEntities = ref([]);
 const sortedSkills = ref([]);
 
 function sortEntities() {
+  if (Object.keys(props.sessionState).length <= 0) return;
+
   entitiesCopy.value = cloneDeep(Object.values(props.sessionState.entities));
   const res = entitiesCopy.value
     .filter(
@@ -213,6 +216,11 @@ function getPercentage(player, dmgType, relativeTo) {
 </script>
 
 <style>
+.ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .damage-meter-table-wrapper {
   overflow-y: scroll;
 }

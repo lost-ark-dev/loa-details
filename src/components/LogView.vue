@@ -17,6 +17,7 @@
       v-if="logData"
       :session-state="logData"
       :damage-type="damageType"
+      :duration="logData.duration"
     />
   </div>
 </template>
