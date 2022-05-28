@@ -63,7 +63,7 @@
                   ? player.tankPercentageTop
                   : player.damagePercentageTop
               }%;
-              background:${getClassColor(player.class)};
+              background:${settingsStore.getClassColor(player.class)};
               `"
     >
       <!-- Player percentage bar -->
@@ -73,9 +73,10 @@
 
 <script setup>
 import { computed } from "vue";
-import { classes } from "../../constants/classes";
+import { classes } from "src/constants/classes";
+import { abbreviateNumber } from "src/util/number-helpers";
+import { useSettingsStore } from "src/stores/settings";
 
-import { useSettingsStore } from "../../stores/settings";
 const settingsStore = useSettingsStore();
 
 const props = defineProps({
@@ -96,14 +97,6 @@ const DPS = computed(() => {
   return abbreviateNumber((a / (props.fightDuration / 1000)).toFixed(0));
 });
 
-function abbreviateNumber(n) {
-  if (n < 1e3) return [n, ""];
-  if (n >= 1e3 && n < 1e6) return [+(n / 1e3).toFixed(1), "k"];
-  if (n >= 1e6 && n < 1e9) return [+(n / 1e6).toFixed(1), "m"];
-  if (n >= 1e9 && n < 1e12) return [+(n / 1e9).toFixed(1), "b"];
-  if (n >= 1e12) return [+(n / 1e12).toFixed(1), "t"];
-}
-
 function getClassImage(className) {
   if (className in classes)
     return new URL(
@@ -113,11 +106,5 @@ function getClassImage(className) {
 
   return new URL(`../../assets/images/classes/Warrior.png`, import.meta.url)
     .href;
-}
-
-function getClassColor(className) {
-  if (className in settingsStore.settings.damageMeter.classes)
-    return settingsStore.settings.damageMeter.classes[className].color;
-  return "#353535";
 }
 </script>

@@ -65,7 +65,7 @@
       class="player-bar"
       :style="`
               width:${skill.relativePercent}%;
-              background:${getClassColor(className)};
+              background:${settingsStore.getClassColor(className)};
               `"
     ></div>
   </tr>
@@ -73,8 +73,10 @@
 
 <script setup>
 import { computed } from "vue";
-import { skills } from "../../constants/skills.js";
-import { useSettingsStore } from "../../stores/settings";
+import { skills } from "src/constants/skills.js";
+import { abbreviateNumber } from "src/util/number-helpers.js";
+import { useSettingsStore } from "src/stores/settings";
+
 const settingsStore = useSettingsStore();
 
 const props = defineProps({
@@ -97,25 +99,12 @@ const maxDamage = computed(() => {
   return abbreviateNumber(props.skill.maxDamage);
 });
 
-function getClassColor(className) {
-  if (className in settingsStore.settings.damageMeter.classes)
-    return settingsStore.settings.damageMeter.classes[className].color;
-  return "#353535";
-}
-
-function abbreviateNumber(n) {
-  if (n < 1e3) return [n, ""];
-  if (n >= 1e3 && n < 1e6) return [+(n / 1e3).toFixed(1), "k"];
-  if (n >= 1e6 && n < 1e9) return [+(n / 1e6).toFixed(1), "m"];
-  if (n >= 1e9 && n < 1e12) return [+(n / 1e9).toFixed(1), "b"];
-  if (n >= 1e12) return [+(n / 1e12).toFixed(1), "t"];
-}
-
 function getSkillImage(name) {
   const s = skills.find((k) => k.name == name);
-  if (s.name === "Bleed") s.id = 0; // Not sure if this might fuck something else
 
   if (s != null) {
+    if (s.name === "Bleed") s.id = 0;
+
     return new URL(
       `../../assets/images/skills/${s.id}_${s.name.replace(":", "-")}.png`,
       import.meta.url

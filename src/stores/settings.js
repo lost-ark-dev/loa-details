@@ -71,6 +71,15 @@ export const useSettingsStore = defineStore("settings", {
       },
     },
   }),
+  getters: {
+    getClassColor(state) {
+      return (className) => {
+        if (className in state?.settings?.damageMeter?.classes)
+          return state.settings.damageMeter.classes[className].color;
+        return "#353535";
+      };
+    },
+  },
   actions: {
     initSettings() {
       merge(this.settings.damageMeter.classes, classes);
