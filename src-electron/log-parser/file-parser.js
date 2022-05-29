@@ -16,7 +16,7 @@ if (!fs.existsSync(logFolder)) {
   fs.mkdirSync(logFolder);
 }
 
-const logParserVersion = 3;
+const logParserVersion = 4;
 const parsedFolderName = "parsed";
 const parsedLogFolder = path.join(logFolder, parsedFolderName);
 if (!fs.existsSync(parsedLogFolder)) {

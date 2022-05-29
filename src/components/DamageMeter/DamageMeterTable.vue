@@ -6,19 +6,43 @@
           <th style="width: 26px"></th>
           <th style="width: 100%"></th>
           <th style="width: 72px">
-            {{ damageType === "dmg" ? "Damage" : "Tanked" }}
+            {{
+              damageType === "dmg"
+                ? "Damage"
+                : damageType === "tank"
+                ? "Tanked"
+                : damageType === "heal"
+                ? "Healed"
+                : ""
+            }}
           </th>
           <th
             v-if="settingsStore.settings.damageMeter.tabs.damagePercent.enabled"
             style="width: 48px"
           >
-            {{ damageType === "dmg" ? "D" : "T" }}%
+            {{
+              damageType === "dmg"
+                ? "D"
+                : damageType === "tank"
+                ? "T"
+                : damageType === "heal"
+                ? "H"
+                : ""
+            }}%
           </th>
           <th
             v-if="settingsStore.settings.damageMeter.tabs.dps.enabled"
             style="width: 52px"
           >
-            {{ damageType === "dmg" ? "DPS" : "TPS" }}
+            {{
+              damageType === "dmg"
+                ? "DPS"
+                : damageType === "tank"
+                ? "TPS"
+                : damageType === "heal"
+                ? "HPS"
+                : ""
+            }}
           </th>
           <th
             v-if="settingsStore.settings.damageMeter.tabs.critRate.enabled"
@@ -80,8 +104,8 @@
           v-for="player in sortedEntities"
           :key="player.id"
           :player="player"
-          :showTanked="damageType === 'tank'"
-          :fightDuration="Math.max(1000, duration)"
+          :damage-type="damageType"
+          :fight-duration="Math.max(1000, duration)"
           @click="focusPlayer(player)"
         />
       </tbody>
@@ -90,8 +114,8 @@
           v-for="skill in sortedSkills"
           :key="skill.name"
           :skill="skill"
-          :className="focusedPlayerClass"
-          :fightDuration="Math.max(1000, duration)"
+          :class-name="focusedPlayerClass"
+          :fight-duration="Math.max(1000, duration)"
           @click.right="focusedPlayer = '#'"
         />
       </tbody>
@@ -148,7 +172,11 @@ function sortEntities() {
         entity.isPlayer &&
         (props.damageType === "dmg"
           ? entity.damageDealt > 0
-          : entity.damageTaken > 0)
+          : props.damageType === "tank"
+          ? entity.damageTaken > 0
+          : props.damageType === "heal"
+          ? entity.healingDone > 0
+          : 0)
     )
     .sort((a, b) => {
       if (settingsStore.settings.damageMeter.design.pinUserToTop) {
@@ -158,7 +186,11 @@ function sortEntities() {
 
       return props.damageType === "dmg"
         ? b.damageDealt - a.damageDealt
-        : b.damageTaken - a.damageTaken;
+        : props.damageType === "tank"
+        ? b.damageTaken - a.damageTaken
+        : props.damageType === "heal"
+        ? b.healingDone - a.healingDone
+        : 0;
     });
 
   for (const entity of res) {
@@ -167,6 +199,9 @@ function sortEntities() {
 
     entity.tankPercentageTotal = getPercentage(entity, "tank", "total");
     entity.tankPercentageTop = getPercentage(entity, "tank", "top");
+
+    entity.healPercentageTotal = getPercentage(entity, "heal", "total");
+    entity.healPercentageTop = getPercentage(entity, "heal", "top");
   }
 
   sortedEntities.value = res;
@@ -203,16 +238,23 @@ function calculateSkills() {
 function getPercentage(player, dmgType, relativeTo) {
   let a = player.damageDealt;
   if (dmgType === "tank") a = player.damageTaken;
+  else if (dmgType === "heal") a = player.healingDone;
+
   let b;
   if (dmgType === "dmg") {
     if (relativeTo === "top")
       b = props.sessionState.damageStatistics.topDamageDealt;
     else b = props.sessionState.damageStatistics.totalDamageDealt;
-  } else {
+  } else if (dmgType === "tank") {
     if (relativeTo === "top")
       b = props.sessionState.damageStatistics.topDamageTaken;
     else b = props.sessionState.damageStatistics.totalDamageTaken;
+  } else if (dmgType === "heal") {
+    if (relativeTo === "top")
+      b = props.sessionState.damageStatistics.topHealingDone;
+    else b = props.sessionState.damageStatistics.totalHealingDone;
   }
+
   return ((a / b) * 100).toFixed(1);
 }
 </script>

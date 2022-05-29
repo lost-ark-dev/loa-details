@@ -21,6 +21,7 @@ const changes = ref([
     mdFormattedLog: `
     * Added duration to log viewer.
     * Fixed a bug with the damage meter scrollbar.
+    * Fixed an issue where LostArkLogger would crash if it couldn't send messages.
   `,
   },
   {

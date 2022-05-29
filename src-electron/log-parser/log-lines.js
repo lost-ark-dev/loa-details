@@ -98,8 +98,8 @@ export class LogHeal {
     this.timestamp = new Date(lineSplit[1]);
     this.id = lineSplit[2];
     this.name = lineSplit[3] || "Unknown Entity";
-    /* this.healAmount = tryParseInt(lineSplit[4]);
-    this.currentHp = tryParseInt(lineSplit[5]); */
+    this.healAmount = tryParseInt(lineSplit[4]);
+    //this.currentHp = tryParseInt(lineSplit[5]);
   }
 }
 

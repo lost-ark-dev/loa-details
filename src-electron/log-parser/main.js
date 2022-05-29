@@ -12,6 +12,7 @@ const entityTemplate = {
   isPlayer: false,
   damageDealt: 0,
   damageTaken: 0,
+  healingDone: 0,
   skills: {},
   currentHp: 0,
   maxHp: 0,
@@ -67,6 +68,8 @@ export class LogParser {
         topDamageDealt: 0,
         totalDamageTaken: 0,
         topDamageTaken: 0,
+        totalHealingDone: 0,
+        topHealingDone: 0,
       },
     };
 
@@ -359,7 +362,22 @@ export class LogParser {
 
   // logId = 9
   onHeal(lineSplit) {
-    // TODO:
+    const logLine = new LogLines.LogHeal(lineSplit);
+    log.debug(`onHeal: ${logLine.id}, ${logLine.name}, ${logLine.healAmount}`);
+
+    this.updateEntity(logLine.name, {
+      name: logLine.name,
+    });
+
+    this.game.entities[logLine.name].healingDone += logLine.healAmount;
+
+    if (this.game.entities[logLine.name].isPlayer) {
+      this.game.damageStatistics.totalHealingDone += logLine.healAmount;
+      this.game.damageStatistics.topHealingDone = Math.max(
+        this.game.damageStatistics.topHealingDone,
+        this.game.entities[logLine.name].healingDone
+      );
+    }
   }
 
   /* // logId = 10
