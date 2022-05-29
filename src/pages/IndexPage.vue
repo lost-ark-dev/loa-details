@@ -7,5 +7,5 @@
 </template>
 
 <script setup>
-import ChangelogList from "../components/ChangelogList.vue";
+import ChangelogList from "src/components/ChangelogList.vue";
 </script>

@@ -78,7 +78,7 @@
 
 <script setup>
 import { ref, watch, onMounted } from "vue";
-import { useSettingsStore } from "../../stores/settings";
+import { useSettingsStore } from "src/stores/settings";
 const settingsStore = useSettingsStore();
 
 const serverOptions = ref([

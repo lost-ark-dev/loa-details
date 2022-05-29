@@ -160,7 +160,7 @@
 
 <script setup>
 import { onMounted, ref, watch } from "vue";
-import { useSettingsStore } from "../../stores/settings";
+import { useSettingsStore } from "src/stores/settings";
 const settingsStore = useSettingsStore();
 
 const selectedRegion = ref("");

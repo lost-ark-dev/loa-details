@@ -26,9 +26,9 @@ import { ref } from "vue";
 import GeneralPage from "src/components/SettingsPage/GeneralPage.vue";
 import DamageMeterPage from "src/components/SettingsPage/DamageMeterPage.vue";
 import UploadPage from "src/components/SettingsPage/UploadPage.vue";
-import LogPage from "../components/SettingsPage/LogPage.vue";
+import LogPage from "src/components/SettingsPage/LogPage.vue";
 
-import { useSettingsStore } from "../stores/settings";
+import { useSettingsStore } from "src/stores/settings";
 const settingsStore = useSettingsStore();
 
 let tab = ref("general");

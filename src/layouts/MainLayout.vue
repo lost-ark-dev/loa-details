@@ -68,7 +68,7 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { useSettingsStore } from "../stores/settings";
+import { useSettingsStore } from "src/stores/settings";
 const settingsStore = useSettingsStore();
 
 function minimize() {

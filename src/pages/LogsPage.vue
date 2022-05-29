@@ -92,7 +92,7 @@ import dayjs from "dayjs";
 
 import LogView from "src/components/LogView.vue";
 
-import { useSettingsStore } from "../stores/settings";
+import { useSettingsStore } from "src/stores/settings";
 const settingsStore = useSettingsStore();
 
 const loaderImg = new URL(`../assets/images/loader.gif`, import.meta.url).href;
