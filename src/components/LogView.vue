@@ -4,6 +4,9 @@
     <div class="info-box">
       <div v-if="logData">
         <span style="margin-right: 12px">
+          {{ millisToMinutesAndSeconds(logData.duration) }}
+        </span>
+        <span style="margin-right: 12px">
           Total DMG
           {{ numberFormat(logData.damageStatistics.totalDamageDealt) }}
         </span>
@@ -26,7 +29,10 @@
 
 <script setup>
 import { ref } from "vue";
-import { numberFormat } from "src/util/number-helpers";
+import {
+  numberFormat,
+  millisToMinutesAndSeconds,
+} from "src/util/number-helpers";
 
 import DamageMeterTable from "src/components/DamageMeter/DamageMeterTable.vue";
 
