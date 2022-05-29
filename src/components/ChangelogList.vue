@@ -17,6 +17,13 @@ import { ref } from "vue";
 
 const changes = ref([
   {
+    version: "0.3.5",
+    mdFormattedLog: `
+    * Added duration to log viewer.
+    * Fixed a bug with the damage meter scrollbar.
+  `,
+  },
+  {
     version: "0.3.4",
     mdFormattedLog: `
     * Refactored a lot of UI code about the damage meter.

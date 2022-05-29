@@ -1,5 +1,5 @@
 <template>
-  <div class="damage-meter-table-wrapper">
+  <div class="damage-meter-table-wrapper" :style="wrapperStyle">
     <table class="damage-meter-table">
       <thead v-if="focusedPlayer === '#'" class="q-electron-drag">
         <tr>
@@ -108,6 +108,7 @@ import TableEntry from "./TableEntry.vue";
 import SkillEntry from "./SkillEntry.vue";
 
 const settingsStore = useSettingsStore();
+// todo: move these to a pinia store
 const props = defineProps({
   sessionState: Object,
   damageType: {
@@ -115,6 +116,7 @@ const props = defineProps({
     default: "dmg",
   },
   duration: Number,
+  wrapperStyle: String,
 });
 const entitiesCopy = ref([]);
 

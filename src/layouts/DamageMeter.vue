@@ -73,6 +73,11 @@
       :session-state="sessionState"
       :duration="fightDuration"
       :damage-type="damageType"
+      :wrapper-style="`height:calc(100vh - 32px - ${
+        settingsStore?.settings?.damageMeter?.design?.compactDesign
+          ? '32'
+          : '64'
+      }px)`"
     />
 
     <footer v-if="!isMinimized" class="footer">
