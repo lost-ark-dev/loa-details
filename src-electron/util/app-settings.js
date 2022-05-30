@@ -90,6 +90,18 @@ const defaultSettings = {
         name: "Counter Count",
         enabled: true,
       },
+      maxDmg: {
+        name: "Skill View / Max Damage",
+        enabled: true,
+      },
+      avgDmg: {
+        name: "Skill View / Average Damage",
+        enabled: true,
+      },
+      totalHits: {
+        name: "Skill View / Total Hits",
+        enabled: true,
+      },
     },
     classes: {},
   },

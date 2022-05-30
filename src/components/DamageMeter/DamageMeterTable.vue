@@ -1,8 +1,36 @@
 <template>
   <div class="damage-meter-table-wrapper" :style="wrapperStyle">
     <table class="damage-meter-table">
-      <thead v-if="focusedPlayer === '#'" class="q-electron-drag">
-        <tr>
+      <thead>
+        <q-menu touch-position context-menu>
+          <q-list dense style="min-width: 100px">
+            <q-item
+              v-for="tabName in Object.keys(
+                settingsStore.settings.damageMeter.tabs
+              )"
+              :key="tabName"
+              clickable
+              @click="
+                settingsStore.settings.damageMeter.tabs[tabName].enabled =
+                  !settingsStore.settings.damageMeter.tabs[tabName].enabled
+              "
+            >
+              <q-item-section side>
+                <q-icon
+                  v-if="
+                    settingsStore.settings.damageMeter.tabs[tabName].enabled
+                  "
+                  name="check"
+                />
+                <q-icon v-else name="close" />
+              </q-item-section>
+              <q-item-section>
+                {{ settingsStore.settings.damageMeter.tabs[tabName].name }}
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-menu>
+        <tr v-if="focusedPlayer === '#'">
           <th style="width: 26px"></th>
           <th style="width: 100%"></th>
           <th style="width: 72px">
@@ -69,14 +97,22 @@
             CNTR
           </th>
         </tr>
-      </thead>
-      <thead v-else-if="focusedPlayer !== '#'">
-        <tr>
+        <tr v-else-if="focusedPlayer !== '#'">
           <th style="width: 32px"></th>
           <th style="width: 100%"></th>
           <th style="width: 72px">Damage</th>
-          <th style="width: 48px">D%</th>
-          <th style="width: 52px">DPS</th>
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.damagePercent.enabled"
+            style="width: 48px"
+          >
+            D%
+          </th>
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.dps.enabled"
+            style="width: 52px"
+          >
+            DPS
+          </th>
           <th
             v-if="settingsStore.settings.damageMeter.tabs.critRate.enabled"
             style="width: 48px"
@@ -95,9 +131,24 @@
           >
             B.A.
           </th>
-          <th style="width: 52px">MaxDmg</th>
-          <th style="width: 52px">AvgDmg</th>
-          <th style="width: 52px">TotalHits</th>
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.maxDmg.enabled"
+            style="width: 52px"
+          >
+            MaxDmg
+          </th>
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.avgDmg.enabled"
+            style="width: 52px"
+          >
+            AvgDmg
+          </th>
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.totalHits.enabled"
+            style="width: 52px"
+          >
+            TotalHits
+          </th>
         </tr>
       </thead>
       <tbody v-if="focusedPlayer === '#' && sortedEntities">
@@ -288,7 +339,7 @@ function getPercentage(player, dmgType, relativeTo) {
   position: sticky;
   top: 0;
   background: black;
-  z-index: 10000;
+  z-index: 5000;
 }
 .damage-meter-table thead tr {
   color: rgb(189, 189, 189);

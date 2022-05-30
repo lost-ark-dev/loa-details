@@ -17,6 +17,12 @@ import { ref } from "vue";
 
 const changes = ref([
   {
+    version: "0.3.6",
+    mdFormattedLog: `
+    * Added context menu to damage meter and log viewer table headers. Now you can right click to enable/disable specific tabs without going to settings menu.
+  `,
+  },
+  {
     version: "0.3.5",
     mdFormattedLog: `
     * Added duration to log viewer.

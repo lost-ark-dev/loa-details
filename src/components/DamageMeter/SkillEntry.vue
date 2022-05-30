@@ -10,10 +10,16 @@
         {{ abbreviatedDamage[1] }}
       </span>
     </td>
-    <td class="text-center">
+    <td
+      v-if="settingsStore.settings.damageMeter.tabs.damagePercent.enabled"
+      class="text-center"
+    >
       {{ skill.damagePercent }}<span class="ex">%</span>
     </td>
-    <td class="text-center">
+    <td
+      v-if="settingsStore.settings.damageMeter.tabs.dps.enabled"
+      class="text-center"
+    >
       {{ DPS[0] }}
       <span class="ex">
         {{ DPS[1] }}
@@ -52,19 +58,28 @@
       }}
       <span class="ex">%</span>
     </td>
-    <td class="text-center">
+    <td
+      v-if="settingsStore.settings.damageMeter.tabs.maxDmg.enabled"
+      class="text-center"
+    >
       {{ maxDamage[0] }}
       <span class="ex">
         {{ maxDamage[1] }}
       </span>
     </td>
-    <td class="text-center">
+    <td
+      v-if="settingsStore.settings.damageMeter.tabs.avgDmg.enabled"
+      class="text-center"
+    >
       {{ avgDamage[0] }}
       <span class="ex">
         {{ avgDamage[1] }}
       </span>
     </td>
-    <td class="text-center">
+    <td
+      v-if="settingsStore.settings.damageMeter.tabs.totalHits.enabled"
+      class="text-center"
+    >
       {{ skill.hits.total }}
     </td>
     <div
