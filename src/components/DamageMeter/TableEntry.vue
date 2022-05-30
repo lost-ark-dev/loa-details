@@ -3,7 +3,14 @@
     <td class="td-class-img">
       <img :src="getClassImage(player.class)" />
     </td>
-    <td class="ellipsis">{{ player.name }} ({{ player.class }})</td>
+    <td class="ellipsis">
+      <span v-if="nameDisplay === 'name+class' || nameDisplay === 'name'">
+        {{ player.name }}&nbsp;
+      </span>
+      <span v-if="nameDisplay === 'name+class' || nameDisplay === 'class'">
+        ({{ player.class }})
+      </span>
+    </td>
     <td class="text-center">
       {{ abbreviatedDamage[0] }}
       <span class="ex">
@@ -93,6 +100,7 @@ const props = defineProps({
   player: Object,
   damageType: { type: String, default: "dmg" },
   fightDuration: Number,
+  nameDisplay: String,
 });
 
 const abbreviatedDamage = computed(() => {

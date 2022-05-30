@@ -107,6 +107,7 @@
           :player="player"
           :damage-type="damageType"
           :fight-duration="Math.max(1000, duration)"
+          :name-display="nameDisplay"
           @click="focusPlayer(player)"
         />
       </tbody>
@@ -142,6 +143,10 @@ const props = defineProps({
   },
   duration: Number,
   wrapperStyle: String,
+  nameDisplay: {
+    type: String,
+    default: "name+class",
+  },
 });
 const entitiesCopy = ref([]);
 

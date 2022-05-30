@@ -80,8 +80,16 @@
           label="BACK"
           @click="logFile.viewingLogFile = false"
         />
+        <q-btn
+          icon="screenshot_monitor"
+          unelevated
+          color="primary"
+          label="Share Log (Screenshot)"
+          @click="$refs.logView.takeScreenshot()"
+          style="margin-left: auto"
+        />
       </div>
-      <LogView :log-data="logFile.data" />
+      <LogView ref="logView" :log-data="logFile.data" />
     </q-scroll-area>
   </q-page>
 </template>
