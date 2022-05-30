@@ -120,43 +120,47 @@ export class LogParser {
 
     const logType = tryParseInt(lineSplit[0]);
 
-    switch (logType) {
-      case 0:
-        this.onMessage(lineSplit);
-        break;
-      case 1:
-        this.onInitEnv(lineSplit);
-        break;
-      case 2:
-        this.onPhaseTransition(lineSplit);
-        break;
-      case 3:
-        this.onNewPc(lineSplit);
-        break;
-      case 4:
-        this.onNewNpc(lineSplit);
-        break;
-      /* case 5:
-        this.onDeath(lineSplit);
-        break; */
-      /* case 6:
-        this.onSkillStart(lineSplit);
-        break;
-      case 7:
-        this.onSkillStage(lineSplit);
-        break; */
-      case 8:
-        this.onDamage(lineSplit);
-        break;
-      case 9:
-        this.onHeal(lineSplit);
-        break;
-      /* case 10:
-        this.onBuff(lineSplit);
-        break; */
-      case 11:
-        this.onCounterattack(lineSplit);
-        break;
+    try {
+      switch (logType) {
+        case 0:
+          this.onMessage(lineSplit);
+          break;
+        case 1:
+          this.onInitEnv(lineSplit);
+          break;
+        case 2:
+          this.onPhaseTransition(lineSplit);
+          break;
+        case 3:
+          this.onNewPc(lineSplit);
+          break;
+        case 4:
+          this.onNewNpc(lineSplit);
+          break;
+        /* case 5:
+          this.onDeath(lineSplit);
+          break; */
+        /* case 6:
+          this.onSkillStart(lineSplit);
+          break;
+        case 7:
+          this.onSkillStage(lineSplit);
+          break; */
+        case 8:
+          this.onDamage(lineSplit);
+          break;
+        case 9:
+          this.onHeal(lineSplit);
+          break;
+        /* case 10:
+          this.onBuff(lineSplit);
+          break; */
+        case 11:
+          this.onCounterattack(lineSplit);
+          break;
+      }
+    } catch (e) {
+      log.error("Error while trying to parse line: " + e);
     }
   }
 
