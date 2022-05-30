@@ -1,7 +1,7 @@
 <template>
   <q-page class="flex justify-start column">
     <div
-      v-if="logFiles.length === 0"
+      v-if="logFiles.length === 0 && !noLogsFound"
       class="flex column items-center justify-center spinner"
     >
       <img class="loader-img" :src="loaderImg" />
@@ -18,7 +18,7 @@
       </div>
     </div>
     <q-scroll-area
-      v-if="logFiles.length > 0 && !logFile.viewingLogFile"
+      v-if="!logFile.viewingLogFile && !isReceivingParserStatus"
       style="height: calc(100vh - 80px); padding: 8px 16px"
     >
       <div class="flex logs-top-bar">
@@ -148,6 +148,7 @@ const columns = [
 const visibleColumns = ref(["encounterName", "duration", "dateText"]);
 
 const logFiles = ref([]);
+const noLogsFound = ref(false);
 const logFilesComputed = computed(() => {
   return logFiles.value
     .filter((x) =>
@@ -232,11 +233,14 @@ onMounted(() => {
   getLogfiles();
 
   window.messageApi.receive("parsed-logs-list", (value) => {
+    if (value.length === 0) noLogsFound.value = true;
+
     isReceivingParserStatus.value = false;
     parserStatus.value = {
       completedJobs: 0,
       totalJobs: 0,
     };
+
     calculateLogFileList(value);
   });
 
