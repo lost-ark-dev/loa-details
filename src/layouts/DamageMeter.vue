@@ -268,11 +268,9 @@ onMounted(() => {
           settingsStore.settings.damageMeter.functionality.autoMinimizeTimer *
             1000
       ) {
-        if (sortedEntities.value.length > 0) {
-          isMinimized.value = false;
-          isAutoMinimized.value = false;
-          sendResizeMessage = true;
-        }
+        isMinimized.value = false;
+        isAutoMinimized.value = false;
+        sendResizeMessage = true;
       }
 
       if (sendResizeMessage) {
