@@ -106,6 +106,8 @@ const maxDamage = computed(() => {
 });
 
 const avgDamage = computed(() => {
+  if (props.skill.hits.total === 0)
+    return abbreviateNumber(props.skill.totalDamage);
   return abbreviateNumber(props.skill.totalDamage / props.skill.hits.total);
 });
 
