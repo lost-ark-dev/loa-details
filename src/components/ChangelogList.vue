@@ -19,6 +19,7 @@ const changes = ref([
   {
     version: "0.3.6",
     mdFormattedLog: `
+    * Added encounter name to log viewer.
     * Added context menu to damage meter and log viewer table headers. Now you can right click to enable/disable specific tabs without going to settings menu.
   `,
   },
