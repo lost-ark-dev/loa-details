@@ -3,7 +3,8 @@
     <div class="info-box">
       <div class="flex" v-if="logData">
         <span style="margin-right: 12px">
-          {{ millisToMinutesAndSeconds(logData.duration) }}
+          {{ logData.mostDamageTakenEntity.name }}
+          ({{ millisToMinutesAndSeconds(logData.duration) }})
         </span>
         <span style="margin-right: 12px">
           Total DMG
