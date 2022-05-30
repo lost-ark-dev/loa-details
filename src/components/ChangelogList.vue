@@ -23,6 +23,7 @@ const changes = ref([
     * Fixed a bug with the damage meter scrollbar.
     * Fixed an issue where LostArkLogger would crash if it couldn't send messages.
     * Added MaxDmg to skill view bar.
+    * Added a button on log viewer to take a screenshot of the current log.
   `,
   },
   {
