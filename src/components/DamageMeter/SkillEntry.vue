@@ -59,6 +59,12 @@
       </span>
     </td>
     <td class="text-center">
+      {{ avgDamage[0] }}
+      <span class="ex">
+        {{ avgDamage[1] }}
+      </span>
+    </td>
+    <td class="text-center">
       {{ skill.hits.total }}
     </td>
     <div
@@ -97,6 +103,10 @@ const DPS = computed(() => {
 
 const maxDamage = computed(() => {
   return abbreviateNumber(props.skill.maxDamage);
+});
+
+const avgDamage = computed(() => {
+  return abbreviateNumber(props.skill.totalDamage / props.skill.hits.total);
 });
 
 function getSkillImage(name) {

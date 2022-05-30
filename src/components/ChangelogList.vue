@@ -22,6 +22,7 @@ const changes = ref([
     * Added duration to log viewer.
     * Fixed a bug with the damage meter scrollbar.
     * Fixed an issue where LostArkLogger would crash if it couldn't send messages.
+    * Added MaxDmg to skill view bar.
   `,
   },
   {

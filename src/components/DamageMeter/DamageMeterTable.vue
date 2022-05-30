@@ -95,7 +95,8 @@
           >
             B.A.
           </th>
-          <th style="width: 44px">MaxHit</th>
+          <th style="width: 52px">MaxDmg</th>
+          <th style="width: 52px">AvgDmg</th>
           <th style="width: 52px">TotalHits</th>
         </tr>
       </thead>
