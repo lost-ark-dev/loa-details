@@ -17,7 +17,10 @@ export function abbreviateNumber(n) {
 // takes milliseconds in numbers and returns string with minutes:seconds
 // ex: 60000 => 01:00
 export function millisToMinutesAndSeconds(millis) {
-  const minutes = Math.floor(millis / 60000);
-  const seconds = ((millis % 60000) / 1000).toFixed(0);
-  return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+  const date = new Date(millis);
+  return (
+    String(date.getMinutes()).padStart(2, "0") +
+    ":" +
+    String(date.getSeconds()).padStart(2, "0")
+  );
 }

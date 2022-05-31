@@ -97,6 +97,7 @@
 <script setup>
 import { ref, computed, watch, reactive, onMounted } from "vue";
 import dayjs from "dayjs";
+import { millisToMinutesAndSeconds } from "src/util/number-helpers";
 
 import LogView from "src/components/LogView.vue";
 
@@ -167,12 +168,6 @@ const logFile = reactive({
   viewingLogFile: false,
   data: {},
 });
-
-function millisToMinutesAndSeconds(millis) {
-  const minutes = Math.floor(millis / 60000);
-  const seconds = ((millis % 60000) / 1000).toFixed(0);
-  return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
-}
 
 function calculateLogFileList(value) {
   let i = 0;
