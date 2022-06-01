@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div ref="damageMeterRef">
     <nav
       class="nav q-electron-drag"
       :class="
@@ -41,7 +41,15 @@
           </span>
         </div>
       </div>
-      <div style="margin-left: auto">
+      <div v-if="!isTakingScreenshot" style="margin-left: auto">
+        <q-btn
+          v-if="!isMinimized"
+          round
+          icon="screenshot_monitor"
+          @click="takeScreenshot"
+          flat
+          size="sm"
+        />
         <q-btn
           v-if="!isMinimized"
           round
@@ -66,6 +74,10 @@
           size="sm"
         />
       </div>
+      <span v-else class="watermark-box">
+        <img class="watermark-logo" :src="logoImg" />
+        github.com/karaeren/loa-details
+      </span>
     </nav>
 
     <DamageMeterTable
@@ -109,9 +121,14 @@ import {
   numberFormat,
   millisToMinutesAndSeconds,
 } from "src/util/number-helpers";
+import { sleep } from "src/util/sleep";
+import html2canvas from "html2canvas";
+
 import { useSettingsStore } from "src/stores/settings";
 
 import DamageMeterTable from "src/components/DamageMeter/DamageMeterTable.vue";
+
+const logoImg = new URL(`../assets/images/logo.png`, import.meta.url).href;
 
 const settingsStore = useSettingsStore();
 
@@ -155,6 +172,36 @@ function toggleFightPause() {
     fightPausedForMs += +new Date() - fightPausedOn;
     isFightPaused.value = false;
   }
+}
+
+const damageMeterRef = ref(null);
+const isTakingScreenshot = ref(false);
+async function takeScreenshot() {
+  isTakingScreenshot.value = true;
+  await sleep(600);
+
+  const screenshot = await html2canvas(damageMeterRef.value, {
+    backgroundColor: "#121212",
+  });
+
+  screenshot.toBlob(
+    (blob) => {
+      navigator.clipboard.write([
+        new ClipboardItem({
+          [blob.type]: blob,
+        }),
+      ]);
+    },
+    "image/png",
+    1
+  );
+
+  isTakingScreenshot.value = false;
+  Notify.create({
+    message: "<center>Screenshot copied to clipboard.</center>",
+    color: "primary",
+    html: true,
+  });
 }
 
 function requestSessionRestart() {
@@ -366,5 +413,15 @@ li {
 .nav .info-box {
   margin-left: 12px;
   font-size: 11px;
+}
+.watermark-box {
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-bottom: 4px;
+}
+.watermark-logo {
+  width: 112px;
 }
 </style>
