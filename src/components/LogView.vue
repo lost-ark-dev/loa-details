@@ -32,7 +32,7 @@
       :session-state="logData"
       :damage-type="damageType"
       :duration="logData.duration"
-      :name-display="isTakingScreenshot ? 'class' : 'name+class'"
+      :name-display="hideNamesOnScreenshot ? 'class' : 'name+class'"
     />
   </div>
 </template>
@@ -62,7 +62,9 @@ defineExpose({
 const damageType = ref("dmg");
 
 const isTakingScreenshot = ref(false);
-async function takeScreenshot() {
+const hideNamesOnScreenshot = ref(false);
+async function takeScreenshot(hideNames = true) {
+  hideNamesOnScreenshot.value = hideNames;
   isTakingScreenshot.value = true;
   await sleep(600);
 

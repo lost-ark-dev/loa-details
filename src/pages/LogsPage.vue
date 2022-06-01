@@ -80,14 +80,27 @@
           label="BACK"
           @click="logFile.viewingLogFile = false"
         />
-        <q-btn
-          icon="screenshot_monitor"
+        <q-btn-dropdown
+          split
           unelevated
+          icon="screenshot_monitor"
           color="primary"
-          label="Share Log (Screenshot)"
+          label="Screnshot Log"
           @click="$refs.logView.takeScreenshot()"
           style="margin-left: auto"
-        />
+        >
+          <q-list>
+            <q-item
+              clickable
+              v-close-popup
+              @click="$refs.logView.takeScreenshot((hideNames = false))"
+            >
+              <q-item-section>
+                <q-item-label>Screenshot With Names</q-item-label>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </q-btn-dropdown>
       </div>
       <LogView ref="logView" :log-data="logFile.data" />
     </q-scroll-area>
