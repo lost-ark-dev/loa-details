@@ -17,6 +17,18 @@ import { ref } from "vue";
 
 const changes = ref([
   {
+    version: "0.3.7",
+    mdFormattedLog: `
+    * Fixed a bug where auto minimize was not working.
+    * Added a indicator message on the logs page when there weren't any parseable logs.
+    * Bugfix about clock where it would sometimes display 0:60 instead of 1:00.
+    * Added a dropdown menu to log viewer screenshot button to not censor names.
+    * Added a screenshot button to damage meter.
+    * Added an option to customize name displays on damage meter, now you can do name/name+class/class/empty for player names.
+    * Added tooltips for buttons on the damage meter.
+  `,
+  },
+  {
     version: "0.3.6",
     mdFormattedLog: `
     * Added encounter name to log viewer.
