@@ -7,9 +7,8 @@
       <span v-if="nameDisplay === 'name+class' || nameDisplay === 'name'">
         {{ player.name }}&nbsp;
       </span>
-      <span v-if="nameDisplay === 'name+class' || nameDisplay === 'class'">
-        ({{ player.class }})
-      </span>
+      <span v-if="nameDisplay === 'name+class'"> ({{ player.class }}) </span>
+      <span v-if="nameDisplay === 'class'"> {{ player.class }} </span>
     </td>
     <td class="text-center">
       {{ abbreviatedDamage[0] }}

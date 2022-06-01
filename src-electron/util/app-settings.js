@@ -59,6 +59,7 @@ const defaultSettings = {
       pauseOnPhaseTransition: false,
       autoMinimize: false,
       autoMinimizeTimer: 60,
+      nameDisplay: "name+class",
     },
     design: {
       compactDesign: false,

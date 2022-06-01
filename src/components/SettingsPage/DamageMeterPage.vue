@@ -107,6 +107,22 @@
       </q-item-section>
     </q-item>
 
+    <q-item tag="label">
+      <q-item-section side top>
+        <q-item-label>Name Display</q-item-label>
+        <q-item-label caption>
+          Choose how you'd like to display names on the damage meter.
+        </q-item-label>
+      </q-item-section>
+      <q-item-section>
+        <q-select
+          filled
+          v-model="nameDisplayModel"
+          :options="nameDisplayOptions"
+        />
+      </q-item-section>
+    </q-item>
+
     <q-separator spaced />
     <q-item-label header>Design</q-item-label>
 
@@ -259,8 +275,41 @@
 </template>
 
 <script setup>
+import { ref, watch, onMounted } from "vue";
 import { useSettingsStore } from "src/stores/settings";
 const settingsStore = useSettingsStore();
+
+const nameDisplayOptions = ref([
+  {
+    label: "Name + class, e.g. 'Player (Bard)'",
+    value: "name+class",
+  },
+  {
+    label: "Name, e.g. 'Player'",
+    value: "name",
+  },
+  {
+    label: "Class, e.g. 'Bard'",
+    value: "class",
+  },
+  {
+    label: "Empty (just the icon)",
+    value: "none",
+  },
+]);
+
+var nameDisplayModel = ref("");
+
+watch(nameDisplayModel, (newVal, oldVal) => {
+  settingsStore.settings.damageMeter.functionality.nameDisplay = newVal.value;
+});
+
+onMounted(() => {
+  nameDisplayModel.value = nameDisplayOptions.value.find(
+    (x) =>
+      x.value === settingsStore.settings.damageMeter.functionality.nameDisplay
+  );
+});
 </script>
 
 <style>

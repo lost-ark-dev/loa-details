@@ -78,6 +78,9 @@
           ? '32'
           : '64'
       }px)`"
+      :name-display="
+        settingsStore?.settings?.damageMeter?.functionality?.nameDisplay
+      "
     />
 
     <footer v-if="!isMinimized" class="footer">
