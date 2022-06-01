@@ -32,7 +32,13 @@
       :session-state="logData"
       :damage-type="damageType"
       :duration="logData.duration"
-      :name-display="hideNamesOnScreenshot ? 'class' : 'name+class'"
+      :name-display="
+        isTakingScreenshot
+          ? hideNamesOnScreenshot
+            ? 'class'
+            : 'name+class'
+          : 'name+class'
+      "
     />
   </div>
 </template>
