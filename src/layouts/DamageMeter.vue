@@ -49,7 +49,9 @@
           @click="takeScreenshot"
           flat
           size="sm"
-        />
+        >
+          <q-tooltip> Take a screenshot of the damage meter </q-tooltip>
+        </q-btn>
         <q-btn
           v-if="!isMinimized"
           round
@@ -57,7 +59,9 @@
           @click="enableClickthrough"
           flat
           size="sm"
-        />
+        >
+          <q-tooltip> Enable clickthrough on damage meter </q-tooltip>
+        </q-btn>
         <q-btn
           v-if="!isMinimized"
           round
@@ -65,14 +69,18 @@
           @click="toggleFightPause"
           flat
           size="sm"
-        />
+        >
+          <q-tooltip> Pause timer </q-tooltip>
+        </q-btn>
         <q-btn
           round
           :icon="isMinimized ? 'add' : 'remove'"
           @click="toggleMinimizedState"
           flat
           size="sm"
-        />
+        >
+          <q-tooltip> Minimize damage meter </q-tooltip>
+        </q-btn>
       </div>
       <span v-else class="watermark-box">
         <img class="watermark-logo" :src="logoImg" />
@@ -97,8 +105,12 @@
 
     <footer v-if="!isMinimized" class="footer">
       <div>
-        <q-btn flat size="sm" @click="damageType = 'dmg'"> DMG </q-btn>
-        <q-btn flat size="sm" @click="damageType = 'tank'"> TANK </q-btn>
+        <q-btn flat size="sm" @click="damageType = 'dmg'" label="DMG">
+          <q-tooltip> Show damage </q-tooltip>
+        </q-btn>
+        <q-btn flat size="sm" @click="damageType = 'tank'" label="TANK">
+          <q-tooltip> Show damage taken </q-tooltip>
+        </q-btn>
         <!-- <q-btn flat size="sm" @click="damageType = 'heal'"> HEAL </q-btn> -->
       </div>
 
@@ -106,8 +118,13 @@
         <span v-if="settingsStore.settings.damageMeter.design.compactDesign">
           v{{ settingsStore.settings.appVersion }}
         </span>
-        <q-btn flat size="sm" @click="requestSessionRestart">
-          RESET SESSION
+        <q-btn
+          flat
+          size="sm"
+          @click="requestSessionRestart"
+          label="RESET SESSION"
+        >
+          <q-tooltip> Resets the timer and damages </q-tooltip>
         </q-btn>
       </div>
     </footer>
