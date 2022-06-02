@@ -230,11 +230,6 @@ const sessionState = ref({});
 onMounted(() => {
   settingsStore.initSettings();
 
-  Notify.create({
-    message: "LOA Details is outdated and won't work! Wait for a patch...",
-    color: "primary",
-  });
-
   window.messageApi.receive("on-settings-change", (value) => {
     settingsStore.loadSettings(value);
   });

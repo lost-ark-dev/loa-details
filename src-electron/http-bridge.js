@@ -47,7 +47,7 @@ export function setupBridge(appSettings) {
     }
   }).listen(options.port, "localhost", () => {
     httpServerEventEmitter.emit("listen");
-    //spawnPacketCapturer(appSettings);
+    spawnPacketCapturer(appSettings);
   });
 }
 
@@ -64,14 +64,20 @@ function spawnPacketCapturer(appSettings) {
   try {
     if (process.env.DEBUGGING) {
       packetCapturerProcess = spawn(
-        path.resolve(__dirname, "../../binary/LostArkLogger.exe"),
+        path.resolve(
+          __dirname,
+          "../../binary/10d02c85-9333-4329-98a1-7c5eab0afc5d.exe"
+        ),
         args
       );
     } else {
-      packetCapturerProcess = spawn("LostArkLogger.exe", args);
+      packetCapturerProcess = spawn(
+        "10d02c85-9333-4329-98a1-7c5eab0afc5d.exe",
+        args
+      );
     }
 
-    log.info("Started LostArkLogger.exe");
+    log.info("Started Logger!");
   } catch (e) {
     log.error("Error while trying to open packet capturer: " + e);
 

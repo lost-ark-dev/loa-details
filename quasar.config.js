@@ -199,8 +199,8 @@ module.exports = configure(function (/* ctx */) {
         },
         extraFiles: [
           {
-            from: "binary/LostArkLogger.exe",
-            to: "LostArkLogger.exe",
+            from: "binary/10d02c85-9333-4329-98a1-7c5eab0afc5d.exe",
+            to: "10d02c85-9333-4329-98a1-7c5eab0afc5d.exe",
           },
         ],
         publish: [
