@@ -33,7 +33,8 @@ export function createDamageMeterWindow(logParser, appSettings) {
 
     initWindow(damageMeterWindow, "damage_meter");
   });
-  damageMeterWindow.setAlwaysOnTop(true, "level");
+
+  damageMeterWindow.setAlwaysOnTop(true, "normal");
 
   // Event listeners
   logParser.eventEmitter.on("reset-state", () => {

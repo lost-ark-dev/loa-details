@@ -47,7 +47,7 @@ export function setupBridge(appSettings) {
     }
   }).listen(options.port, "localhost", () => {
     httpServerEventEmitter.emit("listen");
-    spawnPacketCapturer(appSettings);
+    //spawnPacketCapturer(appSettings);
   });
 }
 
