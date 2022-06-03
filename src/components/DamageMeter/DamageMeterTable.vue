@@ -33,7 +33,10 @@
         <tr v-if="focusedPlayer === '#'">
           <th style="width: 26px"></th>
           <th style="width: 100%"></th>
-          <th style="width: 72px">
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.damage.enabled"
+            style="width: 72px"
+          >
             {{
               damageType === "dmg"
                 ? "Damage"
@@ -100,7 +103,12 @@
         <tr v-else-if="focusedPlayer !== '#'">
           <th style="width: 32px"></th>
           <th style="width: 100%"></th>
-          <th style="width: 72px">Damage</th>
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.damage.enabled"
+            style="width: 72px"
+          >
+            Damage
+          </th>
           <th
             v-if="settingsStore.settings.damageMeter.tabs.damagePercent.enabled"
             style="width: 48px"

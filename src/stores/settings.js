@@ -40,6 +40,10 @@ export const useSettingsStore = defineStore("settings", {
           opacity: 0.9,
         },
         tabs: {
+          damage: {
+            name: "Damage/Tanked",
+            enabled: true,
+          },
           damagePercent: {
             name: "D% (Damage Percent)",
             enabled: true,
