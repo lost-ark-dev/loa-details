@@ -17,6 +17,14 @@ import { ref } from "vue";
 
 const changes = ref([
   {
+    version: "0.4.2",
+    mdFormattedLog: `
+    * Added an option to disable gear score on damage meter.
+    * Updated name display code.
+    * Fixed a bug where damage would still be shown after disabling the damage column.
+  `,
+  },
+  {
     version: "0.4.1",
     mdFormattedLog: `
     * Added item levels of players next to their names.
