@@ -199,12 +199,10 @@
       </q-item-section>
 
       <q-item-section>
-        <q-item-label
-          >Show
-          {{
-            settingsStore.settings.damageMeter.tabs[tabName].name
-          }}</q-item-label
-        >
+        <q-item-label>
+          Show
+          {{ settingsStore.settings.damageMeter.tabs[tabName].name }}
+        </q-item-label>
       </q-item-section>
     </q-item>
 
@@ -281,19 +279,31 @@ const settingsStore = useSettingsStore();
 
 const nameDisplayOptions = ref([
   {
-    label: "Name + class, e.g. 'Player (Bard)'",
+    label: "Name + gear score + class, e.g. 'Eren (1580 Bard)'",
+    value: "name+gear+class",
+  },
+  {
+    label: "Name + class, e.g. 'Eren (Bard)'",
     value: "name+class",
   },
   {
-    label: "Name, e.g. 'Player'",
+    label: "Name + gear score, e.g. 'Eren (1580)'",
+    value: "name+gear",
+  },
+  {
+    label: "Name, e.g. 'Eren'",
     value: "name",
+  },
+  {
+    label: "Gear score, e.g. '1580'",
+    value: "gear",
   },
   {
     label: "Class, e.g. 'Bard'",
     value: "class",
   },
   {
-    label: "Empty (just the icon)",
+    label: "Empty",
     value: "none",
   },
 ]);
@@ -301,13 +311,13 @@ const nameDisplayOptions = ref([
 var nameDisplayModel = ref("");
 
 watch(nameDisplayModel, (newVal, oldVal) => {
-  settingsStore.settings.damageMeter.functionality.nameDisplay = newVal.value;
+  settingsStore.settings.damageMeter.functionality.nameDisplayV2 = newVal.value;
 });
 
 onMounted(() => {
   nameDisplayModel.value = nameDisplayOptions.value.find(
     (x) =>
-      x.value === settingsStore.settings.damageMeter.functionality.nameDisplay
+      x.value === settingsStore.settings.damageMeter.functionality.nameDisplayV2
   );
 });
 </script>

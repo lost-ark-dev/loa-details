@@ -61,6 +61,7 @@ const defaultSettings = {
       autoMinimize: false,
       autoMinimizeTimer: 60,
       nameDisplay: "name+class",
+      nameDisplayV2: "name+gear+class",
     },
     design: {
       compactDesign: false,

@@ -4,12 +4,7 @@
       <img :src="getClassImage(player.class)" />
     </td>
     <td class="ellipsis">
-      <span v-if="nameDisplay.includes('name')">{{ player.name }}&nbsp;</span>
-      <span v-if="player.gearScore && player.gearScore != '0'">
-        {{ player.gearScore }}&nbsp;
-      </span>
-      <span v-if="nameDisplay === 'name+class'">({{ player.class }})</span>
-      <span v-if="nameDisplay === 'class'">{{ player.class }}</span>
+      <span>{{ entryName }}</span>
     </td>
     <td class="text-center">
       {{ abbreviatedDamage[0] }}
@@ -101,6 +96,45 @@ const props = defineProps({
   damageType: { type: String, default: "dmg" },
   fightDuration: Number,
   nameDisplay: String,
+});
+
+const entryName = computed(() => {
+  let res = "";
+
+  let hasName = false;
+  if (props.nameDisplay.includes("name")) {
+    hasName = true;
+    res += props.player.name + " ";
+  }
+
+  if (
+    props.nameDisplay.includes("gear") ||
+    props.nameDisplay.includes("class")
+  ) {
+    if (hasName) res += "(";
+
+    let hasGearScore = false;
+    if (
+      props.nameDisplay.includes("gear") &&
+      props.player.gearScore &&
+      props.player.gearScore != "0"
+    ) {
+      res += props.player.gearScore;
+      hasGearScore = true;
+    }
+
+    if (props.nameDisplay.includes("class")) {
+      if (hasGearScore) {
+        res += " ";
+      }
+
+      res += props.player.class;
+    }
+
+    if (hasName) res += ")";
+  }
+
+  return res;
 });
 
 const abbreviatedDamage = computed(() => {

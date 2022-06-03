@@ -105,7 +105,7 @@
           : '64'
       }px)`"
       :name-display="
-        settingsStore?.settings?.damageMeter?.functionality?.nameDisplay
+        settingsStore?.settings?.damageMeter?.functionality?.nameDisplayV2
       "
     />
 

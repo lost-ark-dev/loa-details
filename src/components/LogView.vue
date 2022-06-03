@@ -35,9 +35,9 @@
       :name-display="
         isTakingScreenshot
           ? hideNamesOnScreenshot
-            ? 'class'
-            : 'name+class'
-          : 'name+class'
+            ? 'gear+class'
+            : 'name+gear+class'
+          : 'name+gear+class'
       "
     />
   </div>
