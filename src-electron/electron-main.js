@@ -157,6 +157,12 @@ function startApplication() {
   tray.setToolTip("LOA Details");
   tray.setContextMenu(contextMenu);
 
+  tray.on("click", () => {
+    mainWindow.show();
+    if (mainWindow.isMinimized()) mainWindow.restore();
+    mainWindow.focus();
+  });
+
   setupBridge(appSettings);
 
   httpServerEventEmitter.on("packet", (value) => {
