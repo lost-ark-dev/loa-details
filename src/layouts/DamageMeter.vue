@@ -64,7 +64,9 @@
           flat
           size="sm"
         >
-          <q-tooltip> Enable clickthrough on damage meter </q-tooltip>
+          <q-tooltip ref="clickthroughTooltip">
+            Enable clickthrough on damage meter
+          </q-tooltip>
         </q-btn>
         <q-btn
           v-if="!isMinimized"
@@ -171,8 +173,14 @@ function toggleMinimizedState() {
   });
 }
 
+const clickthroughTooltip = ref(null);
 function enableClickthrough() {
   window.windowControlApi.setIgnoreMouseEvents(true);
+
+  if (clickthroughTooltip.value) {
+    clickthroughTooltip.value.hide();
+  }
+
   Notify.create({
     message:
       "<center>ALT+TAB back to the damage meter window to disable clickthrough.</center>",
