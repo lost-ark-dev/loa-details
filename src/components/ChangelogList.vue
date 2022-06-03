@@ -17,6 +17,13 @@ import { ref } from "vue";
 
 const changes = ref([
   {
+    version: "0.4.1",
+    mdFormattedLog: `
+    * Added item levels of players next to their names.
+    * Added an option to disable damage column in the damage meter and log viewer.
+  `,
+  },
+  {
     version: "0.4.0",
     mdFormattedLog: `
     * Left clicking Mokoko icon on the tray now displays main window.
