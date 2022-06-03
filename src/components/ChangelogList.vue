@@ -17,6 +17,15 @@ import { ref } from "vue";
 
 const changes = ref([
   {
+    version: "0.4.0",
+    mdFormattedLog: `
+    * Left clicking Mokoko icon on the tray now displays main window.
+    * Screenshots are now saved to Documents/Lost Ark Logs/screenshots (can be disabled through Settings).
+    * Fixed a bug where logo was not being displayed on the screenshot properly when compact design mode was enabled.
+    * Fixed a bug where the clickthrough button tooltip would get stuck on the damage meter.
+  `,
+  },
+  {
     version: "0.3.7",
     mdFormattedLog: `
     * Fixed a bug where auto minimize was not working.
