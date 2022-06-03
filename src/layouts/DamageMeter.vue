@@ -3,7 +3,9 @@
     <nav
       class="nav q-electron-drag"
       :class="
-        settingsStore.settings.damageMeter.design.compactDesign && !isMinimized
+        settingsStore.settings.damageMeter.design.compactDesign &&
+        !isMinimized &&
+        !isTakingScreenshot
           ? 'compact-nav'
           : ''
       "
@@ -11,7 +13,8 @@
       <span
         v-if="!isMinimized"
         :class="
-          settingsStore.settings.damageMeter.design.compactDesign
+          settingsStore.settings.damageMeter.design.compactDesign &&
+          !isTakingScreenshot
             ? 'time-compact'
             : 'time'
         "
@@ -22,7 +25,8 @@
         <div
           v-if="
             !settingsStore.settings.damageMeter.design.compactDesign ||
-            isMinimized
+            isMinimized ||
+            isTakingScreenshot
           "
         >
           LOA Details
@@ -115,7 +119,12 @@
       </div>
 
       <div style="margin-left: auto">
-        <span v-if="settingsStore.settings.damageMeter.design.compactDesign">
+        <span
+          v-if="
+            settingsStore.settings.damageMeter.design.compactDesign &&
+            !isTakingScreenshot
+          "
+        >
           v{{ settingsStore.settings.appVersion }}
         </span>
         <q-btn
