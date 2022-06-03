@@ -1,9 +1,8 @@
-import getPath from "platform-folders";
 import dayjs from "dayjs";
 import log from "electron-log";
 import { LogParser } from "./main";
 import { v4 as uuidv4 } from "uuid";
-
+import { mainFolder, parsedLogFolder } from "../util/directories";
 const fs = require("fs");
 const fsPromises = fs.promises;
 const path = require("path");
@@ -11,20 +10,10 @@ const path = require("path");
 const customParseFormat = require("dayjs/plugin/customParseFormat");
 dayjs.extend(customParseFormat);
 
-export const logFolder = path.join(getPath("documents"), "Lost Ark Logs");
-if (!fs.existsSync(logFolder)) {
-  fs.mkdirSync(logFolder);
-}
-
 const logParserVersion = 4;
-const parsedFolderName = "parsed";
-const parsedLogFolder = path.join(logFolder, parsedFolderName);
-if (!fs.existsSync(parsedLogFolder)) {
-  fs.mkdirSync(parsedLogFolder);
-}
 
 export async function parseLogs(event, splitOnPhaseTransition) {
-  const unparsedLogs = await fsPromises.readdir(logFolder);
+  const unparsedLogs = await fsPromises.readdir(mainFolder);
   const parsedLogs = await fsPromises.readdir(parsedLogFolder);
 
   let completedJobs = 0;
@@ -38,7 +27,7 @@ export async function parseLogs(event, splitOnPhaseTransition) {
     try {
       const filenameSlice = filename.slice(0, -4);
       const jsonName = filenameSlice + ".json";
-      const logStats = await fsPromises.stat(path.join(logFolder, filename));
+      const logStats = await fsPromises.stat(path.join(mainFolder, filename));
 
       if (parsedLogs.includes(jsonName)) {
         const { isOutdated } = await verifyLogFile(jsonName, logStats);
@@ -56,7 +45,7 @@ export async function parseLogs(event, splitOnPhaseTransition) {
         filename.length > 12
       ) {
         const contents = await fsPromises.readFile(
-          path.join(logFolder, filename),
+          path.join(mainFolder, filename),
           "utf-8"
         );
         if (!contents) continue;

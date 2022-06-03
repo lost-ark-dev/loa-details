@@ -21,14 +21,17 @@ import {
   quitAndInstall,
 } from "./util/updater";
 
+import { saveScreenshot } from "./util/screenshot";
+
 import { LogParser } from "./log-parser/main";
+
+import { mainFolder } from "./util/directories";
 
 import {
   parseLogs,
   getParsedLogs,
   getLogData,
   wipeParsedLogs,
-  logFolder,
 } from "./log-parser/file-parser";
 
 const store = new Store();
@@ -237,7 +240,7 @@ const ipcFunctions = {
     await wipeParsedLogs();
   },
   "open-log-directory": (event, arg) => {
-    shell.openPath(logFolder);
+    shell.openPath(mainFolder);
   },
   "check-for-updates": (event, arg) => {
     checkForUpdates();
@@ -247,6 +250,9 @@ const ipcFunctions = {
   },
   "open-link": (event, arg) => {
     shell.openExternal(arg.value);
+  },
+  "save-screenshot": async (event, arg) => {
+    await saveScreenshot(arg.value);
   },
   "toggle-damage-meter-minimized-state": (event, arg) => {
     if (arg.value) {

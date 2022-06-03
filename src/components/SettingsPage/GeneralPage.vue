@@ -63,6 +63,20 @@
 
     <q-item tag="label">
       <q-item-section side top>
+        <q-checkbox v-model="settingsStore.settings.general.saveScreenshots" />
+      </q-item-section>
+
+      <q-item-section>
+        <q-item-label>Save Screenshots</q-item-label>
+        <q-item-label caption>
+          If enabled, the screenshots taken in LOA Details will be saved to
+          Documents/Lost Ark Logs/screenshots
+        </q-item-label>
+      </q-item-section>
+    </q-item>
+
+    <q-item tag="label">
+      <q-item-section side top>
         <q-item-label>Game Region</q-item-label>
         <q-item-label caption>
           Select the region you're playing on. Program needs to be restarted

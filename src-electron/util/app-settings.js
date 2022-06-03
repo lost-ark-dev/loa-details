@@ -39,6 +39,7 @@ const defaultSettings = {
     startMainMinimized: false,
     closeToSystemTray: true,
     useWinpcap: false,
+    saveScreenshots: true,
     server: "steam",
   },
   uploads: {

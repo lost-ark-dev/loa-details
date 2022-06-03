@@ -213,6 +213,13 @@ async function takeScreenshot() {
     1
   );
 
+  if (settingsStore.settings.general.saveScreenshots) {
+    window.messageApi.send("window-to-main", {
+      message: "save-screenshot",
+      value: screenshot.toDataURL(),
+    });
+  }
+
   isTakingScreenshot.value = false;
   Notify.create({
     message: "<center>Screenshot copied to clipboard.</center>",

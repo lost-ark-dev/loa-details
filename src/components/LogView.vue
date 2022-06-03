@@ -54,8 +54,11 @@ import { sleep } from "src/util/sleep";
 import html2canvas from "html2canvas";
 
 import DamageMeterTable from "src/components/DamageMeter/DamageMeterTable.vue";
+import { useSettingsStore } from "src/stores/settings";
 
 const logoImg = new URL(`../assets/images/logo.png`, import.meta.url).href;
+
+const settingsStore = useSettingsStore();
 
 const props = defineProps({
   logData: Object,
@@ -90,6 +93,13 @@ async function takeScreenshot(hideNames = true) {
     "image/png",
     1
   );
+
+  if (settingsStore.settings.general.saveScreenshots) {
+    window.messageApi.send("window-to-main", {
+      message: "save-screenshot",
+      value: screenshot.toDataURL(),
+    });
+  }
 
   isTakingScreenshot.value = false;
   Notify.create({
