@@ -4,7 +4,10 @@
       <img :src="getSkillImage(skill.name)" />
     </td>
     <td class="ellipsis">{{ skill.name }}</td>
-    <td class="text-center">
+    <td
+      v-if="settingsStore.settings.damageMeter.tabs.damage.enabled"
+      class="text-center"
+    >
       {{ abbreviatedDamage[0] }}
       <span class="ex">
         {{ abbreviatedDamage[1] }}
