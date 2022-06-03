@@ -32,8 +32,9 @@ export class LogNewPc {
     this.classId = tryParseInt(lineSplit[4]);
     this.class = lineSplit[5] || "UnknownClass";
     /* this.level = tryParseInt(lineSplit[6]); */
-    this.currentHp = tryParseInt(lineSplit[7]);
-    this.maxHp = tryParseInt(lineSplit[8]);
+    this.gearScore = lineSplit[7];
+    this.currentHp = tryParseInt(lineSplit[8]);
+    this.maxHp = tryParseInt(lineSplit[9]);
   }
 }
 

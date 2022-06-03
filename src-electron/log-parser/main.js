@@ -10,6 +10,7 @@ const entityTemplate = {
   name: "",
   class: "",
   isPlayer: false,
+  gearScore: "",
   damageDealt: 0,
   damageTaken: 0,
   healingDone: 0,
@@ -88,6 +89,7 @@ export class LogParser {
         name: entitiesCopy[entity].name,
         class: entitiesCopy[entity].class,
         isPlayer: entitiesCopy[entity].isPlayer,
+        gearScore: entitiesCopy[entity].gearScore,
         maxHp: entitiesCopy[entity].maxHp,
         currentHp: entitiesCopy[entity].currentHp,
       });
@@ -225,13 +227,14 @@ export class LogParser {
   onNewPc(lineSplit) {
     const logLine = new LogLines.LogNewPc(lineSplit);
     log.debug(
-      `onNewPc: ${logLine.id}, ${logLine.name}, ${logLine.classId}, ${logLine.class}, ${logLine.currentHp}, ${logLine.maxHp}`
+      `onNewPc: ${logLine.id}, ${logLine.name}, ${logLine.classId}, ${logLine.class}, ${logLine.gearScore}, ${logLine.currentHp}, ${logLine.maxHp}`
     );
 
     this.updateEntity(logLine.name, {
       name: logLine.name,
       class: logLine.class,
       isPlayer: true,
+      gearScore: logLine.gearScore,
       currentHp: logLine.currentHp,
       maxHp: logLine.maxHp,
     });

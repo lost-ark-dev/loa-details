@@ -4,11 +4,12 @@
       <img :src="getClassImage(player.class)" />
     </td>
     <td class="ellipsis">
-      <span v-if="nameDisplay === 'name+class' || nameDisplay === 'name'">
-        {{ player.name }}&nbsp;
+      <span v-if="nameDisplay.includes('name')">{{ player.name }}&nbsp;</span>
+      <span v-if="player.gearScore && player.gearScore != '0'">
+        {{ player.gearScore }}&nbsp;
       </span>
-      <span v-if="nameDisplay === 'name+class'"> ({{ player.class }}) </span>
-      <span v-if="nameDisplay === 'class'"> {{ player.class }} </span>
+      <span v-if="nameDisplay === 'name+class'">({{ player.class }})</span>
+      <span v-if="nameDisplay === 'class'">{{ player.class }}</span>
     </td>
     <td class="text-center">
       {{ abbreviatedDamage[0] }}
