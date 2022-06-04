@@ -85,7 +85,7 @@
           unelevated
           icon="screenshot_monitor"
           color="primary"
-          label="Screnshot Log"
+          label="Screenshot Log"
           @click="$refs.logView.takeScreenshot()"
           style="margin-left: auto"
         >
