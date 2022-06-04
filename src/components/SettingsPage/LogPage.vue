@@ -61,19 +61,22 @@
 
     <q-separator spaced />
     <q-item-label header>Actions</q-item-label>
-
-    <q-item tag="label">
-      <q-item-section>
-        <q-item-label>
-          Pressing this button will wipe parsed logs and LOA Details will
-          re-parse every log once you open the Logs page.
-        </q-item-label>
-      </q-item-section>
-      <q-item-section side>
-        <q-btn color="red" @click="wipeParsedLogs">Wipe Parsed Log Cache</q-btn>
-      </q-item-section>
-    </q-item>
   </q-list>
+
+  <q-btn
+    style="margin-left: 16px"
+    unelevated
+    color="red"
+    label="Wipe Parsed Log Cache"
+    @click="wipeParsedLogs"
+  />
+  <q-btn
+    style="margin-left: 16px"
+    unelevated
+    color="primary"
+    label="Open Folder"
+    @click="openLogDirectory"
+  />
 </template>
 
 <script setup>
@@ -84,5 +87,9 @@ function wipeParsedLogs() {
   window.messageApi.send("window-to-main", {
     message: "wipe-parsed-logs",
   });
+}
+
+function openLogDirectory() {
+  window.messageApi.send("window-to-main", { message: "open-log-directory" });
 }
 </script>
