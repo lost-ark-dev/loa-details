@@ -10,10 +10,7 @@
               )"
               :key="tabName"
               clickable
-              @click="
-                settingsStore.settings.damageMeter.tabs[tabName].enabled =
-                  !settingsStore.settings.damageMeter.tabs[tabName].enabled
-              "
+              @click="toggleTabDisplay(tabName)"
             >
               <q-item-section side>
                 <q-icon
@@ -193,7 +190,8 @@ import TableEntry from "./TableEntry.vue";
 import SkillEntry from "./SkillEntry.vue";
 
 const settingsStore = useSettingsStore();
-// todo: move these to a pinia store
+
+// TODO: move these to a pinia store
 const props = defineProps({
   sessionState: Object,
   damageType: {
@@ -208,6 +206,16 @@ const props = defineProps({
   },
 });
 const entitiesCopy = ref([]);
+
+function toggleTabDisplay(tabName) {
+  settingsStore.settings.damageMeter.tabs[tabName].enabled =
+    !settingsStore.settings.damageMeter.tabs[tabName].enabled;
+
+  window.messageApi.send("window-to-main", {
+    message: "save-settings",
+    value: JSON.stringify(settingsStore.settings),
+  });
+}
 
 watch(props, () => {
   sortEntities();

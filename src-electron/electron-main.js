@@ -212,7 +212,10 @@ const ipcFunctions = {
   "save-settings": (event, arg) => {
     appSettings = JSON.parse(arg.value);
     saveSettings(arg.value);
+
+    mainWindow.webContents.send("on-settings-change", appSettings);
     damageMeterWindow.webContents.send("on-settings-change", appSettings);
+
     logParser.dontResetOnZoneChange =
       appSettings.damageMeter.functionality.dontResetOnZoneChange;
 
