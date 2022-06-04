@@ -42,6 +42,13 @@
           <q-btn
             style="margin-left: 16px"
             unelevated
+            color="red"
+            label="Wipe Parsed Log Cache"
+            @click="wipeParsedLogs"
+          />
+          <q-btn
+            style="margin-left: 16px"
+            unelevated
             color="primary"
             label="Refresh"
             @click="getLogfiles"
@@ -115,6 +122,7 @@ import { millisToMinutesAndSeconds } from "src/util/number-helpers";
 import LogView from "src/components/LogView.vue";
 
 import { useSettingsStore } from "src/stores/settings";
+import { sleep } from "src/util/sleep";
 const settingsStore = useSettingsStore();
 
 const loaderImg = new URL(`../assets/images/loader.gif`, import.meta.url).href;
@@ -264,6 +272,15 @@ onMounted(() => {
     }
   });
 });
+
+async function wipeParsedLogs() {
+  window.messageApi.send("window-to-main", {
+    message: "wipe-parsed-logs",
+  });
+
+  await sleep(500);
+  getLogfiles();
+}
 </script>
 
 <style>
