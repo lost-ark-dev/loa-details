@@ -234,7 +234,8 @@ export class LogParser {
       name: logLine.name,
       class: logLine.class,
       isPlayer: true,
-      gearScore: logLine.gearScore,
+      ...(logLine.gearScore &&
+        logLine.gearScore != "0" && { gearScore: logLine.gearScore }),
       currentHp: logLine.currentHp,
       maxHp: logLine.maxHp,
     });
