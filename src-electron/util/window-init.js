@@ -22,6 +22,11 @@ export function initWindow(window, name) {
     ) {
       window.setPosition(windowOptions.X, windowOptions.Y);
     }
+
+    window.webContents.setVisualZoomLevelLimits(1, 5);
+    if (windowOptions.zoomFactor) {
+      window.webContents.setZoomFactor(windowOptions.zoomFactor);
+    }
   }
 
   window.on(`moved`, () => {
@@ -34,5 +39,20 @@ export function initWindow(window, name) {
     const curSize = window.getSize();
     store.set(`windows.${name}.width`, curSize[0]);
     store.set(`windows.${name}.height`, curSize[1]);
+  });
+
+  window.webContents.on("zoom-changed", (event, zoomDirection) => {
+    var currentZoom = window.webContents.getZoomFactor();
+
+    if (zoomDirection === "in") {
+      const newZoom = currentZoom + 0.2;
+      window.webContents.zoomFactor = newZoom;
+    }
+    if (zoomDirection === "out") {
+      const newZoom = currentZoom - 0.2;
+      window.webContents.zoomFactor = Math.max(newZoom, 0.2);
+    }
+
+    store.set(`windows.${name}.zoomFactor`, window.webContents.zoomFactor);
   });
 }
