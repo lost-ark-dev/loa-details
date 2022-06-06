@@ -17,6 +17,17 @@ import { ref } from "vue";
 
 const changes = ref([
   {
+    version: "0.4.3",
+    mdFormattedLog: `
+    * Fixed a bug where gear score would dissapear after being displayed in certain dungeons.
+    * Added zoom functionality. Now you can zoom with CTRL+MouseWheel.
+    * Added wipe button to log viewing page, added open log folder button to the log settings page.
+    * Fixed a bug where it wouldn't save damage meter tab status when you used right click context menu to toggle tabs.
+    * Added a TOTAL DPS header to the damage meter table.
+    * Added an option to enable/disable Total DMG/DPS/TANK headers in the damage meter table. By default, DMG and DPS are enabled. You can toggle these settings by right clicking on the damage meter headers or using the settings page.
+  `,
+  },
+  {
     version: "0.4.2",
     mdFormattedLog: `
     * Added an option to disable gear score on damage meter.
