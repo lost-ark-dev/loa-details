@@ -315,10 +315,7 @@ onMounted(() => {
 
   window.messageApi.receive("pcap-on-state-change", (value) => {
     sessionState.value = value;
-    console.log(
-      sessionState.value.damageStatistics.totalDamageDealt,
-      fightDuration.value
-    );
+
     if (
       sessionState.value.damageStatistics?.totalDamageDealt &&
       fightDuration.value > 0
