@@ -34,12 +34,53 @@
             v{{ settingsStore.settings.appVersion }}
           </span>
         </div>
-        <div v-if="!isMinimized && sessionState.damageStatistics">
-          <span style="margin-right: 12px">
+        <div
+          v-if="!isMinimized && sessionState.damageStatistics"
+          class="q-electron-drag--exception"
+        >
+          <q-menu touch-position context-menu>
+            <q-list dense style="min-width: 100px">
+              <q-item
+                v-for="tabName in Object.keys(
+                  settingsStore.settings.damageMeter.header
+                )"
+                :key="tabName"
+                clickable
+                @click="toggleHeaderDisplay(tabName)"
+              >
+                <q-item-section side>
+                  <q-icon
+                    v-if="
+                      settingsStore.settings.damageMeter.header[tabName].enabled
+                    "
+                    name="check"
+                  />
+                  <q-icon v-else name="close" />
+                </q-item-section>
+                <q-item-section>
+                  {{ settingsStore.settings.damageMeter.header[tabName].name }}
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+          <span
+            v-if="settingsStore.settings.damageMeter.header.damage.enabled"
+            style="margin-right: 12px"
+          >
             Total DMG
             {{ numberFormat(sessionState.damageStatistics.totalDamageDealt) }}
           </span>
-          <span style="margin-right: 12px">
+          <span
+            v-if="settingsStore.settings.damageMeter.header.dps.enabled"
+            style="margin-right: 12px"
+          >
+            Total DPS
+            {{ numberFormat(sessionDPS) }}
+          </span>
+          <span
+            v-if="settingsStore.settings.damageMeter.header.tank.enabled"
+            style="margin-right: 12px"
+          >
             Total TNK
             {{ numberFormat(sessionState.damageStatistics.totalDamageTaken) }}
           </span>
@@ -148,6 +189,7 @@ import { Notify } from "quasar";
 import {
   numberFormat,
   millisToMinutesAndSeconds,
+  abbreviateNumber,
 } from "src/util/number-helpers";
 import { sleep } from "src/util/sleep";
 import html2canvas from "html2canvas";
@@ -186,6 +228,16 @@ function enableClickthrough() {
       "<center>ALT+TAB back to the damage meter window to disable clickthrough.</center>",
     color: "primary",
     html: true,
+  });
+}
+
+function toggleHeaderDisplay(tabName) {
+  settingsStore.settings.damageMeter.header[tabName].enabled =
+    !settingsStore.settings.damageMeter.header[tabName].enabled;
+
+  window.messageApi.send("window-to-main", {
+    message: "save-settings",
+    value: JSON.stringify(settingsStore.settings),
   });
 }
 
@@ -250,6 +302,7 @@ function requestSessionRestart() {
 }
 
 const sessionState = ref({});
+const sessionDPS = ref(0);
 
 onMounted(() => {
   settingsStore.initSettings();
@@ -262,6 +315,18 @@ onMounted(() => {
 
   window.messageApi.receive("pcap-on-state-change", (value) => {
     sessionState.value = value;
+    console.log(
+      sessionState.value.damageStatistics.totalDamageDealt,
+      fightDuration.value
+    );
+    if (
+      sessionState.value.damageStatistics?.totalDamageDealt &&
+      fightDuration.value > 0
+    )
+      sessionDPS.value = (
+        sessionState.value.damageStatistics.totalDamageDealt /
+        (fightDuration.value / 1000)
+      ).toFixed(0);
   });
 
   window.messageApi.receive("pcap-on-reset-state", (value) => {

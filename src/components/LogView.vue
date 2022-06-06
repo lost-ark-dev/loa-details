@@ -11,6 +11,17 @@
           {{ numberFormat(logData.damageStatistics.totalDamageDealt) }}
         </span>
         <span style="margin-right: 12px">
+          Total DPS
+          {{
+            numberFormat(
+              (
+                logData.damageStatistics.totalDamageDealt /
+                (logData.duration / 1000)
+              ).toFixed(0)
+            )
+          }}
+        </span>
+        <span style="margin-right: 12px">
           Total TNK
           {{ numberFormat(logData.damageStatistics.totalDamageTaken) }}
         </span>

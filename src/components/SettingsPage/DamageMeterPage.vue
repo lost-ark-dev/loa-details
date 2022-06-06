@@ -185,6 +185,28 @@
     </q-item>
 
     <q-separator spaced />
+    <q-item-label header>Header Tabs</q-item-label>
+
+    <q-item
+      v-for="tabName in Object.keys(settingsStore.settings.damageMeter.header)"
+      :key="tabName"
+      tag="label"
+    >
+      <q-item-section side top>
+        <q-checkbox
+          v-model="settingsStore.settings.damageMeter.header[tabName].enabled"
+        />
+      </q-item-section>
+
+      <q-item-section>
+        <q-item-label>
+          Show
+          {{ settingsStore.settings.damageMeter.header[tabName].name }}
+        </q-item-label>
+      </q-item-section>
+    </q-item>
+
+    <q-separator spaced />
     <q-item-label header>Tabs</q-item-label>
 
     <q-item

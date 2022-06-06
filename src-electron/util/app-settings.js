@@ -68,6 +68,20 @@ const defaultSettings = {
       pinUserToTop: false,
       opacity: 0.9,
     },
+    header: {
+      damage: {
+        name: "Damage",
+        enabled: true,
+      },
+      dps: {
+        name: "DPS",
+        enabled: true,
+      },
+      tank: {
+        name: "Tanked",
+        enabled: false,
+      },
+    },
     tabs: {
       damage: {
         name: "Damage/Tanked",
