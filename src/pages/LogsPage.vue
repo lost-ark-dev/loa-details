@@ -160,7 +160,7 @@
           >
             <q-scroll-area
               style="width: calc(100vw - 96px - 12px)"
-              :style="{ height: encounter.image ? '256px' : '96px' }"
+              :style="{ height: encounter.image ? '272px' : '96px' }"
             >
               <div class="row no-wrap">
                 <q-card
