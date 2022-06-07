@@ -282,6 +282,17 @@ function calculateEncounterRows() {
       let startingMs = 0;
 
       session.sessionEncounters.forEach((encounter) => {
+        startingMs += encounter.durationTs;
+
+        if (
+          encounter.durationTs <=
+          settingsStore.settings.logs.minimumEncounterDurationInMinutes *
+            60 *
+            1000
+        ) {
+          return;
+        }
+
         let encounterName = encounter.encounterName;
         let image = "";
 
@@ -309,7 +320,6 @@ function calculateEncounterRows() {
           });
         }
 
-        startingMs += encounter.durationTs;
         /* if (
           !logViewerStore.encounterFilter ||
           (logViewerStore.encounterFilter &&
@@ -367,7 +377,10 @@ function calculateLogFileList(value) {
       });
     });
 
-    if (totalDuration > 0) {
+    if (
+      totalDuration >=
+      settingsStore.settings.logs.minimumSessionDurationInMinutes * 60 * 1000
+    ) {
       sessionEncounters = sessionEncounters.reverse();
 
       logViewerStore.sessions.push({

@@ -17,7 +17,7 @@
       </q-item-section>
     </q-item>
 
-    <q-item-label header>Minimum Fight Duration</q-item-label>
+    <q-item-label header>Minimum Session Duration (in minutes)</q-item-label>
     <q-item>
       <q-item-section side>
         <q-icon name="access_time" />
@@ -25,16 +25,63 @@
       <q-item-section>
         <q-slider
           style="margin: 0 16px"
-          :model-value="settingsStore.settings.logs.minimumDurationInMinutes"
+          :model-value="
+            settingsStore.settings.logs.minimumSessionDurationInMinutes
+          "
           @change="
             (val) => {
-              settingsStore.settings.logs.minimumDurationInMinutes = val;
+              settingsStore.settings.logs.minimumSessionDurationInMinutes = val;
             }
           "
           color="primary"
           label-always
           switch-label-side
-          :label-value="`Minimum ${settingsStore.settings.logs.minimumDurationInMinutes} minute(s)`"
+          :label-value="`Minimum ${settingsStore.settings.logs.minimumSessionDurationInMinutes} minute(s)`"
+          markers
+          marker-labels
+          :min="0"
+          :max="10"
+          :step="1"
+        >
+          <template v-slot:marker-label-group="scope">
+            <div
+              v-for="marker in scope.markerList"
+              :key="marker.index"
+              :class="[
+                `text-blue-${2 + Math.ceil(marker.value / 2)}`,
+                marker.classes,
+              ]"
+              :style="marker.style"
+              @click="model = marker.value"
+            >
+              {{ marker.value }}
+            </div>
+          </template>
+        </q-slider>
+      </q-item-section>
+    </q-item>
+
+    <q-item-label header>Minimum Encounter Duration (in minutes)</q-item-label>
+    <q-item>
+      <q-item-section side>
+        <q-icon name="access_time" />
+      </q-item-section>
+      <q-item-section>
+        <q-slider
+          style="margin: 0 16px"
+          :model-value="
+            settingsStore.settings.logs.minimumEncounterDurationInMinutes
+          "
+          @change="
+            (val) => {
+              settingsStore.settings.logs.minimumEncounterDurationInMinutes =
+                val;
+            }
+          "
+          color="primary"
+          label-always
+          switch-label-side
+          :label-value="`Minimum ${settingsStore.settings.logs.minimumEncounterDurationInMinutes} minute(s)`"
           markers
           marker-labels
           :min="0"

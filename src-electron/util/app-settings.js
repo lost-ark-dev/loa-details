@@ -127,6 +127,8 @@ const defaultSettings = {
     classes: {},
   },
   logs: {
+    minimumSessionDurationInMinutes: 1,
+    minimumEncounterDurationInMinutes: 0.5,
     minimumDurationInMinutes: 0.0,
     splitOnPhaseTransition: true,
   },
