@@ -10,7 +10,6 @@ export function createPrelauncherWindow() {
     width: 300,
     height: 360,
     frame: false,
-    transparent: true,
     resizable: false,
     fullscreenable: false,
     useContentSize: true,

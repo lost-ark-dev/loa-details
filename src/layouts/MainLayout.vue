@@ -1,75 +1,154 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
-      <q-bar class="q-electron-drag">
-        <div>LOA Details v{{ settingsStore.settings.appVersion }}</div>
+  <q-layout view="lHh Lpr lFf" style="min-height: calc(100vh - 16px)">
+    <div v-if="drawerLeft" class="drawer-background"></div>
+    <q-drawer
+      v-model="drawerLeft"
+      overlay
+      bordered
+      :width="300"
+      class="text-white"
+      @click.capture="drawerClick"
+      :no-swipe-backdrop="true"
+    >
+      <q-scroll-area class="fit">
+        <div class="drawer-container">
+          <q-btn
+            @click="drawerLeft = !drawerLeft"
+            class="close-button"
+            flat
+            round
+            dense
+            icon="close"
+            style="margin-bottom: 16px"
+          />
 
-        <q-space />
+          <router-link :to="{ path: '/' }" custom v-slot="{ href, navigate }">
+            <div class="drawer-item" :href="href" @click="navigate">
+              <q-icon name="home" />
+              Home
+            </div>
+          </router-link>
 
-        <q-btn dense flat icon="minimize" @click="minimize" />
-        <q-btn dense flat icon="crop_square" @click="toggleMaximize" />
-        <q-btn dense flat icon="close" @click="closeApp" />
-      </q-bar>
-
-      <div class="q-pa-sm q-pl-md row items-center">
-        <router-link :to="{ path: '/' }" custom v-slot="{ href, navigate }">
-          <div
-            class="cursor-pointer non-selectable"
-            :href="href"
-            @click="navigate"
+          <router-link
+            :to="{ path: '/logs' }"
+            custom
+            v-slot="{ href, navigate }"
           >
-            Home
-          </div>
-        </router-link>
+            <div class="drawer-item" :href="href" @click="navigate">
+              <q-icon name="timeline" />
+              Logs
+            </div>
+          </router-link>
 
-        <router-link :to="{ path: '/logs' }" custom v-slot="{ href, navigate }">
-          <div
-            class="q-ml-md cursor-pointer non-selectable"
-            :href="href"
-            @click="navigate"
+          <router-link
+            :to="{ path: '/settings' }"
+            custom
+            v-slot="{ href, navigate }"
           >
-            Logs
-          </div>
-        </router-link>
-
-        <router-link
-          :to="{ path: '/settings' }"
-          custom
-          v-slot="{ href, navigate }"
-        >
-          <div
-            class="q-ml-md cursor-pointer non-selectable"
-            :href="href"
-            @click="navigate"
-          >
-            Settings
-          </div>
-        </router-link>
-        <div class="q-ml-md cursor-pointer non-selectable" @click="openDiscord">
-          <q-icon name="fa-brands fa-discord" />
-          &nbsp;Discord
-          <q-badge color="red" transparent>NEW</q-badge>
+            <div class="drawer-item" :href="href" @click="navigate">
+              <q-icon name="settings" />
+              Settings
+            </div>
+          </router-link>
         </div>
-        <div
-          class="q-ml-md cursor-pointer non-selectable"
-          style="margin-left: auto"
-          @click="updateButton"
-        >
-          {{ updateButtonText }}
-        </div>
+      </q-scroll-area>
+    </q-drawer>
+
+    <div class="q-electron-drag app-bar">
+      <div>
+        <span class="gilroy-extra-bold">LOA</span>
+        <span class="gilroy-light"> DETAILS </span>
+        <span style="font-size: 10px; margin-left: 4px">
+          v{{ settingsStore.settings.appVersion }}
+        </span>
       </div>
-    </q-header>
 
-    <q-page-container>
-      <router-view />
-    </q-page-container>
+      <q-space />
+
+      <div class="right-bar">
+        <q-btn dense flat icon="ti-minus" @click="minimize" />
+        <q-btn dense flat icon="ti-control-stop" @click="toggleMaximize" />
+        <q-btn dense flat icon="ti-close" @click="closeApp" />
+      </div>
+    </div>
+
+    <div class="app-links q-pa-sm q-pl-md row items-center">
+      <q-btn
+        @click="drawerLeft = !drawerLeft"
+        class="link-item"
+        flat
+        round
+        dense
+        icon="menu"
+      />
+
+      <router-link :to="{ path: '/' }" custom v-slot="{ href, navigate }">
+        <div
+          class="link-item q-ml-lg non-selectable"
+          :class="{ active: route.path === '/' }"
+          :href="href"
+          @click="navigate"
+        >
+          Home
+        </div>
+      </router-link>
+
+      <router-link :to="{ path: '/logs' }" custom v-slot="{ href, navigate }">
+        <div
+          class="link-item q-ml-lg non-selectable"
+          :class="{ active: route.path === '/logs' }"
+          :href="href"
+          @click="navigate"
+        >
+          Logs
+        </div>
+      </router-link>
+
+      <router-link
+        :to="{ path: '/settings' }"
+        custom
+        v-slot="{ href, navigate }"
+      >
+        <div
+          class="link-item q-ml-lg non-selectable"
+          :class="{ active: route.path === '/settings' }"
+          :href="href"
+          @click="navigate"
+        >
+          Settings
+        </div>
+      </router-link>
+
+      <div class="link-item q-ml-lg non-selectable" @click="openDiscord">
+        Discord
+      </div>
+
+      <div
+        class="link-item non-selectable"
+        style="margin-left: auto"
+        @click="updateButton"
+      >
+        {{ updateButtonText }}
+      </div>
+    </div>
+
+    <div class="q-page-container">
+      <q-scroll-area style="height: calc(100vh - 4px - 32px - 66px)">
+        <router-view />
+      </q-scroll-area>
+    </div>
   </q-layout>
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
 import { useSettingsStore } from "src/stores/settings";
+import { useRoute } from "vue-router";
+
 const settingsStore = useSettingsStore();
+
+const route = useRoute();
+const drawerLeft = ref(false);
 
 function minimize() {
   if (process.env.MODE === "electron") {
@@ -155,3 +234,91 @@ onMounted(() => {
   window.messageApi.send("window-to-main", { message: "get-settings" });
 });
 </script>
+
+<style>
+.drawer-background {
+  z-index: 2000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #111519b3;
+}
+.q-page-container,
+.q-drawer {
+  background: #1c2127;
+}
+
+.drawer-container {
+  margin-top: 48px;
+}
+.drawer-container .close-button {
+  margin-left: 32px;
+}
+.drawer-item .q-icon {
+  font-size: 18px;
+  color: #777a7d;
+  margin-right: 8px;
+}
+.drawer-item {
+  padding: 8px;
+  padding-left: 32px;
+  color: #fff;
+  font-size: 14px;
+  font-family: "questrial";
+  cursor: default;
+}
+.drawer-item:hover {
+  background-color: #8fa66d;
+}
+.drawer-item:hover .q-icon {
+  color: #fff;
+}
+
+.app-bar {
+  display: flex;
+  font-size: 16px;
+  align-items: center;
+  padding: 0 12px;
+  padding-top: 1px;
+  justify-content: space-between;
+  background: #121519;
+  color: #a0a1a3;
+  height: 32px;
+}
+
+.app-bar .q-btn {
+  color: #898a8c;
+  font-size: 10px;
+}
+.app-bar .q-btn:hover {
+  color: #fff;
+}
+.app-bar .q-btn .q-focus-helper {
+  opacity: 0 !important;
+}
+.app-bar .right-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.app-bar .right-bar .q-btn {
+  margin-left: 8px;
+}
+.app-links {
+  background: #161a1f;
+  padding: 16px 32px;
+  font-family: "gilroy light";
+  font-size: 16px;
+  letter-spacing: 1px;
+  color: #b1d063;
+  font-weight: bold;
+}
+.app-links .link-item:hover {
+  color: #edfcb1;
+}
+.app-links .link-item.active {
+  color: #fff;
+}
+</style>

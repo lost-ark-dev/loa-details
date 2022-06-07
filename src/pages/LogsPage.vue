@@ -17,9 +17,10 @@
         </div>
       </div>
     </div>
-    <q-scroll-area
+
+    <div
       v-if="!logFile.viewingLogFile && !isReceivingParserStatus"
-      style="height: calc(100vh - 80px); padding: 8px 16px"
+      class="logs-page"
     >
       <div class="flex logs-top-bar">
         <q-select
@@ -74,11 +75,9 @@
           </q-td>
         </template>
       </q-table>
-    </q-scroll-area>
-    <q-scroll-area
-      v-if="logFile.viewingLogFile"
-      style="height: calc(100vh - 80px); padding: 8px 16px"
-    >
+    </div>
+
+    <div v-if="logFile.viewingLogFile" class="logs-page">
       <div class="flex logs-top-bar">
         <q-btn
           icon="arrow_back"
@@ -110,7 +109,7 @@
         </q-btn-dropdown>
       </div>
       <LogView ref="logView" :log-data="logFile.data" />
-    </q-scroll-area>
+    </div>
   </q-page>
 </template>
 
@@ -284,6 +283,9 @@ async function wipeParsedLogs() {
 </script>
 
 <style>
+.logs-page {
+  padding: 16px 32px;
+}
 .spinner {
   width: 100%;
   height: calc(100vh - 128px);

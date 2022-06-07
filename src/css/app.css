@@ -1,1 +1,24 @@
-/* app global css */
+@font-face {
+  font-family: questrial;
+  src: url(./fonts/Questrial-Regular.ttf);
+}
+
+@font-face {
+  font-family: "gilroy light";
+  src: url(./fonts/Gilroy-Light.ttf);
+}
+
+@font-face {
+  font-family: "gilroy extra bold";
+  src: url(./fonts/Gilroy-ExtraBold.ttf);
+}
+
+.questrial {
+  font-family: "questrial";
+}
+.gilroy-light {
+  font-family: "gilroy light";
+}
+.gilroy-extra-bold {
+  font-family: "gilroy extra bold";
+}

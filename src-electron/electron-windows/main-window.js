@@ -7,10 +7,16 @@ export function createMainWindow(appSettings) {
   let mainWindow = new BrowserWindow({
     icon: path.resolve(__dirname, "icons/icon.png"), // tray icon
     show: false,
-    width: 740,
-    height: 600,
+    width: 974,
+    height: 614,
+    minWidth: 974,
+    minHeight: 614,
     frame: false,
+    //transparent: true,
+    roundedCorners: false,
+    hasShadow: true,
     autoHideMenuBar: true,
+    resizable: true,
     useContentSize: true,
     webPreferences: {
       devTools: process.env.DEBUGGING,

@@ -1,24 +1,22 @@
 <template>
-  <q-page class="flex justify-start column">
-    <q-tabs
-      v-model="tab"
-      inline-label
-      outside-arrows
-      mobile-arrows
-      class="bg-blue-grey-10 text-white shadow-2"
-    >
-      <q-tab name="general" icon="display_settings" label="General" />
-      <q-tab name="damage_meter" icon="speed" label="Damage Meter" />
-      <!-- <q-tab name="upload_logs" icon="cloud_upload" label="Log Uploading" /> -->
-      <q-tab name="log" icon="article" label="Log " />
-    </q-tabs>
-    <q-scroll-area style="height: calc(100vh - 124px); padding: 8px 16px">
-      <GeneralPage v-if="tab === 'general'" />
-      <DamageMeterPage v-if="tab === 'damage_meter'" />
-      <UploadPage v-if="tab === 'upload_logs'" />
-      <LogPage v-if="tab === 'log'" />
-    </q-scroll-area>
-  </q-page>
+  <q-tabs
+    v-model="tab"
+    inline-label
+    outside-arrows
+    mobile-arrows
+    class="settings-tabs text-white shadow-2"
+  >
+    <q-tab name="general" icon="display_settings" label="General" />
+    <q-tab name="damage_meter" icon="speed" label="Damage Meter" />
+    <!-- <q-tab name="upload_logs" icon="cloud_upload" label="Log Uploading" /> -->
+    <q-tab name="log" icon="article" label="Log " />
+  </q-tabs>
+  <div class="settings-page">
+    <GeneralPage v-if="tab === 'general'" />
+    <DamageMeterPage v-if="tab === 'damage_meter'" />
+    <UploadPage v-if="tab === 'upload_logs'" />
+    <LogPage v-if="tab === 'log'" />
+  </div>
 </template>
 
 <script setup>
@@ -40,3 +38,12 @@ settingsStore.$subscribe(() => {
   });
 });
 </script>
+
+<style>
+.settings-tabs {
+  background: #121519;
+}
+.settings-page {
+  padding: 12px 24px;
+}
+</style>

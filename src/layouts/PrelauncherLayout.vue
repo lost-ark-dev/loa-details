@@ -1,5 +1,7 @@
 <template>
-  <div class="flex column items-center justify-center prelauncher">
+  <div
+    class="q-electron-drag flex column items-center justify-center prelauncher"
+  >
     <img class="loader-img" :src="loaderImg" />
     <span class="loader-msg">{{ currentMessage }}</span>
   </div>
@@ -8,7 +10,7 @@
 <script setup>
 import { onMounted, ref } from "vue";
 
-const currentMessage = ref("LOA Details");
+const currentMessage = ref("Checking for updates...");
 
 const loaderImg = new URL(`../assets/images/loader.gif`, import.meta.url).href;
 onMounted(() => {
