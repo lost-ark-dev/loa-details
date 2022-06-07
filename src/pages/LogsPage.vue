@@ -1,11 +1,35 @@
 <template>
   <q-page class="flex justify-start column">
     <div
-      v-if="logFiles.length === 0 && !noLogsFound"
+      v-if="
+        logViewerStore.viewerState === 'loading' ||
+        logViewerStore.viewerState === 'no-data'
+      "
       class="flex column items-center justify-center spinner"
     >
-      <img class="loader-img" :src="loaderImg" />
-      <span>Parsing logs...</span>
+      <img
+        v-if="logViewerStore.viewerState === 'loading'"
+        class="loader-img"
+        :src="loaderImg"
+      />
+
+      <span>
+        {{
+          logViewerStore.viewerState === "loading"
+            ? "Parsing logs"
+            : "No data found"
+        }}
+      </span>
+
+      <q-btn
+        v-if="logViewerStore.viewerState === 'no-data'"
+        style="margin-top: 8px"
+        unelevated
+        color="primary"
+        label="Refresh"
+        @click="getLogfiles"
+      />
+
       <div v-if="isReceivingParserStatus" style="text-align: center">
         <q-linear-progress
           :value="parserStatus.completedJobs / parserStatus.totalJobs"
@@ -18,22 +42,28 @@
       </div>
     </div>
 
-    <div
-      v-if="!logFile.viewingLogFile && !isReceivingParserStatus"
-      class="logs-page"
-    >
+    <div v-else class="logs-page">
       <div class="flex logs-top-bar">
-        <q-select
-          filled
-          v-model="encounterFilter"
-          multiple
-          clearable
-          :options="encounterOptions"
-          label="Filter encounters"
-          style="width: 250px"
+        <q-btn
+          v-if="
+            logViewerStore.viewerState === 'viewing-session' ||
+            logViewerStore.viewerState === 'viewing-encounter'
+          "
+          icon="arrow_back"
+          unelevated
+          color="primary"
+          label="BACK"
+          @click="
+            logViewerStore.viewerState =
+              logViewerStore.viewerState === 'viewing-session'
+                ? 'none'
+                : 'viewing-session'
+          "
         />
 
-        <div>
+        <q-space />
+
+        <div v-if="logViewerStore.viewerState === 'none'">
           <q-btn
             unelevated
             color="primary"
@@ -55,38 +85,21 @@
             @click="getLogfiles"
           />
         </div>
-      </div>
 
-      <q-table
-        title="Logs"
-        :rows="logFilesComputed"
-        :columns="columns"
-        :visible-columns="visibleColumns"
-        row-key="filename"
-        dark
-        color="amber"
-        @row-click="onRowClick"
-        :pagination="logsPagination"
-        @update:pagination="onPagination"
-      >
-        <template v-slot:body-cell="props">
-          <q-td :props="props" :style="props.row.rowStyle">
-            {{ props.value }}
-          </q-td>
-        </template>
-      </q-table>
-    </div>
-
-    <div v-if="logFile.viewingLogFile" class="logs-page">
-      <div class="flex logs-top-bar">
-        <q-btn
-          icon="arrow_back"
-          unelevated
-          color="primary"
-          label="BACK"
-          @click="logFile.viewingLogFile = false"
+        <q-select
+          v-else-if="logViewerStore.viewerState === 'viewing-session'"
+          filled
+          v-model="logViewerStore.encounterFilter"
+          @update:model-value="calculateEncounterRows()"
+          multiple
+          clearable
+          :options="logViewerStore.encounterOptions"
+          label="Filter encounters"
+          style="width: 250px"
         />
+
         <q-btn-dropdown
+          v-else-if="logViewerStore.viewerState === 'viewing-encounter'"
           split
           unelevated
           icon="screenshot_monitor"
@@ -108,41 +121,144 @@
           </q-list>
         </q-btn-dropdown>
       </div>
+
+      <div v-if="logViewerStore.viewerState === 'none'">
+        <q-table
+          title="Sessions"
+          :rows="logViewerStore.sessions"
+          :columns="sessionColumns"
+          row-key="dateText"
+          dark
+          @row-click="onSessionRowClick"
+          :pagination="sessionPagination"
+          @update:pagination="onSessionPagination"
+        />
+      </div>
+
+      <div v-else-if="logViewerStore.viewerState === 'viewing-session'">
+        <q-table
+          title="Encounters"
+          :rows="encounterRows"
+          :columns="encounterColumns"
+          row-key="encounterName"
+          dark
+          @row-click="onEncounterRowClick"
+          :pagination="encounterPagination"
+          @update:pagination="onEncounterPagination"
+        />
+      </div>
+    </div>
+
+    <div
+      v-if="
+        logViewerStore.viewerState === 'viewing-encounter' &&
+        logFile.viewingLogFile
+      "
+      class="logs-page"
+    >
       <LogView ref="logView" :log-data="logFile.data" />
     </div>
   </q-page>
 </template>
 
 <script setup>
-import { ref, computed, watch, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted } from "vue";
 import dayjs from "dayjs";
-import { millisToMinutesAndSeconds } from "src/util/number-helpers";
+import {
+  millisToMinutesAndSeconds,
+  millisToHourMinuteSeconds,
+} from "src/util/number-helpers";
 
 import LogView from "src/components/LogView.vue";
 
 import { useSettingsStore } from "src/stores/settings";
+import { useLogViewerStore } from "src/stores/log-viewer";
 import { sleep } from "src/util/sleep";
+
+import relativeTime from "dayjs/plugin/relativeTime";
+dayjs.extend(relativeTime);
+
 const settingsStore = useSettingsStore();
+const logViewerStore = useLogViewerStore();
 
 const loaderImg = new URL(`../assets/images/loader.gif`, import.meta.url).href;
 
-const logsPagination = ref({
+/* Start session table */
+const sessionColumns = [
+  {
+    name: "dateText",
+    field: "dateText",
+    align: "left",
+    label: "Session Date",
+    sortable: true,
+  },
+  {
+    name: "relativeTime",
+    field: "relativeTime",
+    align: "left",
+    label: "Relative Time",
+    sortable: false,
+  },
+  {
+    name: "totalDuration",
+    field: "totalDuration",
+    align: "right",
+    label: "Duration (H:M:S)",
+    sortable: true,
+  },
+];
+
+const sessionPagination = ref({
   sortBy: "desc",
   descending: false,
   page: 1,
   rowsPerPage: 5,
 });
 
-const encounterFilter = ref(null);
-const encounterOptions = ref([]);
+function onSessionPagination(newPagination) {
+  sessionPagination.value = newPagination;
+}
 
-const columns = [
-  {
-    name: "rowStyle",
-    field: "rowStyle",
-    align: "left",
-    label: "",
-  },
+function onSessionRowClick(event, row) {
+  logViewerStore.viewerState = "viewing-session";
+  logViewerStore.currentSessionName = row.filename;
+
+  logViewerStore.encounterOptions = [];
+  logViewerStore.encounterFilter = null;
+
+  row.sessionEncounters.forEach((encounter) => {
+    // Add encounter name to the encounter options list
+    if (!logViewerStore.encounterOptions.includes(encounter.encounterName)) {
+      logViewerStore.encounterOptions.push(encounter.encounterName);
+    }
+  });
+
+  calculateEncounterRows();
+}
+
+function calculateEncounterRows() {
+  const rows = [];
+
+  logViewerStore.sessions.forEach((session) => {
+    if (session.filename === logViewerStore.currentSessionName) {
+      session.sessionEncounters.forEach((encounter) => {
+        if (
+          !logViewerStore.encounterFilter ||
+          logViewerStore.encounterFilter.includes(encounter.encounterName)
+        ) {
+          rows.push(encounter);
+        }
+      });
+
+      encounterRows.value = rows;
+      return;
+    }
+  });
+}
+/* End session table */
+
+/* Start encounter table */
+const encounterColumns = [
   {
     name: "encounterName",
     field: "encounterName",
@@ -157,81 +273,82 @@ const columns = [
     label: "Duration",
     sortable: true,
   },
-  {
-    name: "dateText",
-    field: "dateText",
-    align: "left",
-    label: "Session Date",
-    sortable: true,
-    align: "right",
-  },
 ];
-const visibleColumns = ref(["encounterName", "duration", "dateText"]);
+const encounterRows = ref([]);
 
-const logFiles = ref([]);
-const noLogsFound = ref(false);
-const logFilesComputed = computed(() => {
-  return logFiles.value
-    .filter((x) =>
-      encounterFilter.value && encounterFilter.value.length > 0
-        ? encounterFilter.value.includes(x.encounterName)
-        : true
-    )
-    .filter((x) => {
-      return (
-        x.durationTs / (1000 * 60) >=
-        settingsStore.settings.logs.minimumDurationInMinutes
-      );
-    });
+const encounterPagination = ref({
+  sortBy: "desc",
+  descending: false,
+  page: 1,
+  rowsPerPage: 5,
 });
+
+function onEncounterPagination(newPagination) {
+  encounterPagination.value = newPagination;
+}
+
+function onEncounterRowClick(event, row) {
+  logViewerStore.viewerState = "viewing-encounter";
+  logViewerStore.currentEncounterName = row.filename;
+
+  window.messageApi.send("window-to-main", {
+    message: "get-parsed-log",
+    value: row.filename,
+  });
+}
+/* End session table */
+
 const logFile = reactive({
   viewingLogFile: false,
   data: {},
 });
 
 function calculateLogFileList(value) {
-  let i = 0;
+  logViewerStore.resetState();
+
   value.forEach((val) => {
-    i++;
+    let totalDuration = 0;
+    let sessionEncounters = [];
 
     val.parsedContents.encounters.forEach((val_encounter) => {
-      if (
-        !encounterOptions.value.includes(
-          val_encounter.mostDamageTakenEntity.name
-        )
-      )
-        encounterOptions.value.push(val_encounter.mostDamageTakenEntity.name);
+      totalDuration += val_encounter.duration;
 
-      logFiles.value.push({
-        rowStyle: i % 2 === 0 ? "background:#e3cc2640" : "",
+      sessionEncounters.push({
         filename: val_encounter.encounterFile,
         encounterName: val_encounter.mostDamageTakenEntity.name,
-        date: val.date,
-        dateText: dayjs(val.date).format("DD/MM/YYYY HH:mm:ss"),
         durationTs: val_encounter.duration,
         duration: millisToMinutesAndSeconds(val_encounter.duration),
       });
     });
+
+    if (totalDuration > 0) {
+      sessionEncounters = sessionEncounters.reverse();
+
+      logViewerStore.sessions.push({
+        filename: val.filename,
+        date: val.date,
+        dateText: dayjs(val.date).format("DD/MM/YYYY HH:mm:ss"),
+        relativeTime: dayjs(val.date).fromNow(),
+        totalDurationTs: totalDuration,
+        totalDuration: millisToHourMinuteSeconds(totalDuration),
+        sessionEncounters,
+      });
+    }
   });
 
-  logFiles.value = logFiles.value.reverse();
-}
+  logViewerStore.sessions.reverse();
 
-function onRowClick(event, row) {
-  window.messageApi.send("window-to-main", {
-    message: "get-parsed-log",
-    value: row.filename,
-  });
-}
-
-function onPagination(newPagination) {
-  logsPagination.value = newPagination;
+  logViewerStore.viewerState =
+    logViewerStore.sessions.length > 0 ? "none" : "no-data";
 }
 
 function getLogfiles() {
-  logFiles.value = [];
-  window.messageApi.send("window-to-main", { message: "get-parsed-logs" });
-  // Async: window.messageApi.send("window-to-main", { message: "get-parsed-logs", async: true });
+  logViewerStore.resetState();
+
+  window.messageApi.send("window-to-main", {
+    message: "get-parsed-logs",
+    async: true,
+  });
 }
 
 function openLogDirectory() {
@@ -248,8 +365,6 @@ onMounted(() => {
   getLogfiles();
 
   window.messageApi.receive("parsed-logs-list", (value) => {
-    if (value.length === 0) noLogsFound.value = true;
-
     isReceivingParserStatus.value = false;
     parserStatus.value = {
       completedJobs: 0,
@@ -277,7 +392,7 @@ async function wipeParsedLogs() {
     message: "wipe-parsed-logs",
   });
 
-  await sleep(500);
+  await sleep(1000);
   getLogfiles();
 }
 </script>
