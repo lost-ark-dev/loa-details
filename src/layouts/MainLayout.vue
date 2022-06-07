@@ -133,9 +133,7 @@
     </div>
 
     <div class="q-page-container">
-      <q-scroll-area style="height: calc(100vh - 4px - 32px - 66px)">
-        <router-view />
-      </q-scroll-area>
+      <router-view />
     </div>
   </q-layout>
 </template>

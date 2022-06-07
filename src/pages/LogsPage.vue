@@ -1,84 +1,88 @@
 <template>
-  <q-page class="flex justify-start column">
-    <div
-      v-if="
-        logViewerStore.viewerState === 'loading' ||
-        logViewerStore.viewerState === 'no-data'
-      "
-      class="flex column items-center justify-center spinner"
-    >
-      <img
-        v-if="logViewerStore.viewerState === 'loading'"
-        class="loader-img"
-        :src="loaderImg"
-      />
-
-      <span>
-        {{
-          logViewerStore.viewerState === "loading"
-            ? "Parsing logs"
-            : "No data found"
-        }}
-      </span>
-
-      <q-btn
-        v-if="logViewerStore.viewerState === 'no-data'"
-        style="margin-top: 8px"
-        unelevated
-        color="primary"
-        label="Refresh"
-        @click="getLogfiles"
-      />
-
-      <div v-if="isReceivingParserStatus" style="text-align: center">
-        <q-linear-progress
-          :value="parserStatus.completedJobs / parserStatus.totalJobs"
-          class="q-mt-md"
-          style="width: 128px"
+  <q-scroll-area
+    ref="scrollArea"
+    style="height: calc(100vh - 4px - 32px - 66px)"
+  >
+    <q-page class="flex justify-start column">
+      <div
+        v-if="
+          logViewerStore.viewerState === 'loading' ||
+          logViewerStore.viewerState === 'no-data'
+        "
+        class="flex column items-center justify-center spinner"
+      >
+        <img
+          v-if="logViewerStore.viewerState === 'loading'"
+          class="loader-img"
+          :src="loaderImg"
         />
-        <div style="margin-top: 8px">
-          {{ parserStatus.completedJobs }} / {{ parserStatus.totalJobs }}
-        </div>
-      </div>
-    </div>
 
-    <div v-else class="logs-page">
-      <div class="flex logs-top-bar">
+        <span>
+          {{
+            logViewerStore.viewerState === "loading"
+              ? "Parsing logs"
+              : "No data found"
+          }}
+        </span>
+
         <q-btn
-          v-if="logViewerStore.viewerState === 'viewing-encounter'"
-          icon="arrow_back"
+          v-if="logViewerStore.viewerState === 'no-data'"
+          style="margin-top: 8px"
           unelevated
           color="primary"
-          label="BACK"
-          @click="logViewerStore.viewerState = 'viewing-session'"
+          label="Refresh"
+          @click="getLogfiles"
         />
 
-        <q-space />
-
-        <div v-if="logViewerStore.viewerState === 'none'">
-          <q-btn
-            unelevated
-            color="primary"
-            label="Open Folder"
-            @click="openLogDirectory"
+        <div v-if="isReceivingParserStatus" style="text-align: center">
+          <q-linear-progress
+            :value="parserStatus.completedJobs / parserStatus.totalJobs"
+            class="q-mt-md"
+            style="width: 128px"
           />
-          <q-btn
-            style="margin-left: 16px"
-            unelevated
-            color="red"
-            label="Wipe Parsed Log Cache"
-            @click="wipeParsedLogs"
-          />
-          <q-btn
-            style="margin-left: 16px"
-            unelevated
-            color="primary"
-            label="Refresh"
-            @click="getLogfiles"
-          />
+          <div style="margin-top: 8px">
+            {{ parserStatus.completedJobs }} / {{ parserStatus.totalJobs }}
+          </div>
         </div>
+      </div>
 
-        <!-- <q-select
+      <div v-else class="logs-page">
+        <div class="flex logs-top-bar">
+          <q-btn
+            v-if="logViewerStore.viewerState === 'viewing-encounter'"
+            icon="arrow_back"
+            unelevated
+            color="primary"
+            label="BACK"
+            @click="changeLogViewerStoreState('viewing-session')"
+          />
+
+          <q-space />
+
+          <div v-if="logViewerStore.viewerState === 'none'">
+            <q-btn
+              unelevated
+              color="primary"
+              label="Open Folder"
+              @click="openLogDirectory"
+            />
+            <q-btn
+              style="margin-left: 16px"
+              unelevated
+              color="red"
+              label="Wipe Parsed Log Cache"
+              @click="wipeParsedLogs"
+            />
+            <q-btn
+              style="margin-left: 16px"
+              unelevated
+              color="primary"
+              label="Refresh"
+              @click="getLogfiles"
+            />
+          </div>
+
+          <!-- <q-select
           v-else-if="logViewerStore.viewerState === 'viewing-session'"
           filled
           v-model="logViewerStore.encounterFilter"
@@ -90,111 +94,112 @@
           style="width: 250px"
         /> -->
 
-        <q-btn-dropdown
-          v-else-if="logViewerStore.viewerState === 'viewing-encounter'"
-          split
-          unelevated
-          icon="screenshot_monitor"
-          color="primary"
-          label="Screenshot Log"
-          @click="$refs.logView.takeScreenshot()"
-          style="margin-left: auto"
-        >
-          <q-list>
-            <q-item
-              clickable
-              v-close-popup
-              @click="$refs.logView.takeScreenshot((hideNames = false))"
-            >
-              <q-item-section>
-                <q-item-label>Screenshot With Names</q-item-label>
-              </q-item-section>
-            </q-item>
-          </q-list>
-        </q-btn-dropdown>
-      </div>
-
-      <div v-if="logViewerStore.viewerState === 'none'">
-        <q-table
-          title="Sessions"
-          :rows="logViewerStore.sessions"
-          :columns="sessionColumns"
-          row-key="dateText"
-          dark
-          @row-click="onSessionRowClick"
-          :pagination="sessionPagination"
-          @update:pagination="onSessionPagination"
-        />
-      </div>
-
-      <div v-else-if="logViewerStore.viewerState === 'viewing-session'">
-        <q-page-sticky
-          position="bottom-left"
-          :offset="[32, 32]"
-          style="z-index: 1000000"
-        >
-          <q-btn
-            fab
-            icon="arrow_back"
+          <q-btn-dropdown
+            v-else-if="logViewerStore.viewerState === 'viewing-encounter'"
+            split
+            unelevated
+            icon="screenshot_monitor"
             color="primary"
-            @click="logViewerStore.viewerState = 'none'"
-          />
-        </q-page-sticky>
-        <q-timeline dark color="secondary">
-          <q-timeline-entry
-            v-for="encounter in encounterRows"
-            :key="encounter.encounterName"
-            :title="
-              encounter.encounterName +
-              ' | ' +
-              encounter.attempts.length +
-              ' attempt(s)'
-            "
-            :subtitle="
-              millisToHourMinuteSeconds(encounter.startingMs) +
-              ' - ' +
-              millisToHourMinuteSeconds(
-                encounter.startingMs + encounter.duration
-              )
-            "
+            label="Screenshot Log"
+            @click="$refs.logView.takeScreenshot()"
+            style="margin-left: auto"
           >
-            <q-scroll-area
-              style="width: calc(100vw - 96px - 12px)"
-              :style="{ height: encounter.image ? '272px' : '96px' }"
+            <q-list>
+              <q-item
+                clickable
+                v-close-popup
+                @click="$refs.logView.takeScreenshot((hideNames = false))"
+              >
+                <q-item-section>
+                  <q-item-label>Screenshot With Names</q-item-label>
+                </q-item-section>
+              </q-item>
+            </q-list>
+          </q-btn-dropdown>
+        </div>
+
+        <div v-if="logViewerStore.viewerState === 'none'">
+          <q-table
+            title="Sessions"
+            :rows="logViewerStore.sessions"
+            :columns="sessionColumns"
+            row-key="dateText"
+            dark
+            @row-click="onSessionRowClick"
+            :pagination="sessionPagination"
+            @update:pagination="onSessionPagination"
+          />
+        </div>
+
+        <div v-else-if="logViewerStore.viewerState === 'viewing-session'">
+          <q-page-sticky
+            position="bottom-left"
+            :offset="[32, 32]"
+            style="z-index: 1000000"
+          >
+            <q-btn
+              fab
+              icon="arrow_back"
+              color="primary"
+              @click="changeLogViewerStoreState('none')"
+            />
+          </q-page-sticky>
+          <q-timeline dark color="secondary">
+            <q-timeline-entry
+              v-for="encounter in encounterRows"
+              :key="encounter.encounterName"
+              :title="
+                encounter.encounterName +
+                ' | ' +
+                encounter.attempts.length +
+                ' attempt(s)'
+              "
+              :subtitle="
+                millisToHourMinuteSeconds(encounter.startingMs) +
+                ' - ' +
+                millisToHourMinuteSeconds(
+                  encounter.startingMs + encounter.duration
+                )
+              "
             >
-              <div class="row no-wrap">
-                <q-card
-                  v-for="(attempt, index) in encounter.attempts"
-                  :key="attempt.filename"
-                  dark
-                  class="my-card q-mr-md"
-                  style="width: 256px"
-                  @click="onEncounterRowClick(attempt)"
-                >
-                  <img v-if="encounter.image" :src="encounter.image" />
+              <q-scroll-area
+                style="width: calc(100vw - 96px - 12px)"
+                :style="{ height: encounter.image ? '272px' : '96px' }"
+              >
+                <div class="row no-wrap">
+                  <q-card
+                    v-for="(attempt, index) in encounter.attempts"
+                    :key="attempt.filename"
+                    dark
+                    class="my-card q-mr-md"
+                    style="width: 256px"
+                    @click="onEncounterRowClick(attempt)"
+                  >
+                    <img v-if="encounter.image" :src="encounter.image" />
 
-                  <q-card-section>
-                    <div class="text-h6">Attempt {{ index + 1 }}</div>
-                    <div class="text-subtitle2">{{ attempt.duration }}</div>
-                  </q-card-section>
-                </q-card>
-              </div>
-            </q-scroll-area>
-          </q-timeline-entry>
-        </q-timeline>
+                    <q-card-section>
+                      <div class="text-h6">Attempt {{ index + 1 }}</div>
+                      <div class="text-subtitle2">{{ attempt.duration }}</div>
+                    </q-card-section>
+                  </q-card>
+                </div>
+              </q-scroll-area>
+            </q-timeline-entry>
+          </q-timeline>
+        </div>
       </div>
-    </div>
 
-    <div
-      v-if="
-        logViewerStore.viewerState === 'viewing-encounter' &&
-        logFile.viewingLogFile
-      "
-      class="logs-page"
-    >
-      <LogView ref="logView" :log-data="logFile.data" />
-    </div>
-  </q-page>
+      <div
+        v-if="
+          logViewerStore.viewerState === 'viewing-encounter' &&
+          logFile.viewingLogFile
+        "
+        class="logs-page"
+      >
+        <LogView ref="logView" :log-data="logFile.data" />
+      </div>
+    </q-page>
+  </q-scroll-area>
 </template>
 
 <script setup>
@@ -220,6 +225,12 @@ const settingsStore = useSettingsStore();
 const logViewerStore = useLogViewerStore();
 
 const loaderImg = new URL(`../assets/images/loader.gif`, import.meta.url).href;
+
+const scrollArea = ref(null);
+function changeLogViewerStoreState(newState) {
+  logViewerStore.viewerState = newState;
+  if (scrollArea.value) scrollArea.value.setScrollPosition("vertical", 0);
+}
 
 /* Start session table */
 const sessionColumns = [
@@ -258,7 +269,8 @@ function onSessionPagination(newPagination) {
 }
 
 function onSessionRowClick(event, row) {
-  logViewerStore.viewerState = "viewing-session";
+  changeLogViewerStoreState("viewing-session");
+
   logViewerStore.currentSessionName = row.filename;
 
   logViewerStore.encounterOptions = [];
@@ -343,8 +355,8 @@ function calculateEncounterRows() {
 const encounterRows = ref([]);
 
 function onEncounterRowClick(row) {
-  console.log(row);
-  logViewerStore.viewerState = "viewing-encounter";
+  changeLogViewerStoreState("viewing-encounter");
+
   logViewerStore.currentEncounterName = row.filename;
 
   window.messageApi.send("window-to-main", {

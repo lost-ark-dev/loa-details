@@ -1,22 +1,25 @@
 <template>
-  <q-tabs
-    v-model="tab"
-    inline-label
-    outside-arrows
-    mobile-arrows
-    class="settings-tabs text-white shadow-2"
-  >
-    <q-tab name="general" icon="display_settings" label="General" />
-    <q-tab name="damage_meter" icon="speed" label="Damage Meter" />
-    <!-- <q-tab name="upload_logs" icon="cloud_upload" label="Log Uploading" /> -->
-    <q-tab name="log" icon="article" label="Log " />
-  </q-tabs>
-  <div class="settings-page">
-    <GeneralPage v-if="tab === 'general'" />
-    <DamageMeterPage v-if="tab === 'damage_meter'" />
-    <UploadPage v-if="tab === 'upload_logs'" />
-    <LogPage v-if="tab === 'log'" />
-  </div>
+  <q-scroll-area style="height: calc(100vh - 4px - 32px - 66px)">
+    <q-tabs
+      v-model="tab"
+      inline-label
+      outside-arrows
+      mobile-arrows
+      class="settings-tabs text-white shadow-2"
+    >
+      <q-tab name="general" icon="display_settings" label="General" />
+      <q-tab name="damage_meter" icon="speed" label="Damage Meter" />
+      <!-- <q-tab name="upload_logs" icon="cloud_upload" label="Log Uploading" /> -->
+      <q-tab name="log" icon="article" label="Log " />
+    </q-tabs>
+
+    <div class="settings-page">
+      <GeneralPage v-if="tab === 'general'" />
+      <DamageMeterPage v-if="tab === 'damage_meter'" />
+      <UploadPage v-if="tab === 'upload_logs'" />
+      <LogPage v-if="tab === 'log'" />
+    </div>
+  </q-scroll-area>
 </template>
 
 <script setup>
