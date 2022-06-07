@@ -393,8 +393,6 @@ function calculateLogFileList(value) {
       totalDuration >=
       settingsStore.settings.logs.minimumSessionDurationInMinutes * 60 * 1000
     ) {
-      sessionEncounters = sessionEncounters.reverse();
-
       logViewerStore.sessions.push({
         filename: val.filename,
         date: val.date,
