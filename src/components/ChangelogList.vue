@@ -17,6 +17,18 @@ import { ref } from "vue";
 
 const changes = ref([
   {
+    version: "0.4.4",
+    mdFormattedLog: `
+    * Updated design of the entire app, mainly the main window design to look better.
+    * Updated log viewer to separately view each session. Now you can enter a session and see the encounters you had in that session.
+    * Added a encounter page. This window shows a timeline of the encounters you've had, with images and
+    descriptions ("Valtan Gate 1" etc...) for each encounter. It also groups consecutive attempts. For example if you've wiped on Valtan
+    Gate 1 for 3 times, you will see all of those 3 attempts next to each other instead of on an other row.
+    * Added a setting to filter out sessions based on it's length (0-10 minutes, default is 1 minute).
+    * Added a setting to filter out encounters based on it's length (0-3 minutes, default is 30 seconds).
+  `,
+  },
+  {
     version: "0.4.3",
     mdFormattedLog: `
     * Fixed a bug where gear score would dissapear after being displayed in certain dungeons.
