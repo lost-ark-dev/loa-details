@@ -7,7 +7,6 @@
       bordered
       :width="300"
       class="text-white"
-      @click.capture="drawerClick"
       :no-swipe-backdrop="true"
     >
       <q-scroll-area class="fit">
