@@ -45,20 +45,12 @@
     <div v-else class="logs-page">
       <div class="flex logs-top-bar">
         <q-btn
-          v-if="
-            logViewerStore.viewerState === 'viewing-session' ||
-            logViewerStore.viewerState === 'viewing-encounter'
-          "
+          v-if="logViewerStore.viewerState === 'viewing-encounter'"
           icon="arrow_back"
           unelevated
           color="primary"
           label="BACK"
-          @click="
-            logViewerStore.viewerState =
-              logViewerStore.viewerState === 'viewing-session'
-                ? 'none'
-                : 'viewing-session'
-          "
+          @click="logViewerStore.viewerState = 'viewing-session'"
         />
 
         <q-space />
@@ -86,7 +78,7 @@
           />
         </div>
 
-        <q-select
+        <!-- <q-select
           v-else-if="logViewerStore.viewerState === 'viewing-session'"
           filled
           v-model="logViewerStore.encounterFilter"
@@ -96,7 +88,7 @@
           :options="logViewerStore.encounterOptions"
           label="Filter encounters"
           style="width: 250px"
-        />
+        /> -->
 
         <q-btn-dropdown
           v-else-if="logViewerStore.viewerState === 'viewing-encounter'"
@@ -136,16 +128,60 @@
       </div>
 
       <div v-else-if="logViewerStore.viewerState === 'viewing-session'">
-        <q-table
-          title="Encounters"
-          :rows="encounterRows"
-          :columns="encounterColumns"
-          row-key="encounterName"
-          dark
-          @row-click="onEncounterRowClick"
-          :pagination="encounterPagination"
-          @update:pagination="onEncounterPagination"
-        />
+        <q-page-sticky
+          position="bottom-left"
+          :offset="[32, 32]"
+          style="z-index: 1000000"
+        >
+          <q-btn
+            fab
+            icon="arrow_back"
+            color="primary"
+            @click="logViewerStore.viewerState = 'none'"
+          />
+        </q-page-sticky>
+        <q-timeline dark color="secondary">
+          <q-timeline-entry
+            v-for="encounter in encounterRows"
+            :key="encounter.encounterName"
+            :title="
+              encounter.encounterName +
+              ' | ' +
+              encounter.attempts.length +
+              ' attempt(s)'
+            "
+            :subtitle="
+              millisToHourMinuteSeconds(encounter.startingMs) +
+              ' - ' +
+              millisToHourMinuteSeconds(
+                encounter.startingMs + encounter.duration
+              )
+            "
+          >
+            <q-scroll-area
+              style="width: calc(100vw - 96px - 12px)"
+              :style="{ height: encounter.image ? '256px' : '96px' }"
+            >
+              <div class="row no-wrap">
+                <q-card
+                  v-for="(attempt, index) in encounter.attempts"
+                  :key="attempt.filename"
+                  dark
+                  class="my-card q-mr-md"
+                  style="width: 256px"
+                  @click="onEncounterRowClick(attempt)"
+                >
+                  <img v-if="encounter.image" :src="encounter.image" />
+
+                  <q-card-section>
+                    <div class="text-h6">Attempt {{ index + 1 }}</div>
+                    <div class="text-subtitle2">{{ attempt.duration }}</div>
+                  </q-card-section>
+                </q-card>
+              </div>
+            </q-scroll-area>
+          </q-timeline-entry>
+        </q-timeline>
       </div>
     </div>
 
@@ -174,6 +210,8 @@ import LogView from "src/components/LogView.vue";
 import { useSettingsStore } from "src/stores/settings";
 import { useLogViewerStore } from "src/stores/log-viewer";
 import { sleep } from "src/util/sleep";
+
+import { encounters } from "src/constants/encounters";
 
 import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(relativeTime);
@@ -241,13 +279,47 @@ function calculateEncounterRows() {
 
   logViewerStore.sessions.forEach((session) => {
     if (session.filename === logViewerStore.currentSessionName) {
+      let startingMs = 0;
+
       session.sessionEncounters.forEach((encounter) => {
+        let encounterName = encounter.encounterName;
+        let image = "";
+
+        Object.values(encounters).forEach((encounter) => {
+          if (encounter.encounterNames.includes(encounterName)) {
+            encounterName = encounter.name;
+            image = encounter.image;
+            return;
+          }
+        });
+
         if (
+          rows.length > 0 &&
+          rows[rows.length - 1].encounterName === encounterName
+        ) {
+          rows[rows.length - 1].duration += encounter.durationTs;
+          rows[rows.length - 1].attempts.push(encounter);
+        } else {
+          rows.push({
+            encounterName,
+            image,
+            startingMs,
+            duration: encounter.durationTs,
+            attempts: [encounter],
+          });
+        }
+
+        startingMs += encounter.durationTs;
+        /* if (
           !logViewerStore.encounterFilter ||
-          logViewerStore.encounterFilter.includes(encounter.encounterName)
+          (logViewerStore.encounterFilter &&
+            Object.keys(logViewerStore.encounterFilter).length === 0) ||
+          (logViewerStore.encounterFilter &&
+            Object.keys(logViewerStore.encounterFilter).length > 0 &&
+            logViewerStore.encounterFilter.includes(encounter.encounterName))
         ) {
           rows.push(encounter);
-        }
+        } */
       });
 
       encounterRows.value = rows;
@@ -258,36 +330,10 @@ function calculateEncounterRows() {
 /* End session table */
 
 /* Start encounter table */
-const encounterColumns = [
-  {
-    name: "encounterName",
-    field: "encounterName",
-    align: "left",
-    label: "Encounter",
-    sortable: true,
-  },
-  {
-    name: "duration",
-    field: "duration",
-    align: "left",
-    label: "Duration",
-    sortable: true,
-  },
-];
 const encounterRows = ref([]);
 
-const encounterPagination = ref({
-  sortBy: "desc",
-  descending: false,
-  page: 1,
-  rowsPerPage: 5,
-});
-
-function onEncounterPagination(newPagination) {
-  encounterPagination.value = newPagination;
-}
-
-function onEncounterRowClick(event, row) {
+function onEncounterRowClick(row) {
+  console.log(row);
   logViewerStore.viewerState = "viewing-encounter";
   logViewerStore.currentEncounterName = row.filename;
 
