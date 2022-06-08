@@ -1,5 +1,5 @@
 <template>
-  <tr>
+  <tr v-if="Object.keys(player.skills).length > 1">
     <td class="td-class-img">
       <img :src="getClassImage(player.class)" />
     </td>
