@@ -57,6 +57,18 @@
             @click="changeLogViewerStoreState('viewing-session')"
           />
 
+          <q-select
+            v-else-if="logViewerStore.viewerState === 'viewing-session'"
+            filled
+            v-model="logViewerStore.encounterFilter"
+            @update:model-value="calculateEncounterRows()"
+            multiple
+            clearable
+            :options="logViewerStore.encounterOptions"
+            label="Filter encounters"
+            style="width: 256px"
+          />
+
           <q-space />
 
           <div v-if="logViewerStore.viewerState === 'none'">
@@ -81,18 +93,6 @@
               @click="getLogfiles"
             />
           </div>
-
-          <!-- <q-select
-          v-else-if="logViewerStore.viewerState === 'viewing-session'"
-          filled
-          v-model="logViewerStore.encounterFilter"
-          @update:model-value="calculateEncounterRows()"
-          multiple
-          clearable
-          :options="logViewerStore.encounterOptions"
-          label="Filter encounters"
-          style="width: 250px"
-        /> -->
 
           <q-btn-dropdown
             v-else-if="logViewerStore.viewerState === 'viewing-encounter'"
@@ -145,6 +145,13 @@
             />
           </q-page-sticky>
           <q-timeline dark color="secondary">
+            <q-timeline-entry
+              v-if="encounterRows.length === 0"
+              style="font-size: 24px; font-family: 'questrial'"
+            >
+              No encounter found based on filter and options.
+            </q-timeline-entry>
+
             <q-timeline-entry
               v-for="encounter in encounterRows"
               :key="encounter.encounterName"
@@ -277,9 +284,17 @@ function onSessionRowClick(event, row) {
   logViewerStore.encounterFilter = null;
 
   row.sessionEncounters.forEach((encounter) => {
+    let encounterName = encounter.encounterName;
+    Object.values(encounters).forEach((encounter) => {
+      if (encounter.encounterNames.includes(encounterName)) {
+        encounterName = encounter.name;
+        return;
+      }
+    });
+
     // Add encounter name to the encounter options list
-    if (!logViewerStore.encounterOptions.includes(encounter.encounterName)) {
-      logViewerStore.encounterOptions.push(encounter.encounterName);
+    if (!logViewerStore.encounterOptions.includes(encounterName)) {
+      logViewerStore.encounterOptions.push(encounterName);
     }
   });
 
@@ -315,6 +330,14 @@ function calculateEncounterRows() {
             return;
           }
         });
+
+        if (
+          logViewerStore.encounterFilter &&
+          Object.keys(logViewerStore.encounterFilter).length > 0 &&
+          !logViewerStore.encounterFilter.includes(encounterName) // not includes
+        ) {
+          return;
+        }
 
         if (
           rows.length > 0 &&
