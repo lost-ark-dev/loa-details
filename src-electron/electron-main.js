@@ -198,7 +198,10 @@ function startApplication() {
   damageMeterWindow = createDamageMeterWindow(logParser, appSettings);
 }
 
-let damageMeterWindowOldSize, damageMeterWindowOldMinimumSize;
+let damageMeterWindowOldSize,
+  damageMeterWindowOldPosition,
+  damageMeterWindowOldMinimumSize,
+  damageMeterPositionDifference;
 
 const ipcFunctions = {
   "reset-session": (event, arg) => {
@@ -260,15 +263,26 @@ const ipcFunctions = {
   "toggle-damage-meter-minimized-state": (event, arg) => {
     if (arg.value) {
       let newW = 160,
-        newY = 64;
+        newH = 64;
 
       damageMeterWindowOldSize = damageMeterWindow.getSize();
       damageMeterWindowOldMinimumSize = damageMeterWindow.getMinimumSize();
+      damageMeterWindowOldPosition = damageMeterWindow.getPosition();
 
-      damageMeterWindow.setMinimumSize(newW, newY);
-      damageMeterWindow.setSize(newW, newY);
+      damageMeterPositionDifference = [
+        damageMeterWindowOldPosition[0] + damageMeterWindowOldSize[0] - newW,
+        damageMeterWindowOldPosition[1] + damageMeterWindowOldSize[1] - newH,
+      ];
+
       damageMeterWindow.setResizable(false);
+      damageMeterWindow.setMinimumSize(newW, newH);
+      damageMeterWindow.setSize(newW, newH);
+      damageMeterWindow.setPosition(
+        damageMeterPositionDifference[0],
+        damageMeterPositionDifference[1]
+      );
     } else {
+      damageMeterWindow.setResizable(true);
       damageMeterWindow.setMinimumSize(
         damageMeterWindowOldMinimumSize[0],
         damageMeterWindowOldMinimumSize[1]
@@ -277,7 +291,10 @@ const ipcFunctions = {
         damageMeterWindowOldSize[0],
         damageMeterWindowOldSize[1]
       );
-      damageMeterWindow.setResizable(true);
+      damageMeterWindow.setPosition(
+        damageMeterWindowOldPosition[0],
+        damageMeterWindowOldPosition[1]
+      );
     }
   },
 };
