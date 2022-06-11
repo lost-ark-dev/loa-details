@@ -1,4 +1,4 @@
-<p>
+<p align="center">
   <img src="https://user-images.githubusercontent.com/29287377/170220154-a521b32b-6727-422b-bf69-01b4faaa31da.png" />
   
   <br />
@@ -17,6 +17,6 @@
   <img src="https://img.shields.io/github/license/karaeren/loa-details?style=flat-square" />
 </p>
 
-<p>Realtime Damage Meter tool for Lost Ark</p>
+<p align="center">Realtime Damage Meter tool for Lost Ark</p>
 
 ![small](https://user-images.githubusercontent.com/29287377/173195460-cf8da1b4-abfa-4ed3-8dec-648eb1ffaf87.png)
