@@ -17,6 +17,20 @@ import { ref } from "vue";
 
 const changes = ref([
   {
+    version: "0.4.6",
+    mdFormattedLog: `
+    * Hid players with 1 skill cast on the damage meter. This is due to some skill casts counting as a new players skill cast.
+    * Added a encounter filter to the encounter list.
+    * Damage meter window minimizes to its bottom right instead of its top left.
+    * Updated Lost Ark Logger and changed it's name. You have to give firewall rights again to use it.
+    * Added the ability to rename Lost Ark Logger file. You can now rename the binary file to what you like and that name will be used. Note that, you'll have to do firewall rights again for that file name.
+    * Starts the listener server on a random, free port instead of a hard-coded one.
+    * Pause on phase transition setting now shows why it's paused (wipe/boss kill etc).
+    * Added an option to reset the damage meter after a combat event happens following a phase transition event. Enabled by default.
+    Example: You wipe on Valtan, and re-enter. Once you or your allies attack, the meter will reset.
+  `,
+  },
+  {
     version: "0.4.4",
     mdFormattedLog: `
     * Updated design of the entire app, mainly the main window design to look better.
