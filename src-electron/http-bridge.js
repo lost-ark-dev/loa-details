@@ -2,6 +2,7 @@ import { app, dialog } from "electron";
 import { createServer } from "http";
 import { EventEmitter } from "events";
 import { spawn } from "child_process";
+import fs from "fs";
 import log from "electron-log";
 import path from "path";
 
@@ -62,19 +63,22 @@ function spawnPacketCapturer(appSettings) {
     args.push("--Region", "Korea");
 
   try {
+    let binaryFolder;
     if (process.env.DEBUGGING) {
-      packetCapturerProcess = spawn(
-        path.resolve(
-          __dirname,
-          "../../binary/10d02c85-9333-4329-98a1-7c5eab0afc5d.exe"
-        ),
-        args
-      );
+      binaryFolder = path.resolve(__dirname, "../../binary/");
     } else {
-      packetCapturerProcess = spawn(
-        "10d02c85-9333-4329-98a1-7c5eab0afc5d.exe",
-        args
-      );
+      binaryFolder = path.resolve("./binary/");
+    }
+
+    const binaryFiles = fs.readdirSync(binaryFolder);
+    for (const binaryFile of binaryFiles) {
+      if (binaryFile.endsWith(".exe")) {
+        packetCapturerProcess = spawn(
+          path.resolve(binaryFolder, binaryFile),
+          args
+        );
+        break;
+      }
     }
 
     log.info("Started Logger!");

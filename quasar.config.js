@@ -198,12 +198,7 @@ module.exports = configure(function (/* ctx */) {
           target: "nsis",
           requestedExecutionLevel: "requireAdministrator",
         },
-        extraFiles: [
-          {
-            from: "binary/10d02c85-9333-4329-98a1-7c5eab0afc5d.exe",
-            to: "10d02c85-9333-4329-98a1-7c5eab0afc5d.exe",
-          },
-        ],
+        extraFiles: ["binary/*.exe"],
         publish: [
           {
             provider: "github",
