@@ -19,6 +19,7 @@ const changes = ref([
   {
     version: "0.4.6",
     mdFormattedLog: `
+    * Added support for Korean client.
     * Hid players with 1 skill cast on the damage meter. This is due to some skill casts counting as a new players skill cast.
     * Added a encounter filter to the encounter list.
     * Damage meter window minimizes to its bottom right instead of its top left.
