@@ -8,14 +8,10 @@ import path from "path";
 
 export const httpServerEventEmitter = new EventEmitter();
 
-const options = {
-  port: 13345,
-};
-
 let httpServer;
 let packetCapturerProcess;
 
-const validHosts = ["127.0.0.1:13345", "localhost:13345"];
+const validHosts = [];
 function checkHost(requestHost) {
   if (!requestHost) return false;
   return validHosts.includes(requestHost);
@@ -46,14 +42,21 @@ export function setupBridge(appSettings) {
         res.end("Ok!");
       });
     }
-  }).listen(options.port, "localhost", () => {
+  });
+
+  httpServer.listen(0, "localhost", () => {
+    log.info(`Server listening on port ${httpServer.address().port}`);
+    validHosts.push(
+      `localhost:${httpServer.address().port}`,
+      `127.0.0.1:${httpServer.address().port}`
+    );
     httpServerEventEmitter.emit("listen");
-    spawnPacketCapturer(appSettings);
+    spawnPacketCapturer(appSettings, httpServer.address().port);
   });
 }
 
-function spawnPacketCapturer(appSettings) {
-  const args = [];
+function spawnPacketCapturer(appSettings, serverPort) {
+  const args = ["--Port", serverPort];
 
   if (appSettings?.general?.useWinpcap) args.push("--UseNpcap");
 
