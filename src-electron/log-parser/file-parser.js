@@ -10,7 +10,7 @@ const path = require("path");
 const customParseFormat = require("dayjs/plugin/customParseFormat");
 dayjs.extend(customParseFormat);
 
-const logParserVersion = 4;
+const logParserVersion = 5;
 
 export async function parseLogs(event, splitOnPhaseTransition) {
   const unparsedLogs = await fsPromises.readdir(mainFolder);

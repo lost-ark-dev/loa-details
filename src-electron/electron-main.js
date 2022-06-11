@@ -64,8 +64,8 @@ let appSettings = getSettings();
 logParser.dontResetOnZoneChange =
   appSettings?.damageMeter?.functionality?.dontResetOnZoneChange;
 
-logParser.pauseOnPhaseTransition =
-  appSettings?.damageMeter?.functionality?.pauseOnPhaseTransition;
+logParser.resetAfterPhaseTransition =
+  appSettings?.damageMeter?.functionality?.resetAfterPhaseTransition;
 
 logParser.removeOverkillDamage =
   appSettings?.damageMeter?.functionality?.removeOverkillDamage;
@@ -225,8 +225,8 @@ const ipcFunctions = {
     logParser.removeOverkillDamage =
       appSettings.damageMeter.functionality.removeOverkillDamage;
 
-    logParser.pauseOnPhaseTransition =
-      appSettings.damageMeter.functionality.pauseOnPhaseTransition;
+    logParser.resetAfterPhaseTransition =
+      appSettings?.damageMeter?.functionality?.resetAfterPhaseTransition;
 
     damageMeterWindow.setOpacity(appSettings.damageMeter.design.opacity);
   },

@@ -44,7 +44,9 @@ export class LogParser {
     this.isLive = isLive;
     this.resetTimer = null;
     this.dontResetOnZoneChange = false;
-    this.pauseOnPhaseTransition = false;
+    this.resetAfterPhaseTransition = false;
+    this.phaseTransitionResetRequest = false;
+    this.phaseTransitionResetRequestTime = 0;
     this.splitOnPhaseTransition = false;
     this.removeOverkillDamage = true;
     this.resetState();
@@ -212,14 +214,23 @@ export class LogParser {
 
   // logId = 2
   onPhaseTransition(lineSplit) {
-    log.debug("onPhaseTransition");
-    // Temporary until packet for each type of raid end is sent
-    if (this.isLive && this.pauseOnPhaseTransition)
-      this.eventEmitter.emit("message", "raid-end");
+    const logLine = new LogLines.LogPhaseTransition(lineSplit);
+    log.debug(`onPhaseTransition: ${logLine.phaseCode}`);
+
+    if (this.isLive) {
+      this.eventEmitter.emit(
+        "message",
+        `phase-transition-${logLine.phaseCode}`
+      );
+
+      if (this.resetAfterPhaseTransition) {
+        this.phaseTransitionResetRequest = true;
+        this.phaseTransitionResetRequestTime = +new Date();
+      }
+    }
 
     if (!this.isLive && this.splitOnPhaseTransition) {
       this.splitEncounter();
-      this.eventEmitter.emit("message", "raid-end");
     }
   }
 
@@ -279,6 +290,15 @@ export class LogParser {
     log.debug(
       `onDamage: ${logLine.id}, ${logLine.name}, ${logLine.skillId}, ${logLine.skillName}, ${logLine.skillEffectId}, ${logLine.skillEffect}, ${logLine.targetId}, ${logLine.targetName}, ${logLine.damage}, ${logLine.currentHp}, ${logLine.maxHp}`
     );
+
+    if (
+      this.phaseTransitionResetRequest &&
+      this.phaseTransitionResetRequestTime > 0 &&
+      this.phaseTransitionResetRequestTime < +new Date() - 1500
+    ) {
+      this.softReset();
+      this.phaseTransitionResetRequest = false;
+    }
 
     this.updateEntity(logLine.name, {
       name: logLine.name,

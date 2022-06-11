@@ -47,6 +47,32 @@
       <q-item-section side top>
         <q-checkbox
           v-model="
+            settingsStore.settings.damageMeter.functionality
+              .resetAfterPhaseTransition
+          "
+        />
+      </q-item-section>
+
+      <q-item-section>
+        <q-item-label>
+          Reset meter after raid wipes or phase transitions when new combat is
+          detected
+        </q-item-label>
+        <q-item-label caption>
+          If enabled, it will reset the current session after a combat event
+          happens following a phase transition event (boss dies, raid wipes,
+          etc).
+          <br />
+          Example: You wipe on Valtan, and re-enter. Once you or your allies
+          attack, the meter will reset.
+        </q-item-label>
+      </q-item-section>
+    </q-item>
+
+    <q-item tag="label">
+      <q-item-section side top>
+        <q-checkbox
+          v-model="
             settingsStore.settings.damageMeter.functionality.autoMinimize
           "
         />

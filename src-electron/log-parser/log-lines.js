@@ -19,7 +19,8 @@ export class LogInitEnv {
 // logId = 2
 export class LogPhaseTransition {
   constructor(lineSplit) {
-    // TODO:
+    this.timestamp = new Date(lineSplit[1]);
+    this.phaseCode = tryParseInt(lineSplit[2]);
   }
 }
 

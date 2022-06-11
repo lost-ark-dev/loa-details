@@ -359,13 +359,37 @@ onMounted(() => {
           ],
         });
       }
-    } else if (value === "raid-end") {
-      if (!isFightPaused.value) toggleFightPause();
-      if (!isMinimized.value) {
-        Notify.create({
-          message: "Encounter ended, paused the session.",
-          color: "primary",
-        });
+    } else if (value.startsWith("phase-transition")) {
+      // phase-transition-0: raid over
+      // phase-transition-1: boss dead, includes argos phases
+      // phase-transition-2: wipe
+
+      if (
+        value === "phase-transition-0" ||
+        value === "phase-transition-1" ||
+        value === "phase-transition-2"
+      ) {
+        if (
+          settingsStore.settings.damageMeter.functionality
+            .pauseOnPhaseTransition &&
+          !isFightPaused.value
+        ) {
+          toggleFightPause();
+
+          let pauseReason = "Raid Over";
+          if (value === "phase-transition-1") {
+            pauseReason = "Boss Dead";
+          } else if (value === "phase-transition-2") {
+            pauseReason = "Wipe/Phase Clear";
+          }
+
+          if (!isMinimized.value) {
+            Notify.create({
+              message: `Paused the session (${pauseReason}).`,
+              color: "primary",
+            });
+          }
+        }
       }
     } else if (typeof value === "object" && value.name === "session-upload") {
       if (value.failed) {

@@ -29,7 +29,8 @@ export const useSettingsStore = defineStore("settings", {
         functionality: {
           dontResetOnZoneChange: false,
           removeOverkillDamage: true,
-          pauseOnPhaseTransition: false,
+          pauseOnPhaseTransition: true,
+          resetAfterPhaseTransition: true,
           autoMinimize: false,
           autoMinimizeTimer: 60,
           nameDisplay: "name+class",
