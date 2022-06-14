@@ -23,6 +23,9 @@ const changes = ref([
     * Added "Class + gear score" name display option.
     * Added "Hits per Minute" column to skill breakdown (enabled by default).
     * Added an option to minimize damage meter into the taskbar instead of "minimizing" into it's small box state (disabled by default).
+    * Added shield tab. This is still in testing stage and probably buggy.
+    * Added healing tab. Origin of heals are ESTIMATED so it's not 100% accurate.
+    * Updated duration display to be more accurate. The problem where it starts at 30:00 should be fixed now.
   `,
   },
   {
