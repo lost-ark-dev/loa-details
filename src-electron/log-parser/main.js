@@ -39,6 +39,18 @@ const skillTemplate = {
   },
 };
 
+const healingSkills = {
+  "Serenade of Salvation": {
+    duration: 8 * 1000, // technically 14/18/24 seconds but we'll use 8 seconds
+  },
+  "Holy Aura": {
+    duration: 14 * 1000,
+  },
+  "Holy Protection": {
+    duration: 7 * 1000,
+  },
+};
+
 export class LogParser {
   constructor(isLive = false) {
     this.eventEmitter = new EventEmitter();
@@ -78,6 +90,8 @@ export class LogParser {
         topShieldDone: 0,
       },
     };
+
+    this.healSources = [];
 
     this.eventEmitter.emit("reset-state");
   }
@@ -282,6 +296,13 @@ export class LogParser {
     log.debug(
       `onSkillStart: ${logLine.id}, ${logLine.name}, ${logLine.skillId}, ${logLine.skillName}`
     );
+
+    if (Object.keys(healingSkills).includes(logLine.skillName)) {
+      this.healSources.push({
+        source: logLine.name,
+        expires: +logLine.timestamp + healingSkills[logLine.skillName].duration,
+      });
+    }
   }
 
   // logId = 7
@@ -403,17 +424,26 @@ export class LogParser {
     const logLine = new LogLines.LogHeal(lineSplit);
     log.debug(`onHeal: ${logLine.id}, ${logLine.name}, ${logLine.healAmount}`);
 
-    this.updateEntity(logLine.name, {
-      name: logLine.name,
+    let sourceName = "";
+    for (const source of this.healSources) {
+      if (source.expires >= +logLine.timestamp) {
+        sourceName = source.source;
+        break;
+      }
+    }
+    if (!sourceName) return;
+
+    this.updateEntity(sourceName, {
+      name: sourceName,
     });
 
-    this.game.entities[logLine.name].healingDone += logLine.healAmount;
+    this.game.entities[sourceName].healingDone += logLine.healAmount;
 
-    if (this.game.entities[logLine.name].isPlayer) {
+    if (this.game.entities[sourceName].isPlayer) {
       this.game.damageStatistics.totalHealingDone += logLine.healAmount;
       this.game.damageStatistics.topHealingDone = Math.max(
         this.game.damageStatistics.topHealingDone,
-        this.game.entities[logLine.name].healingDone
+        this.game.entities[sourceName].healingDone
       );
     }
   }
