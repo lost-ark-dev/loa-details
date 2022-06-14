@@ -154,6 +154,12 @@
           >
             TotalHits
           </th>
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.hpm.enabled"
+            style="width: 52px"
+          >
+            Hits/m
+          </th>
         </tr>
       </thead>
       <tbody

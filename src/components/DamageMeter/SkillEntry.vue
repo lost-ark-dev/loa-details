@@ -85,6 +85,15 @@
     >
       {{ skill.hits.total }}
     </td>
+    <td
+      v-if="settingsStore.settings.damageMeter.tabs.hpm.enabled"
+      class="text-center"
+    >
+      {{ HPM[0] }}
+      <span class="ex">
+        {{ HPM[1] }}
+      </span>
+    </td>
     <div
       class="player-bar"
       :style="`
@@ -116,6 +125,12 @@ const abbreviatedDamage = computed(() => {
 const DPS = computed(() => {
   return abbreviateNumber(
     (props.skill.totalDamage / (props.fightDuration / 1000)).toFixed(0)
+  );
+});
+
+const HPM = computed(() => {
+  return abbreviateNumber(
+    (props.skill.hits.total / (props.fightDuration / 1000 / 60)).toFixed(0)
   );
 });
 

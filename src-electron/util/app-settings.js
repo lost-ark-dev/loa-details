@@ -124,6 +124,10 @@ const defaultSettings = {
         name: "Skill View / Total Hits",
         enabled: true,
       },
+      hpm: {
+        name: "Skill View / Hits per Minute",
+        enabled: true,
+      },
     },
     classes: {},
   },
