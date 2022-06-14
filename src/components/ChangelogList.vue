@@ -20,6 +20,7 @@ const changes = ref([
     version: "0.4.8",
     mdFormattedLog: `
     * Fixed a bug where damage meter would display a blank screen after resetting a session while viewing skill breakdown.
+    * Added "Class + gear score" name display option.
   `,
   },
   {

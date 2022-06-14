@@ -339,6 +339,10 @@ const nameDisplayOptions = ref([
     value: "name+gear",
   },
   {
+    label: "Class + gear score, e.g. 'Bard 1580'",
+    value: "class+gear",
+  },
+  {
     label: "Name, e.g. 'Eren'",
     value: "name",
   },
