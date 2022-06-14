@@ -156,7 +156,12 @@
           </th>
         </tr>
       </thead>
-      <tbody v-if="focusedPlayer === '#' && sortedEntities">
+      <tbody
+        v-if="
+          (focusedPlayer === '#' && sortedEntities) ||
+          (focusedPlayer !== '#' && sortedSkills.length === 0)
+        "
+      >
         <TableEntry
           v-for="player in sortedEntities"
           :key="player.id"
@@ -167,7 +172,11 @@
           @click="focusPlayer(player)"
         />
       </tbody>
-      <tbody v-else-if="focusedPlayer !== '#' && sortedSkills">
+      <tbody
+        v-else-if="
+          focusedPlayer !== '#' && sortedSkills && sortedSkills.length > 0
+        "
+      >
         <SkillEntry
           v-for="skill in sortedSkills"
           :key="skill.name"
