@@ -44,7 +44,7 @@ const healingSkills = {
     duration: 8 * 1000, // technically 14/18/24 seconds but we'll use 8 seconds
   },
   "Holy Aura": {
-    duration: 14 * 1000,
+    duration: 16 * 1000,
   },
   "Holy Protection": {
     duration: 7 * 1000,
