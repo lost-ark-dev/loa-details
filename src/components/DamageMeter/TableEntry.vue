@@ -26,6 +26,8 @@
           ? player.tankPercentageTotal
           : damageType === "heal"
           ? player.healPercentageTotal
+          : damageType === "shield"
+          ? player.shieldPercentageTotal
           : 0
       }}
       <span class="ex">%</span>
@@ -76,6 +78,8 @@
                   ? player.tankPercentageTop
                   : damageType === 'heal'
                   ? player.healPercentageTop
+                  : damageType === 'shield'
+                  ? player.shieldPercentageTop
                   : 0
               }%;
               background:${settingsStore.getClassColor(player.class)};
@@ -141,21 +145,19 @@ const entryName = computed(() => {
 });
 
 const abbreviatedDamage = computed(() => {
-  return abbreviateNumber(
-    props.damageType === "dmg"
-      ? props.player.damageDealt
-      : props.damageType === "tank"
-      ? props.player.damageTaken
-      : props.damageType === "heal"
-      ? props.player.healingDone
-      : 0
-  );
+  let damage = props.player.damageDealt;
+  if (props.damageType === "tank") damage = props.player.damageTaken;
+  else if (props.damageType === "heal") damage = props.player.healingDone;
+  else if (props.damageType === "shield") damage = props.player.shieldDone;
+
+  return abbreviateNumber(damage);
 });
 
 const DPS = computed(() => {
   let a = props.player.damageDealt;
   if (props.damageType === "tank") a = props.player.damageTaken;
   else if (props.damageType === "heal") a = props.player.healingDone;
+  else if (props.damageType === "shield") a = props.player.shieldDone;
 
   return abbreviateNumber((a / (props.fightDuration / 1000)).toFixed(0));
 });

@@ -14,6 +14,7 @@ const entityTemplate = {
   damageDealt: 0,
   damageTaken: 0,
   healingDone: 0,
+  shieldDone: 0,
   skills: {},
   currentHp: 0,
   maxHp: 0,
@@ -73,6 +74,8 @@ export class LogParser {
         topDamageTaken: 0,
         totalHealingDone: 0,
         topHealingDone: 0,
+        totalShieldDone: 0,
+        topShieldDone: 0,
       },
     };
 
@@ -141,24 +144,24 @@ export class LogParser {
         case 4:
           this.onNewNpc(lineSplit);
           break;
-        /* case 5:
+        case 5:
           this.onDeath(lineSplit);
-          break; */
-        /* case 6:
+          break;
+        case 6:
           this.onSkillStart(lineSplit);
           break;
         case 7:
           this.onSkillStage(lineSplit);
-          break; */
+          break;
         case 8:
           this.onDamage(lineSplit);
           break;
         case 9:
           this.onHeal(lineSplit);
           break;
-        /* case 10:
+        case 10:
           this.onBuff(lineSplit);
-          break; */
+          break;
         case 11:
           this.onCounterattack(lineSplit);
           break;
@@ -267,20 +270,27 @@ export class LogParser {
     });
   }
 
-  /* // logId = 5
+  // logId = 5
   onDeath(lineSplit) {
-    // TODO:
-  } */
+    const logLine = new LogLines.LogDeath(lineSplit);
+    log.debug(`onDeath: ${logLine.name} ${logLine.killerName}`);
+  }
 
-  /* // logId = 6
+  // logId = 6
   onSkillStart(lineSplit) {
-    // TODO:
+    const logLine = new LogLines.LogSkillStart(lineSplit);
+    log.debug(
+      `onSkillStart: ${logLine.id}, ${logLine.name}, ${logLine.skillId}, ${logLine.skillName}`
+    );
   }
 
   // logId = 7
   onSkillStage(lineSplit) {
-    // TODO:
-  } */
+    const logLine = new LogLines.LogSkillStage(lineSplit);
+    log.debug(
+      `onSkillStage: ${logLine.name}, ${logLine.skillId}, ${logLine.skillName}, ${logLine.stage}`
+    );
+  }
 
   // logId = 8
   onDamage(lineSplit) {
@@ -408,10 +418,29 @@ export class LogParser {
     }
   }
 
-  /* // logId = 10
+  // logId = 10
   onBuff(lineSplit) {
-    // TODO:
-  } */
+    const logLine = new LogLines.LogBuff(lineSplit);
+    log.debug(
+      `onBuff: ${logLine.id}, ${logLine.name}, ${logLine.buffId}, ${logLine.buffName}, ${logLine.sourceId}, ${logLine.sourceName}, ${logLine.shieldAmount}`
+    );
+
+    if (logLine.shieldAmount && logLine.isNew) {
+      this.updateEntity(logLine.name, {
+        name: logLine.name,
+      });
+
+      this.game.entities[logLine.name].shieldDone += logLine.shieldAmount;
+
+      if (this.game.entities[logLine.name].isPlayer) {
+        this.game.damageStatistics.totalShieldDone += logLine.shieldAmount;
+        this.game.damageStatistics.topShieldDone = Math.max(
+          this.game.damageStatistics.topShieldDone,
+          this.game.entities[logLine.name].shieldDone
+        );
+      }
+    }
+  }
 
   // logId = 11
   onCounterattack(lineSplit) {

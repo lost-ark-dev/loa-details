@@ -35,7 +35,8 @@
     <div v-if="!isTakingScreenshot">
       <q-btn flat size="sm" @click="damageType = 'dmg'"> DMG </q-btn>
       <q-btn flat size="sm" @click="damageType = 'tank'"> TANK </q-btn>
-      <!-- <q-btn flat size="sm" @click="damageType = 'heal'"> HEAL </q-btn> -->
+      <q-btn flat size="sm" @click="damageType = 'heal'"> HEAL </q-btn>
+      <q-btn flat size="sm" @click="damageType = 'shield'"> SHIELD </q-btn>
     </div>
 
     <DamageMeterTable

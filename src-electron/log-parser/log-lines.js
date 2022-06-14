@@ -54,21 +54,34 @@ export class LogNewNpc {
 // logId = 5
 export class LogDeath {
   constructor(lineSplit) {
-    // TODO:
+    this.timestamp = new Date(lineSplit[1]);
+    this.id = lineSplit[2];
+    this.name = lineSplit[3] || "Unknown Entity";
+    this.killerId = lineSplit[4];
+    this.killerName = lineSplit[5] || "Unknown Entity";
   }
 }
 
 // logId = 6
 export class LogSkillStart {
   constructor(lineSplit) {
-    // TODO:
+    this.timestamp = new Date(lineSplit[1]);
+    this.id = lineSplit[2];
+    this.name = lineSplit[3] || "Unknown Entity";
+    this.skillId = lineSplit[4];
+    this.skillName = lineSplit[5] || "Unknown Skill";
   }
 }
 
 // logId = 7
 export class LogSkillStage {
   constructor(lineSplit) {
-    // TODO:
+    this.timestamp = new Date(lineSplit[1]);
+    this.id = lineSplit[2];
+    this.name = lineSplit[3] || "Unknown Entity";
+    this.skillId = lineSplit[4];
+    this.skillName = lineSplit[5] || "Unknown Skill";
+    this.skillStage = lineSplit[6];
   }
 }
 
@@ -108,7 +121,15 @@ export class LogHeal {
 // logId = 10
 export class LogBuff {
   constructor(lineSplit) {
-    // TODO:
+    this.timestamp = new Date(lineSplit[1]);
+    this.id = lineSplit[2];
+    this.name = lineSplit[3] || "Unknown Entity";
+    this.buffId = lineSplit[4];
+    this.buffName = lineSplit[5];
+    this.isNew = lineSplit[6] == 1;
+    this.sourceId = lineSplit[7];
+    this.sourceName = lineSplit[8] || "Unknown Entity";
+    this.shieldAmount = tryParseInt(lineSplit[9]);
   }
 }
 

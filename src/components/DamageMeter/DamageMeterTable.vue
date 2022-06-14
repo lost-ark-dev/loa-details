@@ -41,6 +41,8 @@
                 ? "Tanked"
                 : damageType === "heal"
                 ? "Healed"
+                : damageType === "shield"
+                ? "Shielded"
                 : ""
             }}
           </th>
@@ -55,6 +57,8 @@
                 ? "T"
                 : damageType === "heal"
                 ? "H"
+                : damageType === "shield"
+                ? "S"
                 : ""
             }}%
           </th>
@@ -69,6 +73,8 @@
                 ? "TPS"
                 : damageType === "heal"
                 ? "HPS"
+                : damageType === "shield"
+                ? "SPS"
                 : ""
             }}
           </th>
@@ -255,30 +261,33 @@ function sortEntities() {
 
   entitiesCopy.value = cloneDeep(Object.values(props.sessionState.entities));
   const res = entitiesCopy.value
-    .filter(
-      (entity) =>
-        entity.isPlayer &&
-        (props.damageType === "dmg"
-          ? entity.damageDealt > 0
-          : props.damageType === "tank"
-          ? entity.damageTaken > 0
-          : props.damageType === "heal"
-          ? entity.healingDone > 0
-          : 0)
-    )
+    .filter((entity) => {
+      if (!entity.isPlayer) return false;
+
+      if (props.damageType === "dmg" && entity.damageDealt > 0) return true;
+      else if (props.damageType === "tank" && entity.damageTaken > 0)
+        return true;
+      else if (props.damageType === "heal" && entity.healingDone > 0)
+        return true;
+      else if (props.damageType === "shield" && entity.shieldDone > 0)
+        return true;
+
+      return false;
+    })
     .sort((a, b) => {
       if (settingsStore.settings.damageMeter.design.pinUserToTop) {
         if (a.name === "You") return -1e69;
         else if (b.name === "You") return 1e69; // nice
       }
 
-      return props.damageType === "dmg"
-        ? b.damageDealt - a.damageDealt
-        : props.damageType === "tank"
-        ? b.damageTaken - a.damageTaken
-        : props.damageType === "heal"
-        ? b.healingDone - a.healingDone
-        : 0;
+      if (props.damageType === "dmg") return b.damageDealt - a.damageDealt;
+      else if (props.damageType === "tank")
+        return b.damageTaken - a.damageTaken;
+      else if (props.damageType === "heal")
+        return b.healingDone - a.healingDone;
+      else if (props.damageType === "shield")
+        return b.shieldDone - a.shieldDone;
+      else return 0;
     });
 
   for (const entity of res) {
@@ -290,6 +299,9 @@ function sortEntities() {
 
     entity.healPercentageTotal = getPercentage(entity, "heal", "total");
     entity.healPercentageTop = getPercentage(entity, "heal", "top");
+
+    entity.shieldPercentageTotal = getPercentage(entity, "shield", "total");
+    entity.shieldPercentageTop = getPercentage(entity, "shield", "top");
   }
 
   sortedEntities.value = res;
@@ -327,6 +339,7 @@ function getPercentage(player, dmgType, relativeTo) {
   let a = player.damageDealt;
   if (dmgType === "tank") a = player.damageTaken;
   else if (dmgType === "heal") a = player.healingDone;
+  else if (dmgType === "shield") a = player.shieldDone;
 
   let b;
   if (dmgType === "dmg") {
@@ -341,6 +354,10 @@ function getPercentage(player, dmgType, relativeTo) {
     if (relativeTo === "top")
       b = props.sessionState.damageStatistics.topHealingDone;
     else b = props.sessionState.damageStatistics.totalHealingDone;
+  } else if (dmgType === "shield") {
+    if (relativeTo === "top")
+      b = props.sessionState.damageStatistics.topShieldDone;
+    else b = props.sessionState.damageStatistics.totalShieldDone;
   }
 
   return ((a / b) * 100).toFixed(1);
