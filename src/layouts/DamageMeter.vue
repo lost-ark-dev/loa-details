@@ -158,8 +158,12 @@
         <q-btn flat size="sm" @click="damageType = 'tank'" label="TANK">
           <q-tooltip> Show damage taken </q-tooltip>
         </q-btn>
-        <q-btn flat size="sm" @click="damageType = 'heal'"> HEAL </q-btn>
-        <q-btn flat size="sm" @click="damageType = 'shield'"> SHIELD </q-btn>
+        <q-btn flat size="sm" @click="damageType = 'heal'" label="HEAL">
+          <q-tooltip> Show healing done </q-tooltip>
+        </q-btn>
+        <q-btn flat size="sm" @click="damageType = 'shield'" label="SHIELD">
+          <q-tooltip> Show shield done </q-tooltip>
+        </q-btn>
       </div>
 
       <div style="margin-left: auto">
