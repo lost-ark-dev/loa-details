@@ -261,40 +261,45 @@ const ipcFunctions = {
     await saveScreenshot(arg.value);
   },
   "toggle-damage-meter-minimized-state": (event, arg) => {
-    if (arg.value) {
-      let newW = 160,
-        newH = 64;
-
-      damageMeterWindowOldSize = damageMeterWindow.getSize();
-      damageMeterWindowOldMinimumSize = damageMeterWindow.getMinimumSize();
-      damageMeterWindowOldPosition = damageMeterWindow.getPosition();
-
-      damageMeterPositionDifference = [
-        damageMeterWindowOldPosition[0] + damageMeterWindowOldSize[0] - newW,
-        damageMeterWindowOldPosition[1] + damageMeterWindowOldSize[1] - newH,
-      ];
-
-      damageMeterWindow.setResizable(false);
-      damageMeterWindow.setMinimumSize(newW, newH);
-      damageMeterWindow.setSize(newW, newH);
-      damageMeterWindow.setPosition(
-        damageMeterPositionDifference[0],
-        damageMeterPositionDifference[1]
-      );
+    if (appSettings.damageMeter.functionality.minimizeToTaskbar) {
+      if (arg.value) damageMeterWindow.minimize();
+      else damageMeterWindow.restore();
     } else {
-      damageMeterWindow.setResizable(true);
-      damageMeterWindow.setMinimumSize(
-        damageMeterWindowOldMinimumSize[0],
-        damageMeterWindowOldMinimumSize[1]
-      );
-      damageMeterWindow.setSize(
-        damageMeterWindowOldSize[0],
-        damageMeterWindowOldSize[1]
-      );
-      damageMeterWindow.setPosition(
-        damageMeterWindowOldPosition[0],
-        damageMeterWindowOldPosition[1]
-      );
+      if (arg.value) {
+        let newW = 160,
+          newH = 64;
+
+        damageMeterWindowOldSize = damageMeterWindow.getSize();
+        damageMeterWindowOldMinimumSize = damageMeterWindow.getMinimumSize();
+        damageMeterWindowOldPosition = damageMeterWindow.getPosition();
+
+        damageMeterPositionDifference = [
+          damageMeterWindowOldPosition[0] + damageMeterWindowOldSize[0] - newW,
+          damageMeterWindowOldPosition[1] + damageMeterWindowOldSize[1] - newH,
+        ];
+
+        damageMeterWindow.setResizable(false);
+        damageMeterWindow.setMinimumSize(newW, newH);
+        damageMeterWindow.setSize(newW, newH);
+        damageMeterWindow.setPosition(
+          damageMeterPositionDifference[0],
+          damageMeterPositionDifference[1]
+        );
+      } else {
+        damageMeterWindow.setResizable(true);
+        damageMeterWindow.setMinimumSize(
+          damageMeterWindowOldMinimumSize[0],
+          damageMeterWindowOldMinimumSize[1]
+        );
+        damageMeterWindow.setSize(
+          damageMeterWindowOldSize[0],
+          damageMeterWindowOldSize[1]
+        );
+        damageMeterWindow.setPosition(
+          damageMeterWindowOldPosition[0],
+          damageMeterWindowOldPosition[1]
+        );
+      }
     }
   },
 };

@@ -61,6 +61,7 @@ const defaultSettings = {
       resetAfterPhaseTransition: true,
       autoMinimize: false,
       autoMinimizeTimer: 60,
+      minimizeToTaskbar: false,
       nameDisplay: "name+class",
       nameDisplayV2: "name+gear+class",
     },

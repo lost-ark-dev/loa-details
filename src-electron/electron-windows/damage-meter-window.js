@@ -78,5 +78,9 @@ export function createDamageMeterWindow(logParser, appSettings) {
     app.quit();
   });
 
+  damageMeterWindow.on("restore", () => {
+    damageMeterWindow.webContents.send("on-restore-from-taskbar", true);
+  });
+
   return damageMeterWindow;
 }

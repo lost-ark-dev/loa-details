@@ -19,6 +19,7 @@ contextBridge.exposeInMainWorld("messageApi", {
       "parsed-logs-list",
       "parsed-log",
       "log-parser-status",
+      "on-restore-from-taskbar",
     ];
 
     if (validChannels.includes(channel)) {

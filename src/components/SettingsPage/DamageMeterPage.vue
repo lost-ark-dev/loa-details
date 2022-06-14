@@ -79,7 +79,7 @@
       </q-item-section>
 
       <q-item-section>
-        <q-item-label>Auto Minimize</q-item-label>
+        <q-item-label>Auto minimize</q-item-label>
         <q-item-label caption>
           Minimizes the damage meter after
           {{
@@ -87,6 +87,24 @@
           }}
           seconds of inactivitiy and will go back to it's non minimized state on
           combat.
+        </q-item-label>
+      </q-item-section>
+    </q-item>
+
+    <q-item tag="label">
+      <q-item-section side top>
+        <q-checkbox
+          v-model="
+            settingsStore.settings.damageMeter.functionality.minimizeToTaskbar
+          "
+        />
+      </q-item-section>
+
+      <q-item-section>
+        <q-item-label>Minimize to taskbar</q-item-label>
+        <q-item-label caption>
+          Instead of "minimizing" the damage meter into a small box, minimize it
+          into a taskbar making it completely invisible.
         </q-item-label>
       </q-item-section>
     </q-item>

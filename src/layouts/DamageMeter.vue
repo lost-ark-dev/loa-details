@@ -410,6 +410,10 @@ onMounted(() => {
     }
   });
 
+  window.messageApi.receive("on-restore-from-taskbar", (value) => {
+    if (value) isMinimized.value = false;
+  });
+
   setInterval(() => {
     if (Object.keys(sessionState.value).length <= 0) return;
 

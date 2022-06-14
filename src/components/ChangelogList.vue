@@ -22,6 +22,7 @@ const changes = ref([
     * Fixed a bug where damage meter would display a blank screen after resetting a session while viewing skill breakdown.
     * Added "Class + gear score" name display option.
     * Added "Hits per Minute" column to skill breakdown (enabled by default).
+    * Added an option to minimize damage meter into the taskbar instead of "minimizing" into it's small box state (disabled by default).
   `,
   },
   {
