@@ -49,6 +49,9 @@ const healingSkills = {
   "Holy Protection": {
     duration: 7 * 1000,
   },
+  Demonize: {
+    duration: 1.5 * 1000,
+  },
 };
 
 export class LogParser {
