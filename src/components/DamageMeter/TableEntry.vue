@@ -42,28 +42,40 @@
       </span>
     </td>
     <td
-      v-if="settingsStore.settings.damageMeter.tabs.critRate.enabled"
+      v-if="
+        damageType === 'dmg' &&
+        settingsStore.settings.damageMeter.tabs.critRate.enabled
+      "
       class="text-center"
     >
       {{ ((player.hits.crit / player.hits.total) * 100).toFixed(1) }}
       <span class="ex">%</span>
     </td>
     <td
-      v-if="settingsStore.settings.damageMeter.tabs.faRate.enabled"
+      v-if="
+        damageType === 'dmg' &&
+        settingsStore.settings.damageMeter.tabs.faRate.enabled
+      "
       class="text-center"
     >
       {{ ((player.hits.frontAttack / player.hits.total) * 100).toFixed(1) }}
       <span class="ex">%</span>
     </td>
     <td
-      v-if="settingsStore.settings.damageMeter.tabs.baRate.enabled"
+      v-if="
+        damageType === 'dmg' &&
+        settingsStore.settings.damageMeter.tabs.baRate.enabled
+      "
       class="text-center"
     >
       {{ ((player.hits.backAttack / player.hits.total) * 100).toFixed(1) }}
       <span class="ex">%</span>
     </td>
     <td
-      v-if="settingsStore.settings.damageMeter.tabs.counterCount.enabled"
+      v-if="
+        damageType === 'dmg' &&
+        settingsStore.settings.damageMeter.tabs.counterCount.enabled
+      "
       class="text-center"
     >
       {{ player.hits.counter }}

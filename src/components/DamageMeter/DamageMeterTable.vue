@@ -79,25 +79,37 @@
             }}
           </th>
           <th
-            v-if="settingsStore.settings.damageMeter.tabs.critRate.enabled"
+            v-if="
+              damageType === 'dmg' &&
+              settingsStore.settings.damageMeter.tabs.critRate.enabled
+            "
             style="width: 48px"
           >
             CRIT
           </th>
           <th
-            v-if="settingsStore.settings.damageMeter.tabs.faRate.enabled"
+            v-if="
+              damageType === 'dmg' &&
+              settingsStore.settings.damageMeter.tabs.faRate.enabled
+            "
             style="width: 48px"
           >
             F.A.
           </th>
           <th
-            v-if="settingsStore.settings.damageMeter.tabs.baRate.enabled"
+            v-if="
+              damageType === 'dmg' &&
+              settingsStore.settings.damageMeter.tabs.baRate.enabled
+            "
             style="width: 48px"
           >
             B.A.
           </th>
           <th
-            v-if="settingsStore.settings.damageMeter.tabs.counterCount.enabled"
+            v-if="
+              damageType === 'dmg' &&
+              settingsStore.settings.damageMeter.tabs.counterCount.enabled
+            "
             style="width: 44px"
           >
             CNTR
