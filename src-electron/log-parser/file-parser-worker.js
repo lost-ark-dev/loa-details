@@ -9,7 +9,7 @@ const path = require("path");
 const customParseFormat = require("dayjs/plugin/customParseFormat");
 dayjs.extend(customParseFormat);
 
-const logParserVersion = 7;
+const logParserVersion = 8;
 
 module.exports = function (
   filename,
