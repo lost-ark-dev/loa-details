@@ -30,6 +30,7 @@
     "uuid": "^8.3.2",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0",
+    "worker-farm": "^1.7.0",
     "yarn": "^1.22.18"
   },
   "devDependencies": {

@@ -1,18 +1,23 @@
-import getPath from "platform-folders";
+const platformFolders = require("platform-folders");
 const fs = require("fs");
 const path = require("path");
 
-export const mainFolder = path.join(getPath("documents"), "Lost Ark Logs");
+const documentsFolder = platformFolders.getDocumentsFolder();
+
+const mainFolder = path.join(documentsFolder, "Lost Ark Logs");
 if (!fs.existsSync(mainFolder)) {
   fs.mkdirSync(mainFolder);
 }
+module.exports.mainFolder = mainFolder;
 
-export const parsedLogFolder = path.join(mainFolder, "parsed");
+const parsedLogFolder = path.join(mainFolder, "parsed");
 if (!fs.existsSync(parsedLogFolder)) {
   fs.mkdirSync(parsedLogFolder);
 }
+module.exports.parsedLogFolder = parsedLogFolder;
 
-export const screenshotsFolder = path.join(mainFolder, "screenshots");
+const screenshotsFolder = path.join(mainFolder, "screenshots");
 if (!fs.existsSync(screenshotsFolder)) {
   fs.mkdirSync(screenshotsFolder);
 }
+module.exports.screenshotsFolder = screenshotsFolder;

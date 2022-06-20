@@ -1,9 +1,9 @@
-import { cloneDeep } from "lodash";
-import log from "electron-log";
-import { EventEmitter } from "events";
+const cloneDeep = require("lodash/cloneDeep");
+const log = require("electron-log");
+const EventEmitter = require("events");
 
-import * as LogLines from "./log-lines";
-import { tryParseInt } from "../util/helpers";
+const LogLines = require("./log-lines");
+const tryParseInt = require("../util/helpers").tryParseInt;
 
 const entityTemplate = {
   lastUpdate: 0,
@@ -54,7 +54,7 @@ const healingSkills = {
   },
 };
 
-export class LogParser {
+class LogParser {
   constructor(isLive = false) {
     this.eventEmitter = new EventEmitter();
     this.isLive = isLive;
@@ -488,3 +488,4 @@ export class LogParser {
     this.game.entities[logLine.name].hits.counter += 1;
   }
 }
+module.exports = LogParser;
