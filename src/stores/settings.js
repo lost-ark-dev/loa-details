@@ -15,9 +15,18 @@ export const useSettingsStore = defineStore("settings", {
         server: "steam",
       },
       shortcuts: {
-        minimizeDamageMeter: "CommandOrControl+Down",
-        resetSession: "CommandOrControl+Up",
-        pauseDamageMeter: "CommandOrControl+Right",
+        minimizeDamageMeter: {
+          value: "CommandOrControl+Down",
+          defaultValue: "CommandOrControl+Down",
+        },
+        resetSession: {
+          value: "CommandOrControl+Up",
+          defaultValue: "CommandOrControl+Up",
+        },
+        pauseDamageMeter: {
+          value: "CommandOrControl+Right",
+          defaultValue: "CommandOrControl+Right",
+        },
       },
       uploads: {
         uploadLogs: false,

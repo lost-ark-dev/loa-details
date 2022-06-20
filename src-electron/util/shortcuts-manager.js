@@ -11,14 +11,17 @@ export function updateShortcuts(appSettings) {
 
 export function initializeShortcuts(appSettings) {
   for (let key in appSettings.shortcuts) {
-    const ret = globalShortcut.register(appSettings.shortcuts[key], () => {
-      shortcutEventEmitter.emit("shortcut", {
-        key: appSettings.shortcuts[key],
-        action: key,
-      });
+    const ret = globalShortcut.register(
+      appSettings.shortcuts[key].value,
+      () => {
+        shortcutEventEmitter.emit("shortcut", {
+          key: appSettings.shortcuts[key],
+          action: key,
+        });
 
-      log.debug(`Shortcut ${appSettings.shortcuts[key]} pressed`);
-    });
+        log.debug(`Shortcut ${appSettings.shortcuts[key].value} pressed`);
+      }
+    );
 
     if (!ret) {
       dialog.showErrorBox(

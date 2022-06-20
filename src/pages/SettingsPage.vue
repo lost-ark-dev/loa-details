@@ -9,8 +9,8 @@
     >
       <q-tab name="general" icon="display_settings" label="General" />
       <q-tab name="damage_meter" icon="speed" label="Damage Meter" />
-      <!-- <q-tab name="upload_logs" icon="cloud_upload" label="Log Uploading" /> -->
       <q-tab name="log" icon="article" label="Log " />
+      <q-tab name="shortcuts" icon="keyboard" label="Shortcuts " />
     </q-tabs>
 
     <div class="settings-page">
@@ -18,6 +18,7 @@
       <DamageMeterPage v-if="tab === 'damage_meter'" />
       <UploadPage v-if="tab === 'upload_logs'" />
       <LogPage v-if="tab === 'log'" />
+      <ShortcutsPage v-if="tab === 'shortcuts'" />
     </div>
   </q-scroll-area>
 </template>
@@ -28,6 +29,7 @@ import GeneralPage from "src/components/SettingsPage/GeneralPage.vue";
 import DamageMeterPage from "src/components/SettingsPage/DamageMeterPage.vue";
 import UploadPage from "src/components/SettingsPage/UploadPage.vue";
 import LogPage from "src/components/SettingsPage/LogPage.vue";
+import ShortcutsPage from "src/components/SettingsPage/ShortcutsPage.vue";
 
 import { useSettingsStore } from "src/stores/settings";
 const settingsStore = useSettingsStore();
