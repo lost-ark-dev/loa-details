@@ -8,6 +8,12 @@ import os from "os";
 import Store from "electron-store";
 
 import {
+  shortcutEventEmitter,
+  initializeShortcuts,
+  updateShortcuts,
+} from "./util/shortcuts-manager";
+
+import {
   createPrelauncherWindow,
   createMainWindow,
   createDamageMeterWindow,
@@ -196,6 +202,26 @@ function startApplication() {
 
   mainWindow = createMainWindow(appSettings);
   damageMeterWindow = createDamageMeterWindow(logParser, appSettings);
+
+  initializeShortcuts(appSettings);
+
+  shortcutEventEmitter.on("shortcut", (shortcut) => {
+    log.debug(shortcut);
+
+    if (shortcut.action === "minimizeDamageMeter") {
+      damageMeterWindow.webContents.send(
+        "shortcut-action",
+        "toggle-minimized-state"
+      );
+    } else if (shortcut.action === "resetSession") {
+      damageMeterWindow.webContents.send("shortcut-action", "reset-session");
+    } else if (shortcut.action === "pauseDamageMeter") {
+      damageMeterWindow.webContents.send(
+        "shortcut-action",
+        "pause-damage-meter"
+      );
+    }
+  });
 }
 
 let damageMeterWindowOldSize,
@@ -215,6 +241,8 @@ const ipcFunctions = {
   "save-settings": (event, arg) => {
     appSettings = JSON.parse(arg.value);
     saveSettings(arg.value);
+
+    updateShortcuts(appSettings);
 
     mainWindow.webContents.send("on-settings-change", appSettings);
     damageMeterWindow.webContents.send("on-settings-change", appSettings);

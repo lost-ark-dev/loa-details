@@ -42,6 +42,11 @@ const defaultSettings = {
     saveScreenshots: true,
     server: "steam",
   },
+  shortcuts: {
+    minimizeDamageMeter: "CommandOrControl+Down",
+    resetSession: "CommandOrControl+Up",
+    pauseDamageMeter: "CommandOrControl+Right",
+  },
   uploads: {
     uploadLogs: false,
     uploadKey: "",

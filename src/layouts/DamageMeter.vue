@@ -312,6 +312,14 @@ const sessionDPS = ref(0);
 onMounted(() => {
   settingsStore.initSettings();
 
+  window.messageApi.receive("shortcut-action", (value) => {
+    console.log(value);
+
+    if (value === "toggle-minimized-state") toggleMinimizedState();
+    else if (value === "reset-session") requestSessionRestart();
+    else if (value === "pause-damage-meter") toggleFightPause();
+  });
+
   window.messageApi.receive("on-settings-change", (value) => {
     settingsStore.loadSettings(value);
   });

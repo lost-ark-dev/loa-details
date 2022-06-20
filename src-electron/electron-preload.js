@@ -20,6 +20,7 @@ contextBridge.exposeInMainWorld("messageApi", {
       "parsed-log",
       "log-parser-status",
       "on-restore-from-taskbar",
+      "shortcut-action",
     ];
 
     if (validChannels.includes(channel)) {
