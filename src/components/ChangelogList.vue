@@ -17,6 +17,14 @@ import { ref } from "vue";
 
 const changes = ref([
   {
+    version: "0.4.9",
+    mdFormattedLog: `
+    * Added shortcuts. Now you can use (and also edit) shortcuts to control the damage meter. (e.g. Reset session without clicking the button...)
+    * Screenshot names are now based on the capture date so that you can sort them easier. (e.g. 2022-06-20_15-48-44.png)
+    * While viewing something than the DAMAGE view (TANK/HEAL etc...), unnecessary tabs such as CRIT/F.A., etc... are now hidden.
+  `,
+  },
+  {
     version: "0.4.8",
     mdFormattedLog: `
     * Fixed a bug where damage meter would display a blank screen after resetting a session while viewing skill breakdown.
