@@ -64,6 +64,7 @@ if (!gotTheLock) {
 initialize();
 
 const logParser = new LogParser((isLive = true));
+logParser.debugLines = true;
 
 let appSettings = getSettings();
 
