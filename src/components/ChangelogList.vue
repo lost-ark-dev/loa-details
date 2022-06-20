@@ -21,7 +21,7 @@ const changes = ref([
     mdFormattedLog: `
     * Added shortcuts. Now you can use (and also edit) shortcuts to control the damage meter. (e.g. Reset session without clicking the button...)
     * Screenshot names are now based on the capture date so that you can sort them easier. (e.g. 2022-06-20_15-48-44.png)
-    * While viewing something than the DAMAGE view (TANK/HEAL etc...), unnecessary tabs such as CRIT/F.A., etc... are now hidden.
+    * While viewing something other than the DAMAGE view (TANK/HEAL etc...), unnecessary tabs such as CRIT/F.A., etc... are now hidden.
   `,
   },
   {
