@@ -1,4 +1,5 @@
 const workerFarm = require("worker-farm");
+const log = require("electron-log");
 const dayjs = require("dayjs");
 const { mainFolder, parsedLogFolder } = require("../util/directories");
 const fs = require("fs");
@@ -13,20 +14,45 @@ async function parseLogs(event, splitOnPhaseTransition) {
   const unparsedLogs = await fsPromises.readdir(mainFolder);
   const parsedLogs = await fsPromises.readdir(parsedLogFolder);
 
-  let completedJobs = 0;
-  let totalJobs = unparsedLogs.length;
-  /* event.reply("log-parser-status", {
-    completedJobs,
-    totalJobs,
-  }); */
+  let completedJobs = 0,
+    totalJobs = 0;
 
-  for await (const filename of unparsedLogs) {
-    workers(filename, parsedLogs, splitOnPhaseTransition, function (err, outp) {
-      console.log(outp, err);
+  if (event)
+    event.reply("log-parser-status", {
+      completedJobs,
+      totalJobs: 1,
     });
-  }
 
-  workerFarm.end(workers);
+  for (const filename of unparsedLogs) {
+    if (
+      filename.startsWith("LostArk_") &&
+      filename.endsWith(".log") &&
+      filename.length > 12
+    ) {
+      totalJobs++;
+
+      workers(
+        filename,
+        parsedLogs,
+        splitOnPhaseTransition,
+        function (error, output) {
+          log.info(error, output);
+
+          completedJobs++;
+
+          if (event)
+            event.reply("log-parser-status", {
+              completedJobs,
+              totalJobs,
+            });
+
+          if (completedJobs === totalJobs) {
+            workerFarm.end(workers);
+          }
+        }
+      );
+    }
+  }
 }
 
 parseLogs(null, true);
