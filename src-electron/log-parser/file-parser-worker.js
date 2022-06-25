@@ -1,5 +1,4 @@
 const dayjs = require("dayjs");
-const log = require("electron-log");
 const LogParser = require("./main");
 const { v4: uuidv4 } = require("uuid");
 const fs = require("fs");
@@ -24,9 +23,8 @@ module.exports = function (
     const logStats = fs.statSync(path.join(mainFolder, filename));
 
     if (parsedLogs.includes(jsonName)) {
-      const { isOutdated } = verifyLogFile(jsonName, logStats);
+      const { isOutdated } = verifyLogFile(jsonName, logStats, parsedLogFolder);
       if (isOutdated) {
-        log.debug("Deleting old version of parsed log");
         fs.unlinkSync(path.join(parsedLogFolder, jsonName));
       } else {
         return callback(null, "log already parsed");
@@ -124,7 +122,7 @@ module.exports = function (
   }
 };
 
-function verifyLogFile(jsonName, logStats) {
+function verifyLogFile(jsonName, logStats, parsedLogFolder) {
   const logFile = fs.readFileSync(
     path.join(parsedLogFolder, jsonName),
     "utf-8"
