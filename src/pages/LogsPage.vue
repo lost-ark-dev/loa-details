@@ -438,7 +438,7 @@ function getLogfiles() {
   logViewerStore.resetState();
 
   window.messageApi.send("window-to-main", {
-    message: "get-parsed-logs",
+    message: "parse-logs",
     async: true,
   });
 }
@@ -475,6 +475,13 @@ onMounted(() => {
     if (value.completedJobs && value.totalJobs) {
       isReceivingParserStatus.value = true;
       parserStatus.value = value;
+
+      if (value.completedJobs === value.totalJobs) {
+        window.messageApi.send("window-to-main", {
+          message: "get-parsed-logs",
+          async: true,
+        });
+      }
     }
   });
 });

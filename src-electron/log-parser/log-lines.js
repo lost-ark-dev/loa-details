@@ -1,31 +1,34 @@
-import { tryParseInt } from "../util/helpers";
+const tryParseInt = require("../util/helpers").tryParseInt;
 
 // logId = 0
-export class LogMessage {
+class LogMessage {
   constructor(lineSplit) {
     this.timestamp = new Date(lineSplit[1]);
     this.message = lineSplit[2];
   }
 }
+module.exports.LogMessage = LogMessage;
 
 // logId = 1
-export class LogInitEnv {
+class LogInitEnv {
   constructor(lineSplit) {
     this.timestamp = new Date(lineSplit[1]);
     this.playerId = lineSplit[2];
   }
 }
+module.exports.LogInitEnv = LogInitEnv;
 
 // logId = 2
-export class LogPhaseTransition {
+class LogPhaseTransition {
   constructor(lineSplit) {
     this.timestamp = new Date(lineSplit[1]);
     this.phaseCode = tryParseInt(lineSplit[2]);
   }
 }
+module.exports.LogPhaseTransition = LogPhaseTransition;
 
 // logId = 3
-export class LogNewPc {
+class LogNewPc {
   constructor(lineSplit) {
     this.timestamp = new Date(lineSplit[1]);
     this.id = lineSplit[2];
@@ -38,9 +41,10 @@ export class LogNewPc {
     this.maxHp = tryParseInt(lineSplit[9]);
   }
 }
+module.exports.LogNewPc = LogNewPc;
 
 // logId = 4
-export class LogNewNpc {
+class LogNewNpc {
   constructor(lineSplit) {
     this.timestamp = new Date(lineSplit[1]);
     this.id = lineSplit[2];
@@ -50,9 +54,10 @@ export class LogNewNpc {
     this.maxHp = tryParseInt(lineSplit[6]);
   }
 }
+module.exports.LogNewNpc = LogNewNpc;
 
 // logId = 5
-export class LogDeath {
+class LogDeath {
   constructor(lineSplit) {
     this.timestamp = new Date(lineSplit[1]);
     this.id = lineSplit[2];
@@ -61,9 +66,10 @@ export class LogDeath {
     this.killerName = lineSplit[5] || "Unknown Entity";
   }
 }
+module.exports.LogDeath = LogDeath;
 
 // logId = 6
-export class LogSkillStart {
+class LogSkillStart {
   constructor(lineSplit) {
     this.timestamp = new Date(lineSplit[1]);
     this.id = lineSplit[2];
@@ -72,9 +78,10 @@ export class LogSkillStart {
     this.skillName = lineSplit[5] || "Unknown Skill";
   }
 }
+module.exports.LogSkillStart = LogSkillStart;
 
 // logId = 7
-export class LogSkillStage {
+class LogSkillStage {
   constructor(lineSplit) {
     this.timestamp = new Date(lineSplit[1]);
     this.id = lineSplit[2];
@@ -84,9 +91,10 @@ export class LogSkillStage {
     this.skillStage = lineSplit[6];
   }
 }
+module.exports.LogSkillStage = LogSkillStage;
 
 // logId = 8
-export class LogDamage {
+class LogDamage {
   constructor(lineSplit) {
     this.timestamp = new Date(lineSplit[1]);
     this.id = lineSplit[2];
@@ -106,9 +114,10 @@ export class LogDamage {
     this.maxHp = tryParseInt(lineSplit[16]);
   }
 }
+module.exports.LogDamage = LogDamage;
 
 // logId = 9
-export class LogHeal {
+class LogHeal {
   constructor(lineSplit) {
     this.timestamp = new Date(lineSplit[1]);
     this.id = lineSplit[2];
@@ -117,9 +126,10 @@ export class LogHeal {
     //this.currentHp = tryParseInt(lineSplit[5]);
   }
 }
+module.exports.LogHeal = LogHeal;
 
 // logId = 10
-export class LogBuff {
+class LogBuff {
   constructor(lineSplit) {
     this.timestamp = new Date(lineSplit[1]);
     this.id = lineSplit[2];
@@ -132,9 +142,10 @@ export class LogBuff {
     this.shieldAmount = tryParseInt(lineSplit[9]);
   }
 }
+module.exports.LogBuff = LogBuff;
 
 // logId = 11
-export class LogCounterattack {
+class LogCounterattack {
   constructor(lineSplit) {
     this.timestamp = new Date(lineSplit[1]);
     this.id = lineSplit[2];
@@ -143,3 +154,4 @@ export class LogCounterattack {
     this.targetName = lineSplit[5] || "Unknown Entity"; */
   }
 }
+module.exports.LogCounterattack = LogCounterattack;

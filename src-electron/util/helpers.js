@@ -1,4 +1,4 @@
-export function tryParseInt(intString, defaultValue = 0) {
+function tryParseInt(intString, defaultValue = 0) {
   if (typeof intString === "number") {
     if (isNaN(intString)) return defaultValue;
     return intString;
@@ -15,3 +15,4 @@ export function tryParseInt(intString, defaultValue = 0) {
 
   return intNum;
 }
+module.exports.tryParseInt = tryParseInt;

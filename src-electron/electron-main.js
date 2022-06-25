@@ -29,9 +29,9 @@ import {
 
 import { saveScreenshot } from "./util/screenshot";
 
-import { LogParser } from "./log-parser/main";
+const LogParser = require("./log-parser/main");
 
-import { mainFolder } from "./util/directories";
+const { mainFolder } = require("./util/directories");
 
 import {
   parseLogs,
@@ -64,6 +64,7 @@ if (!gotTheLock) {
 initialize();
 
 const logParser = new LogParser((isLive = true));
+logParser.debugLines = true;
 
 let appSettings = getSettings();
 
@@ -261,8 +262,10 @@ const ipcFunctions = {
   "get-settings": (event, arg) => {
     event.reply("on-settings-change", appSettings);
   },
-  "get-parsed-logs": async (event, arg) => {
+  "parse-logs": async (event, arg) => {
     await parseLogs(event, appSettings?.logs?.splitOnPhaseTransition);
+  },
+  "get-parsed-logs": async (event, arg) => {
     const parsedLogs = await getParsedLogs();
     await event.reply("parsed-logs-list", parsedLogs);
   },

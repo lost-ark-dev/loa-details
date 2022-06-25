@@ -1,9 +1,9 @@
-import { cloneDeep } from "lodash";
-import log from "electron-log";
-import { EventEmitter } from "events";
+const cloneDeep = require("lodash/cloneDeep");
+const log = require("electron-log");
+const EventEmitter = require("events");
 
-import * as LogLines from "./log-lines";
-import { tryParseInt } from "../util/helpers";
+const LogLines = require("./log-lines");
+const tryParseInt = require("../util/helpers").tryParseInt;
 
 const entityTemplate = {
   lastUpdate: 0,
@@ -54,8 +54,10 @@ const healingSkills = {
   },
 };
 
-export class LogParser {
+class LogParser {
   constructor(isLive = false) {
+    this.debugLines = false;
+
     this.eventEmitter = new EventEmitter();
     this.isLive = isLive;
     this.resetTimer = null;
@@ -74,7 +76,7 @@ export class LogParser {
   }
 
   resetState() {
-    log.debug("Resetting state");
+    if (this.debugLines) log.debug("Resetting state");
     const curTime = +new Date();
 
     this.game = {
@@ -208,7 +210,7 @@ export class LogParser {
   // logId = 0
   onMessage(lineSplit) {
     const logLine = new LogLines.LogMessage(lineSplit);
-    log.info(`onMessage: ${logLine.message}`);
+    if (this.debugLines) log.debug(`onMessage: ${logLine.message}`);
 
     if (!logLine.message.startsWith("Arguments:")) {
       this.eventEmitter.emit("message", logLine.message);
@@ -218,11 +220,11 @@ export class LogParser {
   // logId = 1
   onInitEnv(lineSplit) {
     // const logLine = new LogLines.LogInitEnv(lineSplit);
-    log.debug("onInitEnv");
+    if (this.debugLines) log.debug("onInitEnv");
 
     if (this.isLive) {
       if (this.dontResetOnZoneChange === false && this.resetTimer == null) {
-        log.debug("Setting a reset timer");
+        if (this.debugLines) log.debug("Setting a reset timer");
         this.resetTimer = setTimeout(this.softReset.bind(this), 6000);
         this.eventEmitter.emit("message", "new-zone");
       }
@@ -235,7 +237,7 @@ export class LogParser {
   // logId = 2
   onPhaseTransition(lineSplit) {
     const logLine = new LogLines.LogPhaseTransition(lineSplit);
-    log.debug(`onPhaseTransition: ${logLine.phaseCode}`);
+    if (this.debugLines) log.debug(`onPhaseTransition: ${logLine.phaseCode}`);
 
     if (this.isLive) {
       this.eventEmitter.emit(
@@ -257,9 +259,10 @@ export class LogParser {
   // logId = 3
   onNewPc(lineSplit) {
     const logLine = new LogLines.LogNewPc(lineSplit);
-    log.debug(
-      `onNewPc: ${logLine.id}, ${logLine.name}, ${logLine.classId}, ${logLine.class}, ${logLine.gearScore}, ${logLine.currentHp}, ${logLine.maxHp}`
-    );
+    if (this.debugLines)
+      log.debug(
+        `onNewPc: ${logLine.id}, ${logLine.name}, ${logLine.classId}, ${logLine.class}, ${logLine.gearScore}, ${logLine.currentHp}, ${logLine.maxHp}`
+      );
 
     this.updateEntity(logLine.name, {
       name: logLine.name,
@@ -275,9 +278,10 @@ export class LogParser {
   // logId = 4
   onNewNpc(lineSplit) {
     const logLine = new LogLines.LogNewNpc(lineSplit);
-    log.debug(
-      `onNewNpc: ${logLine.id}, ${logLine.name}, ${logLine.currentHp}, ${logLine.maxHp}`
-    );
+    if (this.debugLines)
+      log.debug(
+        `onNewNpc: ${logLine.id}, ${logLine.name}, ${logLine.currentHp}, ${logLine.maxHp}`
+      );
 
     this.updateEntity(logLine.name, {
       name: logLine.name,
@@ -290,15 +294,17 @@ export class LogParser {
   // logId = 5
   onDeath(lineSplit) {
     const logLine = new LogLines.LogDeath(lineSplit);
-    log.debug(`onDeath: ${logLine.name} ${logLine.killerName}`);
+    if (this.debugLines)
+      log.debug(`onDeath: ${logLine.name} ${logLine.killerName}`);
   }
 
   // logId = 6
   onSkillStart(lineSplit) {
     const logLine = new LogLines.LogSkillStart(lineSplit);
-    log.debug(
-      `onSkillStart: ${logLine.id}, ${logLine.name}, ${logLine.skillId}, ${logLine.skillName}`
-    );
+    if (this.debugLines)
+      log.debug(
+        `onSkillStart: ${logLine.id}, ${logLine.name}, ${logLine.skillId}, ${logLine.skillName}`
+      );
 
     if (Object.keys(healingSkills).includes(logLine.skillName)) {
       this.healSources.push({
@@ -311,9 +317,10 @@ export class LogParser {
   // logId = 7
   onSkillStage(lineSplit) {
     const logLine = new LogLines.LogSkillStage(lineSplit);
-    log.debug(
-      `onSkillStage: ${logLine.name}, ${logLine.skillId}, ${logLine.skillName}, ${logLine.stage}`
-    );
+    if (this.debugLines)
+      log.debug(
+        `onSkillStage: ${logLine.name}, ${logLine.skillId}, ${logLine.skillName}, ${logLine.stage}`
+      );
   }
 
   // logId = 8
@@ -321,9 +328,10 @@ export class LogParser {
     if (lineSplit.length < 16) return;
 
     const logLine = new LogLines.LogDamage(lineSplit);
-    log.debug(
-      `onDamage: ${logLine.id}, ${logLine.name}, ${logLine.skillId}, ${logLine.skillName}, ${logLine.skillEffectId}, ${logLine.skillEffect}, ${logLine.targetId}, ${logLine.targetName}, ${logLine.damage}, ${logLine.currentHp}, ${logLine.maxHp}`
-    );
+    if (this.debugLines)
+      log.debug(
+        `onDamage: ${logLine.id}, ${logLine.name}, ${logLine.skillId}, ${logLine.skillName}, ${logLine.skillEffectId}, ${logLine.skillEffect}, ${logLine.targetId}, ${logLine.targetName}, ${logLine.damage}, ${logLine.currentHp}, ${logLine.maxHp}`
+      );
 
     if (
       this.phaseTransitionResetRequest &&
@@ -352,7 +360,8 @@ export class LogParser {
       this.removeOverkillDamage &&
       logLine.currentHp < 0
     ) {
-      log.debug(`Removing ${logLine.currentHp} overkill damage`);
+      if (this.debugLines)
+        log.debug(`Removing ${logLine.currentHp} overkill damage`);
       logLine.damage = logLine.damage + logLine.currentHp;
     }
 
@@ -425,7 +434,10 @@ export class LogParser {
   // logId = 9
   onHeal(lineSplit) {
     const logLine = new LogLines.LogHeal(lineSplit);
-    log.debug(`onHeal: ${logLine.id}, ${logLine.name}, ${logLine.healAmount}`);
+    if (this.debugLines)
+      log.debug(
+        `onHeal: ${logLine.id}, ${logLine.name}, ${logLine.healAmount}`
+      );
 
     let sourceName = "";
     for (const source of this.healSources) {
@@ -454,9 +466,10 @@ export class LogParser {
   // logId = 10
   onBuff(lineSplit) {
     const logLine = new LogLines.LogBuff(lineSplit);
-    log.debug(
-      `onBuff: ${logLine.id}, ${logLine.name}, ${logLine.buffId}, ${logLine.buffName}, ${logLine.sourceId}, ${logLine.sourceName}, ${logLine.shieldAmount}`
-    );
+    if (this.debugLines)
+      log.debug(
+        `onBuff: ${logLine.id}, ${logLine.name}, ${logLine.buffId}, ${logLine.buffName}, ${logLine.sourceId}, ${logLine.sourceName}, ${logLine.shieldAmount}`
+      );
 
     if (logLine.shieldAmount && logLine.isNew) {
       this.updateEntity(logLine.name, {
@@ -478,7 +491,8 @@ export class LogParser {
   // logId = 11
   onCounterattack(lineSplit) {
     const logLine = new LogLines.LogCounterattack(lineSplit);
-    log.debug(`onCounterattack: ${logLine.id}, ${logLine.name}`);
+    if (this.debugLines)
+      log.debug(`onCounterattack: ${logLine.id}, ${logLine.name}`);
 
     this.updateEntity(logLine.name, {
       name: logLine.name,
@@ -488,3 +502,4 @@ export class LogParser {
     this.game.entities[logLine.name].hits.counter += 1;
   }
 }
+module.exports = LogParser;
