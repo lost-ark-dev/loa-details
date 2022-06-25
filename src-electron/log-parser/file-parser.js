@@ -9,6 +9,8 @@ const path = require("path");
 const customParseFormat = require("dayjs/plugin/customParseFormat");
 dayjs.extend(customParseFormat);
 
+const LOG_PARSER_VERSION = 10;
+
 export async function parseLogs(event, splitOnPhaseTransition) {
   const workers = workerFarm(
     require.resolve(
@@ -24,6 +26,23 @@ export async function parseLogs(event, splitOnPhaseTransition) {
   const unparsedLogs = await fsPromises.readdir(mainFolder);
   const parsedLogs = await fsPromises.readdir(parsedLogFolder);
 
+  let mainJson = {
+    /*
+    "example.log":{
+      mtime: ...,
+      logParserVersion: ...
+    }
+    */
+  };
+
+  if (unparsedLogs.includes("main.json")) {
+    const mainStr = await fsPromises.readFile(
+      path.join(mainFolder, "main.json"),
+      "utf-8"
+    );
+    mainJson = JSON.parse(mainStr);
+  }
+
   let completedJobs = 0,
     totalJobs = 0;
 
@@ -34,37 +53,82 @@ export async function parseLogs(event, splitOnPhaseTransition) {
     });
 
   for (const filename of unparsedLogs) {
-    if (
-      filename.startsWith("LostArk_") &&
-      filename.endsWith(".log") &&
-      filename.length > 12
-    ) {
-      totalJobs++;
+    // Check if filename fits the format "LostArk_2020-01-01-00-00-00.log"
+    if (!filename.match(/^LostArk_\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}.log$/))
+      continue;
 
-      workers(
-        filename,
-        parsedLogs,
-        splitOnPhaseTransition,
-        mainFolder,
-        parsedLogFolder,
-        function (error, output) {
-          log.info(error, output);
+    const filenameSlice = filename.slice(0, -4);
+    const jsonName = filenameSlice + ".json";
+    const logStats = await fsPromises.stat(path.join(mainFolder, filename));
 
-          completedJobs++;
-
-          if (event)
-            event.reply("log-parser-status", {
-              completedJobs,
-              totalJobs,
-            });
-
-          if (completedJobs === totalJobs) {
-            workerFarm.end(workers);
-          }
+    // If file is parsed before, verify the validity of it
+    if (parsedLogs.includes(jsonName)) {
+      let shouldUnlink = false;
+      if (Object.keys(mainJson).includes(jsonName)) {
+        if (
+          mainJson[jsonName].mtime < new Date(logStats.mtime) ||
+          mainJson[jsonName].logParserVersion < LOG_PARSER_VERSION
+        ) {
+          shouldUnlink = true;
         }
-      );
+      } else {
+        shouldUnlink = true;
+      }
+
+      if (shouldUnlink) {
+        log.info("removing old log", jsonName);
+        await fsPromises.unlink(path.join(parsedLogFolder, jsonName));
+      } else {
+        log.info("log already parsed and valid, skipping it", jsonName);
+        continue;
+      }
     }
+
+    totalJobs++;
+
+    workers(
+      filename,
+      splitOnPhaseTransition,
+      mainFolder,
+      parsedLogFolder,
+      function (error, output) {
+        completedJobs++;
+        log.info(error, output);
+
+        if (output === "no encounters found") {
+          // remove log file to prevent it from being parsed again
+          fs.unlinkSync(path.join(mainFolder, filename));
+        } else {
+          mainJson[jsonName] = {
+            mtime: new Date(logStats.mtime),
+            logParserVersion: LOG_PARSER_VERSION,
+          };
+        }
+
+        if (event) {
+          event.reply("log-parser-status", {
+            completedJobs,
+            totalJobs,
+          });
+        }
+
+        if (completedJobs === totalJobs) {
+          workerFarm.end(workers);
+
+          fs.writeFileSync(
+            path.join(mainFolder, "main.json"),
+            JSON.stringify(mainJson)
+          );
+        }
+      }
+    );
   }
+
+  if (totalJobs === 0 && event)
+    event.reply("log-parser-status", {
+      completedJobs: 1,
+      totalJobs: 1,
+    });
 }
 
 export async function getParsedLogs() {

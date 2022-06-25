@@ -7,11 +7,8 @@ const path = require("path");
 const customParseFormat = require("dayjs/plugin/customParseFormat");
 dayjs.extend(customParseFormat);
 
-const logParserVersion = 8;
-
 module.exports = function (
   filename,
-  parsedLogs,
   splitOnPhaseTransition,
   mainFolder,
   parsedLogFolder,
@@ -20,16 +17,6 @@ module.exports = function (
   try {
     const filenameSlice = filename.slice(0, -4);
     const jsonName = filenameSlice + ".json";
-    const logStats = fs.statSync(path.join(mainFolder, filename));
-
-    if (parsedLogs.includes(jsonName)) {
-      const { isOutdated } = verifyLogFile(jsonName, logStats, parsedLogFolder);
-      if (isOutdated) {
-        fs.unlinkSync(path.join(parsedLogFolder, jsonName));
-      } else {
-        return callback(null, "log already parsed");
-      }
-    }
 
     const contents = fs.readFileSync(path.join(mainFolder, filename), "utf-8");
     if (!contents) return callback(null, "empty log");
@@ -37,18 +24,6 @@ module.exports = function (
     const logParser = new LogParser((isLive = false));
     if (splitOnPhaseTransition === true)
       logParser.splitOnPhaseTransition = true;
-
-    /* logParser.eventEmitter.on("message", (val) => {
-      if (
-        val === "new-zone" ||
-        (splitOnPhaseTransition === true && val === "raid-end")
-      ) {
-        event.reply("log-parser-status", {
-            completedJobs,
-            totalJobs,
-          });
-      }
-    }); */
 
     const lines = contents.split("\n").filter((x) => x != null && x != "");
     for (const line of lines) {
@@ -59,11 +34,7 @@ module.exports = function (
     const encounters = logParser.encounters;
 
     if (encounters.length > 0) {
-      const masterLog = {
-        logParserVersion,
-        mtime: logStats.mtime,
-        encounters: [],
-      };
+      const masterLog = { encounters: [] };
 
       for (const encounter of encounters) {
         const duration = encounter.lastCombatPacket - encounter.fightStartedOn;
@@ -121,29 +92,3 @@ module.exports = function (
     return callback(e, "log parser error");
   }
 };
-
-function verifyLogFile(jsonName, logStats, parsedLogFolder) {
-  const logFile = fs.readFileSync(
-    path.join(parsedLogFolder, jsonName),
-    "utf-8"
-  );
-
-  const parsedLogFile = JSON.parse(logFile);
-
-  // if parsed version is less than current version, delete it and re-parse it
-  // or if parsed mtime is
-  // if not, skip this log
-  try {
-    if (
-      parsedLogFile.logParserVersion < logParserVersion ||
-      logStats.mtime > new Date(parsedLogFile.mtime)
-    ) {
-      return { isOutdated: true };
-    } else {
-      return { isOutdated: false };
-    }
-  } catch {
-    // possibly doesn't have mtime or broken format, just re-parse it
-    return { isOutdated: true };
-  }
-}
