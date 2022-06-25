@@ -313,8 +313,6 @@ onMounted(() => {
   settingsStore.initSettings();
 
   window.messageApi.receive("shortcut-action", (value) => {
-    console.log(value);
-
     if (value === "toggle-minimized-state") toggleMinimizedState();
     else if (value === "reset-session") requestSessionRestart();
     else if (value === "pause-damage-meter") toggleFightPause();
