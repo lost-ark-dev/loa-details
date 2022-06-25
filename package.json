@@ -1,6 +1,6 @@
 {
   "name": "loa-details",
-  "version": "0.4.9",
+  "version": "0.5.0",
   "description": "Damage meter for Lost Ark",
   "productName": "LOA Details",
   "author": "Eren Kara <erenkyi0@gmail.com>",
@@ -10,8 +10,11 @@
     "format": "prettier --write \"**/*.{js,vue,css,html,md,json}\" --ignore-path .gitignore",
     "test": "echo \"No test specified\" && exit 0",
     "dev": "quasar dev -m electron",
+    "buildComment": "On windows, make sure to run 'yarn config set script-shell (Get-Command powershell.exe).Definition' to set powershell as the shell.",
+    "buildComment2": "If built without including some electron files in the public folder, log parser won't work due to missing files in the build. Use buildwin/releasewin for that.",
     "build": "quasar build -m electron",
-    "release": "quasar build -m electron -P always"
+    "buildwin": "powershell ./scripts/build_win.ps1",
+    "releasewin": "powershell ./scripts/release_win.ps1"
   },
   "dependencies": {
     "@electron/remote": "^2.0.8",

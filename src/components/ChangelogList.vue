@@ -17,6 +17,14 @@ import { ref } from "vue";
 
 const changes = ref([
   {
+    version: "0.5.0",
+    mdFormattedLog: `
+    * Added multi-threaded log parsing. Your logs should get parsed much faster now! (depending on your CPU's thread count).
+    * Added an option to choose log file location to the Settings/General page. Changing the path will make log files, parsed logs, and screenshots reside under the specified path.
+    Note: Changing this setting won't move your old logs. It will only affect new logs.
+  `,
+  },
+  {
     version: "0.4.9",
     mdFormattedLog: `
     * Added shortcuts. Now you can use (and also edit) shortcuts to control the damage meter. (e.g. Reset session without clicking the button...)
