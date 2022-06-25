@@ -33,3 +33,6 @@ logs/*
 electron-cgi.log
 
 binary/*
+
+public/log-parser/**/*
+public/util/**/*
