@@ -41,6 +41,7 @@ const defaultSettings = {
     useWinpcap: false,
     saveScreenshots: true,
     server: "steam",
+    customLogPath: null,
   },
   shortcuts: {
     minimizeDamageMeter: {

@@ -69,8 +69,8 @@
       <q-item-section>
         <q-item-label>Save Screenshots</q-item-label>
         <q-item-label caption>
-          If enabled, the screenshots taken in LOA Details will be saved to
-          Documents/Lost Ark Logs/screenshots
+          If enabled, the screenshots taken in LOA Details will be saved as a
+          file.
         </q-item-label>
       </q-item-section>
     </q-item>
@@ -85,6 +85,33 @@
       </q-item-section>
       <q-item-section>
         <q-select filled v-model="serverModel" :options="serverOptions" />
+      </q-item-section>
+    </q-item>
+
+    <q-item tag="label">
+      <q-item-section>
+        <q-item-label>Custom Log Path</q-item-label>
+        <q-item-label caption style="margin-bottom: 16px">
+          You can select a custom log path to save logs to (instead of the
+          default path in Documents folder). Program needs to be restarted to
+          take effect.
+        </q-item-label>
+        <div>
+          <q-btn
+            unelevated
+            color="orange"
+            label="Select a Custom Path"
+            style="margin-right: 16px"
+            @click="selectCustomLogPath"
+          />
+          <q-btn
+            unelevated
+            color="blue"
+            label="Reset Custom Path"
+            @click="resetLogPath"
+          />
+          <div style="margin-top: 16px">Current path: {{ currentLogPath }}</div>
+        </div>
       </q-item-section>
     </q-item>
   </q-list>
@@ -109,16 +136,34 @@ const serverOptions = ref([
     value: "korea",
   },
 ]);
-
 var serverModel = ref("");
-
 watch(serverModel, (newVal, oldVal) => {
   settingsStore.settings.general.server = newVal.value;
 });
 
+const currentLogPath = ref("");
+function selectCustomLogPath() {
+  window.messageApi.send("window-to-main", {
+    message: "select-log-path-folder",
+  });
+}
+function resetLogPath() {
+  settingsStore.settings.general.customLogPath = null;
+  currentLogPath.value = "Documents/Lost Ark Logs (needs restart)";
+}
+
 onMounted(() => {
+  window.messageApi.receive("selected-log-path-folder", (newPath) => {
+    settingsStore.settings.general.customLogPath = newPath;
+    currentLogPath.value = newPath + " (needs restart)";
+  });
+
   serverModel.value = serverOptions.value.find(
     (x) => x.value === settingsStore.settings.general.server
   );
+
+  if (settingsStore.settings.general.customLogPath === null)
+    currentLogPath.value = "Documents/Lost Ark Logs";
+  else currentLogPath.value = settingsStore.settings.general.customLogPath;
 });
 </script>

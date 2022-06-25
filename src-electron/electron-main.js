@@ -291,6 +291,11 @@ const ipcFunctions = {
   "save-screenshot": async (event, arg) => {
     await saveScreenshot(arg.value);
   },
+  "select-log-path-folder": async (event, arg) => {
+    const res = await dialog.showOpenDialog({ properties: ["openDirectory"] });
+    if (res.canceled || !res.filePaths || !res.filePaths[0]) return;
+    event.reply("selected-log-path-folder", res.filePaths[0]);
+  },
   "toggle-damage-meter-minimized-state": (event, arg) => {
     if (appSettings.damageMeter.functionality.minimizeToTaskbar) {
       if (arg.value) damageMeterWindow.minimize();

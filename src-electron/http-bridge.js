@@ -58,6 +58,9 @@ export function setupBridge(appSettings) {
 function spawnPacketCapturer(appSettings, serverPort) {
   const args = ["--Port", serverPort];
 
+  if (appSettings?.general?.customLogPath !== null)
+    args.push("--CustomLogPath", appSettings?.general?.customLogPath);
+
   if (appSettings?.general?.useWinpcap) args.push("--UseNpcap");
 
   if (appSettings?.general?.server === "russia")

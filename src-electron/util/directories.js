@@ -1,10 +1,17 @@
 const platformFolders = require("platform-folders");
 const fs = require("fs");
 const path = require("path");
+const { getSettings } = require("./app-settings");
+
+const appSettings = getSettings();
+const customPath = appSettings.general.customLogPath;
 
 const documentsFolder = platformFolders.getDocumentsFolder();
 
-const mainFolder = path.join(documentsFolder, "Lost Ark Logs");
+const mainFolder =
+  customPath === null
+    ? path.join(documentsFolder, "Lost Ark Logs")
+    : customPath;
 if (!fs.existsSync(mainFolder)) {
   fs.mkdirSync(mainFolder);
 }

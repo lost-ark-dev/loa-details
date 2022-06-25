@@ -45,6 +45,8 @@ export async function parseLogs(event, splitOnPhaseTransition) {
         filename,
         parsedLogs,
         splitOnPhaseTransition,
+        mainFolder,
+        parsedLogFolder,
         function (error, output) {
           log.info(error, output);
 

@@ -13,6 +13,7 @@ export const useSettingsStore = defineStore("settings", {
         useWinpcap: false,
         saveScreenshots: true,
         server: "steam",
+        customLogPath: null,
       },
       shortcuts: {
         minimizeDamageMeter: {

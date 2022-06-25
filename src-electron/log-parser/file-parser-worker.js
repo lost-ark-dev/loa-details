@@ -2,7 +2,6 @@ const dayjs = require("dayjs");
 const log = require("electron-log");
 const LogParser = require("./main");
 const { v4: uuidv4 } = require("uuid");
-const { mainFolder, parsedLogFolder } = require("../util/directories");
 const fs = require("fs");
 const path = require("path");
 
@@ -15,6 +14,8 @@ module.exports = function (
   filename,
   parsedLogs,
   splitOnPhaseTransition,
+  mainFolder,
+  parsedLogFolder,
   callback
 ) {
   try {

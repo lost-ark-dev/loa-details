@@ -21,6 +21,7 @@ contextBridge.exposeInMainWorld("messageApi", {
       "log-parser-status",
       "on-restore-from-taskbar",
       "shortcut-action",
+      "selected-log-path-folder",
     ];
 
     if (validChannels.includes(channel)) {
