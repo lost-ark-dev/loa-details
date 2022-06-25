@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@electron/remote": "^2.0.8",
-    "@quasar/extras": "^1.14.0",
+    "@quasar/extras": "^1.14.1",
     "add": "^2.0.6",
     "axios": "^0.27.2",
     "dayjs": "^1.11.2",
@@ -26,7 +26,7 @@
     "lodash": "^4.17.21",
     "pinia": "^2.0.11",
     "platform-folders": "^0.6.0",
-    "quasar": "^2.7.1",
+    "quasar": "^2.7.3",
     "uuid": "^8.3.2",
     "vue": "^3.0.0",
     "vue-router": "^4.0.0",
@@ -34,7 +34,7 @@
     "yarn": "^1.22.18"
   },
   "devDependencies": {
-    "@quasar/app-vite": "^1.0.1",
+    "@quasar/app-vite": "^1.0.2",
     "autoprefixer": "^10.4.2",
     "electron": "^18.2.0",
     "electron-builder": "^22.4.0",
