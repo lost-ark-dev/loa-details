@@ -9,7 +9,7 @@ const path = require("path");
 const customParseFormat = require("dayjs/plugin/customParseFormat");
 dayjs.extend(customParseFormat);
 
-const LOG_PARSER_VERSION = 10;
+const LOG_PARSER_VERSION = 11;
 
 export async function parseLogs(event, splitOnPhaseTransition) {
   const workers = workerFarm(
@@ -64,10 +64,11 @@ export async function parseLogs(event, splitOnPhaseTransition) {
     // If file is parsed before, verify the validity of it
     if (parsedLogs.includes(jsonName)) {
       let shouldUnlink = false;
-      if (Object.keys(mainJson).includes(jsonName)) {
+      if (Object.keys(mainJson).includes(filename)) {
         if (
-          mainJson[jsonName].mtime < new Date(logStats.mtime) ||
-          mainJson[jsonName].logParserVersion < LOG_PARSER_VERSION
+          new Date(mainJson[filename].mtime).getTime() <
+            new Date(logStats.mtime).getTime() ||
+          mainJson[filename].logParserVersion < LOG_PARSER_VERSION
         ) {
           shouldUnlink = true;
         }
@@ -99,7 +100,7 @@ export async function parseLogs(event, splitOnPhaseTransition) {
           // remove log file to prevent it from being parsed again
           fs.unlinkSync(path.join(mainFolder, filename));
         } else {
-          mainJson[jsonName] = {
+          mainJson[filename] = {
             mtime: new Date(logStats.mtime),
             logParserVersion: LOG_PARSER_VERSION,
           };

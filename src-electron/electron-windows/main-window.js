@@ -33,7 +33,7 @@ export function createMainWindow(appSettings) {
   if (appSettings?.general?.startMainMinimized) startMinimized = true;
 
   enable(mainWindow.webContents);
-  mainWindow.loadURL(process.env.APP_URL).then(() => {
+  mainWindow.loadURL(process.env.APP_URL + "#/").then(() => {
     if (!startHidden) mainWindow.show();
     if (startMinimized) mainWindow.minimize();
 
