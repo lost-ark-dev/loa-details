@@ -96,9 +96,12 @@ export async function parseLogs(event, splitOnPhaseTransition) {
         completedJobs++;
         log.info(error, output);
 
-        if (output === "no encounters found") {
-          // remove log file to prevent it from being parsed again
-          fs.unlinkSync(path.join(mainFolder, filename));
+        if (output === "no encounters found" || output === "empty log") {
+          // remove log file if 1 hour or more have passed since it was last modified
+          if (new Date().getTime() - logStats.mtime > 1 * 60 * 60 * 1000) {
+            log.info("removing empty log", filename);
+            fs.unlinkSync(path.join(mainFolder, filename));
+          }
         } else {
           mainJson[filename] = {
             mtime: new Date(logStats.mtime),
