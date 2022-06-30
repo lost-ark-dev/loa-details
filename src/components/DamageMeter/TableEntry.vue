@@ -7,6 +7,12 @@
       <span>{{ entryName }}</span>
     </td>
     <td
+      v-if="settingsStore.settings.damageMeter.tabs.deathTime.enabled"
+      class="text-center"
+    >
+      {{ deathTime }}
+    </td>
+    <td
       v-if="settingsStore.settings.damageMeter.tabs.damage.enabled"
       class="text-center"
     >
@@ -114,6 +120,7 @@ const props = defineProps({
   player: Object,
   damageType: { type: String, default: "dmg" },
   fightDuration: Number,
+  lastCombatPacket: Number,
   nameDisplay: String,
 });
 
@@ -176,6 +183,14 @@ const DPS = computed(() => {
   else if (props.damageType === "shield") a = props.player.shieldDone;
 
   return abbreviateNumber((a / (props.fightDuration / 1000)).toFixed(0));
+});
+
+const deathTime = computed(() => {
+  if (props.player.isDead) {
+    const curDate = props.lastCombatPacket;
+    return ((curDate - props.player.deathTime) / 1000).toFixed(0) + "s";
+  }
+  return "";
 });
 
 function getClassImage(className) {

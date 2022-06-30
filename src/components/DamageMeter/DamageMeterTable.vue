@@ -31,6 +31,12 @@
           <th style="width: 26px"></th>
           <th style="width: 100%"></th>
           <th
+            v-if="settingsStore.settings.damageMeter.tabs.deathTime.enabled"
+            style="width: 48px"
+          >
+            Dead for
+          </th>
+          <th
             v-if="settingsStore.settings.damageMeter.tabs.damage.enabled"
             style="width: 72px"
           >
@@ -192,6 +198,9 @@
           :player="player"
           :damage-type="damageType"
           :fight-duration="Math.max(1000, duration)"
+          :last-combat-packet="
+            sessionState.lastCombatPacket ? sessionState.lastCombatPacket : 0
+          "
           :name-display="nameDisplay"
           @click="focusPlayer(player)"
         />

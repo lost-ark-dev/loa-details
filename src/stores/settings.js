@@ -76,6 +76,10 @@ export const useSettingsStore = defineStore("settings", {
             name: "Damage/Tanked",
             enabled: true,
           },
+          deathTime: {
+            name: "Death Time",
+            enabled: false,
+          },
           damagePercent: {
             name: "D% (Damage Percent)",
             enabled: true,

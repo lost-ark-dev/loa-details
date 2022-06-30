@@ -11,6 +11,7 @@ const entityTemplate = {
   class: "",
   isPlayer: false,
   isDead: false,
+  deathTime: 0,
   gearScore: "",
   damageDealt: 0,
   damageTaken: 0,
@@ -301,6 +302,7 @@ class LogParser {
     this.updateEntity(logLine.name, {
       name: logLine.name,
       isDead: true,
+      deathTime: logLine.timestamp.getTime(),
     });
   }
 
