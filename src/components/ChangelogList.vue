@@ -17,6 +17,15 @@ import { ref } from "vue";
 
 const changes = ref([
   {
+    version: "0.5.3",
+    mdFormattedLog: `
+    * Updated logger to work with the latest patch.
+    * Changed logging method to use file stream API. This should help reduce the lag on long sessions.
+    * Added a dead player indicator (skull 💀) before player names.
+    * Added death time tab (disabled by default) which shows how long the player was dead for.
+  `,
+  },
+  {
     version: "0.5.0",
     mdFormattedLog: `
     * Added multi-threaded log parsing. Your logs should get parsed much faster now! (depending on your CPU's thread count).
