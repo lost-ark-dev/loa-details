@@ -10,6 +10,7 @@ const entityTemplate = {
   name: "",
   class: "",
   isPlayer: false,
+  isDead: false,
   gearScore: "",
   damageDealt: 0,
   damageTaken: 0,
@@ -296,6 +297,11 @@ class LogParser {
     const logLine = new LogLines.LogDeath(lineSplit);
     if (this.debugLines)
       log.debug(`onDeath: ${logLine.name} ${logLine.killerName}`);
+
+    this.updateEntity(logLine.name, {
+      name: logLine.name,
+      isDead: true,
+    });
   }
 
   // logId = 6
@@ -312,6 +318,11 @@ class LogParser {
         expires: +logLine.timestamp + healingSkills[logLine.skillName].duration,
       });
     }
+
+    this.updateEntity(logLine.name, {
+      name: logLine.name,
+      isDead: false,
+    });
   }
 
   // logId = 7

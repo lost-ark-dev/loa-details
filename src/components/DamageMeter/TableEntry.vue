@@ -120,6 +120,10 @@ const props = defineProps({
 const entryName = computed(() => {
   let res = "";
 
+  if (props.player.isDead) {
+    res += "💀 ";
+  }
+
   let hasName = false;
   if (props.nameDisplay.includes("name")) {
     hasName = true;
