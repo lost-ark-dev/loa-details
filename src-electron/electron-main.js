@@ -183,7 +183,7 @@ function startApplication() {
     log.info("debug:", data);
   });
 
-  const dontShowPatreonBox = store.get("dont_show_patreon_box");
+  /*   const dontShowPatreonBox = store.get("dont_show_patreon_box");
   if (!dontShowPatreonBox) {
     const userSelection = dialog.showMessageBoxSync(mainWindow, {
       type: "info",
@@ -199,7 +199,7 @@ function startApplication() {
     }
 
     store.set("dont_show_patreon_box", "true");
-  }
+  } */
 
   mainWindow = createMainWindow(appSettings);
   damageMeterWindow = createDamageMeterWindow(logParser, appSettings);

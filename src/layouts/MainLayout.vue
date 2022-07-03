@@ -123,11 +123,6 @@
         Discord
       </div>
 
-      <div class="link-item q-ml-lg non-selectable" @click="openPatreon">
-        <q-icon name="fa-brands fa-patreon" />
-        Patreon
-      </div>
-
       <div
         class="link-item non-selectable"
         style="margin-left: auto"
@@ -174,13 +169,6 @@ function closeApp() {
     if (hideToTray) window.windowControlApi.hide();
     else window.windowControlApi.close();
   }
-}
-
-function openPatreon() {
-  window.messageApi.send("window-to-main", {
-    message: "open-link",
-    value: "https://patreon.com/loadetails",
-  });
 }
 
 function openDiscord() {
