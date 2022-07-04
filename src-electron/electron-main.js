@@ -29,7 +29,7 @@ import {
 
 import { saveScreenshot } from "./util/screenshot";
 
-const LogParser = require("./log-parser/main");
+const { LogParser } = require("loa-details-log-parser");
 
 const { mainFolder } = require("./util/directories");
 

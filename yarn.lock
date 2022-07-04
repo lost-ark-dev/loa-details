@@ -1296,6 +1296,11 @@ dayjs@^1.11.2:
   resolved "https://registry.npmjs.org/dayjs/-/dayjs-1.11.2.tgz"
   integrity sha512-F4LXf1OeU9hrSYRPTTj/6FbO4HTjPKXvEIC1P2kcnFurViINCVk3ZV0xAS3XVx9MkMsXbbqlK6hjseaYbgKEHw==
 
+dayjs@^1.11.3:
+  version "1.11.3"
+  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.3.tgz#4754eb694a624057b9ad2224b67b15d552589258"
+  integrity sha512-xxwlswWOlGhzgQ4TKzASQkUhqERI3egRNqgV4ScR8wlANA/A9tZ7miXa44vTTKEq5l7vWoL5G57bG3zA+Kow0A==
+
 debounce-fn@^4.0.0:
   version "4.0.0"
   resolved "https://registry.npmjs.org/debounce-fn/-/debounce-fn-4.0.0.tgz"
@@ -2828,6 +2833,15 @@ levn@^0.4.1:
   dependencies:
     prelude-ls "^1.2.1"
     type-check "~0.4.0"
+
+loa-details-log-parser@^1.0.6:
+  version "1.0.6"
+  resolved "https://registry.yarnpkg.com/loa-details-log-parser/-/loa-details-log-parser-1.0.6.tgz#6fcd788f1cd5a3a38f4bd765f3662213ab86410b"
+  integrity sha512-itepvtCEvKTdCU/DDmZepfO6OpiTctqfsIx8hszz6FNIpwBIawrk+HUStl8Eo/3UASiId1h3FbhHM4JdhSHRwg==
+  dependencies:
+    dayjs "^1.11.3"
+    lodash "^4.17.21"
+    uuid "^8.3.2"
 
 load-json-file@^2.0.0:
   version "2.0.0"

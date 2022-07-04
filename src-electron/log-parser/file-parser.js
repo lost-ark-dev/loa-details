@@ -12,16 +12,7 @@ dayjs.extend(customParseFormat);
 const LOG_PARSER_VERSION = 11;
 
 export async function parseLogs(event, splitOnPhaseTransition) {
-  const workers = workerFarm(
-    require.resolve(
-      process.env.DEBUGGING
-        ? path.resolve(
-            __dirname,
-            "../../src-electron/log-parser/file-parser-worker.js"
-          )
-        : path.resolve(__dirname, "log-parser/file-parser-worker.js")
-    )
-  );
+  const workers = workerFarm(require.resolve("loa-details-log-parser/worker"));
 
   const unparsedLogs = await fsPromises.readdir(mainFolder);
   const parsedLogs = await fsPromises.readdir(parsedLogFolder);
