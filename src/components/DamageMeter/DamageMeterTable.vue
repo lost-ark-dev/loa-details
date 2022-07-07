@@ -323,6 +323,20 @@ function sortEntities() {
 
     entity.shieldPercentageTotal = getPercentage(entity, "shield", "total");
     entity.shieldPercentageTop = getPercentage(entity, "shield", "top");
+
+    let totalHitsWithBa = 1,
+      totalHitsWithFa = 1;
+
+    for (const skill of Object.values(entity.skills)) {
+      if (skill.hits.backAttack / skill.hits.total >= 0.07)
+        totalHitsWithBa += skill.hits.total;
+
+      if (skill.hits.frontAttack / skill.hits.total >= 0.07)
+        totalHitsWithFa += skill.hits.total;
+    }
+
+    entity.hits.totalHitsWithBa = totalHitsWithBa;
+    entity.hits.totalHitsWithFa = totalHitsWithFa;
   }
 
   sortedEntities.value = res;
