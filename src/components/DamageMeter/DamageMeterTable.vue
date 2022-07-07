@@ -324,8 +324,8 @@ function sortEntities() {
     entity.shieldPercentageTotal = getPercentage(entity, "shield", "total");
     entity.shieldPercentageTop = getPercentage(entity, "shield", "top");
 
-    let totalHitsWithBa = 1,
-      totalHitsWithFa = 1;
+    let totalHitsWithBa = 0,
+      totalHitsWithFa = 0;
 
     for (const skill of Object.values(entity.skills)) {
       if (skill.hits.backAttack / skill.hits.total >= 0.07)
@@ -335,8 +335,8 @@ function sortEntities() {
         totalHitsWithFa += skill.hits.total;
     }
 
-    entity.hits.totalHitsWithBa = totalHitsWithBa;
-    entity.hits.totalHitsWithFa = totalHitsWithFa;
+    entity.hits.totalHitsWithBa = totalHitsWithBa > 0 ? totalHitsWithBa : 1;
+    entity.hits.totalHitsWithFa = totalHitsWithFa > 0 ? totalHitsWithFa : 1;
   }
 
   sortedEntities.value = res;
