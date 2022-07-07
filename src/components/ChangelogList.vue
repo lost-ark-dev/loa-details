@@ -17,6 +17,17 @@ import { ref } from "vue";
 
 const changes = ref([
   {
+    version: "0.5.4",
+    mdFormattedLog: `
+    * Code refactoring. Split the log parser into a module.
+    * Added "Kungelanium" and "Vykas" gate 1-2-3 to the log viewer with their respective images.
+    * Now the meter ignores skills that have less than 7% front attack and back attack rate when calculating the general front attack and back attack rate.
+    This means if a single skill has less than 7% front attack and back attack rate, it will not be used in the front attack and back attack rate calculation.
+    For example, if a skill has a front attack rate of 5% it will not be used in the front attack rate calculation. This means that you should be seeing
+    a higher amount of front attack and back attack rate in general.
+  `,
+  },
+  {
     version: "0.5.3",
     mdFormattedLog: `
     * Updated logger to work with the latest patch.
