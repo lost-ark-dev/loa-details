@@ -3,6 +3,11 @@ const test = [
   "Argos",
   "ValtanG1",
   "ValtanG2",
+  "VykasG1",
+  "VykasG2",
+  "VykasG3",
+  // GUARDIANS START
+  // GUARDIANS SHOULD "NAME+" PATTERN
   "Achates",
   "Alberhastic",
   "Armored Nacrasena",
@@ -24,6 +29,8 @@ const test = [
   "Urnil",
   "Velganos",
   "Vertus",
+  "Kungelanium",
+  // GUARDIANS END
 ];
 
 export const encounters = {
@@ -45,11 +52,30 @@ export const encounters = {
       .href,
     encounterNames: ["Demon Beast Commander Valtan"],
   },
+  VykasG1: {
+    name: "Vykas Gate 1",
+    image: new URL(`../assets/images/encounters/vykas.png`, import.meta.url)
+      .href,
+    encounterNames: ["Incubus Morphe", "Nightmarish Morphe"],
+  },
+  VykasG2: {
+    name: "Vykas Gate 2",
+    image: new URL(`../assets/images/encounters/vykas.png`, import.meta.url)
+      .href,
+    encounterNames: ["Covetous Devourer Vykas"],
+  },
+  VykasG3: {
+    name: "Vykas Gate 3",
+    image: new URL(`../assets/images/encounters/vykas.png`, import.meta.url)
+      .href,
+    encounterNames: ["Covetous Legion Commander Vykas"],
+  },
+  /* GUARDIANS BELOW */
   Achates: {
     name: "Achates",
     image: new URL(`../assets/images/encounters/achates.png`, import.meta.url)
       .href,
-    encounterNames: ["Achates"],
+    encounterNames: ["Achates", "Achates+"],
   },
   Alberhastic: {
     name: "Alberhastic",
@@ -57,7 +83,7 @@ export const encounters = {
       `../assets/images/encounters/alberhastic.png`,
       import.meta.url
     ).href,
-    encounterNames: ["Alberhastic"],
+    encounterNames: ["Alberhastic", "Alberhastic+"],
   },
   "Armored Nacrasena": {
     name: "Armored Nacrasena",
@@ -65,13 +91,13 @@ export const encounters = {
       `../assets/images/encounters/armored_nacrasena.png`,
       import.meta.url
     ).href,
-    encounterNames: ["Armored Nacrasena"],
+    encounterNames: ["Armored Nacrasena", "Armored Nacrasena+"],
   },
   Calventus: {
     name: "Calventus",
     image: new URL(`../assets/images/encounters/calventus.png`, import.meta.url)
       .href,
-    encounterNames: ["Calventus"],
+    encounterNames: ["Calventus", "Calventus+"],
   },
   Chromanium: {
     name: "Chromanium",
@@ -79,7 +105,7 @@ export const encounters = {
       `../assets/images/encounters/chromanium.png`,
       import.meta.url
     ).href,
-    encounterNames: ["Chromanium"],
+    encounterNames: ["Chromanium", "Chromanium+"],
   },
   "Dark Legoros": {
     name: "Dark Legoros",
@@ -87,13 +113,13 @@ export const encounters = {
       `../assets/images/encounters/dark_legoros.png`,
       import.meta.url
     ).href,
-    encounterNames: ["Dark Legoros"],
+    encounterNames: ["Dark Legoros", "Dark Legoros+"],
   },
   Deskaluda: {
     name: "Deskaluda",
     image: new URL(`../assets/images/encounters/deskaluda.png`, import.meta.url)
       .href,
-    encounterNames: ["Deskaluda"],
+    encounterNames: ["Deskaluda", "Deskaluda+"],
   },
   "Flame Fox Yoho": {
     name: "Flame Fox Yoho",
@@ -101,7 +127,7 @@ export const encounters = {
       `../assets/images/encounters/flame_fox_yoho.png`,
       import.meta.url
     ).href,
-    encounterNames: ["Flame Fox Yoho"],
+    encounterNames: ["Flame Fox Yoho", "Flame Fox Yoho+"],
   },
   "Frost Helgaia": {
     name: "Frost Helgaia",
@@ -109,13 +135,13 @@ export const encounters = {
       `../assets/images/encounters/frost_helgaia.png`,
       import.meta.url
     ).href,
-    encounterNames: ["Frost Helgaia"],
+    encounterNames: ["Frost Helgaia", "Frost Helgaia+"],
   },
   Helgaia: {
     name: "Helgaia",
     image: new URL(`../assets/images/encounters/helgaia.png`, import.meta.url)
       .href,
-    encounterNames: ["Helgaia"],
+    encounterNames: ["Helgaia", "Helgaia+"],
   },
   "Icy Legoros": {
     name: "Icy Legoros",
@@ -123,13 +149,13 @@ export const encounters = {
       `../assets/images/encounters/icy_legoros.png`,
       import.meta.url
     ).href,
-    encounterNames: ["Icy Legoros"],
+    encounterNames: ["Icy Legoros", "Icy Legoros+"],
   },
   Igrexion: {
     name: "Igrexion",
     image: new URL(`../assets/images/encounters/igrexion.png`, import.meta.url)
       .href,
-    encounterNames: ["Igrexion"],
+    encounterNames: ["Igrexion", "Igrexion+"],
   },
   "Lava Chromanium": {
     name: "Lava Chromanium",
@@ -137,25 +163,25 @@ export const encounters = {
       `../assets/images/encounters/lava_chromanium.png`,
       import.meta.url
     ).href,
-    encounterNames: ["Lava Chromanium"],
+    encounterNames: ["Lava Chromanium", "Lava Chromanium+"],
   },
   Levanos: {
     name: "Levanos",
     image: new URL(`../assets/images/encounters/levanos.png`, import.meta.url)
       .href,
-    encounterNames: ["Levanos"],
+    encounterNames: ["Levanos", "Levanos+"],
   },
   Lumerus: {
     name: "Lumerus",
     image: new URL(`../assets/images/encounters/lumerus.png`, import.meta.url)
       .href,
-    encounterNames: ["Lumerus"],
+    encounterNames: ["Lumerus", "Lumerus+"],
   },
   Nacrasena: {
     name: "Nacrasena",
     image: new URL(`../assets/images/encounters/nacrasena.png`, import.meta.url)
       .href,
-    encounterNames: ["Nacrasena"],
+    encounterNames: ["Nacrasena", "Nacrasena+"],
   },
   "Night Fox Yoho": {
     name: "Night Fox Yoho",
@@ -163,30 +189,38 @@ export const encounters = {
       `../assets/images/encounters/night_fox_yoho.png`,
       import.meta.url
     ).href,
-    encounterNames: ["Night Fox Yoho"],
+    encounterNames: ["Night Fox Yoho", "Night Fox Yoho+"],
   },
   Tytalos: {
     name: "Tytalos",
     image: new URL(`../assets/images/encounters/tytalos.png`, import.meta.url)
       .href,
-    encounterNames: ["Tytalos"],
+    encounterNames: ["Tytalos", "Tytalos+"],
   },
   Urnil: {
     name: "Urnil",
     image: new URL(`../assets/images/encounters/urnil.png`, import.meta.url)
       .href,
-    encounterNames: ["Urnil", "Ur'nil"],
+    encounterNames: ["Urnil", "Ur'nil", "Urnil+"],
   },
   Velganos: {
     name: "Velganos",
     image: new URL(`../assets/images/encounters/velganos.png`, import.meta.url)
       .href,
-    encounterNames: ["Velganos"],
+    encounterNames: ["Velganos", "Velganos+"],
   },
   Vertus: {
     name: "Vertus",
     image: new URL(`../assets/images/encounters/vertus.png`, import.meta.url)
       .href,
-    encounterNames: ["Vertus"],
+    encounterNames: ["Vertus", "Vertus+"],
+  },
+  Kungelanium: {
+    name: "Kungelanium",
+    image: new URL(
+      `../assets/images/encounters/kungelanium.png`,
+      import.meta.url
+    ).href,
+    encounterNames: ["Kungelanium", "Kungelanium+"],
   },
 };
