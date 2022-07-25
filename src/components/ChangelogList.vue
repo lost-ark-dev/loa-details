@@ -17,6 +17,13 @@ import { ref } from "vue";
 
 const changes = ref([
   {
+    version: "0.5.6",
+    mdFormattedLog: `
+    * Fixed Arcanist's color not working.
+    * Updated log parser to remove excess bleed damage on Valtan Gate 1.
+  `,
+  },
+  {
     version: "0.5.4",
     mdFormattedLog: `
     * Code refactoring. Split the log parser into a module.
