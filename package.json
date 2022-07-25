@@ -17,7 +17,6 @@
     "releasewin": "powershell ./scripts/release_win.ps1"
   },
   "dependencies": {
-    "loa-details-log-parser": "^1.0.6",
     "@electron/remote": "^2.0.8",
     "@quasar/extras": "^1.14.1",
     "add": "^2.0.6",
@@ -27,6 +26,7 @@
     "electron-store": "^8.0.1",
     "electron-updater": "^5.0.1",
     "html2canvas": "^1.4.1",
+    "loa-details-log-parser": "^1.0.6",
     "lodash": "^4.17.21",
     "pinia": "^2.0.11",
     "platform-folders": "^0.6.0",
