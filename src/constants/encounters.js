@@ -44,7 +44,11 @@ export const encounters = {
     name: "Valtan Gate 1",
     image: new URL(`../assets/images/encounters/valtan.png`, import.meta.url)
       .href,
-    encounterNames: ["Dark Mountain Predator"],
+    encounterNames: [
+      "Dark Mountain Predator",
+      "Destroyer Lucas",
+      "Leader Laguru",
+    ],
   },
   ValtanG2: {
     name: "Valtan Gate 2",
