@@ -9,7 +9,7 @@ const path = require("path");
 const customParseFormat = require("dayjs/plugin/customParseFormat");
 dayjs.extend(customParseFormat);
 
-const LOG_PARSER_VERSION = 11;
+const LOG_PARSER_VERSION = 12;
 
 export async function parseLogs(event, splitOnPhaseTransition) {
   const workers = workerFarm(require.resolve("loa-details-log-parser/worker"));
