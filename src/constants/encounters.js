@@ -47,7 +47,7 @@ export const encounters = {
     encounterNames: [
       "Dark Mountain Predator",
       "Destroyer Lucas",
-      "Leader Laguru",
+      "Leader Lugaru",
     ],
   },
   ValtanG2: {
