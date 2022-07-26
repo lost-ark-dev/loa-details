@@ -58,7 +58,19 @@
           />
 
           <q-select
-            v-else-if="logViewerStore.viewerState === 'viewing-session'"
+            v-if="logViewerStore.viewerState === 'none'"
+            filled
+            v-model="logViewerStore.logfileFilter"
+            @update:model-value="computedLogFileList()"
+            multiple
+            clearable
+            :options="logViewerStore.encounterOptions"
+            label="Filter encounters"
+            style="width: 256px"
+          />
+
+          <q-select
+            v-if="logViewerStore.viewerState === 'viewing-session'"
             filled
             v-model="logViewerStore.encounterFilter"
             @update:model-value="calculateEncounterRows()"
@@ -121,7 +133,7 @@
         <div v-if="logViewerStore.viewerState === 'none'">
           <q-table
             title="Sessions"
-            :rows="logViewerStore.sessions"
+            :rows="logViewerStore.computedSessions"
             :columns="sessionColumns"
             row-key="dateText"
             dark
@@ -397,6 +409,8 @@ const logFile = reactive({
 function calculateLogFileList(value) {
   logViewerStore.resetState();
 
+  logViewerStore.encounterOptions = [];
+
   value.forEach((val) => {
     let totalDuration = 0;
     let sessionEncounters = [];
@@ -410,6 +424,14 @@ function calculateLogFileList(value) {
         durationTs: val_encounter.duration,
         duration: millisToMinutesAndSeconds(val_encounter.duration),
       });
+    });
+
+    sessionEncounters.forEach((encounter) => {
+      let encounterName = encounter.encounterName;
+
+      if (!logViewerStore.encounterOptions.includes(encounterName)) {
+        logViewerStore.encounterOptions.push(encounterName);
+      }
     });
 
     if (
@@ -429,9 +451,40 @@ function calculateLogFileList(value) {
   });
 
   logViewerStore.sessions.reverse();
+  logViewerStore.computedSessions = JSON.parse(
+    JSON.stringify(logViewerStore.sessions)
+  );
 
   logViewerStore.viewerState =
     logViewerStore.sessions.length > 0 ? "none" : "no-data";
+}
+
+function computedLogFileList() {
+  if (
+    !logViewerStore.logfileFilter ||
+    Object.keys(logViewerStore.logfileFilter).length === 0
+  ) {
+    logViewerStore.computedSessions = logViewerStore.sessions;
+    return;
+  }
+
+  const filteredSessions = [];
+
+  logViewerStore.sessions.forEach((session) => {
+    const filteredEncounters = [];
+
+    session.sessionEncounters.forEach((encounter) => {
+      if (logViewerStore.logfileFilter.includes(encounter.encounterName)) {
+        filteredEncounters.push(encounter);
+      }
+    });
+
+    if (filteredEncounters.length > 0) {
+      filteredSessions.push(session);
+    }
+  });
+
+  logViewerStore.computedSessions = filteredSessions;
 }
 
 function getLogfiles() {

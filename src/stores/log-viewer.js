@@ -6,8 +6,10 @@ export const useLogViewerStore = defineStore("log-viewer", {
     currentSessionName: null,
     currentEncounterName: null,
     sessions: [],
+    computedSessions: [],
     encounterOptions: [],
     encounterFilter: null,
+    logfileFilter: null,
   }),
   actions: {
     resetState() {
@@ -15,8 +17,10 @@ export const useLogViewerStore = defineStore("log-viewer", {
       this.currentSessionName = null;
       this.currentEncounterName = null;
       this.sessions = [];
+      this.computedSessions = [];
       this.encounterOptions = [];
-      encounterFilter: null;
+      this.encounterFilter = null;
+      this.logfileFilter = null;
     },
   },
 });
