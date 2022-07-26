@@ -464,7 +464,7 @@ function getPercentage(player, dmgType, relativeTo) {
   left: 0;
   z-index: -100;
   opacity: 0.75;
-  height: 28px;
+  height: 100%;
   transition: 100ms;
 }
 </style>
