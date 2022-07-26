@@ -17,6 +17,20 @@ import { ref } from "vue";
 
 const changes = ref([
   {
+    version: "0.5.7",
+    mdFormattedLog: `
+    Fixes:
+    * Fixed a typo with one of the Valtan Gate 1 bosses names.
+    * Fixed a bug where "Total DPS" on the meter was not resetting to 0 when the meter was cleared.
+    * Fixed a CSS bug which created lines between the skill entries.
+
+    New Features:
+    * Added a button to the settings page (under Damage Meter tab) to reset damage meter windows position. You can use this if you lose the window on an unplugged monitor.
+    * Skill Hits per minute now have 1 decimal point instead of 0 (example: 57 > 57.8).
+    * Added "Encounter Filter" to the main table of the Logs page for you to filter sessions with certain bosses.
+  `,
+  },
+  {
     version: "0.5.6",
     mdFormattedLog: `
     * Fixed Arcanist's color not working.
