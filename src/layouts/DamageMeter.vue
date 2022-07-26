@@ -342,6 +342,7 @@ onMounted(() => {
     fightPausedOn = 0;
     fightPausedForMs = 0;
     damageType.value = "dmg";
+    sessionDPS.value = 0;
   });
 
   window.messageApi.receive("pcap-on-message", (value) => {
