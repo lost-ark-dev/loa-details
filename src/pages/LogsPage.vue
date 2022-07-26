@@ -310,6 +310,7 @@ function onSessionRowClick(event, row) {
     }
   });
 
+  logViewerStore.encounterOptions.sort();
   calculateEncounterRows();
 }
 
@@ -433,6 +434,8 @@ function calculateLogFileList(value) {
         logViewerStore.encounterOptions.push(encounterName);
       }
     });
+
+    logViewerStore.encounterOptions.sort();
 
     if (
       totalDuration >=
