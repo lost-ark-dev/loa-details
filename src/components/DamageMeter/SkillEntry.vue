@@ -130,7 +130,7 @@ const DPS = computed(() => {
 
 const HPM = computed(() => {
   return abbreviateNumber(
-    (props.skill.hits.total / (props.fightDuration / 1000 / 60)).toFixed(0)
+    (props.skill.hits.total / (props.fightDuration / 1000 / 60)).toFixed(1)
   );
 });
 
