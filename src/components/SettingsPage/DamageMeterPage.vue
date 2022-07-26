@@ -1,5 +1,13 @@
 <template>
   <q-list>
+    <q-btn
+      unelevated
+      color="primary"
+      label="Reset Window Position"
+      style="margin-left: 16px; margin-top: 8px"
+      @click="resetDamageMeterPosition"
+    />
+
     <q-item-label header>Functionality</q-item-label>
 
     <q-item tag="label">
@@ -383,6 +391,12 @@ var nameDisplayModel = ref("");
 watch(nameDisplayModel, (newVal, oldVal) => {
   settingsStore.settings.damageMeter.functionality.nameDisplayV2 = newVal.value;
 });
+
+function resetDamageMeterPosition() {
+  window.messageApi.send("window-to-main", {
+    message: "reset-damage-meter-position",
+  });
+}
 
 onMounted(() => {
   nameDisplayModel.value = nameDisplayOptions.value.find(

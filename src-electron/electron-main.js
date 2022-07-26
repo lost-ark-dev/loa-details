@@ -296,6 +296,11 @@ const ipcFunctions = {
     if (res.canceled || !res.filePaths || !res.filePaths[0]) return;
     event.reply("selected-log-path-folder", res.filePaths[0]);
   },
+  "reset-damage-meter-position": async (event, arg) => {
+    damageMeterWindow.setPosition(0, 0);
+    store.set(`windows.damage_meter.X`, 0);
+    store.set(`windows.damage_meter.Y`, 0);
+  },
   "toggle-damage-meter-minimized-state": (event, arg) => {
     if (appSettings.damageMeter.functionality.minimizeToTaskbar) {
       if (arg.value) damageMeterWindow.minimize();
