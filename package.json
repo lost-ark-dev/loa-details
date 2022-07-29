@@ -26,7 +26,7 @@
     "electron-store": "^8.0.1",
     "electron-updater": "^5.0.1",
     "html2canvas": "^1.4.1",
-    "loa-details-log-parser": "^1.0.6",
+    "loa-details-log-parser": "^1.0.8",
     "lodash": "^4.17.21",
     "pinia": "^2.0.11",
     "platform-folders": "^0.6.0",

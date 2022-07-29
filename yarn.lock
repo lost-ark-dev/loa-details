@@ -2980,10 +2980,10 @@ levn@^0.4.1:
     prelude-ls "^1.2.1"
     type-check "~0.4.0"
 
-loa-details-log-parser@^1.0.6:
-  version "1.0.7"
-  resolved "https://registry.yarnpkg.com/loa-details-log-parser/-/loa-details-log-parser-1.0.7.tgz#ddb2f8ffa0e3ab59319969b1818b3f8fbd2212c8"
-  integrity sha512-WuDfWmivGx9FbDVSSiAL6x4kh0ecdNOu0VOWgnFuB/4TPpFioQm5V8xaKWcjue87vaWq6qk7khYxIBNb2JRYsw==
+loa-details-log-parser@^1.0.8:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/loa-details-log-parser/-/loa-details-log-parser-1.0.8.tgz#626ffef57460ce39d8f010a132d5d3be32156809"
+  integrity sha512-MuDKOFX8suFC+GrSVlSGr9zFclhP+Zte7Suus/36NnINEossEuiBhSs6ApHTJB9iuEfgE3AhRGlCuPP2uA8tkg==
   dependencies:
     dayjs "^1.11.3"
     lodash "^4.17.21"
