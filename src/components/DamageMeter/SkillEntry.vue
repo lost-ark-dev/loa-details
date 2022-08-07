@@ -145,6 +145,7 @@ const avgDamage = computed(() => {
 });
 
 function getSkillImage(id) {
+  if (id > 99999) return getSkillImage(id / 10);
   const s = getSkill(id);
 
   if (s != null && skillHasIcon(s)) {
