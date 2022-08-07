@@ -2980,10 +2980,9 @@ levn@^0.4.1:
     prelude-ls "^1.2.1"
     type-check "~0.4.0"
 
-loa-details-log-parser@^1.1.0:
+"loa-details-log-parser@https://github.com/mirryn/loa-details-log-parser":
   version "1.1.0"
-  resolved "https://registry.yarnpkg.com/loa-details-log-parser/-/loa-details-log-parser-1.1.0.tgz#3fdced3368a750143a3c4c7390f33e1cc8bf55dc"
-  integrity sha512-CzSozG+JjeudMDHlzvn6IK7xbm8V3eZaA+jL49GLf1ScrxABZlyxs/JxSu51w8qdyRK4bprzcXco8AT69cvGHg==
+  resolved "https://github.com/mirryn/loa-details-log-parser#19fc26e9b58959d4db503b5e356e3863022304c4"
   dependencies:
     dayjs "^1.11.3"
     lodash "^4.17.21"
