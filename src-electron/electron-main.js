@@ -7,6 +7,11 @@ import path from "path";
 import os from "os";
 import Store from "electron-store";
 
+if (app.commandLine.hasSwitch("disable-hardware-acceleration")) {
+  log.info("Hardware acceleration disabled");
+  app.disableHardwareAcceleration();
+}
+
 import {
   shortcutEventEmitter,
   initializeShortcuts,
