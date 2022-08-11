@@ -32,13 +32,21 @@ export const useSettingsStore = defineStore("settings", {
       uploads: {
         uploadLogs: false,
         uploadKey: "",
-        apiUrl: process.env.UPLOADS_API_URL,
-        uploadEndpoint: "/logs/upload",
-        loginUrl: process.env.UPLOADS_LOGIN_URL,
-        region: "",
-        server: "",
+        api: {
+          value: process.env.UPLOADS_API_URL,
+          defaultValue: process.env.UPLOADS_API_URL,
+        },
+        endpoint: {
+          value: process.env.UPLOADS_ENDPOINT,
+          defaultValue: process.env.UPLOADS_ENDPOINT,
+        },
+        site: {
+          value: process.env.UPLOADS_LOGIN_URL,
+          defaultValue: process.env.UPLOADS_LOGIN_URL,
+        },
         openOnUpload: false,
-        recentSessions: [],
+        uploadUnlisted: true,
+        includeRegion: false,
       },
       damageMeter: {
         functionality: {
@@ -150,6 +158,12 @@ export const useSettingsStore = defineStore("settings", {
     },
     loadSettings(settingsToLoad) {
       merge(this.settings, settingsToLoad);
+    },
+    saveSettings() {
+      window.messageApi.send("window-to-main", {
+        message: "save-settings",
+        value: JSON.stringify(this.settings),
+      });
     },
   },
 });

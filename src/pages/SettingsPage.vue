@@ -11,14 +11,15 @@
       <q-tab name="damage_meter" icon="speed" label="Damage Meter" />
       <q-tab name="log" icon="article" label="Log " />
       <q-tab name="shortcuts" icon="keyboard" label="Shortcuts " />
+      <q-tab name="upload_logs" icon="cloud_upload" label="Uploading" />
     </q-tabs>
 
     <div class="settings-page">
       <GeneralPage v-if="tab === 'general'" />
       <DamageMeterPage v-if="tab === 'damage_meter'" />
-      <UploadPage v-if="tab === 'upload_logs'" />
       <LogPage v-if="tab === 'log'" />
       <ShortcutsPage v-if="tab === 'shortcuts'" />
+      <UploadPage v-if="tab === 'upload_logs'" />
     </div>
   </q-scroll-area>
 </template>
@@ -37,10 +38,7 @@ const settingsStore = useSettingsStore();
 let tab = ref("general");
 
 settingsStore.$subscribe(() => {
-  window.messageApi.send("window-to-main", {
-    message: "save-settings",
-    value: JSON.stringify(settingsStore.settings),
-  });
+  settingsStore.saveSettings();
 });
 </script>
 

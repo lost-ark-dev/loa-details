@@ -22,6 +22,7 @@ contextBridge.exposeInMainWorld("messageApi", {
       "on-restore-from-taskbar",
       "shortcut-action",
       "selected-log-path-folder",
+      "uploader-message",
     ];
 
     if (validChannels.includes(channel)) {

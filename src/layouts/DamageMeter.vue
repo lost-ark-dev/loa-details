@@ -178,6 +178,20 @@
         <q-btn
           flat
           size="sm"
+          :disabled="settingsStore.settings.uploads.uploadKey.length != 32"
+          :label="`UPLOADING: ${
+            settingsStore.settings.uploads.uploadLogs ? ' ON' : ' OFF'
+          }`"
+          :color="
+            settingsStore.settings.uploads.uploadLogs ? 'positive' : 'negative'
+          "
+          @click="toggleUploads"
+        >
+          <q-tooltip>Toggles uploading encounters</q-tooltip>
+        </q-btn>
+        <q-btn
+          flat
+          size="sm"
           @click="requestSessionRestart"
           label="RESET SESSION"
         >
@@ -240,10 +254,7 @@ function toggleHeaderDisplay(tabName) {
   settingsStore.settings.damageMeter.header[tabName].enabled =
     !settingsStore.settings.damageMeter.header[tabName].enabled;
 
-  window.messageApi.send("window-to-main", {
-    message: "save-settings",
-    value: JSON.stringify(settingsStore.settings),
-  });
+  settingsStore.saveSettings();
 }
 
 const sessionDuration = ref(0);
@@ -403,21 +414,24 @@ onMounted(() => {
           }
         }
       }
-    } else if (typeof value === "object" && value.name === "session-upload") {
-      if (value.failed) {
-        Notify.create({
-          message: value.message,
-          color: "red",
-        });
-      } else {
-        Notify.create({
-          message: value.message,
-          color: "primary",
-        });
-      }
     } else {
       Notify.create({
         message: value,
+      });
+    }
+  });
+
+  window.messageApi.receive("uploader-message", (value) => {
+    const { failed, message } = value;
+    if (failed) {
+      Notify.create({
+        message: message,
+        color: "red",
+      });
+    } else {
+      Notify.create({
+        message: message,
+        color: "primary",
       });
     }
   });
@@ -477,6 +491,12 @@ onMounted(() => {
     }
   }, 1000);
 });
+
+function toggleUploads() {
+  settingsStore.settings.uploads.uploadLogs =
+    !settingsStore.settings.uploads.uploadLogs;
+  settingsStore.saveSettings();
+}
 </script>
 
 <style>

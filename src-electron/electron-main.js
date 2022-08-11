@@ -29,9 +29,8 @@ import {
 
 import { saveScreenshot } from "./util/screenshot";
 
-const { LogParser } = require("loa-details-log-parser");
-
-const { mainFolder } = require("./util/directories");
+import { LogParser } from "loa-details-log-parser";
+import { mainFolder } from "./util/directories";
 
 import {
   parseLogs,
@@ -349,7 +348,7 @@ ipcMain.on("window-to-main", (event, arg) => {
   const ipcFunction =
     ipcFunctions[arg.message] ||
     (() => {
-      log.error("Unknown winodw-to-main message: " + arg.message);
+      log.error("Unknown window-to-main message: " + arg.message);
     });
   ipcFunction(event, arg);
 });
