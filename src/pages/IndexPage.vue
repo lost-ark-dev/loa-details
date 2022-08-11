@@ -25,14 +25,21 @@
         >.
       </p>
 
-      <ChangelogList />
+      <p style="margin-left: 16px; margin-top: 16px" class="text-body1">
+        Refer to the
+        <a
+          class="custom-link"
+          @click="openLinkInBrowser('https://discord.gg/yQmN76dnud')"
+        >
+          Discord Server</a
+        >
+        for full change log.
+      </p>
     </div>
   </q-scroll-area>
 </template>
 
 <script setup>
-import ChangelogList from "src/components/ChangelogList.vue";
-
 function openLinkInBrowser(link) {
   window.messageApi.send("window-to-main", {
     message: "open-link",

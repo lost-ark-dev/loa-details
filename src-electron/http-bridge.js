@@ -101,6 +101,8 @@ function spawnPacketCapturer(appSettings, serverPort) {
   }
 
   packetCapturerProcess.on("exit", function (code, signal) {
+    if (code === 10) return;
+
     log.error(
       `The connection to the Lost Ark Packet Capture was lost for some reason:\n
       Code: ${code} and Signal: ${signal}`

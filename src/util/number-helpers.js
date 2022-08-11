@@ -1,3 +1,21 @@
+export function tryParseInt(intString, defaultValue = 0) {
+  if (typeof intString === "number") {
+    if (isNaN(intString)) return defaultValue;
+    return intString;
+  }
+
+  let intNum;
+
+  try {
+    intNum = parseInt(intString);
+    if (isNaN(intNum)) intNum = defaultValue;
+  } catch {
+    intNum = defaultValue;
+  }
+
+  return intNum;
+}
+
 // turns integer into comma splitted string
 // ex: 123456 => 123,456
 export function numberFormat(n) {
@@ -7,7 +25,7 @@ export function numberFormat(n) {
 // returns an array with 2 values based on its abbreviation
 // ex: 123456 => [123, "k"]
 export function abbreviateNumber(n) {
-  if (n < 1e3) return [n, ""];
+  if (n < 1e3) return [tryParseInt(n).toFixed(1), ""];
   if (n >= 1e3 && n < 1e6) return [+(n / 1e3).toFixed(1), "k"];
   if (n >= 1e6 && n < 1e9) return [+(n / 1e6).toFixed(1), "m"];
   if (n >= 1e9 && n < 1e12) return [+(n / 1e9).toFixed(1), "b"];
