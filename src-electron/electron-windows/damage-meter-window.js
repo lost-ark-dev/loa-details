@@ -1,8 +1,9 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, shell } from "electron";
 import { enable } from "@electron/remote/main";
 import path from "path";
 import { initWindow } from "../util/window-init";
 import log from "electron-log";
+import { upload } from "../util/uploads";
 
 export function createDamageMeterWindow(logParser, appSettings) {
   let damageMeterWindow = new BrowserWindow({
@@ -37,14 +38,41 @@ export function createDamageMeterWindow(logParser, appSettings) {
   damageMeterWindow.setAlwaysOnTop(true, "normal");
 
   // Event listeners
-  logParser.eventEmitter.on("reset-state", () => {
+  logParser.on("reset-state", (state) => {
     try {
       damageMeterWindow.webContents.send("pcap-on-reset-state", "1");
+
+      const uploadsEnabled = appSettings.uploads.uploadLogs;
+      if (uploadsEnabled) {
+        const openInBrowser = appSettings.uploads.openOnUpload;
+
+        upload(state, appSettings)
+          .then((response) => {
+            if (!response) return;
+
+            damageMeterWindow.webContents.send("uploader-message", {
+              failed: false,
+              message: "Encounter uploaded",
+            });
+
+            if (openInBrowser) {
+              const url = `${appSettings.uploads.site.value}"/logs/"${response.id}`;
+              shell.openExternal(url);
+            }
+          })
+          .catch((e) => {
+            log.error(e);
+            damageMeterWindow.webContents.send("uploader-message", {
+              failed: true,
+              message: e.message,
+            });
+          });
+      }
     } catch (e) {
       log.error(e);
     }
   });
-  logParser.eventEmitter.on("state-change", (newState) => {
+  logParser.on("state-change", (newState) => {
     try {
       if (typeof damageMeterWindow !== "undefined" && damageMeterWindow) {
         damageMeterWindow.webContents.send("pcap-on-state-change", newState);
@@ -53,7 +81,7 @@ export function createDamageMeterWindow(logParser, appSettings) {
       log.error(e);
     }
   });
-  logParser.eventEmitter.on("message", (val) => {
+  logParser.on("message", (val) => {
     try {
       damageMeterWindow.webContents.send("pcap-on-message", val);
     } catch (e) {

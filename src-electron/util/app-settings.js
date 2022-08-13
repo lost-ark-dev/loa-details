@@ -60,13 +60,21 @@ const defaultSettings = {
   uploads: {
     uploadLogs: false,
     uploadKey: "",
-    apiUrl: process.env.UPLOADS_API_URL,
-    uploadEndpoint: "/logs/upload",
-    loginUrl: process.env.UPLOADS_LOGIN_URL,
-    region: "",
-    server: "",
+    api: {
+      value: process.env.UPLOADS_API_URL,
+      defaultValue: process.env.UPLOADS_API_URL,
+    },
+    endpoint: {
+      value: process.env.UPLOADS_ENDPOINT,
+      defaultValue: process.env.UPLOADS_ENDPOINT,
+    },
+    site: {
+      value: process.env.UPLOADS_LOGIN_URL,
+      defaultValue: process.env.UPLOADS_LOGIN_URL,
+    },
     openOnUpload: false,
-    recentSessions: [],
+    uploadUnlisted: true,
+    includeRegion: false,
   },
   damageMeter: {
     functionality: {
