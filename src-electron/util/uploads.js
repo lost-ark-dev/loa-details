@@ -2,10 +2,11 @@ import axios from "axios";
 import { getClassIdFromName, guardians } from "./helpers";
 import { mainFolder } from "./directories";
 import fs from "fs";
+import log from "electron-log";
 
-export const upload = async (log, appSettings) => {
+export const upload = async (sessionLog, appSettings) => {
   try {
-    const session = reformat(log);
+    const session = reformat(sessionLog);
 
     if (!session) return undefined;
     validate(session);

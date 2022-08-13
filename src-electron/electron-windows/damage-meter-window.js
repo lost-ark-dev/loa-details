@@ -43,7 +43,10 @@ export function createDamageMeterWindow(logParser, appSettings) {
       damageMeterWindow.webContents.send("pcap-on-reset-state", "1");
 
       const uploadsEnabled = appSettings.uploads.uploadLogs;
+      log.debug("uploadsEnabled", uploadsEnabled);
       if (uploadsEnabled) {
+        log.info("Starting an upload");
+
         const openInBrowser = appSettings.uploads.openOnUpload;
 
         upload(state, appSettings)
@@ -56,7 +59,7 @@ export function createDamageMeterWindow(logParser, appSettings) {
             });
 
             if (openInBrowser) {
-              const url = `${appSettings.uploads.site.value}"/logs/"${response.id}`;
+              const url = `${appSettings.uploads.site.value}/logs/${response.id}`;
               shell.openExternal(url);
             }
           })
