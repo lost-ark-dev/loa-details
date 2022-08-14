@@ -1,7 +1,13 @@
 import axios from "axios";
-import { getClassIdFromName, guardians } from "./helpers";
+import {
+  abyssRaids,
+  getClassIdFromName,
+  guardians,
+  raidBosses,
+} from "./helpers";
 import { mainFolder } from "./directories";
 import fs from "fs";
+import path from "path";
 import log from "electron-log";
 
 export const upload = async (sessionLog, appSettings) => {
@@ -11,15 +17,16 @@ export const upload = async (sessionLog, appSettings) => {
     if (!session) return undefined;
     validate(session);
 
-    const bosses = getBosses(
+    const boss = getBosses(
       session.damageStatistics.totalDamageDealt,
-      session.entities,
-      0.2
-    );
+      session.entities
+    ).sort((a, b) => b.lastUpdate - a.lastUpdate)[0];
+
+    if (!boss) throw new Error("Upload doesn't contain a boss");
 
     session.entities = [
       ...session.entities.filter((e) => e.type === 3), // Players
-      ...bosses,
+      boss,
     ];
 
     const apiUrl = appSettings.uploads.api.value;
@@ -31,8 +38,13 @@ export const upload = async (sessionLog, appSettings) => {
     session.unlisted = appSettings.uploads.uploadUnlisted;
 
     if (process.env.DEBUGGING) {
+      if (!fs.existsSync(path.join(mainFolder, "uploads"))) {
+        log.debug("Creating log upload debug folder");
+        fs.mkdirSync(path.join(mainFolder, "uploads"));
+      }
+
       fs.writeFile(
-        mainFolder + "/debug/" + +new Date() + "-upload.json",
+        mainFolder + "/uploads/" + +new Date() + "-upload.json",
         JSON.stringify(session, null, 2),
         (err) => {
           if (err) log.error(err);
@@ -45,10 +57,16 @@ export const upload = async (sessionLog, appSettings) => {
 
     return response.data;
   } catch (e) {
-    log.error("Error uploading log: " + e);
-    throw new Error(
-      "Session upload failed: " + (process.env.DEBUGGING ? e : e.message)
-    );
+    const response = e.response;
+    if (response) {
+      const { message, id } = response.data;
+      log.error("Uploading failed:", message, id);
+      throw new Error("Upload failed: " + message);
+    } else {
+      throw new Error(
+        "Upload failed: " + (process.env.DEBUGGING ? e : e.message)
+      );
+    }
   }
 };
 
@@ -112,19 +130,27 @@ export const reformat = (oldLog) => {
  * @param {any[]} entities entities from the log
  * @returns {any[]} potential boss entities
  */
-export const getBosses = (logDamage, entities, percent = 0.25) => {
-  // TODO: Temporary until I add dictionary of all bosses and their IDs
+export const getBosses = (logDamage, entities) => {
+  const monsters = entities.filter((e) => e.type !== 3);
+  const bosses = [];
 
-  const bosses = entities.filter(
-    (e) => e.type !== 3 && e.stats.damageTaken >= percent * logDamage
-  );
+  for (const monster of monsters) {
+    if (isGuardian(monster)) monster.type = 2;
+    else if (isBoss(monster)) monster.type = 1;
+    else monster.type = 0;
 
-  for (const boss of bosses) {
-    if (guardians.includes(boss.npcId)) boss.type = 2;
-    else boss.type = 1;
+    if (monster.type !== 0) bosses.push(monster);
   }
 
   return bosses;
+};
+
+export const isGuardian = (e) => {
+  return guardians.includes(e.npcId) || abyssRaids.includes(e.npcId);
+};
+
+const isBoss = (e) => {
+  return raidBosses.includes(e.npcId);
 };
 
 export const reformatEntitySkills = (skills) => {
@@ -159,7 +185,10 @@ export const reformatEntities = (entities) => {
   entities = Object.values(entities);
   for (const entity of entities) {
     const skills = Object.values(entity.skills);
-    if (skills.length < 2) continue;
+    if (entity.isPlayer && skills.length < 4) {
+      // log.debug("[Uploader]: Skipping invalid player " + entity.name + " >> skills:" + skills.length);
+      continue;
+    }
 
     let classId = entity.classId;
     if (classId === 0) classId = getClassIdFromName(entity.class);

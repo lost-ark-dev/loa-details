@@ -73,3 +73,39 @@ export const guardians = [
   634190, 634200, 634210, 634220, 634230, 634240, 634250, 720011, 620290,
   620295, 620160, 620250, 620270, 622210, 630030, 620281, 620280,
 ];
+
+export const raidBosses = [
+  // Airas Oculus (NM)
+  494209, // Frenzied Cicerra
+  494207, // Lost Seto
+  // Airas Oculus (HM)
+  494209, // Frenzied Cicerra
+  494210, // Lost Seto
+  // Oreha Prevaza (NM)
+  494407, // Angry Moguro Captain
+  494408, // Corrupted Albion
+  // Oreha Prevaza (HM)
+  494415, // Angry Moguro Captain
+  494416, // Corrupted Albion
+  // Valtan Legion Raid
+  480005, // Leader Lugaru
+  480006, // Destroyer Lucas
+  480007, // Demon Beast Commander Valtan
+  480008, // Torn Demon Beast Lord (Valtan ghost phase?)
+  42060070, // ^ same?
+  480009, // Dark Mountain Predator (Lucas/Lugaru single form)
+  480010, // Dark Mountain Predator (^)
+  480011, // Dark Mountain Predator (^)
+  // Vykas Legion Raid
+  480208, // Incubus Morphe
+  480209, // Nightmarish Morphe
+  480210, // Covetous Devourer Vykas
+  480211, // Covetous Legion Commander Vykas
+];
+
+export const abyssRaids = [
+  // Argos - Dont know what phase is which
+  634000, // P1?
+  634010, // P2?
+  634020, // P3?
+];
