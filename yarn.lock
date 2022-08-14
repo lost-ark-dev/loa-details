@@ -1330,10 +1330,15 @@ csstype@^2.6.8:
   resolved "https://registry.npmjs.org/csstype/-/csstype-2.6.20.tgz"
   integrity sha512-/WwNkdXfckNgw6S5R125rrW8ez139lBHWouiBvX8dfMFtcn6V81REDqnH7+CRpRipfYlyU1CmOnOxrmGcFOjeA==
 
-dayjs@^1.11.2, dayjs@^1.11.3:
+dayjs@^1.11.2:
   version "1.11.4"
   resolved "https://registry.npmjs.org/dayjs/-/dayjs-1.11.4.tgz"
   integrity sha512-Zj/lPM5hOvQ1Bf7uAvewDaUcsJoI6JmNqmHhHl3nyumwe0XHwt8sWdOVAPACJzCebL8gQCi+K49w7iKWnGwX9g==
+
+dayjs@^1.11.3:
+  version "1.11.5"
+  resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.5.tgz#00e8cc627f231f9499c19b38af49f56dc0ac5e93"
+  integrity sha512-CAdX5Q3YW3Gclyo5Vpqkgpj8fSdLQcRuzfX6mC6Phy0nfJ0eGYOeS7m4mt2plDWLAtA4TqTakvbboHvUxfe4iA==
 
 debounce-fn@^4.0.0:
   version "4.0.0"
@@ -2900,10 +2905,10 @@ levn@^0.4.1:
     prelude-ls "^1.2.1"
     type-check "~0.4.0"
 
-loa-details-log-parser@^1.3.0:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/loa-details-log-parser/-/loa-details-log-parser-1.3.0.tgz#20efbdb787b00411dc113f63453973eeae1d8b31"
-  integrity sha512-2uLsPBhRSQaSgPa+KsTbfEUvEyTql/Rjndu8Czvfygo8f+M3cD+LAVryRtBVzei9MWKV+RjWXNSCzIdqcekNxw==
+loa-details-log-parser@^1.3.1:
+  version "1.3.1"
+  resolved "https://registry.yarnpkg.com/loa-details-log-parser/-/loa-details-log-parser-1.3.1.tgz#0f841fc9df8a2a64ff7d2db8d7b0b48e2658dba8"
+  integrity sha512-XTnGxLNKwTF1Q7s64aWnZ5bXCnWYmq0qh5MFBI6imjWLDL8lii1epGbl61uUWUBPWwc7HoVN0Krz/8YCs9Q4MQ==
   dependencies:
     dayjs "^1.11.3"
     lodash "^4.17.21"
