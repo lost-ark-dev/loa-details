@@ -138,10 +138,12 @@
   </q-layout>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useSettingsStore } from "src/stores/settings";
 import { useRoute } from "vue-router";
+import { Settings } from "app/src-electron/util/app-settings";
+import { ProgressInfo } from "electron-updater";
 
 const settingsStore = useSettingsStore();
 
@@ -174,7 +176,7 @@ function closeApp() {
 function openDiscord() {
   window.messageApi.send("window-to-main", {
     message: "open-link",
-    value: "https://discord.gg/yQmN76dnud",
+    value: "https://discord.gg/C3fr3EBXbS",
   });
 }
 
@@ -195,7 +197,7 @@ function updateButton() {
 onMounted(() => {
   settingsStore.initSettings();
 
-  window.messageApi.receive("on-settings-change", (value) => {
+  window.messageApi.receive("on-settings-change", (value: Settings) => {
     settingsStore.loadSettings(value);
   });
 
@@ -210,9 +212,9 @@ onMounted(() => {
         updateButtonText.value = "Check for Updates";
       }, 3000);
     } else if (eventMessage.message === "download-progress") {
-      updateButtonText.value = `Downloading update ${eventMessage.value.percent.toFixed(
-        0
-      )}%`;
+      updateButtonText.value = `Downloading update ${(
+        eventMessage.value as ProgressInfo
+      ).percent.toFixed(0)}%`;
     } else if (eventMessage.message === "update-downloaded") {
       updateButtonText.value = "Install New Update";
       isUpdateAvailable.value = true;

@@ -131,7 +131,7 @@
       </div>
       <span v-else class="watermark-box">
         <img class="watermark-logo" :src="logoImg" />
-        github.com/karaeren/loa-details
+        github.com/lost-ark-dev/loa-details
       </span>
     </nav>
 
@@ -202,22 +202,23 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted, ref } from "vue";
-import { Notify } from "quasar";
+import type { Ref } from "vue";
+import { Notify, QTooltip } from "quasar";
 import {
   numberFormat,
   millisToMinutesAndSeconds,
-  abbreviateNumber,
+  toFixedNumber,
 } from "src/util/number-helpers";
 import { sleep } from "src/util/sleep";
 import html2canvas from "html2canvas";
-
+import { Game } from "loa-details-log-parser";
 import { useSettingsStore } from "src/stores/settings";
 
 import DamageMeterTable from "src/components/DamageMeter/DamageMeterTable.vue";
 
-const logoImg = new URL(`../assets/images/logo.png`, import.meta.url).href;
+const logoImg = new URL("../assets/images/logo.png", import.meta.url).href;
 
 const settingsStore = useSettingsStore();
 
@@ -236,10 +237,10 @@ function toggleMinimizedState() {
 
 const clickthroughTooltip = ref(null);
 function enableClickthrough() {
-  window.windowControlApi.setIgnoreMouseEvents(true);
+  window.windowControlApi.setIgnoreMouseEvents(true, {});
 
   if (clickthroughTooltip.value) {
-    clickthroughTooltip.value.hide();
+    (clickthroughTooltip.value as QTooltip).hide();
   }
 
   Notify.create({
@@ -250,9 +251,9 @@ function enableClickthrough() {
   });
 }
 
-function toggleHeaderDisplay(tabName) {
-  settingsStore.settings.damageMeter.header[tabName].enabled =
-    !settingsStore.settings.damageMeter.header[tabName].enabled;
+function toggleHeaderDisplay(tabName: string) {
+  const tab = settingsStore.settings.damageMeter.header[tabName];
+  tab.enabled = !tab.enabled;
 
   settingsStore.saveSettings();
 }
@@ -281,13 +282,14 @@ const isTakingScreenshot = ref(false);
 async function takeScreenshot() {
   isTakingScreenshot.value = true;
   await sleep(600);
-
+  if (damageMeterRef.value === null) return;
   const screenshot = await html2canvas(damageMeterRef.value, {
     backgroundColor: "#121212",
   });
 
   screenshot.toBlob(
     (blob) => {
+      if (!blob) return;
       navigator.clipboard.write([
         new ClipboardItem({
           [blob.type]: blob,
@@ -316,8 +318,7 @@ async function takeScreenshot() {
 function requestSessionRestart() {
   window.messageApi.send("window-to-main", { message: "reset-session" });
 }
-
-const sessionState = ref({});
+const sessionState: Ref<Partial<Game>> = ref({});
 const sessionDPS = ref(0);
 
 onMounted(() => {
@@ -335,17 +336,19 @@ onMounted(() => {
 
   window.messageApi.send("window-to-main", { message: "get-settings" });
 
-  window.messageApi.receive("pcap-on-state-change", (value) => {
+  window.messageApi.receive("pcap-on-state-change", (value: Partial<Game>) => {
     sessionState.value = value;
 
     if (
       sessionState.value.damageStatistics?.totalDamageDealt &&
       fightDuration.value > 0
-    )
-      sessionDPS.value = (
+    ) {
+      sessionDPS.value = toFixedNumber(
         sessionState.value.damageStatistics.totalDamageDealt /
-        (fightDuration.value / 1000)
-      ).toFixed(0);
+          (fightDuration.value / 1000),
+        0
+      );
+    }
   });
 
   window.messageApi.receive("pcap-on-reset-state", (value) => {
@@ -445,17 +448,17 @@ onMounted(() => {
 
     const curTime = +new Date();
 
-    sessionDuration.value = curTime - sessionState.value.startedOn;
+    sessionDuration.value = curTime - (sessionState.value.startedOn || 0);
 
-    if (sessionState.value.fightStartedOn > 0) {
+    if (sessionState.value.fightStartedOn || 0 > 0) {
       if (!isFightPaused.value)
         fightDuration.value =
-          curTime - sessionState.value.fightStartedOn - fightPausedForMs;
+          curTime - (sessionState.value.fightStartedOn || 0) - fightPausedForMs;
     } else fightDuration.value = 0;
 
     if (settingsStore.settings.damageMeter.functionality.autoMinimize) {
       let sendResizeMessage = false;
-      const diff = curTime - sessionState.value.lastCombatPacket;
+      const diff = curTime - (sessionState.value.lastCombatPacket || 0);
       if (
         !isAutoMinimized.value &&
         diff >=

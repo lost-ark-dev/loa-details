@@ -1,4 +1,4 @@
-export function tryParseInt(intString, defaultValue = 0) {
+export function tryParseInt(intString: string | number, defaultValue = 0) {
   if (typeof intString === "number") {
     if (isNaN(intString)) return defaultValue;
     return intString;
@@ -16,15 +16,19 @@ export function tryParseInt(intString, defaultValue = 0) {
   return intNum;
 }
 
+export function toFixedNumber(num: number, digits = 0, base?: number) {
+  const pow = Math.pow(base || 10, digits);
+  return Math.round(num * pow) / pow;
+}
 // turns integer into comma splitted string
 // ex: 123456 => 123,456
-export function numberFormat(n) {
+export function numberFormat(n: number) {
   return new Intl.NumberFormat("en-US").format(n);
 }
 
 // returns an array with 2 values based on its abbreviation
 // ex: 123456 => [123, "k"]
-export function abbreviateNumber(n) {
+export function abbreviateNumber(n: number) {
   if (n < 1e3) return [tryParseInt(n).toFixed(1), ""];
   if (n >= 1e3 && n < 1e6) return [+(n / 1e3).toFixed(1), "k"];
   if (n >= 1e6 && n < 1e9) return [+(n / 1e6).toFixed(1), "m"];
@@ -34,7 +38,7 @@ export function abbreviateNumber(n) {
 
 // takes milliseconds in numbers and returns string with minutes:seconds
 // ex: 60000 => 01:00
-export function millisToMinutesAndSeconds(millis) {
+export function millisToMinutesAndSeconds(millis: number) {
   const hoursmillis = millis % (60 * 60 * 1000);
   const minutes = Math.floor(hoursmillis / (60 * 1000));
   const minutesmillis = millis % (60 * 1000);
@@ -43,7 +47,7 @@ export function millisToMinutesAndSeconds(millis) {
   return String(minutes).padStart(2, "0") + ":" + String(sec).padStart(2, "0");
 }
 
-export function millisToHourMinuteSeconds(millis) {
+export function millisToHourMinuteSeconds(millis: number) {
   const daysmillis = millis % (24 * 60 * 60 * 1000);
   const hours = Math.floor(daysmillis / (60 * 60 * 1000));
   const hoursmillis = millis % (60 * 60 * 1000);

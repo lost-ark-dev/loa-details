@@ -4093,7 +4093,7 @@ export const skills = [
     level: 0,
     icon: true,
   },
-{
+  {
     id: 32311,
     name: "[배틀 아이템] 회오리 폭탄 발사체 대미지",
     display: "[Battle Item] Whirlwind Grenade",

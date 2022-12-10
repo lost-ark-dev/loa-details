@@ -1,4 +1,6 @@
-const routes = [
+import { RouteRecordRaw } from "vue-router";
+
+const routes: RouteRecordRaw[] = [
   {
     path: "/prelauncher",
     component: () => import("layouts/PrelauncherLayout.vue"),

@@ -12,6 +12,7 @@ const { configure } = require("quasar/wrappers");
 
 module.exports = configure(function (/* ctx */) {
   return {
+    supportTS: true,
     eslint: {
       // fix: true,
       // include = [],
@@ -61,7 +62,7 @@ module.exports = configure(function (/* ctx */) {
         UPLOADS_LOGIN_URL: "https://lail.ai",
         UPLOADS_ENDPOINT: "/logs/upload",
       },
-
+      devtool: "source-map",
       // vueRouterBase,
       // vueDevtools,
       // vueOptionsAPI: false,
@@ -197,13 +198,12 @@ module.exports = configure(function (/* ctx */) {
         appId: "loa-details",
         win: {
           target: "nsis",
-          requestedExecutionLevel: "requireAdministrator",
         },
-        extraFiles: ["binary/*.exe", "binary/LICENSE"],
+        extraFiles: ["meter-data/**"],
         publish: [
           {
             provider: "github",
-            owner: "karaeren",
+            owner: "lost-ark-dev",
             repo: "loa-details",
           },
         ],

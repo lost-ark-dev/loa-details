@@ -1,7 +1,7 @@
-const platformFolders = require("platform-folders");
-const fs = require("fs");
-const path = require("path");
-const { getSettings } = require("./app-settings");
+import * as platformFolders from "platform-folders";
+import fs from "fs";
+import path from "path";
+import { getSettings } from "./app-settings";
 
 const appSettings = getSettings();
 const customPath = appSettings.general.customLogPath;

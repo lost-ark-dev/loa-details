@@ -208,7 +208,7 @@ function getClassImage(className) {
       import.meta.url
     ).href;
 
-  return new URL(`../../assets/images/classes/Warrior.png`, import.meta.url)
+  return new URL("../../assets/images/classes/Warrior.png", import.meta.url)
     .href;
 }
 </script>

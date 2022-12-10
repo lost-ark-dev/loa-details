@@ -3,7 +3,7 @@
     ref="scrollArea"
     style="height: calc(100vh - 4px - 32px - 66px)"
   >
-    <q-page class="flex justify-start column">
+    <div class="flex justify-start column">
       <div
         v-if="
           logViewerStore.viewerState === 'loading' ||
@@ -217,7 +217,7 @@
       >
         <LogView ref="logView" :log-data="logFile.data" />
       </div>
-    </q-page>
+    </div>
   </q-scroll-area>
 </template>
 
@@ -243,7 +243,7 @@ dayjs.extend(relativeTime);
 const settingsStore = useSettingsStore();
 const logViewerStore = useLogViewerStore();
 
-const loaderImg = new URL(`../assets/images/loader.gif`, import.meta.url).href;
+const loaderImg = new URL("../assets/images/loader.gif", import.meta.url).href;
 
 const scrollArea = ref(null);
 function changeLogViewerStoreState(newState) {

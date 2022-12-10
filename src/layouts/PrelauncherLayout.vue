@@ -12,7 +12,7 @@ import { onMounted, ref } from "vue";
 
 const currentMessage = ref("Checking for updates...");
 
-const loaderImg = new URL(`../assets/images/loader.gif`, import.meta.url).href;
+const loaderImg = new URL("../assets/images/loader.gif", import.meta.url).href;
 onMounted(() => {
   window.messageApi.receive("updater-message", (eventMessage) => {
     if (eventMessage.message === "checking-for-update") {

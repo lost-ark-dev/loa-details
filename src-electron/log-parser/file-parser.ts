@@ -1,23 +1,27 @@
-const workerFarm = require("worker-farm");
+import workerFarm from "worker-farm";
 import dayjs from "dayjs";
+import { IpcMainEvent } from "electron";
 import log from "electron-log";
+import { writeFileSync, unlinkSync, promises as fsPromises } from "fs";
+import path from "path";
 const { mainFolder, parsedLogFolder } = require("../util/directories");
-const fs = require("fs");
-const fsPromises = fs.promises;
-const path = require("path");
 
 const customParseFormat = require("dayjs/plugin/customParseFormat");
 dayjs.extend(customParseFormat);
 
 const LOG_PARSER_VERSION = 12;
 
-export async function parseLogs(event, splitOnPhaseTransition) {
-  const workers = workerFarm(require.resolve("loa-details-log-parser/worker"));
+export async function parseLogs(
+  event: IpcMainEvent,
+  splitOnPhaseTransition: boolean
+) {
+  const s = require.resolve("loa-details-log-parser/worker");
+  const workers = workerFarm(s, ["fileParserWorker"]);
 
   const unparsedLogs = await fsPromises.readdir(mainFolder);
   const parsedLogs = await fsPromises.readdir(parsedLogFolder);
 
-  let mainJson = {
+  let mainJson: { [key: string]: { mtime: Date; logParserVersion: number } } = {
     /*
     "example.log":{
       mtime: ...,
@@ -78,20 +82,23 @@ export async function parseLogs(event, splitOnPhaseTransition) {
 
     totalJobs++;
 
-    workers(
+    workers["fileParserWorker"](
       filename,
       splitOnPhaseTransition,
       mainFolder,
       parsedLogFolder,
-      function (error, output) {
+      function (error: string, output: string) {
         completedJobs++;
         log.info(error, output);
 
         if (output === "no encounters found" || output === "empty log") {
           // remove log file if 1 hour or more have passed since it was last modified
-          if (new Date().getTime() - logStats.mtime > 1 * 60 * 60 * 1000) {
+          if (
+            new Date().getTime() - logStats.mtime.getTime() >
+            1 * 60 * 60 * 1000
+          ) {
             log.info("removing empty log", filename);
-            fs.unlinkSync(path.join(mainFolder, filename));
+            unlinkSync(path.join(mainFolder, filename));
           }
         } else {
           mainJson[filename] = {
@@ -110,7 +117,7 @@ export async function parseLogs(event, splitOnPhaseTransition) {
         if (completedJobs === totalJobs) {
           workerFarm.end(workers);
 
-          fs.writeFileSync(
+          writeFileSync(
             path.join(mainFolder, "main.json"),
             JSON.stringify(mainJson)
           );
@@ -145,7 +152,9 @@ export async function getParsedLogs() {
       res.push({
         filename,
         parsedContents,
-        date: new Date(dayjs(filename.slice(8, -5), "YYYY-MM-DD-HH-mm-ss")),
+        date: new Date(
+          dayjs(filename.slice(8, -5), "YYYY-MM-DD-HH-mm-ss").toDate()
+        ),
       });
     } catch (e) {
       log.error(e);
@@ -156,7 +165,7 @@ export async function getParsedLogs() {
   return res;
 }
 
-export async function getLogData(filename) {
+export async function getLogData(filename: string) {
   try {
     const contents = await fsPromises.readFile(
       path.join(parsedLogFolder, filename),

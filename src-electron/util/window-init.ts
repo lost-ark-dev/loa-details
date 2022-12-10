@@ -2,12 +2,19 @@
   The purpouse of this script is to save the size and position stats
   of windows to be loaded back on next open.
 */
+import { BrowserWindow } from "electron";
 import Store from "electron-store";
 
 const store = new Store();
-
-export function initWindow(window, name) {
-  const windowOptions = store.get(`windows.` + name);
+type WindowOptions = {
+  X: number;
+  Y: number;
+  width: number;
+  height: number;
+  zoomFactor: number;
+};
+export function initWindow(window: BrowserWindow, name: string) {
+  const windowOptions = store.get("windows." + name) as WindowOptions;
 
   if (windowOptions) {
     if (windowOptions.width && windowOptions.height) {
@@ -29,20 +36,20 @@ export function initWindow(window, name) {
     }
   }
 
-  window.on(`moved`, () => {
+  window.on("moved", () => {
     const curPos = window.getPosition();
     store.set(`windows.${name}.X`, curPos[0]);
     store.set(`windows.${name}.Y`, curPos[1]);
   });
 
-  window.on(`resized`, () => {
+  window.on("resized", () => {
     const curSize = window.getSize();
     store.set(`windows.${name}.width`, curSize[0]);
     store.set(`windows.${name}.height`, curSize[1]);
   });
 
   window.webContents.on("zoom-changed", (event, zoomDirection) => {
-    var currentZoom = window.webContents.getZoomFactor();
+    const currentZoom = window.webContents.getZoomFactor();
 
     if (zoomDirection === "in") {
       const newZoom = currentZoom + 0.2;

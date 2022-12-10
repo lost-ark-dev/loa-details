@@ -2,6 +2,8 @@
   <router-view class="inner-shadow shadow-box shadow-2" />
 </template>
 
+<script setup lang="ts"></script>
+
 <style>
 .inner-shadow {
   outline: 1px solid #ffffff08;

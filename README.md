@@ -4,31 +4,54 @@
   <br />
   <br />
 
-  <a href="https://github.com/karaeren/loa-details/releases/latest">
-    <img src="https://img.shields.io/github/downloads/karaeren/loa-details/total?style=for-the-badge" />
+  <a href="https://github.com/lost-ark-dev/loa-details/releases/latest">
+    <img src="https://img.shields.io/github/downloads/lost-ark-dev/loa-details/total?style=for-the-badge" />
   </a>
-  <a href="https://discord.gg/yQmN76dnud">
-    <img src="https://img.shields.io/discord/978304863303770113?color=%235865F2&label=Discord&style=for-the-badge" />
+  <a href="https://discord.gg/C3fr3EBXbS">
+    <img src="https://img.shields.io/discord/1039210817314377779?color=%235865F2&label=Discord&style=for-the-badge" />
   </a>
 
   <br />
 
-  <img src="https://img.shields.io/github/package-json/v/karaeren/loa-details?style=flat-square" />
-  <img src="https://img.shields.io/github/license/karaeren/loa-details?style=flat-square" />
+  <img src="https://img.shields.io/github/package-json/v/lost-ark-dev/loa-details?style=flat-square" />
+  <img src="https://img.shields.io/github/license/lost-ark-dev/loa-details?style=flat-square" />
 </p>
 
 <p align="center">Realtime Damage Meter tool for Lost Ark</p>
 
 ![small](https://user-images.githubusercontent.com/29287377/173195460-cf8da1b4-abfa-4ed3-8dec-648eb1ffaf87.png)
 
-<hr />
+---
 
-# About
+# Requirements
 
-<p style="margin-left: 16px; margin-top: 16px" class="text-body1">
-LOA Details allows you to track real-time stats of the game Lost Ark and view and parse its logged data.
-<br />
-<br />
-It relies on the logging capabilities of the open-source software
-<a href="https://github.com/shalzuth/LostArkLogger" class="custom-link" >LostArkLogger</a> and the modified version of the logger's source code can be found <a href="https://github.com/karaeren/LostArkLogger" class="custom-link">here</a>.
-</p>
+- For windows, you need [Npcap with WinPcap compatibilities](https://npcap.com/#download)
+- For Unix, you need `libpcap` and `libpcap-dev/libpcap-devel` packages
+
+### When installing Npcap for Windows:
+
+- You must tick the case `Install Npcap in WinPcap API-compatible Mode`
+- If you don't want to run loa-details as administrator every time, you should NOT TICK the case `Restrict Npcap driver's access to Administrators only`
+
+![npcap-install](./public/npcap.png)
+
+## User Instructions
+
+- Make you that you have installed the requirements
+- Download latest release installer [here](https://github.com/lost-ark-dev/loa-details/releases/latest)
+- Follow the installation instructions
+- Start loa-details and start logging !
+
+## Dev
+
+- You can run loa-details for debug and testing with the command `npm run dev`
+- You can build a release-ready binary with the command `npm run build` or `npm run buildwin` depending on the target plateform. Output will be located in `./dist/electron` directory.
+
+---
+
+# Credits
+
+This repository is a clone of the [original interface](https://github.com/karaeren/loa-details) from [@karaeren](https://github.com/karaeren).
+It has been modified to work as a standalone program, without the need of any 3rd party logger.
+
+The packet sniffing part has been made from scratch by [@Herysia](https://github.com/Herysia) and [@Mathicha](https://github.com/Mathicha), however, we can't help but thank [@Shalzuth](https://github.com/Shalzuth) for his work on [LostArkLogger](https://github.com/shalzuth/LostArkLogger).

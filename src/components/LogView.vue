@@ -27,7 +27,7 @@
         </span>
         <span v-if="isTakingScreenshot" class="watermark-box">
           <img class="watermark-logo" :src="logoImg" />
-          github.com/karaeren/loa-details
+          github.com/lost-ark-dev/loa-details
         </span>
       </div>
     </div>
@@ -68,7 +68,7 @@ import html2canvas from "html2canvas";
 import DamageMeterTable from "src/components/DamageMeter/DamageMeterTable.vue";
 import { useSettingsStore } from "src/stores/settings";
 
-const logoImg = new URL(`../assets/images/logo.png`, import.meta.url).href;
+const logoImg = new URL("../assets/images/logo.png", import.meta.url).href;
 
 const settingsStore = useSettingsStore();
 

@@ -1,27 +1,25 @@
 const { app, globalShortcut, dialog } = require("electron");
 import EventEmitter from "events";
 import log from "electron-log";
+import { Settings } from "./app-settings";
 
 export const shortcutEventEmitter = new EventEmitter();
 
-export function updateShortcuts(appSettings) {
+export function updateShortcuts(appSettings: Settings) {
   globalShortcut.unregisterAll();
   initializeShortcuts(appSettings);
 }
 
-export function initializeShortcuts(appSettings) {
-  for (let key in appSettings.shortcuts) {
-    const ret = globalShortcut.register(
-      appSettings.shortcuts[key].value,
-      () => {
-        shortcutEventEmitter.emit("shortcut", {
-          key: appSettings.shortcuts[key],
-          action: key,
-        });
+export function initializeShortcuts(appSettings: Settings) {
+  for (const [action, key] of Object.entries(appSettings.shortcuts)) {
+    const ret = globalShortcut.register(key.value, () => {
+      shortcutEventEmitter.emit("shortcut", {
+        key,
+        action,
+      });
 
-        log.debug(`Shortcut ${appSettings.shortcuts[key].value} pressed`);
-      }
-    );
+      log.debug(`Shortcut ${key.value} pressed`);
+    });
 
     if (!ret) {
       dialog.showErrorBox(

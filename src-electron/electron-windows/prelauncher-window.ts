@@ -3,7 +3,7 @@ import { enable } from "@electron/remote/main";
 import path from "path";
 
 export function createPrelauncherWindow() {
-  let prelauncherWindow = new BrowserWindow({
+  const prelauncherWindow: BrowserWindow | null = new BrowserWindow({
     icon: path.resolve(__dirname, "icons/icon.png"),
     autoHideMenuBar: true,
     show: false,
@@ -23,18 +23,17 @@ export function createPrelauncherWindow() {
   enable(prelauncherWindow.webContents);
   prelauncherWindow.center();
   prelauncherWindow.loadURL(process.env.APP_URL + "#/prelauncher").then(() => {
+    if (process.env.DEBUGGING) {
+      // if on DEV or Production with debug enabled
+      prelauncherWindow.webContents.openDevTools();
+    } else {
+      // we're on production; no access to devtools pls
+      prelauncherWindow.webContents.on("devtools-opened", () => {
+        prelauncherWindow.webContents.closeDevTools();
+      });
+    }
     prelauncherWindow.show();
   });
-
-  if (process.env.DEBUGGING) {
-    // if on DEV or Production with debug enabled
-    prelauncherWindow.webContents.openDevTools();
-  } else {
-    // we're on production; no access to devtools pls
-    prelauncherWindow.webContents.on("devtools-opened", () => {
-      prelauncherWindow.webContents.closeDevTools();
-    });
-  }
 
   return prelauncherWindow;
 }

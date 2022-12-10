@@ -107,7 +107,7 @@
 <script setup>
 import { computed } from "vue";
 import { skills } from "src/constants/skills.js";
-import { abbreviateNumber } from "src/util/number-helpers.js";
+import { abbreviateNumber } from "src/util/number-helpers";
 import { useSettingsStore } from "src/stores/settings";
 
 const settingsStore = useSettingsStore();
@@ -124,13 +124,13 @@ const abbreviatedDamage = computed(() => {
 
 const DPS = computed(() => {
   return abbreviateNumber(
-    (props.skill.totalDamage / (props.fightDuration / 1000)).toFixed(0)
+    props.skill.totalDamage / (props.fightDuration / 1000)
   );
 });
 
 const HPM = computed(() => {
   return abbreviateNumber(
-    (props.skill.hits.total / (props.fightDuration / 1000 / 60)).toFixed(1)
+    props.skill.hits.total / (props.fightDuration / 1000 / 60)
   );
 });
 
@@ -147,16 +147,19 @@ const avgDamage = computed(() => {
 function getSkillImage(id) {
   if (id > 99999) return getSkillImage(id / 10);
   const s = getSkill(id);
-  if (id % 5 && !(s?.icon)) return getSkillImage(id - id % 5);
+  if (id % 5 && !s?.icon) return getSkillImage(id - (id % 5));
 
   if (s != null && skillHasIcon(s)) {
     return new URL(
-      `../../assets/images/skills/${s.id}_${(s?.display ?? s.name).replace(":", "-")}.png`,
+      `../../assets/images/skills/${s.id}_${(s?.display ?? s.name).replace(
+        ":",
+        "-"
+      )}.png`,
       import.meta.url
     ).href;
   }
 
-  return new URL(`../../assets/images/skills/unknown.png`, import.meta.url)
+  return new URL("../../assets/images/skills/unknown.png", import.meta.url)
     .href;
 }
 
@@ -164,17 +167,21 @@ function getSkillName(skill) {
   const s = getSkill(skill.id);
 
   if (s != null) {
-    if ('display' in s) return s.display;
+    if ("display" in s) return s.display;
   }
   return skill.name;
 }
 
 function skillHasIcon(s) {
-    if (s.name.startsWith("Basic Attack") || s?.display?.startsWith("Basic Attack") || !(s?.icon ?? true))
-      return false;
-    return true;
-  }
-  function getSkill(id) {
-    return skills.find((k) => k.id == id);
+  if (
+    s.name.startsWith("Basic Attack") ||
+    s?.display?.startsWith("Basic Attack") ||
+    !(s?.icon ?? true)
+  )
+    return false;
+  return true;
+}
+function getSkill(id) {
+  return skills.find((k) => k.id == id);
 }
 </script>

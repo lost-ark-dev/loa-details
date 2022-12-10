@@ -1,4 +1,4 @@
-export function tryParseInt(intString, defaultValue = 0) {
+export function tryParseInt(intString: string | number, defaultValue = 0) {
   if (typeof intString === "number") {
     if (isNaN(intString)) return defaultValue;
     return intString;
@@ -16,7 +16,7 @@ export function tryParseInt(intString, defaultValue = 0) {
   return intNum;
 }
 
-export const getClassIdFromName = (name) => {
+export const getClassIdFromName = (name: string) => {
   if (name === "Warrior") return 101;
   if (name === "Mage") return 201;
   if (name === "MartialArtist") return 301;

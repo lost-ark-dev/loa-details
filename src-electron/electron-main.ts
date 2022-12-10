@@ -1,6 +1,20 @@
-import { app, dialog, nativeTheme, ipcMain, Menu, Tray, shell } from "electron";
+import {
+  app,
+  dialog,
+  nativeTheme,
+  ipcMain,
+  Menu,
+  Tray,
+  shell,
+  BrowserWindow,
+} from "electron";
 import { initialize } from "@electron/remote/main";
-import { setupBridge, httpServerEventEmitter } from "./http-bridge";
+
+import { Decompressor } from "meter-core/dist/decompressor";
+import { PktCaptureAll } from "meter-core/dist/pkt-capture";
+import { PKTStream } from "meter-core/dist/pkt-stream";
+import { LegacyLogger } from "meter-core/dist/legacy-logger";
+import { MeterData } from "meter-core/dist/data";
 
 import log from "electron-log";
 import path from "path";
@@ -43,10 +57,19 @@ import {
   getLogData,
   wipeParsedLogs,
 } from "./log-parser/file-parser";
+import {
+  appendFileSync,
+  createWriteStream,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+} from "fs";
 
 const store = new Store();
 
-let prelauncherWindow, mainWindow, damageMeterWindow;
+let prelauncherWindow: BrowserWindow | null,
+  mainWindow: BrowserWindow | null,
+  damageMeterWindow: BrowserWindow | null;
 let tray = null;
 
 const appLockKey = { myKey: "loa-details" };
@@ -67,19 +90,19 @@ if (!gotTheLock) {
 
 initialize();
 
-const logParser = new LogParser((isLive = true));
+const logParser = new LogParser(true);
 logParser.debugLines = true;
 
 let appSettings = getSettings();
 
 logParser.dontResetOnZoneChange =
-  appSettings?.damageMeter?.functionality?.dontResetOnZoneChange;
+  appSettings.damageMeter.functionality.dontResetOnZoneChange;
 
 logParser.resetAfterPhaseTransition =
-  appSettings?.damageMeter?.functionality?.resetAfterPhaseTransition;
+  appSettings.damageMeter.functionality.resetAfterPhaseTransition;
 
 logParser.removeOverkillDamage =
-  appSettings?.damageMeter?.functionality?.removeOverkillDamage;
+  appSettings.damageMeter.functionality.removeOverkillDamage;
 
 appSettings.appVersion = app.getVersion();
 
@@ -129,7 +152,7 @@ updaterEventEmitter.on("event", (details) => {
     startApplication();
     if (typeof prelauncherWindow != "undefined") {
       prelauncherStatus = "closed";
-      prelauncherWindow.close();
+      prelauncherWindow?.close();
       prelauncherWindow = null;
     }
   }
@@ -155,9 +178,9 @@ function startApplication() {
     {
       label: "Show LOA Details",
       click() {
-        mainWindow.show();
-        if (mainWindow.isMinimized()) mainWindow.restore();
-        mainWindow.focus();
+        mainWindow?.show();
+        if (mainWindow?.isMinimized()) mainWindow?.restore();
+        mainWindow?.focus();
       },
     },
     {
@@ -172,11 +195,11 @@ function startApplication() {
   tray.setContextMenu(contextMenu);
 
   tray.on("click", () => {
-    mainWindow.show();
-    if (mainWindow.isMinimized()) mainWindow.restore();
-    mainWindow.focus();
+    mainWindow?.show();
+    if (mainWindow?.isMinimized()) mainWindow?.restore();
+    mainWindow?.focus();
   });
-
+  /*
   setupBridge(appSettings);
 
   httpServerEventEmitter.on("packet", (value) => {
@@ -186,7 +209,7 @@ function startApplication() {
   httpServerEventEmitter.on("debug", (data) => {
     log.info("debug:", data);
   });
-
+  */
   /*   const dontShowPatreonBox = store.get("dont_show_patreon_box");
   if (!dontShowPatreonBox) {
     const userSelection = dialog.showMessageBoxSync(mainWindow, {
@@ -207,6 +230,61 @@ function startApplication() {
 
   mainWindow = createMainWindow(appSettings);
   damageMeterWindow = createDamageMeterWindow(logParser, appSettings);
+  damageMeterWindow.on("ready-to-show", () => {
+    const xorTable = readFileSync("./meter-data/xor.bin");
+    const oodle_state = readFileSync("./meter-data/oodle_state.bin");
+    const compressor = new Decompressor(oodle_state, xorTable);
+    const stream = new PKTStream(compressor);
+    const capture = new PktCaptureAll();
+    capture.on("packet", (buf) => stream.read(buf));
+    const meterData = new MeterData();
+    meterData.processEnumData(
+      JSON.parse(readFileSync("./meter-data/databases/Enums.json", "utf-8"))
+    );
+    meterData.processNpcData(
+      JSON.parse(readFileSync("./meter-data/databases/Npc.json", "utf-8"))
+    );
+    meterData.processPCData(
+      JSON.parse(readFileSync("./meter-data/databases/PCData.json", "utf-8"))
+    );
+    meterData.processSkillData(
+      JSON.parse(readFileSync("./meter-data/databases/Skill.json", "utf-8"))
+    );
+    meterData.processSkillBuffData(
+      JSON.parse(readFileSync("./meter-data/databases/SkillBuff.json", "utf-8"))
+    );
+    meterData.processSkillBuffEffectData(
+      JSON.parse(
+        readFileSync("./meter-data/databases/SkillEffect.json", "utf-8")
+      )
+    );
+    const padTo2Digits = (num: number) => num.toString().padStart(2, "0");
+
+    const legacyLogger = new LegacyLogger(stream, meterData);
+    const date = new Date();
+    const filename =
+      "LostArk_" +
+      [
+        date.getFullYear(),
+        padTo2Digits(date.getMonth() + 1),
+        padTo2Digits(date.getDate()),
+        padTo2Digits(date.getHours()),
+        padTo2Digits(date.getMinutes()),
+        padTo2Digits(date.getSeconds()),
+      ].join("-") +
+      ".log";
+    const logfile = createWriteStream(path.join(mainFolder, filename), {
+      highWaterMark: 0,
+      encoding: "utf-8",
+    });
+    //TODO: write version to log?
+
+    legacyLogger.on("line", (line) => {
+      logParser.parseLogLine(line);
+      logfile?.write(line);
+      logfile?.write("\n");
+    });
+  });
 
   initializeShortcuts(appSettings);
 
@@ -214,14 +292,14 @@ function startApplication() {
     log.debug(shortcut);
 
     if (shortcut.action === "minimizeDamageMeter") {
-      damageMeterWindow.webContents.send(
+      damageMeterWindow?.webContents.send(
         "shortcut-action",
         "toggle-minimized-state"
       );
     } else if (shortcut.action === "resetSession") {
-      damageMeterWindow.webContents.send("shortcut-action", "reset-session");
+      damageMeterWindow?.webContents.send("shortcut-action", "reset-session");
     } else if (shortcut.action === "pauseDamageMeter") {
-      damageMeterWindow.webContents.send(
+      damageMeterWindow?.webContents.send(
         "shortcut-action",
         "pause-damage-meter"
       );
@@ -229,28 +307,31 @@ function startApplication() {
   });
 }
 
-let damageMeterWindowOldSize,
-  damageMeterWindowOldPosition,
-  damageMeterWindowOldMinimumSize,
-  damageMeterPositionDifference;
+let damageMeterWindowOldSize: number[],
+  damageMeterWindowOldPosition: number[],
+  damageMeterWindowOldMinimumSize: number[],
+  damageMeterPositionDifference: number[];
 
-const ipcFunctions = {
-  "reset-session": (event, arg) => {
+const ipcFunctions: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  [key: string]: (event: Electron.IpcMainEvent, arg: any) => void;
+} = {
+  "reset-session": () => {
     logParser.softReset();
   },
-  "cancel-reset-session": (event, arg) => {
+  "cancel-reset-session": () => {
     if (logParser.resetTimer) {
       logParser.cancelReset();
     }
   },
-  "save-settings": (event, arg) => {
+  "save-settings": (event, arg: { value: string }) => {
     appSettings = JSON.parse(arg.value);
     saveSettings(arg.value);
 
     updateShortcuts(appSettings);
 
-    mainWindow.webContents.send("on-settings-change", appSettings);
-    damageMeterWindow.webContents.send("on-settings-change", appSettings);
+    mainWindow?.webContents.send("on-settings-change", appSettings);
+    damageMeterWindow?.webContents.send("on-settings-change", appSettings);
 
     logParser.dontResetOnZoneChange =
       appSettings.damageMeter.functionality.dontResetOnZoneChange;
@@ -259,17 +340,17 @@ const ipcFunctions = {
       appSettings.damageMeter.functionality.removeOverkillDamage;
 
     logParser.resetAfterPhaseTransition =
-      appSettings?.damageMeter?.functionality?.resetAfterPhaseTransition;
+      appSettings.damageMeter.functionality.resetAfterPhaseTransition;
 
-    damageMeterWindow.setOpacity(appSettings.damageMeter.design.opacity);
+    damageMeterWindow?.setOpacity(appSettings.damageMeter.design.opacity);
   },
-  "get-settings": (event, arg) => {
+  "get-settings": (event) => {
     event.reply("on-settings-change", appSettings);
   },
-  "parse-logs": async (event, arg) => {
-    await parseLogs(event, appSettings?.logs?.splitOnPhaseTransition);
+  "parse-logs": async (event) => {
+    await parseLogs(event, appSettings.logs.splitOnPhaseTransition);
   },
-  "get-parsed-logs": async (event, arg) => {
+  "get-parsed-logs": async (event) => {
     const parsedLogs = await getParsedLogs();
     await event.reply("parsed-logs-list", parsedLogs);
   },
@@ -277,16 +358,16 @@ const ipcFunctions = {
     const logData = await getLogData(arg.value);
     await event.reply("parsed-log", logData);
   },
-  "wipe-parsed-logs": async (event, args) => {
+  "wipe-parsed-logs": async () => {
     await wipeParsedLogs();
   },
-  "open-log-directory": (event, arg) => {
+  "open-log-directory": () => {
     shell.openPath(mainFolder);
   },
-  "check-for-updates": (event, arg) => {
+  "check-for-updates": () => {
     checkForUpdates();
   },
-  "quit-and-install": (event, arg) => {
+  "quit-and-install": () => {
     quitAndInstall();
   },
   "open-link": (event, arg) => {
@@ -295,52 +376,55 @@ const ipcFunctions = {
   "save-screenshot": async (event, arg) => {
     await saveScreenshot(arg.value);
   },
-  "select-log-path-folder": async (event, arg) => {
+  "select-log-path-folder": async (event) => {
     const res = await dialog.showOpenDialog({ properties: ["openDirectory"] });
     if (res.canceled || !res.filePaths || !res.filePaths[0]) return;
     event.reply("selected-log-path-folder", res.filePaths[0]);
   },
-  "reset-damage-meter-position": async (event, arg) => {
-    damageMeterWindow.setPosition(0, 0);
-    store.set(`windows.damage_meter.X`, 0);
-    store.set(`windows.damage_meter.Y`, 0);
+  "reset-damage-meter-position": async () => {
+    damageMeterWindow?.setPosition(0, 0);
+    store.set("windows.damage_meter.X", 0);
+    store.set("windows.damage_meter.Y", 0);
   },
   "toggle-damage-meter-minimized-state": (event, arg) => {
     if (appSettings.damageMeter.functionality.minimizeToTaskbar) {
-      if (arg.value) damageMeterWindow.minimize();
-      else damageMeterWindow.restore();
+      if (arg.value) damageMeterWindow?.minimize();
+      else damageMeterWindow?.restore();
     } else {
       if (arg.value) {
-        let newW = 160,
+        const newW = 160,
           newH = 64;
 
-        damageMeterWindowOldSize = damageMeterWindow.getSize();
-        damageMeterWindowOldMinimumSize = damageMeterWindow.getMinimumSize();
-        damageMeterWindowOldPosition = damageMeterWindow.getPosition();
+        damageMeterWindowOldSize = damageMeterWindow?.getSize() || [0, 0];
+        damageMeterWindowOldMinimumSize =
+          damageMeterWindow?.getMinimumSize() || [0, 0];
+        damageMeterWindowOldPosition = damageMeterWindow?.getPosition() || [
+          0, 0,
+        ];
 
         damageMeterPositionDifference = [
           damageMeterWindowOldPosition[0] + damageMeterWindowOldSize[0] - newW,
           damageMeterWindowOldPosition[1] + damageMeterWindowOldSize[1] - newH,
         ];
 
-        damageMeterWindow.setResizable(false);
-        damageMeterWindow.setMinimumSize(newW, newH);
-        damageMeterWindow.setSize(newW, newH);
-        damageMeterWindow.setPosition(
+        damageMeterWindow?.setResizable(false);
+        damageMeterWindow?.setMinimumSize(newW, newH);
+        damageMeterWindow?.setSize(newW, newH);
+        damageMeterWindow?.setPosition(
           damageMeterPositionDifference[0],
           damageMeterPositionDifference[1]
         );
       } else {
-        damageMeterWindow.setResizable(true);
-        damageMeterWindow.setMinimumSize(
+        damageMeterWindow?.setResizable(true);
+        damageMeterWindow?.setMinimumSize(
           damageMeterWindowOldMinimumSize[0],
           damageMeterWindowOldMinimumSize[1]
         );
-        damageMeterWindow.setSize(
+        damageMeterWindow?.setSize(
           damageMeterWindowOldSize[0],
           damageMeterWindowOldSize[1]
         );
-        damageMeterWindow.setPosition(
+        damageMeterWindow?.setPosition(
           damageMeterWindowOldPosition[0],
           damageMeterWindowOldPosition[1]
         );

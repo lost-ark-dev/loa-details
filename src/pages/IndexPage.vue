@@ -7,21 +7,44 @@
         view and parse its logged data.
         <br />
         <br />
-        It relies on the logging capabilities of the open-source software
+        This app is a clone from the
+        <a
+          @click="openLinkInBrowser('https://github.com/karaeren/loa-details')"
+          class="custom-link"
+          >original interface</a
+        >
+        from
+        <a
+          @click="openLinkInBrowser('https://github.com/karaeren')"
+          class="custom-link"
+          >karaeren</a
+        >
+        It has been modified to work as a standalone program, without the need
+        of any 3rd party logger. The packet sniffing part has been made from
+        scratch by
+        <a
+          @click="openLinkInBrowser('https://github.com/Herysia')"
+          class="custom-link"
+          >Herysia</a
+        >
+        and
+        <a
+          @click="openLinkInBrowser('https://github.com/Mathicha')"
+          class="custom-link"
+          >Mathi</a
+        >, however, we can't help but thank
+        <a
+          @click="openLinkInBrowser('https://github.com/Shalzuth')"
+          class="custom-link"
+          >Shalzuth</a
+        >
+        for his work on
         <a
           @click="
-            openLinkInBrowser('https://github.com/shalzuth/LostArkLogger')
+            openLinkInBrowser('https://github.com//shalzuth/LostArkLogger')
           "
           class="custom-link"
           >LostArkLogger</a
-        >
-        and the modified version of the logger's source code can be found
-        <a
-          @click="
-            openLinkInBrowser('https://github.com/karaeren/LostArkLogger')
-          "
-          class="custom-link"
-          >here</a
         >.
       </p>
 
@@ -29,7 +52,7 @@
         Refer to the
         <a
           class="custom-link"
-          @click="openLinkInBrowser('https://discord.gg/yQmN76dnud')"
+          @click="openLinkInBrowser('https://discord.gg/C3fr3EBXbS')"
         >
           Discord Server</a
         >
@@ -52,6 +75,7 @@ function openLinkInBrowser(link) {
 .changelog-page {
   padding: 0 24px;
 }
+
 .custom-link {
   text-decoration: underline;
   color: #00bcd4;

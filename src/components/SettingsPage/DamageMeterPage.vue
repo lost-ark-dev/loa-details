@@ -211,7 +211,21 @@
         </q-item-label>
       </q-item-section>
     </q-item>
+    <q-item tag="label">
+      <q-item-section side top>
+        <q-checkbox
+          v-model="settingsStore.settings.damageMeter.design.transparency"
+        />
+      </q-item-section>
 
+      <q-item-section>
+        <q-item-label>Transparency</q-item-label>
+        <q-item-label caption>
+          Toggle window transparency. Disable if you experience issues inside
+          VM. (Requires restart)
+        </q-item-label>
+      </q-item-section>
+    </q-item>
     <q-item-label header>Window Opacity</q-item-label>
     <q-item>
       <q-item-section side>
