@@ -39,5 +39,4 @@ public/log-parser/**/*
 public/util/**/*
 
 #.lock
-package-lock.json
 yarn.lock

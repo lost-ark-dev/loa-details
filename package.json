@@ -11,7 +11,8 @@
     "test": "echo \"No test specified\" && exit 0",
     "dev": "quasar dev -m electron --devtools",
     "build": "quasar build -m electron",
-    "release": "quasar build -m electron -P always"
+    "release": "quasar build -m electron -P always",
+    "install": "electron-rebuild"
   },
   "dependencies": {
     "@electron/remote": "^2.0.8",
