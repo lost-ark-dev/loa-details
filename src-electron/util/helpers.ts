@@ -15,7 +15,7 @@ export function tryParseInt(intString: string | number, defaultValue = 0) {
 
   return intNum;
 }
-
+//TODO: use PCData from meter-data
 export const getClassIdFromName = (name: string) => {
   if (name === "Warrior") return 101;
   if (name === "Mage") return 201;
