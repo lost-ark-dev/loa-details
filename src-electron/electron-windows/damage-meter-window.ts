@@ -29,7 +29,6 @@ export function createDamageMeterWindow(
     webPreferences: {
       devTools: process.env.DEBUGGING,
       contextIsolation: true,
-      sandbox: false,
       preload: path.resolve(__dirname, process.env.QUASAR_ELECTRON_PRELOAD),
     },
   });

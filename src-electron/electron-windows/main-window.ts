@@ -22,7 +22,6 @@ export function createMainWindow(appSettings: Settings) {
     webPreferences: {
       devTools: process.env.DEBUGGING,
       contextIsolation: true,
-      sandbox: false,
       // More info: /quasar-cli/developing-electron-apps/electron-preload-script
       preload: path.resolve(__dirname, process.env.QUASAR_ELECTRON_PRELOAD),
     },

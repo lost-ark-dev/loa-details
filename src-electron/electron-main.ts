@@ -230,60 +230,57 @@ function startApplication() {
 
   mainWindow = createMainWindow(appSettings);
   damageMeterWindow = createDamageMeterWindow(logParser, appSettings);
-  damageMeterWindow.on("ready-to-show", () => {
-    const xorTable = readFileSync("./meter-data/xor.bin");
-    const oodle_state = readFileSync("./meter-data/oodle_state.bin");
-    const compressor = new Decompressor(oodle_state, xorTable);
-    const stream = new PKTStream(compressor);
-    const capture = new PktCaptureAll();
-    capture.on("packet", (buf) => stream.read(buf));
-    const meterData = new MeterData();
-    meterData.processEnumData(
-      JSON.parse(readFileSync("./meter-data/databases/Enums.json", "utf-8"))
-    );
-    meterData.processNpcData(
-      JSON.parse(readFileSync("./meter-data/databases/Npc.json", "utf-8"))
-    );
-    meterData.processPCData(
-      JSON.parse(readFileSync("./meter-data/databases/PCData.json", "utf-8"))
-    );
-    meterData.processSkillData(
-      JSON.parse(readFileSync("./meter-data/databases/Skill.json", "utf-8"))
-    );
-    meterData.processSkillBuffData(
-      JSON.parse(readFileSync("./meter-data/databases/SkillBuff.json", "utf-8"))
-    );
-    meterData.processSkillBuffEffectData(
-      JSON.parse(
-        readFileSync("./meter-data/databases/SkillEffect.json", "utf-8")
-      )
-    );
-    const padTo2Digits = (num: number) => num.toString().padStart(2, "0");
 
-    const legacyLogger = new LegacyLogger(stream, meterData);
-    const date = new Date();
-    const filename =
-      "LostArk_" +
-      [
-        date.getFullYear(),
-        padTo2Digits(date.getMonth() + 1),
-        padTo2Digits(date.getDate()),
-        padTo2Digits(date.getHours()),
-        padTo2Digits(date.getMinutes()),
-        padTo2Digits(date.getSeconds()),
-      ].join("-") +
-      ".log";
-    const logfile = createWriteStream(path.join(mainFolder, filename), {
-      highWaterMark: 0,
-      encoding: "utf-8",
-    });
-    //TODO: write version to log?
+  const xorTable = readFileSync("./meter-data/xor.bin");
+  const oodle_state = readFileSync("./meter-data/oodle_state.bin");
+  const compressor = new Decompressor(oodle_state, xorTable);
+  const stream = new PKTStream(compressor);
+  const capture = new PktCaptureAll();
+  capture.on("packet", (buf) => stream.read(buf));
+  const meterData = new MeterData();
+  meterData.processEnumData(
+    JSON.parse(readFileSync("./meter-data/databases/Enums.json", "utf-8"))
+  );
+  meterData.processNpcData(
+    JSON.parse(readFileSync("./meter-data/databases/Npc.json", "utf-8"))
+  );
+  meterData.processPCData(
+    JSON.parse(readFileSync("./meter-data/databases/PCData.json", "utf-8"))
+  );
+  meterData.processSkillData(
+    JSON.parse(readFileSync("./meter-data/databases/Skill.json", "utf-8"))
+  );
+  meterData.processSkillBuffData(
+    JSON.parse(readFileSync("./meter-data/databases/SkillBuff.json", "utf-8"))
+  );
+  meterData.processSkillBuffEffectData(
+    JSON.parse(readFileSync("./meter-data/databases/SkillEffect.json", "utf-8"))
+  );
+  const padTo2Digits = (num: number) => num.toString().padStart(2, "0");
 
-    legacyLogger.on("line", (line) => {
-      logParser.parseLogLine(line);
-      logfile?.write(line);
-      logfile?.write("\n");
-    });
+  const legacyLogger = new LegacyLogger(stream, meterData);
+  const date = new Date();
+  const filename =
+    "LostArk_" +
+    [
+      date.getFullYear(),
+      padTo2Digits(date.getMonth() + 1),
+      padTo2Digits(date.getDate()),
+      padTo2Digits(date.getHours()),
+      padTo2Digits(date.getMinutes()),
+      padTo2Digits(date.getSeconds()),
+    ].join("-") +
+    ".log";
+  const logfile = createWriteStream(path.join(mainFolder, filename), {
+    highWaterMark: 0,
+    encoding: "utf-8",
+  });
+  //TODO: write version to log?
+
+  legacyLogger.on("line", (line) => {
+    logParser.parseLogLine(line);
+    logfile?.write(line);
+    logfile?.write("\n");
   });
 
   initializeShortcuts(appSettings);
