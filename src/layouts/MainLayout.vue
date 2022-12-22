@@ -229,7 +229,7 @@ onMounted(() => {
         message: "check-for-updates",
       });
     }
-  }, 60000);
+  }, 60000 * 60);
 
   window.messageApi.send("window-to-main", { message: "get-settings" });
 });
