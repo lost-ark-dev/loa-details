@@ -34,7 +34,7 @@ export function InitLogger(logParser: LogParser, allowInternal: boolean) {
   // create Decompressor
   const oodle_state = readFileSync("./meter-data/oodle_state.bin");
   const xorTable = readFileSync("./meter-data/xor.bin");
-  const compressor = new Decompressor(oodle_state, xorTable);
+  const compressor = new Decompressor(oodle_state, xorTable, log.error);
 
   // create Decompressor & LegacyLogger
   const stream = new PKTStream(compressor);
@@ -75,7 +75,7 @@ export function InitLogger(logParser: LogParser, allowInternal: boolean) {
   capture.on("packet", (buf) => {
     try {
       const badPkt = stream.read(buf);
-      if (!badPkt) log.error(`bad pkt ${buf.toString("hex")}`);
+      if (badPkt === false) log.error(`bad pkt ${buf.toString("hex")}`);
     } catch (e) {
       log.error(e);
     }
