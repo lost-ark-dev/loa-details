@@ -8,7 +8,7 @@ export function getSettings() {
   let appSettings = cloneDeep(defaultSettings);
 
   try {
-    const settingsStr = store.get("settings");
+    let settingsStr = store.get("settings");
 
     if (typeof settingsStr === "object")
       appSettings = merge(appSettings, cloneDeep(settingsStr));
@@ -23,98 +23,16 @@ export function getSettings() {
   return appSettings;
 }
 
-export function saveSettings(settings: Settings | string) {
+export function saveSettings(settings) {
   if (typeof settings === "object")
     store.set("settings", JSON.stringify(settings));
   else store.set("settings", settings);
 
   log.info(`Saved settings: ${settings}`);
 }
-export type ClassSettings = { color: string; defaultColor: string };
-export type Settings = {
-  appVersion: string;
-  general: {
-    startMainHidden: boolean;
-    startMainMinimized: boolean;
-    closeToSystemTray: boolean;
-    saveScreenshots: boolean;
-    server: "steam" | "kr" | "ru";
-    customLogPath: string | null;
-  };
-  shortcuts: {
-    minimizeDamageMeter: {
-      value: string;
-      defaultValue: string;
-    };
-    resetSession: {
-      value: string;
-      defaultValue: string;
-    };
-    pauseDamageMeter: {
-      value: string;
-      defaultValue: string;
-    };
-  };
-  uploads: {
-    uploadLogs: boolean;
-    uploadKey: string;
-    api: {
-      value?: string;
-      defaultValue?: string;
-    };
-    endpoint: {
-      value?: string;
-      defaultValue?: string;
-    };
-    site: {
-      value?: string;
-      defaultValue?: string;
-    };
-    openOnUpload: boolean;
-    uploadUnlisted: boolean;
-    includeRegion: boolean;
-  };
-  damageMeter: {
-    functionality: {
-      dontResetOnZoneChange: boolean;
-      removeOverkillDamage: boolean;
-      pauseOnPhaseTransition: boolean;
-      resetAfterPhaseTransition: boolean;
-      autoMinimize: boolean;
-      autoMinimizeTimer: number;
-      minimizeToTaskbar: boolean;
-      nameDisplay: string;
-      nameDisplayV2: string;
-    };
-    design: {
-      compactDesign: boolean;
-      pinUserToTop: boolean;
-      transparency: boolean;
-      opacity: number;
-    };
-    header: {
-      [key: string]: {
-        name: string;
-        enabled: boolean;
-      };
-    };
-    tabs: {
-      [key: string]: {
-        name: string;
-        enabled: boolean;
-      };
-    };
-    classes: { [key: string]: ClassSettings };
-  };
-  logs: {
-    minimumSessionDurationInMinutes: number;
-    minimumEncounterDurationInMinutes: number;
-    minimumDurationInMinutes: number;
-    splitOnPhaseTransition: boolean;
-  };
-};
+
 // TODO: find a better way to handle this
-const defaultSettings: Settings = {
+const defaultSettings = {
   appVersion: "",
   general: {
     startMainHidden: false,
@@ -172,7 +90,6 @@ const defaultSettings: Settings = {
     design: {
       compactDesign: false,
       pinUserToTop: false,
-      transparency: true,
       opacity: 0.9,
     },
     header: {

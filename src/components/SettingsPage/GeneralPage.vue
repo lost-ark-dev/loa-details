@@ -49,20 +49,6 @@
 
     <q-item tag="label">
       <q-item-section side top>
-        <q-checkbox v-model="settingsStore.settings.general.useWinpcap" />
-      </q-item-section>
-
-      <q-item-section>
-        <q-item-label>Use Winpcap</q-item-label>
-        <q-item-label caption>
-          Might fix packets not arriving. Program needs to be restarted after
-          enabling.
-        </q-item-label>
-      </q-item-section>
-    </q-item>
-
-    <q-item tag="label">
-      <q-item-section side top>
         <q-checkbox v-model="settingsStore.settings.general.saveScreenshots" />
       </q-item-section>
 

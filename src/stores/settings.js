@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import { classes } from "../constants/classes";
 import { merge } from "lodash";
-import { ClassSettings, Settings } from "../../src-electron/util/app-settings";
 
 export const useSettingsStore = defineStore("settings", {
   state: () => ({
@@ -137,11 +136,11 @@ export const useSettingsStore = defineStore("settings", {
         minimumDurationInMinutes: 0.0,
         splitOnPhaseTransition: true,
       },
-    } as Settings,
+    },
   }),
   getters: {
     getClassColor(state) {
-      return (className: string) => {
+      return (className) => {
         if (className in state?.settings?.damageMeter?.classes)
           return state.settings.damageMeter.classes[className].color;
         return "#353535";
@@ -151,13 +150,12 @@ export const useSettingsStore = defineStore("settings", {
   actions: {
     initSettings() {
       merge(this.settings.damageMeter.classes, classes);
-      for (const classSetting of Object.values(
-        this.settings.damageMeter.classes
-      ) as [ClassSettings]) {
-        classSetting.defaultColor = classSetting.color;
+      for (const className of Object.keys(this.settings.damageMeter.classes)) {
+        this.settings.damageMeter.classes[className].defaultColor =
+          this.settings.damageMeter.classes[className].color;
       }
     },
-    loadSettings(settingsToLoad: Settings) {
+    loadSettings(settingsToLoad) {
       merge(this.settings, settingsToLoad);
     },
     saveSettings() {
