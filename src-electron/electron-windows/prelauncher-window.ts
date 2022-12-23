@@ -1,5 +1,5 @@
-import { BrowserWindow } from "electron";
 import { enable } from "@electron/remote/main";
+import { BrowserWindow } from "electron";
 import path from "path";
 
 export function createPrelauncherWindow() {

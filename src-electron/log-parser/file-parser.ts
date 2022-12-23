@@ -1,12 +1,12 @@
-import workerFarm from "worker-farm";
 import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 import { IpcMainEvent } from "electron";
 import log from "electron-log";
-import { writeFileSync, unlinkSync, promises as fsPromises } from "fs";
+import { promises as fsPromises, unlinkSync, writeFileSync } from "fs";
 import path from "path";
-const { mainFolder, parsedLogFolder } = require("../util/directories");
+import workerFarm from "worker-farm";
+import { mainFolder, parsedLogFolder } from "../util/directories";
 
-const customParseFormat = require("dayjs/plugin/customParseFormat");
 dayjs.extend(customParseFormat);
 
 const LOG_PARSER_VERSION = 12;

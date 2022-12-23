@@ -1,6 +1,5 @@
 {
   "extends": "@quasar/app-vite/tsconfig-preset",
-  "moduleResolution": "node",
   "compilerOptions": {
     "baseUrl": "."
   }

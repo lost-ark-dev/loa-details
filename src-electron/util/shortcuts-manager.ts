@@ -1,4 +1,4 @@
-const { app, globalShortcut, dialog } = require("electron");
+import { app, globalShortcut, dialog } from "electron";
 import EventEmitter from "events";
 import log from "electron-log";
 import { Settings } from "./app-settings";

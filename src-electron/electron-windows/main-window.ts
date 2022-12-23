@@ -1,8 +1,8 @@
-import { app, BrowserWindow } from "electron";
 import { enable } from "@electron/remote/main";
+import { app, BrowserWindow } from "electron";
 import path from "path";
-import { initWindow } from "../util/window-init";
 import { Settings } from "../util/app-settings";
+import { initWindow } from "../util/window-init";
 
 export function createMainWindow(appSettings: Settings) {
   let mainWindow: BrowserWindow | null = new BrowserWindow({

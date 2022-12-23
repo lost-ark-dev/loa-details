@@ -1,11 +1,11 @@
-import { app, BrowserWindow, shell } from "electron";
 import { enable } from "@electron/remote/main";
-import path from "path";
-import { initWindow } from "../util/window-init";
+import { app, BrowserWindow, shell } from "electron";
 import log from "electron-log";
-import { upload } from "../util/uploads";
-import { Settings } from "../util/app-settings";
 import { Game, LogParser } from "loa-details-log-parser";
+import path from "path";
+import { Settings } from "../util/app-settings";
+import { upload } from "../util/uploads";
+import { initWindow } from "../util/window-init";
 
 export function createDamageMeterWindow(
   logParser: LogParser,
