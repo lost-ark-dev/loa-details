@@ -357,5 +357,9 @@ app.on("activate", () => {
 });
 
 process.on("uncaughtException", (e) => {
-  log.error(e);
+  log.error(console.trace("stack"));
+});
+
+process.on("exit", (code) => {
+  log.log(`about to exit with code: ${code}`);
 });

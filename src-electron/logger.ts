@@ -75,7 +75,7 @@ export function InitLogger(logParser: LogParser, allowInternal: boolean) {
   capture.on("packet", (buf) => {
     try {
       const badPkt = stream.read(buf);
-      if (badPkt) log.error(`bad pkt ${buf.toString("hex")}`);
+      if (!badPkt) log.error(`bad pkt ${buf.toString("hex")}`);
     } catch (e) {
       log.error(e);
     }
