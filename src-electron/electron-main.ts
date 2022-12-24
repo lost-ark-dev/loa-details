@@ -183,7 +183,7 @@ function startApplication() {
   damageMeterWindow = createDamageMeterWindow(logParser, appSettings);
 
   try {
-    InitLogger(logParser, true);
+    InitLogger(logParser);
   } catch (e) {
     log.error(e);
   }

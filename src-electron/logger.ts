@@ -9,7 +9,7 @@ import { PKTStream } from "meter-core/dist/pkt-stream";
 import { join } from "path";
 import { mainFolder } from "./util/directories";
 
-export function InitLogger(logParser: LogParser, allowInternal: boolean) {
+export function InitLogger(logParser: LogParser) {
   // create MeterData and read data
   const meterData = new MeterData();
   meterData.processEnumData(
@@ -95,7 +95,7 @@ export function InitLogger(logParser: LogParser, allowInternal: boolean) {
   });
 
   // finaly create packet capture
-  const capture = new PktCaptureAll(allowInternal);
+  const capture = new PktCaptureAll(log.error);
   log.info(
     `Listenning on ${capture.caps.size} devices(s): ${[
       ...capture.caps.keys(),
