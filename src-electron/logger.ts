@@ -35,7 +35,36 @@ export function InitLogger(logParser: LogParser, allowInternal: boolean) {
   const oodle_state = readFileSync("./meter-data/oodle_state.bin");
   const xorTable = readFileSync("./meter-data/xor.bin");
   const compressor = new Decompressor(oodle_state, xorTable, log.error);
-
+  /*
+  //Stress test repro-code
+  const lines = readFileSync(
+    process.env.APPDATA + "/LOA Details/logs/repro2.log",
+    "utf-8"
+  ).split(/\r?\n/);
+  setTimeout(() => {
+    setInterval(() => {
+      let index = 0;
+      while (index < 1) {
+        lines.forEach((line) => {
+          const split = line.split("|");
+          if (split.length < 4) return;
+          try {
+            const data = compressor.decrypt(
+              Buffer.from(split[3], "hex"),
+              parseInt(split[0]),
+              parseInt(split[1]),
+              split[2] == "true"
+            );
+          } catch (e) {
+            //console.error(e);
+          }
+        });
+        index++;
+      }
+      console.log("done");
+    }, 50);
+  }, 10000);
+  */
   // create Decompressor & LegacyLogger
   const stream = new PKTStream(compressor);
   const legacyLogger = new LegacyLogger(stream, meterData);
