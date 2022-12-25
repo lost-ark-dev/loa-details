@@ -44,8 +44,10 @@
 
 ## Dev
 
-- You can run loa-details for debug and testing with the command `npm run dev`
-- You can build a release-ready binary with the command `npm run build` or `npm run buildwin` depending on the target plateform. Output will be located in `./dist/electron` directory.
+- Clone with `git clone --recurse-submodules https://github.com/lost-ark-dev/loa-details`
+- Install dependencies with `npm install`
+- You can run loa-details in dev mode with the command `npm run dev`
+- You can build a release-ready binary with the command `npm run build`. Output will be located in `./dist/electron` directory.
 
 ---
 
