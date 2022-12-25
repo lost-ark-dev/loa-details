@@ -74,6 +74,60 @@ export const encounters = {
       .href,
     encounterNames: ["Covetous Legion Commander Vykas"],
   },
+  KakulG1: {
+    name: "Kakul-Saydon Gate 1",
+    image: new URL("../assets/images/encounters/Kakul-Saydon.png", import.meta.url)
+      .href,
+    encounterNames: ["Saydon"],
+  },
+  KakulG2: {
+    name: "Kakul-Saydon Gate 2",
+    image: new URL("../assets/images/encounters/Kakul-Saydon.png", import.meta.url)
+      .href,
+    encounterNames: ["Kakul"],
+  },
+  KakulG3: {
+    name: "Kakul-Saydon Gate 3",
+    image: new URL("../assets/images/encounters/Kakul-Saydon.png", import.meta.url)
+      .href,
+    encounterNames: ["Kakul-Saydon"],
+  },
+  BrelshazaG1: {
+    name: "Brelshaza Gate 1",
+    image: new URL("../assets/images/encounters/Brelshaza.png", import.meta.url)
+      .href,
+    encounterNames: ["Gehenna Helkasirs"],
+  },
+  BrelshazaG2: {
+    name: "Brelshaza Gate 2",
+    image: new URL("../assets/images/encounters/Brelshaza.png", import.meta.url)
+      .href,
+    encounterNames: ["Prokel's Spiritual Echo", "Prokel"],
+  },
+  BrelshazaG3: {
+    name: "Brelshaza Gate 3",
+    image: new URL("../assets/images/encounters/Brelshaza.png", import.meta.url)
+      .href,
+    encounterNames: ["Ashtarot"],
+  },
+  BrelshazaG4: {
+    name: "Brelshaza Gate 4",
+    image: new URL("../assets/images/encounters/Brelshaza.png", import.meta.url)
+      .href,
+    encounterNames: ["Primordial Nightmare"],
+  },
+  BrelshazaG5: {
+    name: "Brelshaza Gate 5",
+    image: new URL("../assets/images/encounters/Brelshaza.png", import.meta.url)
+      .href,
+    encounterNames: ["Brelshaza, Monarch of Nightmares"],
+  },
+  BrelshazaG6: {
+    name: "Brelshaza Gate 6",
+    image: new URL("../assets/images/encounters/Brelshaza.png", import.meta.url)
+      .href,
+    encounterNames: ["Phantom Legion Commander Brelshaza"],
+  },
   /* GUARDIANS BELOW */
   Achates: {
     name: "Achates",
@@ -96,6 +150,12 @@ export const encounters = {
       import.meta.url
     ).href,
     encounterNames: ["Armored Nacrasena", "Armored Nacrasena+"],
+  },
+  Caliligos: {
+    name: "Caliligos",
+    image: new URL("../assets/images/encounters/Caliligos.png", import.meta.url)
+      .href,
+    encounterNames: ["Caliligos"],
   },
   Calventus: {
     name: "Calventus",
