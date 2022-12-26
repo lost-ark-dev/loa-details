@@ -1039,6 +1039,13 @@ export const skills = [
     level: 0,
   },
   {
+    id: 20181,
+    name: "Osh",
+    class: "Summoner",
+    level: 0,
+    baseSkill: 20170,
+  },
+  {
     id: 20070,
     name: "Alimaji",
     class: "Summoner",
