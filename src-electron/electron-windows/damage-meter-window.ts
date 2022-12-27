@@ -1,4 +1,3 @@
-import { enable } from "@electron/remote/main";
 import { app, BrowserWindow, shell } from "electron";
 import log from "electron-log";
 import { Game, LogParser } from "loa-details-log-parser";
@@ -29,12 +28,10 @@ export function createDamageMeterWindow(
     webPreferences: {
       devTools: process.env.DEBUGGING,
       contextIsolation: true,
-      sandbox: false, //TODO: remove electron/remote & enable sandbox again
       preload: path.resolve(__dirname, process.env.QUASAR_ELECTRON_PRELOAD),
     },
   });
 
-  enable(damageMeterWindow.webContents);
   damageMeterWindow.loadURL(process.env.APP_URL + "#/damage-meter").then(() => {
     if (!damageMeterWindow) return;
     if (process.env.DEBUGGING) {

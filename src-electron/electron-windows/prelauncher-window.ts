@@ -1,4 +1,3 @@
-import { enable } from "@electron/remote/main";
 import { BrowserWindow } from "electron";
 import path from "path";
 
@@ -15,12 +14,10 @@ export function createPrelauncherWindow() {
     useContentSize: true,
     webPreferences: {
       devTools: process.env.DEBUGGING,
-      contextIsolation: true,
       preload: path.resolve(__dirname, process.env.QUASAR_ELECTRON_PRELOAD),
     },
   });
 
-  enable(prelauncherWindow.webContents);
   prelauncherWindow.center();
   prelauncherWindow.loadURL(process.env.APP_URL + "#/prelauncher").then(() => {
     if (process.env.DEBUGGING) {

@@ -1,6 +1,5 @@
-import { contextBridge, ipcRenderer } from "electron";
-import { BrowserWindow } from "@electron/remote";
-import { MessageApi, WindowControlApi } from "app/types";
+import { MessageApi } from "app/types";
+import { contextBridge, IgnoreMouseEventsOptions, ipcRenderer } from "electron";
 
 contextBridge.exposeInMainWorld("messageApi", {
   send: (channel, data) => {
@@ -34,29 +33,10 @@ contextBridge.exposeInMainWorld("messageApi", {
 } as MessageApi);
 
 contextBridge.exposeInMainWorld("windowControlApi", {
-  minimize() {
-    BrowserWindow.getFocusedWindow()?.minimize();
-  },
-
-  toggleMaximize() {
-    const win = BrowserWindow.getFocusedWindow();
-
-    if (win?.isMaximized()) {
-      win.unmaximize();
-    } else {
-      win?.maximize();
-    }
-  },
-
-  close() {
-    BrowserWindow.getFocusedWindow()?.close();
-  },
-
-  hide() {
-    BrowserWindow.getFocusedWindow()?.hide();
-  },
-
-  setIgnoreMouseEvents(ignore, options) {
-    BrowserWindow.getFocusedWindow()?.setIgnoreMouseEvents(ignore, options);
-  },
-} as WindowControlApi);
+  minimize: () => ipcRenderer.send("minimize"),
+  toggleMaximize: () => ipcRenderer.send("toggleMaximize"),
+  close: () => ipcRenderer.send("close"),
+  hide: () => ipcRenderer.send("hide"),
+  setIgnoreMouseEvents: (ignore: boolean, options: IgnoreMouseEventsOptions) =>
+    ipcRenderer.send("toggleMaximize", ignore, options),
+});

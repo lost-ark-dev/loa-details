@@ -15,7 +15,6 @@
     "install": "electron-rebuild"
   },
   "dependencies": {
-    "@electron/remote": "^2.0.9",
     "axios": "^0.27.2",
     "dayjs": "^1.11.7",
     "electron-log": "^4.4.8",

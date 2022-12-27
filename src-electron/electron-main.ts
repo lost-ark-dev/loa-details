@@ -1,8 +1,8 @@
-import { initialize } from "@electron/remote/main";
 import {
   app,
   BrowserWindow,
   dialog,
+  IgnoreMouseEventsOptions,
   ipcMain,
   Menu,
   nativeTheme,
@@ -68,8 +68,6 @@ if (!gotTheLock) {
     }
   });
 }
-
-initialize();
 
 const logParser = new LogParser(true);
 logParser.debugLines = true;
@@ -334,6 +332,30 @@ const ipcFunctions: {
     }
   },
 };
+
+ipcMain.on("minimize", () => {
+  mainWindow?.minimize();
+});
+
+ipcMain.on("toggleMaximize", () => {
+  if (mainWindow?.isMaximized()) mainWindow.unmaximize();
+  else mainWindow?.maximize();
+});
+
+ipcMain.on("close", () => {
+  mainWindow?.close();
+});
+
+ipcMain.on("hide", () => {
+  mainWindow?.close();
+});
+
+ipcMain.on(
+  "setIgnoreMouseEvents",
+  (event, ignore: boolean, options?: IgnoreMouseEventsOptions) => {
+    mainWindow?.setIgnoreMouseEvents(ignore, options);
+  }
+);
 
 ipcMain.on("window-to-main", (event, arg) => {
   const ipcFunction =

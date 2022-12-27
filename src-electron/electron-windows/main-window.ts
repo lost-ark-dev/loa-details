@@ -1,4 +1,3 @@
-import { enable } from "@electron/remote/main";
 import { app, BrowserWindow } from "electron";
 import path from "path";
 import { Settings } from "../util/app-settings";
@@ -22,7 +21,6 @@ export function createMainWindow(appSettings: Settings) {
     webPreferences: {
       devTools: process.env.DEBUGGING,
       contextIsolation: true,
-      sandbox: false, //TODO: remove electron/remote & enable sandbox again
       // More info: /quasar-cli/developing-electron-apps/electron-preload-script
       preload: path.resolve(__dirname, process.env.QUASAR_ELECTRON_PRELOAD),
     },
@@ -34,7 +32,6 @@ export function createMainWindow(appSettings: Settings) {
   let startMinimized = false;
   if (appSettings?.general?.startMainMinimized) startMinimized = true;
 
-  enable(mainWindow.webContents);
   mainWindow.loadURL(process.env.APP_URL + "#/").then(() => {
     if (!mainWindow) return;
     if (process.env.DEBUGGING) {
