@@ -328,6 +328,24 @@ async function takeScreenshot() {
 function requestSessionRestart() {
   window.messageApi.send("window-to-main", { message: "reset-session" });
 }
+
+function getSessionBoss() {
+  if (sessionState.value.entities){
+    const entities = Object.values(sessionState.value.entities);
+    if (entities.length > 0){
+      for (const entity of (entities.sort((a, b) => b.lastUpdate - a.lastUpdate))) {
+        for (const encounter of (Object.values(encounters))) {
+          if (encounter.encounterNames.includes(entity.name)) {
+            sessionBoss.value = entity;
+            return;
+          }
+        }
+      }
+    }
+    else {sessionBoss.value = null as unknown as Entity;}
+  }
+}
+
 const sessionState: Ref<Partial<Game>> = ref({});
 const sessionDPS = ref(0);
 const sessionBoss: Ref<Partial<Entity>> = ref({});
@@ -359,21 +377,7 @@ onMounted(() => {
           (fightDuration.value / 1000),
         0
       );
-      if (sessionState.value.entities){
-        const entities = Object.values(sessionState.value.entities);
-        if (entities.length > 0)
-        {
-          for (const entity of (entities.sort((a, b) => b.lastUpdate - a.lastUpdate))) {
-            for (const encounter of (Object.values(encounters))) {
-              if (encounter.encounterNames.includes(entity.name)) {
-                sessionBoss.value = entity;
-                break;
-              }
-            }
-          }
-        }
-        else {sessionBoss.value = null as unknown as Entity;}
-      }
+      getSessionBoss();
     }
   });
 
