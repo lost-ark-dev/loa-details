@@ -84,6 +84,14 @@
             Total TNK
             {{ numberFormat(sessionState.damageStatistics.totalDamageTaken) }}
           </span>
+          <span
+            style="margin-right: 12px"
+          >
+            Boss HP
+            {{(sessionBoss && sessionBoss.currentHp && sessionBoss.maxHp) ? (abbreviateNumber(sessionBoss.currentHp < 0 ? 0 : sessionBoss.currentHp).join('') +
+              ' / ' +abbreviateNumber(sessionBoss.maxHp).join('') +
+              ' (' + Math.floor(((sessionBoss.currentHp < 0 ? 0 : sessionBoss.currentHp) / sessionBoss.maxHp) * 100) + '%)') : '0'}}
+          </span>
         </div>
       </div>
       <div v-if="!isTakingScreenshot" style="margin-left: auto">
@@ -210,10 +218,12 @@ import {
   numberFormat,
   millisToMinutesAndSeconds,
   toFixedNumber,
+  abbreviateNumber
 } from "src/util/number-helpers";
 import { sleep } from "src/util/sleep";
 import html2canvas from "html2canvas";
-import { Game } from "loa-details-log-parser";
+import { Game, Entity } from "loa-details-log-parser";
+import { encounters } from "src/constants/encounters.js";
 import { useSettingsStore } from "src/stores/settings";
 
 import DamageMeterTable from "src/components/DamageMeter/DamageMeterTable.vue";
@@ -320,6 +330,7 @@ function requestSessionRestart() {
 }
 const sessionState: Ref<Partial<Game>> = ref({});
 const sessionDPS = ref(0);
+const sessionBoss: Ref<Partial<Entity>> = ref({});
 
 onMounted(() => {
   settingsStore.initSettings();
@@ -348,6 +359,21 @@ onMounted(() => {
           (fightDuration.value / 1000),
         0
       );
+      if (sessionState.value.entities){
+        const entities = Object.values(sessionState.value.entities);
+        if (entities.length > 0)
+        {
+          for (const entity of (entities.sort((a, b) => b.lastUpdate - a.lastUpdate))) {
+            for (const encounter of (Object.values(encounters))) {
+              if (encounter.encounterNames.includes(entity.name)) {
+                sessionBoss.value = entity;
+                break;
+              }
+            }
+          }
+        }
+        else {sessionBoss.value = null as unknown as Entity;}
+      }
     }
   });
 
@@ -357,6 +383,7 @@ onMounted(() => {
     fightPausedForMs = 0;
     damageType.value = "dmg";
     sessionDPS.value = 0;
+    sessionBoss.value = null as unknown as Entity;
   });
 
   window.messageApi.receive("pcap-on-message", (value) => {
