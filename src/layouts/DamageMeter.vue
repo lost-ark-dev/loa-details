@@ -85,12 +85,13 @@
             {{ numberFormat(sessionState.damageStatistics.totalDamageTaken) }}
           </span>
           <span
+            v-if="settingsStore.settings.damageMeter.header.bossHP.enabled"
             style="margin-right: 12px"
           >
-            Boss HP
+            {{(sessionBoss && sessionBoss.name) ? sessionBoss.name : "Boss"}} HP
             {{(sessionBoss && sessionBoss.currentHp && sessionBoss.maxHp) ? (abbreviateNumber(sessionBoss.currentHp < 0 ? 0 : sessionBoss.currentHp).join('') +
               ' / ' +abbreviateNumber(sessionBoss.maxHp).join('') +
-              ' (' + Math.floor(((sessionBoss.currentHp < 0 ? 0 : sessionBoss.currentHp) / sessionBoss.maxHp) * 100) + '%)') : '0'}}
+              ' (' + Math.floor(((sessionBoss.currentHp < 0 ? 0 : sessionBoss.currentHp) / sessionBoss.maxHp) * 100).toFixed(1) + '%)') : '0'}}
           </span>
         </div>
       </div>
