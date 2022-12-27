@@ -347,7 +347,7 @@ ipcMain.on("close", () => {
 });
 
 ipcMain.on("hide", () => {
-  mainWindow?.close();
+  mainWindow?.hide();
 });
 
 ipcMain.on(
