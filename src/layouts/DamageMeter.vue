@@ -91,7 +91,7 @@
             {{(sessionBoss && sessionBoss.name) ? sessionBoss.name : "Boss"}} HP
             {{(sessionBoss && sessionBoss.currentHp && sessionBoss.maxHp) ? (abbreviateNumber(sessionBoss.currentHp < 0 ? 0 : sessionBoss.currentHp).join('') +
               ' / ' +abbreviateNumber(sessionBoss.maxHp).join('') +
-              ' (' + Math.floor(((sessionBoss.currentHp < 0 ? 0 : sessionBoss.currentHp) / sessionBoss.maxHp) * 100).toFixed(1) + '%)') : '0'}}
+              ' (' + (((sessionBoss.currentHp < 0 ? 0 : sessionBoss.currentHp) / sessionBoss.maxHp) * 100).toFixed(1) + '%)') : '0'}}
           </span>
         </div>
       </div>
