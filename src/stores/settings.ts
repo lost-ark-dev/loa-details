@@ -64,6 +64,7 @@ export const useSettingsStore = defineStore("settings", {
           compactDesign: false,
           pinUserToTop: false,
           opacity: 0.9,
+          transparency: false,
         },
         header: {
           damage: {
@@ -76,6 +77,10 @@ export const useSettingsStore = defineStore("settings", {
           },
           tank: {
             name: "Tanked",
+            enabled: false,
+          },
+          bossHP: {
+            name: "Boss HP",
             enabled: false,
           },
         },

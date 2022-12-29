@@ -88,10 +88,23 @@
             v-if="settingsStore.settings.damageMeter.header.bossHP.enabled"
             style="margin-right: 12px"
           >
-            {{(sessionBoss && sessionBoss.name) ? sessionBoss.name : "Boss"}} HP
-            {{(sessionBoss && sessionBoss.currentHp && sessionBoss.maxHp) ? (abbreviateNumber(sessionBoss.currentHp < 0 ? 0 : sessionBoss.currentHp).join('') +
-              ' / ' +abbreviateNumber(sessionBoss.maxHp).join('') +
-              ' (' + (((sessionBoss.currentHp < 0 ? 0 : sessionBoss.currentHp) / sessionBoss.maxHp) * 100).toFixed(1) + '%)') : '0'}}
+            {{ sessionBoss && sessionBoss.name ? sessionBoss.name : "No Boss" }}
+            {{
+              sessionBoss && sessionBoss.currentHp && sessionBoss.maxHp
+                ? abbreviateNumber(
+                    sessionBoss.currentHp < 0 ? 0 : sessionBoss.currentHp
+                  ).join("") +
+                  " / " +
+                  abbreviateNumber(sessionBoss.maxHp).join("") +
+                  " (" +
+                  (
+                    ((sessionBoss.currentHp < 0 ? 0 : sessionBoss.currentHp) /
+                      sessionBoss.maxHp) *
+                    100
+                  ).toFixed(1) +
+                  "%)"
+                : ""
+            }}
           </span>
         </div>
       </div>
@@ -219,7 +232,7 @@ import {
   numberFormat,
   millisToMinutesAndSeconds,
   toFixedNumber,
-  abbreviateNumber
+  abbreviateNumber,
 } from "src/util/number-helpers";
 import { sleep } from "src/util/sleep";
 import html2canvas from "html2canvas";
@@ -331,19 +344,22 @@ function requestSessionRestart() {
 }
 
 function getSessionBoss() {
-  if (sessionState.value.entities){
+  if (sessionState.value.entities) {
     const entities = Object.values(sessionState.value.entities);
-    if (entities.length > 0){
-      for (const entity of (entities.sort((a, b) => b.lastUpdate - a.lastUpdate))) {
-        for (const encounter of (Object.values(encounters))) {
+    if (entities.length > 0) {
+      for (const entity of entities.sort(
+        (a, b) => b.lastUpdate - a.lastUpdate
+      )) {
+        for (const encounter of Object.values(encounters)) {
           if (encounter.encounterNames.includes(entity.name)) {
             sessionBoss.value = entity;
             return;
           }
         }
       }
+    } else {
+      sessionBoss.value = null as unknown as Entity;
     }
-    else {sessionBoss.value = null as unknown as Entity;}
   }
 }
 
@@ -378,7 +394,9 @@ onMounted(() => {
           (fightDuration.value / 1000),
         0
       );
-      getSessionBoss();
+      if (settingsStore.settings.damageMeter.header.bossHP.enabled)
+        //Don't run if disabled
+        getSessionBoss();
     }
   });
 
