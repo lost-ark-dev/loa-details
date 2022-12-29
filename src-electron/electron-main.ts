@@ -45,6 +45,13 @@ if (app.commandLine.hasSwitch("disable-hardware-acceleration")) {
   log.info("Hardware acceleration disabled");
   app.disableHardwareAcceleration();
 }
+//Override console methods for use in dependencies (such as meter-core) instead of passing references to every single functions
+//Alternative: singleton custom logger in meter-core ?
+//I don't know how bad it is :shrugging:
+console.error = log.error;
+console.warn = log.warn;
+console.info = log.info;
+// We keep log/debug for console only
 
 const store = new Store();
 

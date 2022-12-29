@@ -34,7 +34,7 @@ export function InitLogger(logParser: LogParser) {
   // create Decompressor
   const oodle_state = readFileSync("./meter-data/oodle_state.bin");
   const xorTable = readFileSync("./meter-data/xor.bin");
-  const compressor = new Decompressor(oodle_state, xorTable, log.error);
+  const compressor = new Decompressor(oodle_state, xorTable);
   /*
   //Stress test repro-code
   const lines = readFileSync(
@@ -65,6 +65,24 @@ export function InitLogger(logParser: LogParser) {
     }, 50);
   }, 10000);
   */
+  /*
+  let prevTime: number;
+  setTimeout(async () => {
+    const lines = readFileSync(
+      process.env.APPDATA + "/LOA Details/logs/repro_dmg2.log",
+      "utf-8"
+    ).split(/\r?\n/);
+    for (const line of lines) {
+      logParser.parseLogLine(line);
+      const split = line.split("|");
+      const date = Date.parse(split[1]);
+      if (!prevTime) prevTime = date;
+      console.log(line, date - prevTime);
+      await new Promise((r) => setTimeout(r, date - prevTime));
+      prevTime = date;
+    }
+  }, 10000);
+  */
   // create Decompressor & LegacyLogger
   const stream = new PKTStream(compressor);
   const legacyLogger = new LegacyLogger(stream, meterData);
@@ -93,9 +111,8 @@ export function InitLogger(logParser: LogParser) {
     logfile?.write(line);
     logfile?.write("\n");
   });
-
   // finaly create packet capture
-  const capture = new PktCaptureAll(log.error);
+  const capture = new PktCaptureAll();
   log.info(
     `Listenning on ${capture.caps.size} devices(s): ${[
       ...capture.caps.keys(),
