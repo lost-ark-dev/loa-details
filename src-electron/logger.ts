@@ -114,7 +114,7 @@ export function InitLogger(logParser: LogParser) {
   // finaly create packet capture
   const capture = new PktCaptureAll();
   log.info(
-    `Listenning on ${capture.caps.size} devices(s): ${[
+    `Listening on ${capture.caps.size} devices(s): ${[
       ...capture.caps.keys(),
     ].join(", ")}`
   );
