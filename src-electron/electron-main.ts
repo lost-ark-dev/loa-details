@@ -347,13 +347,13 @@ ipcMain.on("close", () => {
 });
 
 ipcMain.on("hide", () => {
-  mainWindow?.close();
+  mainWindow?.hide();
 });
 
 ipcMain.on(
   "setIgnoreMouseEvents",
   (event, ignore: boolean, options?: IgnoreMouseEventsOptions) => {
-    mainWindow?.setIgnoreMouseEvents(ignore, options);
+    damageMeterWindow?.setIgnoreMouseEvents(ignore, options);
   }
 );
 

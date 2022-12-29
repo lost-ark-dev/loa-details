@@ -38,5 +38,5 @@ contextBridge.exposeInMainWorld("windowControlApi", {
   close: () => ipcRenderer.send("close"),
   hide: () => ipcRenderer.send("hide"),
   setIgnoreMouseEvents: (ignore: boolean, options: IgnoreMouseEventsOptions) =>
-    ipcRenderer.send("toggleMaximize", ignore, options),
+    ipcRenderer.send("setIgnoreMouseEvents", ignore, options),
 });
