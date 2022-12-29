@@ -188,6 +188,10 @@ const defaultSettings: Settings = {
         name: "Tanked",
         enabled: false,
       },
+      bossHP: {
+        name: "Boss HP",
+        enabled: false,
+      },
     },
     tabs: {
       damage: {
