@@ -223,6 +223,7 @@ onMounted(() => {
     }
   });
 
+  /*
   setInterval(() => {
     if (!isUpdateAvailable.value) {
       window.messageApi.send("window-to-main", {
@@ -230,6 +231,7 @@ onMounted(() => {
       });
     }
   }, 60000 * 60);
+  */
 
   window.messageApi.send("window-to-main", { message: "get-settings" });
 });
