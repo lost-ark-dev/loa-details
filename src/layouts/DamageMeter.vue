@@ -84,6 +84,15 @@
             Total TNK
             {{ numberFormat(sessionState.damageStatistics.totalDamageTaken) }}
           </span>
+          <span
+            v-if="settingsStore.settings.damageMeter.header.bossHP.enabled"
+            style="margin-right: 12px"
+          >
+            {{(sessionBoss && sessionBoss.name) ? sessionBoss.name : "Boss"}} HP
+            {{(sessionBoss && sessionBoss.currentHp && sessionBoss.maxHp) ? (abbreviateNumber(sessionBoss.currentHp < 0 ? 0 : sessionBoss.currentHp).join('') +
+              ' / ' +abbreviateNumber(sessionBoss.maxHp).join('') +
+              ' (' + (((sessionBoss.currentHp < 0 ? 0 : sessionBoss.currentHp) / sessionBoss.maxHp) * 100).toFixed(1) + '%)') : '0'}}
+          </span>
         </div>
       </div>
       <div v-if="!isTakingScreenshot" style="margin-left: auto">
@@ -210,10 +219,12 @@ import {
   numberFormat,
   millisToMinutesAndSeconds,
   toFixedNumber,
+  abbreviateNumber
 } from "src/util/number-helpers";
 import { sleep } from "src/util/sleep";
 import html2canvas from "html2canvas";
-import { Game } from "loa-details-log-parser";
+import { Game, Entity } from "loa-details-log-parser";
+import { encounters } from "src/constants/encounters.js";
 import { useSettingsStore } from "src/stores/settings";
 
 import DamageMeterTable from "src/components/DamageMeter/DamageMeterTable.vue";
@@ -318,8 +329,27 @@ async function takeScreenshot() {
 function requestSessionRestart() {
   window.messageApi.send("window-to-main", { message: "reset-session" });
 }
+
+function getSessionBoss() {
+  if (sessionState.value.entities){
+    const entities = Object.values(sessionState.value.entities);
+    if (entities.length > 0){
+      for (const entity of (entities.sort((a, b) => b.lastUpdate - a.lastUpdate))) {
+        for (const encounter of (Object.values(encounters))) {
+          if (encounter.encounterNames.includes(entity.name)) {
+            sessionBoss.value = entity;
+            return;
+          }
+        }
+      }
+    }
+    else {sessionBoss.value = null as unknown as Entity;}
+  }
+}
+
 const sessionState: Ref<Partial<Game>> = ref({});
 const sessionDPS = ref(0);
+const sessionBoss: Ref<Partial<Entity>> = ref({});
 
 onMounted(() => {
   settingsStore.initSettings();
@@ -348,6 +378,7 @@ onMounted(() => {
           (fightDuration.value / 1000),
         0
       );
+      getSessionBoss();
     }
   });
 
@@ -357,6 +388,7 @@ onMounted(() => {
     fightPausedForMs = 0;
     damageType.value = "dmg";
     sessionDPS.value = 0;
+    sessionBoss.value = null as unknown as Entity;
   });
 
   window.messageApi.receive("pcap-on-message", (value) => {
