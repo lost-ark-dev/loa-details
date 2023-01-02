@@ -88,7 +88,7 @@
             v-if="settingsStore.settings.damageMeter.header.bossHP.enabled"
             style="margin-right: 12px"
           >
-            {{ sessionBoss && sessionBoss.name ? sessionBoss.name : "No Boss" }}
+            {{ sessionBoss && sessionBoss.name ? "HP" : "No Boss" }}
             {{
               sessionBoss && sessionBoss.currentHp && sessionBoss.maxHp
                 ? abbreviateNumber(
