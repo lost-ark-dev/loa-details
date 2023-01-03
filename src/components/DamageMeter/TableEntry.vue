@@ -94,6 +94,46 @@
     >
       {{ player.hits.counter }}
     </td>
+    <td
+      v-if="
+        damageType === 'dmg' &&
+        settingsStore.settings.damageMeter.tabs.hBuffedBySup.enabled
+      "
+      class="text-center"
+    >
+      {{ ((player.hits.hitsBuffedBySupport / player.hits.total) * 100).toFixed(1) }}
+      <span class="ex">%</span>
+    </td>
+    <td
+      v-if="
+        damageType === 'dmg' &&
+        settingsStore.settings.damageMeter.tabs.hDebuffedBySup.enabled
+      "
+      class="text-center"
+    >
+      {{ ((player.hits.hitsDebuffedBySupport / player.hits.total) * 100).toFixed(1) }}
+      <span class="ex">%</span>
+    </td>
+    <td
+      v-if="
+        damageType === 'dmg' &&
+        settingsStore.settings.damageMeter.tabs.dBuffedBySup.enabled
+      "
+      class="text-center"
+    >
+      {{ ((player.damageDealtBuffedBySupport / player.damageDealt) * 100).toFixed(1) }}
+      <span class="ex">%</span>
+    </td>
+    <td
+      v-if="
+        damageType === 'dmg' &&
+        settingsStore.settings.damageMeter.tabs.dDebuffedBySup.enabled
+      "
+      class="text-center"
+    >
+      {{ ((player.damageDealtDebuffedBySupport / player.damageDealt) * 100).toFixed(1) }}
+      <span class="ex">%</span>
+    </td>
     <div
       class="player-bar"
       :style="`

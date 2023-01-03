@@ -120,6 +120,30 @@
           >
             CNTR
           </th>
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.hBuffedBySup.enabled"
+            style="width: 52px"
+          >
+            HBuf%
+          </th>
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.hDebuffedBySup.enabled"
+            style="width: 52px"
+          >
+            HDebuf%
+          </th>
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.dBuffedBySup.enabled"
+            style="width: 52px"
+          >
+            DBuf%
+          </th>
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.dDebuffedBySup.enabled"
+            style="width: 52px"
+          >
+            DDebuf%
+          </th>
         </tr>
         <tr v-else-if="focusedPlayer !== '#'">
           <th style="width: 32px"></th>
@@ -183,6 +207,30 @@
             style="width: 52px"
           >
             Hits/m
+          </th>
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.hBuffedBySup.enabled"
+            style="width: 52px"
+          >
+            HBuf%
+          </th>
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.hDebuffedBySup.enabled"
+            style="width: 52px"
+          >
+            HDebuf%
+          </th>
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.dBuffedBySup.enabled"
+            style="width: 52px"
+          >
+            DBuf%
+          </th>
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.dDebuffedBySup.enabled"
+            style="width: 52px"
+          >
+            DDebuf%
           </th>
         </tr>
       </thead>

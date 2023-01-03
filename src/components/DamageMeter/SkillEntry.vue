@@ -94,6 +94,50 @@
         {{ HPM[1] }}
       </span>
     </td>
+    <td
+      v-if="settingsStore.settings.damageMeter.tabs.hBuffedBySup.enabled"
+      class="text-center"
+    >
+      {{
+        skill.hits.total > 0
+          ? ((skill.hits.hitsBuffedBySupport / skill.hits.total) * 100).toFixed(1)
+          : (0).toFixed(1)
+      }}
+      <span class="ex">%</span>
+    </td>
+    <td
+      v-if="settingsStore.settings.damageMeter.tabs.hDebuffedBySup.enabled"
+      class="text-center"
+    >
+      {{
+        skill.hits.total > 0
+          ? ((skill.hits.hitsDebuffedBySupport / skill.hits.total) * 100).toFixed(1)
+          : (0).toFixed(1)
+      }}
+      <span class="ex">%</span>
+    </td>
+    <td
+      v-if="settingsStore.settings.damageMeter.tabs.dBuffedBySup.enabled"
+      class="text-center"
+    >
+      {{
+        skill.hits.total > 0
+          ? ((skill.damageBuffedBySupport / skill.totalDamage) * 100).toFixed(1)
+          : (0).toFixed(1)
+      }}
+      <span class="ex">%</span>
+    </td>
+    <td
+      v-if="settingsStore.settings.damageMeter.tabs.dDebuffedBySup.enabled"
+      class="text-center"
+    >
+      {{
+        skill.hits.total > 0
+          ? ((skill.damageDebuffedBySupport / skill.totalDamage) * 100).toFixed(1)
+          : (0).toFixed(1)
+      }}
+      <span class="ex">%</span>
+    </td>
     <div
       class="player-bar"
       :style="`
