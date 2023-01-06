@@ -40,6 +40,7 @@ import {
   quitAndInstall,
   updaterEventEmitter,
 } from "./util/updater";
+import { adminRelauncher, PktCaptureMode } from "meter-core/pkt-capture";
 
 if (app.commandLine.hasSwitch("disable-hardware-acceleration")) {
   log.info("Hardware acceleration disabled");
@@ -91,6 +92,15 @@ logParser.removeOverkillDamage =
   appSettings.damageMeter.functionality.removeOverkillDamage;
 
 appSettings.appVersion = app.getVersion();
+
+//We relaunch admin as early as possible to be smoother, as -relaunch parameter is set, admin won't be checked again later on
+adminRelauncher(
+  appSettings.general.useRawSocket
+    ? PktCaptureMode.MODE_RAW_SOCKET
+    : PktCaptureMode.MODE_PCAP
+);
+//Note: relauncher doesn't work in dev mode, consider starting as admin
+//TODO: disable when in dev ?
 
 // needed in case process is undefined under Linux
 const platform = process.platform || os.platform();
@@ -188,7 +198,7 @@ function startApplication() {
   damageMeterWindow = createDamageMeterWindow(logParser, appSettings);
 
   try {
-    InitLogger(logParser);
+    InitLogger(logParser, appSettings?.general?.useRawSocket);
   } catch (e) {
     log.error(e);
   }

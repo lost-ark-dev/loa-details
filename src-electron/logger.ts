@@ -1,15 +1,15 @@
 import log from "electron-log";
 import { createWriteStream, readFileSync } from "fs";
 import { LogParser } from "loa-details-log-parser";
-import { MeterData } from "meter-core/dist/data";
-import { Decompressor } from "meter-core/dist/decompressor";
-import { LegacyLogger } from "meter-core/dist/legacy-logger";
-import { PktCaptureAll } from "meter-core/dist/pkt-capture";
-import { PKTStream } from "meter-core/dist/pkt-stream";
+import { MeterData } from "meter-core/data";
+import { Decompressor } from "meter-core/decompressor";
+import { LegacyLogger } from "meter-core/legacy-logger";
+import { PktCaptureAll, PktCaptureMode } from "meter-core/pkt-capture";
+import { PKTStream } from "meter-core/pkt-stream";
 import { join } from "path";
-import { mainFolder } from "./util/directories";
+import { mainFolder } from "./util/directories.js";
 
-export function InitLogger(logParser: LogParser) {
+export function InitLogger(logParser: LogParser, useRawSocket: boolean) {
   // create MeterData and read data
   const meterData = new MeterData();
   meterData.processEnumData(
@@ -112,10 +112,12 @@ export function InitLogger(logParser: LogParser) {
     logfile?.write("\n");
   });
   // finaly create packet capture
-  const capture = new PktCaptureAll();
+  const capture = new PktCaptureAll(
+    useRawSocket ? PktCaptureMode.MODE_RAW_SOCKET : PktCaptureMode.MODE_PCAP
+  );
   log.info(
-    `Listening on ${capture.caps.size} devices(s): ${[
-      ...capture.caps.keys(),
+    `Listening on ${capture.captures.size} devices(s): ${[
+      ...capture.captures.keys(),
     ].join(", ")}`
   );
   capture.on("packet", (buf) => {

@@ -60,7 +60,20 @@
         </q-item-label>
       </q-item-section>
     </q-item>
+    <q-item tag="label">
+      <q-item-section side top>
+        <q-checkbox v-model="settingsStore.settings.general.useRawSocket" />
+      </q-item-section>
 
+      <q-item-section>
+        <q-item-label>Raw Socket (Require Administrator)</q-item-label>
+        <q-item-label caption>
+          Switch from Npcap listening to Raw socket mode. Recommended if you are
+          having trouble with npcap (especially VPN users). Require restart.
+        </q-item-label>
+      </q-item-section>
+    </q-item>
+    <!--
     <q-item tag="label">
       <q-item-section side top>
         <q-item-label>Game Region</q-item-label>
@@ -73,7 +86,7 @@
         <q-select filled v-model="serverModel" :options="serverOptions" />
       </q-item-section>
     </q-item>
-
+    -->
     <q-item tag="label">
       <q-item-section>
         <q-item-label>Custom Log Path</q-item-label>

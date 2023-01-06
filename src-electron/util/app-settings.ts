@@ -40,6 +40,7 @@ export type Settings = {
     saveScreenshots: boolean;
     server: "steam" | "kr" | "ru";
     customLogPath: string | null;
+    useRawSocket: boolean;
   };
   shortcuts: {
     minimizeDamageMeter: {
@@ -123,6 +124,7 @@ const defaultSettings: Settings = {
     saveScreenshots: true,
     server: "steam",
     customLogPath: null,
+    useRawSocket: false,
   },
   shortcuts: {
     minimizeDamageMeter: {
