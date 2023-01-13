@@ -222,6 +222,14 @@ const defaultSettings: Settings = {
         name: "Dmg % debuffed by Support",
         enabled: false,
       },
+      dBuffed: {
+        name: "Dmg % Buffed",
+        enabled: false,
+      },
+      dDebuffed: {
+        name: "Dmg % Debuffed",
+        enabled: false,
+      },
       faRate: {
         name: "Front Attack Rate",
         enabled: true,
@@ -240,6 +248,14 @@ const defaultSettings: Settings = {
       },
       hDebuffedBySup: {
         name: "Hit % debuffed by Support",
+        enabled: false,
+      },
+      hBuffed: {
+        name: "Hit % Buffed",
+        enabled: false,
+      },
+      hDebuffed: {
+        name: "Hit % Debuffed",
         enabled: false,
       },
       maxDmg: {
