@@ -309,7 +309,7 @@
 import { onMounted, ref, watch } from "vue";
 import { cloneDeep } from "lodash";
 import { useSettingsStore } from "src/stores/settings";
-import { skillbuffs } from "src/constants/skillbuff";
+import { statuseffects } from "src/constants/statuseffects";
 
 import TableEntry from "./TableEntry.vue";
 import SkillEntry from "./SkillEntry.vue";
@@ -479,7 +479,7 @@ function getPercentage(player, dmgType, relativeTo) {
 }
 
 function getSkillBuffName(buffid) {
-  return skillbuffs[buffid].name;
+  return statuseffects[buffid];
 }
 </script>
 
