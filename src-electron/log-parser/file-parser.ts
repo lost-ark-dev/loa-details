@@ -9,7 +9,7 @@ import { mainFolder, parsedLogFolder } from "../util/directories";
 
 dayjs.extend(customParseFormat);
 
-const LOG_PARSER_VERSION = 12;
+const LOG_PARSER_VERSION = 13;
 
 export async function parseLogs(
   event: IpcMainEvent,
