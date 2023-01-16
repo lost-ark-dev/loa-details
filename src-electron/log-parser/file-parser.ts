@@ -147,7 +147,7 @@ export async function getParsedLogs() {
         "utf-8"
       );
 
-      const parsedContents = await JSON.parse(contents);
+      const parsedContents = await JSON.parse(contents, reviver);
 
       res.push({
         filename,
