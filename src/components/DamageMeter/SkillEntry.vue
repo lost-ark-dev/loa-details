@@ -141,11 +141,11 @@
     <template v-if="sessionState.damageStatistics && (settingsStore.settings.damageMeter.tabs.dDebuffed.enabled || settingsStore.settings.damageMeter.tabs.hDebuffed.enabled)">
       <td v-for="statusEffecdId in sessionState.damageStatistics.debuffs"
         :key="statusEffecdId"
-        style="width: 80px"
+        style="text-align: center"
       >
         <template v-if="settingsStore.settings.damageMeter.tabs.dDebuffed.enabled">
         {{skill.damageDebuffedBy.has(statusEffecdId) && skill.totalDamage > 0 ? ((skill.damageDebuffedBy.get(statusEffecdId) / skill.totalDamage) * 100).toFixed(1) : 0}}
-        <span class="ex">%</span>
+        <span class="ex">% </span>
         </template>
         <template v-if="settingsStore.settings.damageMeter.tabs.hDebuffed.enabled">
         {{skill.hits.hitsDebuffedBy.has(statusEffecdId) && skill.hits.total > 0 ? ((skill.hits.hitsDebuffedBy.get(statusEffecdId) / skill.hits.total) * 100).toFixed(1) : 0}}
@@ -156,11 +156,11 @@
     <template v-if="sessionState.damageStatistics && (settingsStore.settings.damageMeter.tabs.dBuffed.enabled || settingsStore.settings.damageMeter.tabs.hBuffed.enabled)">
       <td v-for="statusEffecdId in sessionState.damageStatistics.buffs"
         :key="statusEffecdId"
-        style="width: 80px"
+        style="text-align: center"
       >
         <template v-if="settingsStore.settings.damageMeter.tabs.dBuffed.enabled">
         {{skill.damageBuffedBy.has(statusEffecdId) && skill.totalDamage > 0 ? ((skill.damageBuffedBy.get(statusEffecdId) / skill.totalDamage) * 100).toFixed(1) : 0}}
-        <span class="ex">%</span>
+        <span class="ex">% </span>
         </template>
         <template v-if="settingsStore.settings.damageMeter.tabs.hBuffed.enabled">
         {{skill.hits.hitsBuffedBy.has(statusEffecdId) && skill.hits.total > 0 ? ((skill.hits.hitsBuffedBy.get(statusEffecdId) / skill.hits.total) * 100).toFixed(1) : 0}}

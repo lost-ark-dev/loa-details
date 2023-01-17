@@ -147,7 +147,7 @@
           <template v-if="sessionState.damageStatistics && (settingsStore.settings.damageMeter.tabs.dDebuffed.enabled || settingsStore.settings.damageMeter.tabs.hDebuffed.enabled)">
           <th v-for="statusEffecdId in sessionState.damageStatistics.debuffs"
           :key="statusEffecdId"
-          style="width: 80px"
+          style="width: 90px; text-align: center;"
           >
           {{getSkillBuffName(statusEffecdId)}}
           </th>
@@ -155,7 +155,7 @@
           <template v-if="sessionState.damageStatistics && (settingsStore.settings.damageMeter.tabs.dBuffed.enabled || settingsStore.settings.damageMeter.tabs.hBuffed.enabled)">
           <th v-for="statusEffecdId in sessionState.damageStatistics.buffs"
           :key="statusEffecdId"
-          style="width: 80px"
+          style="width: 90px; text-align: center;"
           >
           {{getSkillBuffName(statusEffecdId)}}
           </th>
@@ -251,7 +251,7 @@
           <template v-if="sessionState.damageStatistics && (settingsStore.settings.damageMeter.tabs.dDebuffed.enabled || settingsStore.settings.damageMeter.tabs.hDebuffed.enabled)">
           <th v-for="statusEffecdId in sessionState.damageStatistics.debuffs"
           :key="statusEffecdId"
-          style="width: 80px"
+          style="width: 90px; text-align: center;"
           >
           {{getSkillBuffName(statusEffecdId)}}
           </th>
@@ -259,7 +259,7 @@
           <template v-if="sessionState.damageStatistics && (settingsStore.settings.damageMeter.tabs.dBuffed.enabled || settingsStore.settings.damageMeter.tabs.hBuffed.enabled)">
           <th v-for="statusEffecdId in sessionState.damageStatistics.buffs"
           :key="statusEffecdId"
-          style="width: 80px"
+          style="width: 90px; text-align: center;"
           >
           {{getSkillBuffName(statusEffecdId)}}
           </th>
