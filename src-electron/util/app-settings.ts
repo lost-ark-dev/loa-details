@@ -41,6 +41,7 @@ export type Settings = {
     server: "steam" | "kr" | "ru";
     customLogPath: string | null;
     useRawSocket: boolean;
+    listenPort: number;
   };
   shortcuts: {
     minimizeDamageMeter: {
@@ -125,6 +126,7 @@ const defaultSettings: Settings = {
     server: "steam",
     customLogPath: null,
     useRawSocket: false,
+    listenPort: 6040,
   },
   shortcuts: {
     minimizeDamageMeter: {

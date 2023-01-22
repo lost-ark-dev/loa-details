@@ -60,6 +60,7 @@
         </q-item-label>
       </q-item-section>
     </q-item>
+    <q-item-label header>Network</q-item-label>
     <q-item tag="label">
       <q-item-section side top>
         <q-checkbox v-model="settingsStore.settings.general.useRawSocket" />
@@ -70,6 +71,26 @@
         <q-item-label caption>
           Switch from Npcap listening to Raw socket mode. Recommended if you are
           having trouble with npcap (especially VPN users). Require restart.
+        </q-item-label>
+      </q-item-section>
+    </q-item>
+    <q-item tag="label">
+      <q-item-section side top>
+        <q-input
+          v-model.number="settingsStore.settings.general.listenPort"
+          type="number"
+          filled
+          :dense="true"
+          style="max-width: 100px"
+        />
+      </q-item-section>
+
+      <q-item-section>
+        <q-item-label>Listen port</q-item-label>
+        <q-item-label caption
+          >Override listening port, used for proxy users (socks5 supported). You
+          must be sure only game traffic goes through the proxy. Require
+          restart.
         </q-item-label>
       </q-item-section>
     </q-item>

@@ -15,6 +15,7 @@ export const useSettingsStore = defineStore("settings", {
         server: "steam",
         customLogPath: null,
         useRawSocket: false,
+        listenPort: 6040,
       },
       shortcuts: {
         minimizeDamageMeter: {

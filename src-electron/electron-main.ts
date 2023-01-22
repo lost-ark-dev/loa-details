@@ -198,7 +198,11 @@ function startApplication() {
   damageMeterWindow = createDamageMeterWindow(logParser, appSettings);
 
   try {
-    InitLogger(logParser, appSettings?.general?.useRawSocket);
+    InitLogger(
+      logParser,
+      appSettings?.general?.useRawSocket,
+      appSettings?.general?.listenPort ?? 6040
+    );
   } catch (e) {
     log.error(e);
   }

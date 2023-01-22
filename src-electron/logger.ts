@@ -9,7 +9,11 @@ import { PKTStream } from "meter-core/pkt-stream";
 import { join } from "path";
 import { mainFolder } from "./util/directories.js";
 
-export function InitLogger(logParser: LogParser, useRawSocket: boolean) {
+export function InitLogger(
+  logParser: LogParser,
+  useRawSocket: boolean,
+  listenPort: number
+) {
   // create MeterData and read data
   const meterData = new MeterData();
   meterData.processEnumData(
@@ -113,7 +117,8 @@ export function InitLogger(logParser: LogParser, useRawSocket: boolean) {
   });
   // finaly create packet capture
   const capture = new PktCaptureAll(
-    useRawSocket ? PktCaptureMode.MODE_RAW_SOCKET : PktCaptureMode.MODE_PCAP
+    useRawSocket ? PktCaptureMode.MODE_RAW_SOCKET : PktCaptureMode.MODE_PCAP,
+    listenPort
   );
   log.info(
     `Listening on ${capture.captures.size} devices(s): ${[
