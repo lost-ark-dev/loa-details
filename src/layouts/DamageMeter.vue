@@ -490,7 +490,8 @@ onMounted(() => {
   });
 
   window.messageApi.receive("on-restore-from-taskbar", (value) => {
-    if (value) isMinimized.value = false;
+    if (settingsStore.settings.damageMeter.functionality.minimizeToTaskbar && value)
+      isMinimized.value = false;
   });
 
   setInterval(() => {
