@@ -120,6 +120,46 @@
           >
             CNTR
           </th>
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.hBuffedBySup.enabled"
+            style="width: 52px"
+          >
+            HBuf%
+          </th>
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.hDebuffedBySup.enabled"
+            style="width: 52px"
+          >
+            HDebuf%
+          </th>
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.dBuffedBySup.enabled"
+            style="width: 52px"
+          >
+            DBuf%
+          </th>
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.dDebuffedBySup.enabled"
+            style="width: 52px"
+          >
+            DDebuf%
+          </th>
+          <template v-if="sessionState.damageStatistics && (settingsStore.settings.damageMeter.tabs.dDebuffed.enabled || settingsStore.settings.damageMeter.tabs.hDebuffed.enabled)">
+          <th v-for="statusEffecdId in sessionState.damageStatistics.debuffs"
+          :key="statusEffecdId"
+          style="width: 90px; text-align: center;"
+          >
+          {{getSkillBuffName(statusEffecdId)}}
+          </th>
+          </template>
+          <template v-if="sessionState.damageStatistics && (settingsStore.settings.damageMeter.tabs.dBuffed.enabled || settingsStore.settings.damageMeter.tabs.hBuffed.enabled)">
+          <th v-for="statusEffecdId in sessionState.damageStatistics.buffs"
+          :key="statusEffecdId"
+          style="width: 90px; text-align: center;"
+          >
+          {{getSkillBuffName(statusEffecdId)}}
+          </th>
+          </template>
         </tr>
         <tr v-else-if="focusedPlayer !== '#'">
           <th style="width: 32px"></th>
@@ -184,6 +224,46 @@
           >
             Hits/m
           </th>
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.hBuffedBySup.enabled"
+            style="width: 52px"
+          >
+            HBuf%
+          </th>
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.hDebuffedBySup.enabled"
+            style="width: 52px"
+          >
+            HDebuf%
+          </th>
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.dBuffedBySup.enabled"
+            style="width: 52px"
+          >
+            DBuf%
+          </th>
+          <th
+            v-if="settingsStore.settings.damageMeter.tabs.dDebuffedBySup.enabled"
+            style="width: 52px"
+          >
+            DDebuf%
+          </th>
+          <template v-if="sessionState.damageStatistics && (settingsStore.settings.damageMeter.tabs.dDebuffed.enabled || settingsStore.settings.damageMeter.tabs.hDebuffed.enabled)">
+          <th v-for="statusEffecdId in sessionState.damageStatistics.debuffs"
+          :key="statusEffecdId"
+          style="width: 90px; text-align: center;"
+          >
+          {{getSkillBuffName(statusEffecdId)}}
+          </th>
+          </template>
+          <template v-if="sessionState.damageStatistics && (settingsStore.settings.damageMeter.tabs.dBuffed.enabled || settingsStore.settings.damageMeter.tabs.hBuffed.enabled)">
+          <th v-for="statusEffecdId in sessionState.damageStatistics.buffs"
+          :key="statusEffecdId"
+          style="width: 90px; text-align: center;"
+          >
+          {{getSkillBuffName(statusEffecdId)}}
+          </th>
+          </template>
         </tr>
       </thead>
       <tbody
@@ -202,6 +282,7 @@
             sessionState.lastCombatPacket ? sessionState.lastCombatPacket : 0
           "
           :name-display="nameDisplay"
+          :session-state="sessionState"
           @click="focusPlayer(player)"
         />
       </tbody>
@@ -216,6 +297,7 @@
           :skill="skill"
           :class-name="focusedPlayerClass"
           :fight-duration="Math.max(1000, duration)"
+          :session-state="sessionState"
           @click.right="focusedPlayer = '#'"
         />
       </tbody>
@@ -227,6 +309,7 @@
 import { onMounted, ref, watch } from "vue";
 import { cloneDeep } from "lodash";
 import { useSettingsStore } from "src/stores/settings";
+import { statuseffects } from "src/constants/statuseffects";
 
 import TableEntry from "./TableEntry.vue";
 import SkillEntry from "./SkillEntry.vue";
@@ -393,6 +476,10 @@ function getPercentage(player, dmgType, relativeTo) {
   }
 
   return ((a / b) * 100).toFixed(1);
+}
+
+function getSkillBuffName(buffid) {
+  return statuseffects[buffid];
 }
 </script>
 

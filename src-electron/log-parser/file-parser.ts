@@ -9,7 +9,7 @@ import { mainFolder, parsedLogFolder } from "../util/directories";
 
 dayjs.extend(customParseFormat);
 
-const LOG_PARSER_VERSION = 12;
+const LOG_PARSER_VERSION = 13;
 
 export async function parseLogs(
   event: IpcMainEvent,
@@ -147,7 +147,7 @@ export async function getParsedLogs() {
         "utf-8"
       );
 
-      const parsedContents = await JSON.parse(contents);
+      const parsedContents = await JSON.parse(contents, reviver);
 
       res.push({
         filename,
@@ -171,7 +171,7 @@ export async function getLogData(filename: string) {
       path.join(parsedLogFolder, filename),
       "utf-8"
     );
-    return await JSON.parse(contents);
+    return await JSON.parse(contents, reviver);
   } catch (e) {
     log.error(e);
     return {};
@@ -183,4 +183,16 @@ export async function wipeParsedLogs() {
   for await (const filename of parsedLogs) {
     await fsPromises.unlink(path.join(parsedLogFolder, filename));
   }
+}
+
+function reviver(_key:string, value:any) {
+  if(typeof value === "object" && value !== null) {
+    if(value.hasOwnProperty("dataType")) {
+      if(value.dataType === "Map")
+        return new Map(value.value);
+      else if(value.dataType === "Set")
+        return new Set(value.value);
+    }
+  }
+  return value;
 }

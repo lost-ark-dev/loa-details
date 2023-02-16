@@ -107,6 +107,22 @@ export const useSettingsStore = defineStore("settings", {
             name: "Crit Rate",
             enabled: true,
           },
+          dBuffedBySup: {
+            name: "Dmg % buffed by Support",
+            enabled: false,
+          },
+          dDebuffedBySup: {
+            name: "Dmg % debuffed by Support",
+            enabled: false,
+          },
+          dBuffed: {
+            name: "Dmg % Buffed",
+            enabled: false,
+          },
+          dDebuffed: {
+            name: "Dmg % Debuffed",
+            enabled: false,
+          },
           faRate: {
             name: "Front Attack Rate",
             enabled: true,
@@ -118,6 +134,22 @@ export const useSettingsStore = defineStore("settings", {
           counterCount: {
             name: "Counter Count",
             enabled: true,
+          },
+          hBuffedBySup: {
+            name: "Hit % buffed by Support",
+            enabled: false,
+          },
+          hDebuffedBySup: {
+            name: "Hit % debuffed by Support",
+            enabled: false,
+          },
+          hBuffed: {
+            name: "Hit % Buffed",
+            enabled: false,
+          },
+          hDebuffed: {
+            name: "Hit % Debuffed",
+            enabled: false,
           },
           maxDmg: {
             name: "Skill View / Max Damage",
