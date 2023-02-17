@@ -186,6 +186,37 @@
         <q-btn flat size="sm" @click="damageType = 'shield'" label="SHIELD">
           <q-tooltip> Show shield done </q-tooltip>
         </q-btn>
+        <template
+          v-if="
+            settingsStore.settings.damageMeter.tabs.dBuffed.enabled ||
+            settingsStore.settings.damageMeter.tabs.dDebuffed.enabled
+          "
+        >
+          <q-btn
+            flat
+            size="sm"
+            @click="damageType = 'buff_dmg'"
+            label="BUFF DMG"
+          >
+            <q-tooltip> Show damage done during buffs </q-tooltip>
+          </q-btn></template
+        >
+
+        <template
+          v-if="
+            settingsStore.settings.damageMeter.tabs.hBuffed.enabled ||
+            settingsStore.settings.damageMeter.tabs.hDebuffed.enabled
+          "
+        >
+          <q-btn
+            flat
+            size="sm"
+            @click="damageType = 'buff_hit'"
+            label="BUFF HIT"
+          >
+            <q-tooltip> Show hits done during buffs </q-tooltip>
+          </q-btn></template
+        >
       </div>
 
       <div style="margin-left: auto">
@@ -490,7 +521,10 @@ onMounted(() => {
   });
 
   window.messageApi.receive("on-restore-from-taskbar", (value) => {
-    if (settingsStore.settings.damageMeter.functionality.minimizeToTaskbar && value)
+    if (
+      settingsStore.settings.damageMeter.functionality.minimizeToTaskbar &&
+      value
+    )
       isMinimized.value = false;
   });
 

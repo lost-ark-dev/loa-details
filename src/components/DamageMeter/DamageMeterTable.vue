@@ -36,54 +36,106 @@
           >
             Dead for
           </th>
-          <th
-            v-if="settingsStore.settings.damageMeter.tabs.damage.enabled"
-            style="width: 72px"
+          <template
+            v-if="['dmg', 'tank', 'heal', 'shield'].includes(damageType)"
           >
-            {{
-              damageType === "dmg"
-                ? "Damage"
-                : damageType === "tank"
-                ? "Tanked"
-                : damageType === "heal"
-                ? "Healed"
-                : damageType === "shield"
-                ? "Shielded"
-                : ""
-            }}
-          </th>
-          <th
-            v-if="settingsStore.settings.damageMeter.tabs.damagePercent.enabled"
-            style="width: 48px"
-          >
-            {{
-              damageType === "dmg"
-                ? "D"
-                : damageType === "tank"
-                ? "T"
-                : damageType === "heal"
-                ? "H"
-                : damageType === "shield"
-                ? "S"
-                : ""
-            }}%
-          </th>
-          <th
-            v-if="settingsStore.settings.damageMeter.tabs.dps.enabled"
-            style="width: 52px"
-          >
-            {{
-              damageType === "dmg"
-                ? "DPS"
-                : damageType === "tank"
-                ? "TPS"
-                : damageType === "heal"
-                ? "HPS"
-                : damageType === "shield"
-                ? "SPS"
-                : ""
-            }}
-          </th>
+            <th
+              v-if="settingsStore.settings.damageMeter.tabs.damage.enabled"
+              style="width: 72px"
+            >
+              {{
+                damageType === "dmg"
+                  ? "Damage"
+                  : damageType === "tank"
+                  ? "Tanked"
+                  : damageType === "heal"
+                  ? "Healed"
+                  : damageType === "shield"
+                  ? "Shielded"
+                  : ""
+              }}
+            </th>
+            <th
+              v-if="
+                settingsStore.settings.damageMeter.tabs.damagePercent.enabled
+              "
+              style="width: 48px"
+            >
+              {{
+                damageType === "dmg"
+                  ? "D"
+                  : damageType === "tank"
+                  ? "T"
+                  : damageType === "heal"
+                  ? "H"
+                  : damageType === "shield"
+                  ? "S"
+                  : ""
+              }}%
+            </th>
+            <th
+              v-if="settingsStore.settings.damageMeter.tabs.dps.enabled"
+              style="width: 52px"
+            >
+              {{
+                damageType === "dmg"
+                  ? "DPS"
+                  : damageType === "tank"
+                  ? "TPS"
+                  : damageType === "heal"
+                  ? "HPS"
+                  : damageType === "shield"
+                  ? "SPS"
+                  : ""
+              }}
+            </th>
+          </template>
+          <template v-else-if="['buff_dmg', 'buff,hit'].includes(damageType)">
+            <th
+              v-if="settingsStore.settings.damageMeter.tabs.deathTime.enabled"
+              style="width: 48px"
+            >
+              Dead for
+            </th>
+            <th
+              v-if="settingsStore.settings.damageMeter.tabs.damage.enabled"
+              style="width: 72px"
+            >
+              Damage
+            </th>
+            <template
+              v-if="
+                (damageType === 'buff_dmg' &&
+                  settingsStore.settings.damageMeter.tabs.dDebuffed.enabled) ||
+                (damageType === 'buff_hit' &&
+                  settingsStore.settings.damageMeter.tabs.hDebuffed.enabled)
+              "
+            >
+              <th
+                v-for="statusEffecdId in sessionState.damageStatistics.debuffs"
+                :key="statusEffecdId"
+                style="width: 90px; text-align: center"
+              >
+                {{ getSkillBuffName(statusEffecdId) }}
+              </th>
+            </template>
+            <template
+              v-if="
+                (damageType === 'buff_dmg' &&
+                  settingsStore.settings.damageMeter.tabs.dBuffed.enabled) ||
+                (damageType === 'buff_hit' &&
+                  settingsStore.settings.damageMeter.tabs.hBuffed.enabled)
+              "
+            >
+              <th
+                v-for="statusEffecdId in sessionState.damageStatistics.buffs"
+                :key="statusEffecdId"
+                style="width: 90px; text-align: center"
+              >
+                {{ getSkillBuffName(statusEffecdId) }}
+              </th>
+            </template>
+          </template>
           <th
             v-if="
               damageType === 'dmg' &&
@@ -114,20 +166,15 @@
           <th
             v-if="
               damageType === 'dmg' &&
-              settingsStore.settings.damageMeter.tabs.counterCount.enabled
+              settingsStore.settings.damageMeter.tabs.hBuffedBySup.enabled
             "
-            style="width: 44px"
-          >
-            CNTR
-          </th>
-          <th
-            v-if="settingsStore.settings.damageMeter.tabs.hBuffedBySup.enabled"
             style="width: 52px"
           >
             HBuf%
           </th>
           <th
             v-if="
+              damageType === 'dmg' &&
               settingsStore.settings.damageMeter.tabs.hDebuffedBySup.enabled
             "
             style="width: 52px"
@@ -135,49 +182,32 @@
             HDebuf%
           </th>
           <th
-            v-if="settingsStore.settings.damageMeter.tabs.dBuffedBySup.enabled"
+            v-if="
+              damageType === 'dmg' &&
+              settingsStore.settings.damageMeter.tabs.dBuffedBySup.enabled
+            "
             style="width: 52px"
           >
             DBuf%
           </th>
           <th
             v-if="
+              damageType === 'dmg' &&
               settingsStore.settings.damageMeter.tabs.dDebuffedBySup.enabled
             "
             style="width: 52px"
           >
             DDebuf%
           </th>
-          <template
+          <th
             v-if="
-              sessionState.damageStatistics &&
-              (settingsStore.settings.damageMeter.tabs.dDebuffed.enabled ||
-                settingsStore.settings.damageMeter.tabs.hDebuffed.enabled)
+              damageType === 'dmg' &&
+              settingsStore.settings.damageMeter.tabs.counterCount.enabled
             "
+            style="width: 44px"
           >
-            <th
-              v-for="statusEffecdId in sessionState.damageStatistics.debuffs"
-              :key="statusEffecdId"
-              style="width: 90px; text-align: center"
-            >
-              {{ getSkillBuffName(statusEffecdId) }}
-            </th>
-          </template>
-          <template
-            v-if="
-              sessionState.damageStatistics &&
-              (settingsStore.settings.damageMeter.tabs.dBuffed.enabled ||
-                settingsStore.settings.damageMeter.tabs.hBuffed.enabled)
-            "
-          >
-            <th
-              v-for="statusEffecdId in sessionState.damageStatistics.buffs"
-              :key="statusEffecdId"
-              style="width: 90px; text-align: center"
-            >
-              {{ getSkillBuffName(statusEffecdId) }}
-            </th>
-          </template>
+            CNTR
+          </th>
         </tr>
         <tr v-else-if="focusedPlayer !== '#'">
           <th style="width: 32px"></th>
@@ -188,117 +218,133 @@
           >
             Damage
           </th>
-          <th
-            v-if="settingsStore.settings.damageMeter.tabs.damagePercent.enabled"
-            style="width: 48px"
-          >
-            D%
-          </th>
-          <th
-            v-if="settingsStore.settings.damageMeter.tabs.dps.enabled"
-            style="width: 52px"
-          >
-            DPS
-          </th>
-          <th
-            v-if="settingsStore.settings.damageMeter.tabs.critRate.enabled"
-            style="width: 48px"
-          >
-            CRIT
-          </th>
-          <th
-            v-if="settingsStore.settings.damageMeter.tabs.faRate.enabled"
-            style="width: 48px"
-          >
-            F.A.
-          </th>
-          <th
-            v-if="settingsStore.settings.damageMeter.tabs.baRate.enabled"
-            style="width: 48px"
-          >
-            B.A.
-          </th>
-          <th
-            v-if="settingsStore.settings.damageMeter.tabs.maxDmg.enabled"
-            style="width: 52px"
-          >
-            MaxDmg
-          </th>
-          <th
-            v-if="settingsStore.settings.damageMeter.tabs.avgDmg.enabled"
-            style="width: 52px"
-          >
-            AvgDmg
-          </th>
-          <th
-            v-if="settingsStore.settings.damageMeter.tabs.totalHits.enabled"
-            style="width: 52px"
-          >
-            TotalHits
-          </th>
-          <th
-            v-if="settingsStore.settings.damageMeter.tabs.hpm.enabled"
-            style="width: 52px"
-          >
-            Hits/m
-          </th>
-          <th
-            v-if="settingsStore.settings.damageMeter.tabs.hBuffedBySup.enabled"
-            style="width: 52px"
-          >
-            HBuf%
-          </th>
-          <th
-            v-if="
-              settingsStore.settings.damageMeter.tabs.hDebuffedBySup.enabled
-            "
-            style="width: 52px"
-          >
-            HDebuf%
-          </th>
-          <th
-            v-if="settingsStore.settings.damageMeter.tabs.dBuffedBySup.enabled"
-            style="width: 52px"
-          >
-            DBuf%
-          </th>
-          <th
-            v-if="
-              settingsStore.settings.damageMeter.tabs.dDebuffedBySup.enabled
-            "
-            style="width: 52px"
-          >
-            DDebuf%
-          </th>
           <template
-            v-if="
-              sessionState.damageStatistics &&
-              (settingsStore.settings.damageMeter.tabs.dDebuffed.enabled ||
-                settingsStore.settings.damageMeter.tabs.hDebuffed.enabled)
-            "
+            v-if="['dmg', 'tank', 'heal', 'shield'].includes(damageType)"
           >
             <th
-              v-for="statusEffecdId in sessionState.damageStatistics.debuffs"
-              :key="statusEffecdId"
-              style="width: 90px; text-align: center"
+              v-if="
+                settingsStore.settings.damageMeter.tabs.damagePercent.enabled
+              "
+              style="width: 48px"
             >
-              {{ getSkillBuffName(statusEffecdId) }}
+              D%
+            </th>
+            <th
+              v-if="settingsStore.settings.damageMeter.tabs.dps.enabled"
+              style="width: 52px"
+            >
+              DPS
+            </th>
+            <th
+              v-if="settingsStore.settings.damageMeter.tabs.critRate.enabled"
+              style="width: 48px"
+            >
+              CRIT
+            </th>
+            <th
+              v-if="settingsStore.settings.damageMeter.tabs.faRate.enabled"
+              style="width: 48px"
+            >
+              F.A.
+            </th>
+            <th
+              v-if="settingsStore.settings.damageMeter.tabs.baRate.enabled"
+              style="width: 48px"
+            >
+              B.A.
+            </th>
+            <th
+              v-if="
+                settingsStore.settings.damageMeter.tabs.hBuffedBySup.enabled
+              "
+              style="width: 52px"
+            >
+              HBuf%
+            </th>
+            <th
+              v-if="
+                settingsStore.settings.damageMeter.tabs.hDebuffedBySup.enabled
+              "
+              style="width: 52px"
+            >
+              HDebuf%
+            </th>
+            <th
+              v-if="
+                settingsStore.settings.damageMeter.tabs.dBuffedBySup.enabled
+              "
+              style="width: 52px"
+            >
+              DBuf%
+            </th>
+            <th
+              v-if="
+                settingsStore.settings.damageMeter.tabs.dDebuffedBySup.enabled
+              "
+              style="width: 52px"
+            >
+              DDebuf%
+            </th>
+            <th
+              v-if="settingsStore.settings.damageMeter.tabs.maxDmg.enabled"
+              style="width: 52px"
+            >
+              MaxDmg
+            </th>
+            <th
+              v-if="settingsStore.settings.damageMeter.tabs.avgDmg.enabled"
+              style="width: 52px"
+            >
+              AvgDmg
+            </th>
+            <th
+              v-if="settingsStore.settings.damageMeter.tabs.totalHits.enabled"
+              style="width: 52px"
+            >
+              TotalHits
+            </th>
+            <th
+              v-if="settingsStore.settings.damageMeter.tabs.hpm.enabled"
+              style="width: 52px"
+            >
+              Hits/m
             </th>
           </template>
-          <template
-            v-if="
-              sessionState.damageStatistics &&
-              (settingsStore.settings.damageMeter.tabs.dBuffed.enabled ||
-                settingsStore.settings.damageMeter.tabs.hBuffed.enabled)
-            "
-          >
-            <th
-              v-for="statusEffecdId in sessionState.damageStatistics.buffs"
-              :key="statusEffecdId"
-              style="width: 90px; text-align: center"
+          <template v-else-if="['buff_dmg', 'buff_hit'].includes(damageType)">
+            <template
+              v-if="
+                (damageType === 'buff_dmg' &&
+                  settingsStore.settings.damageMeter.tabs.dDebuffed.enabled) ||
+                (damageType === 'buff_hit' &&
+                  settingsStore.settings.damageMeter.tabs.hDebuffed.enabled)
+              "
             >
-              {{ getSkillBuffName(statusEffecdId) }}
-            </th>
+              <th
+                v-for="statusEffecdId in sessionState.damageStatistics.debuffs"
+                :key="statusEffecdId"
+                style="width: 90px; text-align: center"
+              >
+                {{ getSkillBuffName(statusEffecdId) }}
+
+                <BuffTooltip :buff-id="statusEffecdId" />
+              </th>
+            </template>
+            <template
+              v-if="
+                (damageType === 'buff_dmg' &&
+                  settingsStore.settings.damageMeter.tabs.dBuffed.enabled) ||
+                (damageType === 'buff_hit' &&
+                  settingsStore.settings.damageMeter.tabs.hBuffed.enabled)
+              "
+            >
+              <th
+                v-for="statusEffecdId in sessionState.damageStatistics.buffs"
+                :key="statusEffecdId"
+                style="width: 90px; text-align: center"
+              >
+                {{ getSkillBuffName(statusEffecdId) }}
+              </th>
+            </template>
           </template>
         </tr>
       </thead>
@@ -331,6 +377,7 @@
           v-for="skill in sortedSkills"
           :key="skill.name"
           :skill="skill"
+          :damage-type="damageType"
           :class-name="focusedPlayerClass"
           :fight-duration="Math.max(1000, duration)"
           :session-state="sessionState"
@@ -343,12 +390,12 @@
 
 <script setup>
 import { onMounted, ref, watch } from "vue";
-import { cloneDeep } from "lodash";
 import { useSettingsStore } from "src/stores/settings";
 import { statuseffects } from "src/constants/statuseffects";
 
 import TableEntry from "./TableEntry.vue";
 import SkillEntry from "./SkillEntry.vue";
+import BuffTooltip from "./BuffTooltip.vue";
 
 const settingsStore = useSettingsStore();
 
@@ -402,12 +449,13 @@ function sortEntities() {
     .filter((entity) => {
       if (!entity.isPlayer) return false;
 
-      if (props.damageType === "dmg" && entity.damageDealt > 0) return true;
-      else if (props.damageType === "tank" && entity.damageTaken > 0)
-        return true;
+      if (props.damageType === "tank" && entity.damageTaken > 0) return true;
       else if (props.damageType === "heal" && entity.healingDone > 0)
         return true;
       else if (props.damageType === "shield" && entity.shieldDone > 0)
+        return true;
+      else if (/*props.damageType === "dmg" &&*/ entity.damageDealt > 0)
+        // default to dmg if not one of the above
         return true;
 
       return false;
@@ -418,14 +466,12 @@ function sortEntities() {
         else if (b.name === "You") return 1e69; // nice
       }
 
-      if (props.damageType === "dmg") return b.damageDealt - a.damageDealt;
-      else if (props.damageType === "tank")
-        return b.damageTaken - a.damageTaken;
+      if (props.damageType === "tank") return b.damageTaken - a.damageTaken;
       else if (props.damageType === "heal")
         return b.healingDone - a.healingDone;
       else if (props.damageType === "shield")
         return b.shieldDone - a.shieldDone;
-      else return 0;
+      else return b.damageDealt - a.damageDealt;
     });
 
   for (const entity of res) {

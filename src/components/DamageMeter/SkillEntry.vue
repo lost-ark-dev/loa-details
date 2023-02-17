@@ -13,160 +13,244 @@
         {{ abbreviatedDamage[1] }}
       </span>
     </td>
-    <td
-      v-if="settingsStore.settings.damageMeter.tabs.damagePercent.enabled"
-      class="text-center"
-    >
-      {{ skill.damagePercent }}<span class="ex">%</span>
-    </td>
-    <td
-      v-if="settingsStore.settings.damageMeter.tabs.dps.enabled"
-      class="text-center"
-    >
-      {{ DPS[0] }}
-      <span class="ex">
-        {{ DPS[1] }}
-      </span>
-    </td>
-    <td
-      v-if="settingsStore.settings.damageMeter.tabs.critRate.enabled"
-      class="text-center"
-    >
-      {{
-        skill.hits.total > 0
-          ? ((skill.hits.crit / skill.hits.total) * 100).toFixed(1)
-          : (0).toFixed(1)
-      }}
-      <span class="ex">%</span>
-    </td>
-    <td
-      v-if="settingsStore.settings.damageMeter.tabs.faRate.enabled"
-      class="text-center"
-    >
-      {{
-        skill.hits.total > 0
-          ? ((skill.hits.frontAttack / skill.hits.total) * 100).toFixed(1)
-          : (0).toFixed(1)
-      }}
-      <span class="ex">%</span>
-    </td>
-    <td
-      v-if="settingsStore.settings.damageMeter.tabs.baRate.enabled"
-      class="text-center"
-    >
-      {{
-        skill.hits.total > 0
-          ? ((skill.hits.backAttack / skill.hits.total) * 100).toFixed(1)
-          : (0).toFixed(1)
-      }}
-      <span class="ex">%</span>
-    </td>
-    <td
-      v-if="settingsStore.settings.damageMeter.tabs.maxDmg.enabled"
-      class="text-center"
-    >
-      {{ maxDamage[0] }}
-      <span class="ex">
-        {{ maxDamage[1] }}
-      </span>
-    </td>
-    <td
-      v-if="settingsStore.settings.damageMeter.tabs.avgDmg.enabled"
-      class="text-center"
-    >
-      {{ avgDamage[0] }}
-      <span class="ex">
-        {{ avgDamage[1] }}
-      </span>
-    </td>
-    <td
-      v-if="settingsStore.settings.damageMeter.tabs.totalHits.enabled"
-      class="text-center"
-    >
-      {{ skill.hits.total }}
-    </td>
-    <td
-      v-if="settingsStore.settings.damageMeter.tabs.hpm.enabled"
-      class="text-center"
-    >
-      {{ HPM[0] }}
-      <span class="ex">
-        {{ HPM[1] }}
-      </span>
-    </td>
-    <td
-      v-if="settingsStore.settings.damageMeter.tabs.hBuffedBySup.enabled"
-      class="text-center"
-    >
-      {{
-        skill.hits.total > 0
-          ? ((skill.hits.hitsBuffedBySupport / skill.hits.total) * 100).toFixed(1)
-          : (0).toFixed(1)
-      }}
-      <span class="ex">%</span>
-    </td>
-    <td
-      v-if="settingsStore.settings.damageMeter.tabs.hDebuffedBySup.enabled"
-      class="text-center"
-    >
-      {{
-        skill.hits.total > 0
-          ? ((skill.hits.hitsDebuffedBySupport / skill.hits.total) * 100).toFixed(1)
-          : (0).toFixed(1)
-      }}
-      <span class="ex">%</span>
-    </td>
-    <td
-      v-if="settingsStore.settings.damageMeter.tabs.dBuffedBySup.enabled"
-      class="text-center"
-    >
-      {{
-        skill.hits.total > 0
-          ? ((skill.damageBuffedBySupport / skill.totalDamage) * 100).toFixed(1)
-          : (0).toFixed(1)
-      }}
-      <span class="ex">%</span>
-    </td>
-    <td
-      v-if="settingsStore.settings.damageMeter.tabs.dDebuffedBySup.enabled"
-      class="text-center"
-    >
-      {{
-        skill.hits.total > 0
-          ? ((skill.damageDebuffedBySupport / skill.totalDamage) * 100).toFixed(1)
-          : (0).toFixed(1)
-      }}
-      <span class="ex">%</span>
-    </td>
-    <template v-if="sessionState.damageStatistics && (settingsStore.settings.damageMeter.tabs.dDebuffed.enabled || settingsStore.settings.damageMeter.tabs.hDebuffed.enabled)">
-      <td v-for="statusEffecdId in sessionState.damageStatistics.debuffs"
-        :key="statusEffecdId"
-        style="text-align: center"
+    <template v-if="['dmg', 'tank', 'heal', 'shield'].includes(damageType)">
+      <td
+        v-if="settingsStore.settings.damageMeter.tabs.damagePercent.enabled"
+        class="text-center"
       >
-        <template v-if="settingsStore.settings.damageMeter.tabs.dDebuffed.enabled">
-        {{skill.damageDebuffedBy.has(statusEffecdId) && skill.totalDamage > 0 ? ((skill.damageDebuffedBy.get(statusEffecdId) / skill.totalDamage) * 100).toFixed(1) : 0}}
-        <span class="ex">% </span>
-        </template>
-        <template v-if="settingsStore.settings.damageMeter.tabs.hDebuffed.enabled">
-        {{skill.hits.hitsDebuffedBy.has(statusEffecdId) && skill.hits.total > 0 ? ((skill.hits.hitsDebuffedBy.get(statusEffecdId) / skill.hits.total) * 100).toFixed(1) : 0}}
+        {{ skill.damagePercent }}<span class="ex">%</span>
+      </td>
+      <td
+        v-if="settingsStore.settings.damageMeter.tabs.dps.enabled"
+        class="text-center"
+      >
+        {{ DPS[0] }}
+        <span class="ex">
+          {{ DPS[1] }}
+        </span>
+      </td>
+      <td
+        v-if="settingsStore.settings.damageMeter.tabs.critRate.enabled"
+        class="text-center"
+      >
+        {{
+          skill.hits.total > 0
+            ? ((skill.hits.crit / skill.hits.total) * 100).toFixed(1)
+            : (0).toFixed(1)
+        }}
         <span class="ex">%</span>
-        </template>
+      </td>
+      <td
+        v-if="settingsStore.settings.damageMeter.tabs.faRate.enabled"
+        class="text-center"
+      >
+        {{
+          skill.hits.total > 0
+            ? ((skill.hits.frontAttack / skill.hits.total) * 100).toFixed(1)
+            : (0).toFixed(1)
+        }}
+        <span class="ex">%</span>
+      </td>
+      <td
+        v-if="settingsStore.settings.damageMeter.tabs.baRate.enabled"
+        class="text-center"
+      >
+        {{
+          skill.hits.total > 0
+            ? ((skill.hits.backAttack / skill.hits.total) * 100).toFixed(1)
+            : (0).toFixed(1)
+        }}
+        <span class="ex">%</span>
+      </td>
+      <td
+        v-if="settingsStore.settings.damageMeter.tabs.hBuffedBySup.enabled"
+        class="text-center"
+      >
+        {{
+          skill.hits.total > 0
+            ? (
+                (skill.hits.hitsBuffedBySupport / skill.hits.total) *
+                100
+              ).toFixed(1)
+            : (0).toFixed(1)
+        }}
+        <span class="ex">%</span>
+      </td>
+      <td
+        v-if="settingsStore.settings.damageMeter.tabs.hDebuffedBySup.enabled"
+        class="text-center"
+      >
+        {{
+          skill.hits.total > 0
+            ? (
+                (skill.hits.hitsDebuffedBySupport / skill.hits.total) *
+                100
+              ).toFixed(1)
+            : (0).toFixed(1)
+        }}
+        <span class="ex">%</span>
+      </td>
+      <td
+        v-if="settingsStore.settings.damageMeter.tabs.dBuffedBySup.enabled"
+        class="text-center"
+      >
+        {{
+          skill.hits.total > 0
+            ? ((skill.damageBuffedBySupport / skill.totalDamage) * 100).toFixed(
+                1
+              )
+            : (0).toFixed(1)
+        }}
+        <span class="ex">%</span>
+      </td>
+      <td
+        v-if="settingsStore.settings.damageMeter.tabs.dDebuffedBySup.enabled"
+        class="text-center"
+      >
+        {{
+          skill.hits.total > 0
+            ? (
+                (skill.damageDebuffedBySupport / skill.totalDamage) *
+                100
+              ).toFixed(1)
+            : (0).toFixed(1)
+        }}
+        <span class="ex">%</span>
+      </td>
+      <td
+        v-if="settingsStore.settings.damageMeter.tabs.maxDmg.enabled"
+        class="text-center"
+      >
+        {{ maxDamage[0] }}
+        <span class="ex">
+          {{ maxDamage[1] }}
+        </span>
+      </td>
+      <td
+        v-if="settingsStore.settings.damageMeter.tabs.avgDmg.enabled"
+        class="text-center"
+      >
+        {{ avgDamage[0] }}
+        <span class="ex">
+          {{ avgDamage[1] }}
+        </span>
+      </td>
+      <td
+        v-if="settingsStore.settings.damageMeter.tabs.totalHits.enabled"
+        class="text-center"
+      >
+        {{ skill.hits.total }}
+      </td>
+      <td
+        v-if="settingsStore.settings.damageMeter.tabs.hpm.enabled"
+        class="text-center"
+      >
+        {{ HPM[0] }}
+        <span class="ex">
+          {{ HPM[1] }}
+        </span>
       </td>
     </template>
-    <template v-if="sessionState.damageStatistics && (settingsStore.settings.damageMeter.tabs.dBuffed.enabled || settingsStore.settings.damageMeter.tabs.hBuffed.enabled)">
-      <td v-for="statusEffecdId in sessionState.damageStatistics.buffs"
-        :key="statusEffecdId"
-        style="text-align: center"
+    <template v-else-if="['buff_dmg', 'buff_hit'].includes(damageType)">
+      <template
+        v-if="
+          sessionState.damageStatistics &&
+          (settingsStore.settings.damageMeter.tabs.dDebuffed.enabled ||
+            settingsStore.settings.damageMeter.tabs.hDebuffed.enabled)
+        "
       >
-        <template v-if="settingsStore.settings.damageMeter.tabs.dBuffed.enabled">
-        {{skill.damageBuffedBy.has(statusEffecdId) && skill.totalDamage > 0 ? ((skill.damageBuffedBy.get(statusEffecdId) / skill.totalDamage) * 100).toFixed(1) : 0}}
-        <span class="ex">% </span>
-        </template>
-        <template v-if="settingsStore.settings.damageMeter.tabs.hBuffed.enabled">
-        {{skill.hits.hitsBuffedBy.has(statusEffecdId) && skill.hits.total > 0 ? ((skill.hits.hitsBuffedBy.get(statusEffecdId) / skill.hits.total) * 100).toFixed(1) : 0}}
-        <span class="ex">%</span>
-        </template>
-      </td>
+        <td
+          v-for="statusEffecdId in sessionState.damageStatistics.debuffs"
+          :key="statusEffecdId"
+          style="text-align: center"
+        >
+          <template
+            v-if="
+              settingsStore.settings.damageMeter.tabs.dDebuffed.enabled &&
+              damageType === 'buff_dmg'
+            "
+          >
+            {{
+              skill.damageDebuffedBy.has(statusEffecdId) &&
+              skill.totalDamage > 0
+                ? (
+                    (skill.damageDebuffedBy.get(statusEffecdId) /
+                      skill.totalDamage) *
+                    100
+                  ).toFixed(1)
+                : 0
+            }}
+            <span class="ex">% </span>
+          </template>
+          <template
+            v-if="
+              settingsStore.settings.damageMeter.tabs.hDebuffed.enabled &&
+              damageType === 'buff_hit'
+            "
+          >
+            {{
+              skill.hits.hitsDebuffedBy.has(statusEffecdId) &&
+              skill.hits.total > 0
+                ? (
+                    (skill.hits.hitsDebuffedBy.get(statusEffecdId) /
+                      skill.hits.total) *
+                    100
+                  ).toFixed(1)
+                : 0
+            }}
+            <span class="ex">%</span>
+          </template>
+        </td>
+      </template>
+      <template
+        v-if="
+          sessionState.damageStatistics &&
+          (settingsStore.settings.damageMeter.tabs.dBuffed.enabled ||
+            settingsStore.settings.damageMeter.tabs.hBuffed.enabled)
+        "
+      >
+        <td
+          v-for="statusEffecdId in sessionState.damageStatistics.buffs"
+          :key="statusEffecdId"
+          style="text-align: center"
+        >
+          <template
+            v-if="
+              settingsStore.settings.damageMeter.tabs.dBuffed.enabled &&
+              damageType === 'buff_dmg'
+            "
+          >
+            {{
+              skill.damageBuffedBy.has(statusEffecdId) && skill.totalDamage > 0
+                ? (
+                    (skill.damageBuffedBy.get(statusEffecdId) /
+                      skill.totalDamage) *
+                    100
+                  ).toFixed(1)
+                : 0
+            }}
+            <span class="ex">% </span>
+          </template>
+          <template
+            v-if="
+              settingsStore.settings.damageMeter.tabs.hBuffed.enabled &&
+              damageType === 'buff_hit'
+            "
+          >
+            {{
+              skill.hits.hitsBuffedBy.has(statusEffecdId) &&
+              skill.hits.total > 0
+                ? (
+                    (skill.hits.hitsBuffedBy.get(statusEffecdId) /
+                      skill.hits.total) *
+                    100
+                  ).toFixed(1)
+                : 0
+            }}
+            <span class="ex">%</span>
+          </template>
+        </td>
+      </template>
     </template>
     <div
       class="player-bar"
@@ -189,6 +273,7 @@ const settingsStore = useSettingsStore();
 const props = defineProps({
   sessionState: Object,
   skill: Object,
+  damageType: { type: String, default: "dmg" },
   className: String,
   fightDuration: Number,
 });

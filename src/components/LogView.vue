@@ -37,6 +37,26 @@
       <q-btn flat size="sm" @click="damageType = 'tank'"> TANK </q-btn>
       <q-btn flat size="sm" @click="damageType = 'heal'"> HEAL </q-btn>
       <q-btn flat size="sm" @click="damageType = 'shield'"> SHIELD </q-btn>
+      <template
+        v-if="
+          settingsStore.settings.damageMeter.tabs.dBuffed.enabled ||
+          settingsStore.settings.damageMeter.tabs.dDebuffed.enabled
+        "
+      >
+        <q-btn flat size="sm" @click="damageType = 'buff_dmg'">
+          BUFF DMG
+        </q-btn>
+      </template>
+      <template
+        v-if="
+          settingsStore.settings.damageMeter.tabs.hBuffed.enabled ||
+          settingsStore.settings.damageMeter.tabs.hDebuffed.enabled
+        "
+      >
+        <q-btn flat size="sm" @click="damageType = 'buff_hit'">
+          BUFF HIT
+        </q-btn>
+      </template>
     </div>
 
     <DamageMeterTable

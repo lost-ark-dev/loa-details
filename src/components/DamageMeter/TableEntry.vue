@@ -21,162 +21,251 @@
         {{ abbreviatedDamage[1] }}
       </span>
     </td>
-    <td
-      v-if="settingsStore.settings.damageMeter.tabs.damagePercent.enabled"
-      class="text-center"
-    >
-      {{
-        damageType === "dmg"
-          ? player.damagePercentageTotal
-          : damageType === "tank"
-          ? player.tankPercentageTotal
-          : damageType === "heal"
-          ? player.healPercentageTotal
-          : damageType === "shield"
-          ? player.shieldPercentageTotal
-          : 0
-      }}
-      <span class="ex">%</span>
-    </td>
-    <td
-      v-if="settingsStore.settings.damageMeter.tabs.dps.enabled"
-      class="text-center"
-    >
-      {{ DPS[0] }}
-      <span class="ex">
-        {{ DPS[1] }}
-      </span>
-    </td>
-    <td
-      v-if="
-        damageType === 'dmg' &&
-        settingsStore.settings.damageMeter.tabs.critRate.enabled
-      "
-      class="text-center"
-    >
-      {{ ((player.hits.crit / player.hits.total) * 100).toFixed(1) }}
-      <span class="ex">%</span>
-    </td>
-    <td
-      v-if="
-        damageType === 'dmg' &&
-        settingsStore.settings.damageMeter.tabs.faRate.enabled
-      "
-      class="text-center"
-    >
-      {{
-        ((player.hits.frontAttack / player.hits.totalHitsWithFa) * 100).toFixed(
-          1
-        )
-      }}
-      <span class="ex">%</span>
-    </td>
-    <td
-      v-if="
-        damageType === 'dmg' &&
-        settingsStore.settings.damageMeter.tabs.baRate.enabled
-      "
-      class="text-center"
-    >
-      {{
-        ((player.hits.backAttack / player.hits.totalHitsWithBa) * 100).toFixed(
-          1
-        )
-      }}
-      <span class="ex">%</span>
-    </td>
-    <td
-      v-if="
-        damageType === 'dmg' &&
-        settingsStore.settings.damageMeter.tabs.counterCount.enabled
-      "
-      class="text-center"
-    >
-      {{ player.hits.counter }}
-    </td>
-    <td
-      v-if="
-        damageType === 'dmg' &&
-        settingsStore.settings.damageMeter.tabs.hBuffedBySup.enabled
-      "
-      class="text-center"
-    >
-      {{ ((player.hits.hitsBuffedBySupport / player.hits.total) * 100).toFixed(1) }}
-      <span class="ex">%</span>
-    </td>
-    <td
-      v-if="
-        damageType === 'dmg' &&
-        settingsStore.settings.damageMeter.tabs.hDebuffedBySup.enabled
-      "
-      class="text-center"
-    >
-      {{ ((player.hits.hitsDebuffedBySupport / player.hits.total) * 100).toFixed(1) }}
-      <span class="ex">%</span>
-    </td>
-    <td
-      v-if="
-        damageType === 'dmg' &&
-        settingsStore.settings.damageMeter.tabs.dBuffedBySup.enabled
-      "
-      class="text-center"
-    >
-      {{ ((player.damageDealtBuffedBySupport / player.damageDealt) * 100).toFixed(1) }}
-      <span class="ex">%</span>
-    </td>
-    <td
-      v-if="
-        damageType === 'dmg' &&
-        settingsStore.settings.damageMeter.tabs.dDebuffedBySup.enabled
-      "
-      class="text-center"
-    >
-      {{ ((player.damageDealtDebuffedBySupport / player.damageDealt) * 100).toFixed(1) }}
-      <span class="ex">%</span>
-    </td>
-    <template v-if="sessionState.damageStatistics && (settingsStore.settings.damageMeter.tabs.dDebuffed.enabled || settingsStore.settings.damageMeter.tabs.hDebuffed.enabled)">
-      <td v-for="statusEffecdId in sessionState.damageStatistics.debuffs"
-        :key="statusEffecdId"
-        style="text-align: center"
+    <template v-if="['dmg', 'tank', 'heal', 'shield'].includes(damageType)">
+      <td
+        v-if="settingsStore.settings.damageMeter.tabs.damagePercent.enabled"
+        class="text-center"
       >
-        <template v-if="settingsStore.settings.damageMeter.tabs.dDebuffed.enabled">
-        {{player.damageDealtDebuffedBy.has(statusEffecdId) ? ((player.damageDealtDebuffedBy.get(statusEffecdId) / player.damageDealt) * 100).toFixed(1) : 0}}
-        <span class="ex">% </span>
-        </template>
-        <template v-if="settingsStore.settings.damageMeter.tabs.hDebuffed.enabled">
-        {{player.hits.hitsDebuffedBy.has(statusEffecdId) ? ((player.hits.hitsDebuffedBy.get(statusEffecdId) / player.hits.total) * 100).toFixed(1) : 0}}
+        {{
+          damageType === "dmg"
+            ? player.damagePercentageTotal
+            : damageType === "tank"
+            ? player.tankPercentageTotal
+            : damageType === "heal"
+            ? player.healPercentageTotal
+            : damageType === "shield"
+            ? player.shieldPercentageTotal
+            : 0
+        }}
         <span class="ex">%</span>
-        </template>
+      </td>
+      <td
+        v-if="settingsStore.settings.damageMeter.tabs.dps.enabled"
+        class="text-center"
+      >
+        {{ DPS[0] }}
+        <span class="ex">
+          {{ DPS[1] }}
+        </span>
+      </td>
+      <td
+        v-if="
+          damageType === 'dmg' &&
+          settingsStore.settings.damageMeter.tabs.critRate.enabled
+        "
+        class="text-center"
+      >
+        {{ ((player.hits.crit / player.hits.total) * 100).toFixed(1) }}
+        <span class="ex">%</span>
+      </td>
+      <td
+        v-if="
+          damageType === 'dmg' &&
+          settingsStore.settings.damageMeter.tabs.faRate.enabled
+        "
+        class="text-center"
+      >
+        {{
+          (
+            (player.hits.frontAttack / player.hits.totalHitsWithFa) *
+            100
+          ).toFixed(1)
+        }}
+        <span class="ex">%</span>
+      </td>
+      <td
+        v-if="
+          damageType === 'dmg' &&
+          settingsStore.settings.damageMeter.tabs.baRate.enabled
+        "
+        class="text-center"
+      >
+        {{
+          (
+            (player.hits.backAttack / player.hits.totalHitsWithBa) *
+            100
+          ).toFixed(1)
+        }}
+        <span class="ex">%</span>
+      </td>
+      <td
+        v-if="
+          damageType === 'dmg' &&
+          settingsStore.settings.damageMeter.tabs.hBuffedBySup.enabled
+        "
+        class="text-center"
+      >
+        {{
+          ((player.hits.hitsBuffedBySupport / player.hits.total) * 100).toFixed(
+            1
+          )
+        }}
+        <span class="ex">%</span>
+      </td>
+      <td
+        v-if="
+          damageType === 'dmg' &&
+          settingsStore.settings.damageMeter.tabs.hDebuffedBySup.enabled
+        "
+        class="text-center"
+      >
+        {{
+          (
+            (player.hits.hitsDebuffedBySupport / player.hits.total) *
+            100
+          ).toFixed(1)
+        }}
+        <span class="ex">%</span>
+      </td>
+      <td
+        v-if="
+          damageType === 'dmg' &&
+          settingsStore.settings.damageMeter.tabs.dBuffedBySup.enabled
+        "
+        class="text-center"
+      >
+        {{
+          (
+            (player.damageDealtBuffedBySupport / player.damageDealt) *
+            100
+          ).toFixed(1)
+        }}
+        <span class="ex">%</span>
+      </td>
+      <td
+        v-if="
+          damageType === 'dmg' &&
+          settingsStore.settings.damageMeter.tabs.dDebuffedBySup.enabled
+        "
+        class="text-center"
+      >
+        {{
+          (
+            (player.damageDealtDebuffedBySupport / player.damageDealt) *
+            100
+          ).toFixed(1)
+        }}
+        <span class="ex">%</span>
+      </td>
+      <td
+        v-if="
+          damageType === 'dmg' &&
+          settingsStore.settings.damageMeter.tabs.counterCount.enabled
+        "
+        class="text-center"
+      >
+        {{ player.hits.counter }}
       </td>
     </template>
-    <template v-if="sessionState.damageStatistics && (settingsStore.settings.damageMeter.tabs.dBuffed.enabled || settingsStore.settings.damageMeter.tabs.hBuffed.enabled)">
-      <td v-for="statusEffecdId in sessionState.damageStatistics.buffs"
-        :key="statusEffecdId"
-        style="text-align: center"
+    <template v-else-if="['buff_dmg', 'buff_hit'].includes(damageType)">
+      <template
+        v-if="
+          sessionState.damageStatistics &&
+          (settingsStore.settings.damageMeter.tabs.dDebuffed.enabled ||
+            settingsStore.settings.damageMeter.tabs.hDebuffed.enabled)
+        "
       >
-        <template v-if="settingsStore.settings.damageMeter.tabs.dBuffed.enabled">
-        {{player.damageDealtBuffedBy.has(statusEffecdId) ? ((player.damageDealtBuffedBy.get(statusEffecdId) / player.damageDealt) * 100).toFixed(1) : 0}}
-        <span class="ex">% </span>
-        </template>
-        <template v-if="settingsStore.settings.damageMeter.tabs.hBuffed.enabled">
-        {{player.hits.hitsBuffedBy.has(statusEffecdId) ? ((player.hits.hitsBuffedBy.get(statusEffecdId) / player.hits.total) * 100).toFixed(1) : 0}}
-        <span class="ex">%</span>
-        </template>
-      </td>
+        <td
+          v-for="statusEffecdId in sessionState.damageStatistics.debuffs"
+          :key="statusEffecdId"
+          style="text-align: center"
+        >
+          <template
+            v-if="
+              settingsStore.settings.damageMeter.tabs.dDebuffed.enabled &&
+              damageType === 'buff_dmg'
+            "
+          >
+            {{
+              player.damageDealtDebuffedBy.has(statusEffecdId)
+                ? (
+                    (player.damageDealtDebuffedBy.get(statusEffecdId) /
+                      player.damageDealt) *
+                    100
+                  ).toFixed(1)
+                : 0
+            }}
+            <span class="ex">% </span>
+          </template>
+          <template
+            v-if="
+              settingsStore.settings.damageMeter.tabs.hDebuffed.enabled &&
+              damageType === 'buff_hit'
+            "
+          >
+            {{
+              player.hits.hitsDebuffedBy.has(statusEffecdId)
+                ? (
+                    (player.hits.hitsDebuffedBy.get(statusEffecdId) /
+                      player.hits.total) *
+                    100
+                  ).toFixed(1)
+                : 0
+            }}
+            <span class="ex">%</span>
+          </template>
+        </td>
+      </template>
+      <template
+        v-if="
+          sessionState.damageStatistics &&
+          (settingsStore.settings.damageMeter.tabs.dBuffed.enabled ||
+            settingsStore.settings.damageMeter.tabs.hBuffed.enabled)
+        "
+      >
+        <td
+          v-for="statusEffecdId in sessionState.damageStatistics.buffs"
+          :key="statusEffecdId"
+          style="text-align: center"
+        >
+          <template
+            v-if="
+              settingsStore.settings.damageMeter.tabs.dBuffed.enabled &&
+              damageType === 'buff_dmg'
+            "
+          >
+            {{
+              player.damageDealtBuffedBy.has(statusEffecdId)
+                ? (
+                    (player.damageDealtBuffedBy.get(statusEffecdId) /
+                      player.damageDealt) *
+                    100
+                  ).toFixed(1)
+                : 0
+            }}
+            <span class="ex">% </span>
+          </template>
+          <template
+            v-if="
+              settingsStore.settings.damageMeter.tabs.hBuffed.enabled &&
+              damageType === 'buff_hit'
+            "
+          >
+            {{
+              player.hits.hitsBuffedBy.has(statusEffecdId)
+                ? (
+                    (player.hits.hitsBuffedBy.get(statusEffecdId) /
+                      player.hits.total) *
+                    100
+                  ).toFixed(1)
+                : 0
+            }}
+            <span class="ex">%</span>
+          </template>
+        </td>
+      </template>
     </template>
     <div
       class="player-bar"
       :style="`
               width: ${
-                damageType === 'dmg'
-                  ? player.damagePercentageTop
-                  : damageType === 'tank'
+                damageType === 'tank'
                   ? player.tankPercentageTop
                   : damageType === 'heal'
                   ? player.healPercentageTop
                   : damageType === 'shield'
                   ? player.shieldPercentageTop
-                  : 0
+                  : player.damagePercentageTop
               }%;
               background:${settingsStore.getClassColor(player.class)};
               `"
