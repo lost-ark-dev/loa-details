@@ -127,7 +127,9 @@
             HBuf%
           </th>
           <th
-            v-if="settingsStore.settings.damageMeter.tabs.hDebuffedBySup.enabled"
+            v-if="
+              settingsStore.settings.damageMeter.tabs.hDebuffedBySup.enabled
+            "
             style="width: 52px"
           >
             HDebuf%
@@ -139,26 +141,42 @@
             DBuf%
           </th>
           <th
-            v-if="settingsStore.settings.damageMeter.tabs.dDebuffedBySup.enabled"
+            v-if="
+              settingsStore.settings.damageMeter.tabs.dDebuffedBySup.enabled
+            "
             style="width: 52px"
           >
             DDebuf%
           </th>
-          <template v-if="sessionState.damageStatistics && (settingsStore.settings.damageMeter.tabs.dDebuffed.enabled || settingsStore.settings.damageMeter.tabs.hDebuffed.enabled)">
-          <th v-for="statusEffecdId in sessionState.damageStatistics.debuffs"
-          :key="statusEffecdId"
-          style="width: 90px; text-align: center;"
+          <template
+            v-if="
+              sessionState.damageStatistics &&
+              (settingsStore.settings.damageMeter.tabs.dDebuffed.enabled ||
+                settingsStore.settings.damageMeter.tabs.hDebuffed.enabled)
+            "
           >
-          {{getSkillBuffName(statusEffecdId)}}
-          </th>
+            <th
+              v-for="statusEffecdId in sessionState.damageStatistics.debuffs"
+              :key="statusEffecdId"
+              style="width: 90px; text-align: center"
+            >
+              {{ getSkillBuffName(statusEffecdId) }}
+            </th>
           </template>
-          <template v-if="sessionState.damageStatistics && (settingsStore.settings.damageMeter.tabs.dBuffed.enabled || settingsStore.settings.damageMeter.tabs.hBuffed.enabled)">
-          <th v-for="statusEffecdId in sessionState.damageStatistics.buffs"
-          :key="statusEffecdId"
-          style="width: 90px; text-align: center;"
+          <template
+            v-if="
+              sessionState.damageStatistics &&
+              (settingsStore.settings.damageMeter.tabs.dBuffed.enabled ||
+                settingsStore.settings.damageMeter.tabs.hBuffed.enabled)
+            "
           >
-          {{getSkillBuffName(statusEffecdId)}}
-          </th>
+            <th
+              v-for="statusEffecdId in sessionState.damageStatistics.buffs"
+              :key="statusEffecdId"
+              style="width: 90px; text-align: center"
+            >
+              {{ getSkillBuffName(statusEffecdId) }}
+            </th>
           </template>
         </tr>
         <tr v-else-if="focusedPlayer !== '#'">
@@ -231,7 +249,9 @@
             HBuf%
           </th>
           <th
-            v-if="settingsStore.settings.damageMeter.tabs.hDebuffedBySup.enabled"
+            v-if="
+              settingsStore.settings.damageMeter.tabs.hDebuffedBySup.enabled
+            "
             style="width: 52px"
           >
             HDebuf%
@@ -243,26 +263,42 @@
             DBuf%
           </th>
           <th
-            v-if="settingsStore.settings.damageMeter.tabs.dDebuffedBySup.enabled"
+            v-if="
+              settingsStore.settings.damageMeter.tabs.dDebuffedBySup.enabled
+            "
             style="width: 52px"
           >
             DDebuf%
           </th>
-          <template v-if="sessionState.damageStatistics && (settingsStore.settings.damageMeter.tabs.dDebuffed.enabled || settingsStore.settings.damageMeter.tabs.hDebuffed.enabled)">
-          <th v-for="statusEffecdId in sessionState.damageStatistics.debuffs"
-          :key="statusEffecdId"
-          style="width: 90px; text-align: center;"
+          <template
+            v-if="
+              sessionState.damageStatistics &&
+              (settingsStore.settings.damageMeter.tabs.dDebuffed.enabled ||
+                settingsStore.settings.damageMeter.tabs.hDebuffed.enabled)
+            "
           >
-          {{getSkillBuffName(statusEffecdId)}}
-          </th>
+            <th
+              v-for="statusEffecdId in sessionState.damageStatistics.debuffs"
+              :key="statusEffecdId"
+              style="width: 90px; text-align: center"
+            >
+              {{ getSkillBuffName(statusEffecdId) }}
+            </th>
           </template>
-          <template v-if="sessionState.damageStatistics && (settingsStore.settings.damageMeter.tabs.dBuffed.enabled || settingsStore.settings.damageMeter.tabs.hBuffed.enabled)">
-          <th v-for="statusEffecdId in sessionState.damageStatistics.buffs"
-          :key="statusEffecdId"
-          style="width: 90px; text-align: center;"
+          <template
+            v-if="
+              sessionState.damageStatistics &&
+              (settingsStore.settings.damageMeter.tabs.dBuffed.enabled ||
+                settingsStore.settings.damageMeter.tabs.hBuffed.enabled)
+            "
           >
-          {{getSkillBuffName(statusEffecdId)}}
-          </th>
+            <th
+              v-for="statusEffecdId in sessionState.damageStatistics.buffs"
+              :key="statusEffecdId"
+              style="width: 90px; text-align: center"
+            >
+              {{ getSkillBuffName(statusEffecdId) }}
+            </th>
           </template>
         </tr>
       </thead>
@@ -360,7 +396,8 @@ const sortedSkills = ref([]);
 function sortEntities() {
   if (Object.keys(props.sessionState).length <= 0) return;
 
-  entitiesCopy.value = cloneDeep(Object.values(props.sessionState.entities));
+  //TODO we changed that to not deepclone for (huge) performance boost, be carefull not to edit entities below (outside of display-reserved fields)
+  entitiesCopy.value = Object.values(props.sessionState.entities);
   const res = entitiesCopy.value
     .filter((entity) => {
       if (!entity.isPlayer) return false;
