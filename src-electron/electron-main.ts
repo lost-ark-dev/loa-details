@@ -178,6 +178,38 @@ function startApplication() {
       },
     },
     {
+      label: "Reset Windows",
+      submenu: [
+        {
+          label: "Both",
+          click() {
+            damageMeterWindow?.setPosition(0, 0);
+            store.set("windows.damage_meter.X", 0);
+            store.set("windows.damage_meter.Y", 0);
+            mainWindow?.setPosition(0, 0);
+            store.set("windows.main.X", 0);
+            store.set("windows.main.Y", 0);
+          }
+        },
+        {
+          label: "Damage Meter",
+          click() {
+            damageMeterWindow?.setPosition(0, 0);
+            store.set("windows.damage_meter.X", 0);
+            store.set("windows.damage_meter.Y", 0);
+          },
+        },
+        {
+          label: "Main Window",
+          click() {
+            mainWindow?.setPosition(0, 0);
+            store.set("windows.main.X", 0);
+            store.set("windows.main.Y", 0);
+          },
+        },
+      ]
+    },
+    {
       label: "Quit",
       click() {
         app.quit();
