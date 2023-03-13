@@ -1,3 +1,4 @@
+import { MeterData } from "meter-core/data";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { IpcMainEvent } from "electron";
@@ -6,14 +7,16 @@ import { promises as fsPromises, unlinkSync, writeFileSync } from "fs";
 import path from "path";
 import workerFarm from "worker-farm";
 import { mainFolder, parsedLogFolder } from "../util/directories";
+import { fileParserWorker } from "loa-details-log-parser/worker";
 
 dayjs.extend(customParseFormat);
 
-const LOG_PARSER_VERSION = 13;
+const LOG_PARSER_VERSION = 14;
 
 export async function parseLogs(
   event: IpcMainEvent,
-  splitOnPhaseTransition: boolean
+  splitOnPhaseTransition: boolean,
+  meterData: MeterData
 ) {
   const s = require.resolve("loa-details-log-parser/worker");
   const workers = workerFarm(s, ["fileParserWorker"]);
@@ -82,11 +85,13 @@ export async function parseLogs(
 
     totalJobs++;
 
+    //Ignore error (d.ts of workerfarm badly designed)
     workers["fileParserWorker"](
       filename,
       splitOnPhaseTransition,
       mainFolder,
       parsedLogFolder,
+      meterData,
       function (error: string, output: string) {
         completedJobs++;
         log.info(error, output);
@@ -185,13 +190,11 @@ export async function wipeParsedLogs() {
   }
 }
 
-function reviver(_key:string, value:any) {
-  if(typeof value === "object" && value !== null) {
-    if(value.hasOwnProperty("dataType")) {
-      if(value.dataType === "Map")
-        return new Map(value.value);
-      else if(value.dataType === "Set")
-        return new Set(value.value);
+function reviver(_key: string, value: any) {
+  if (typeof value === "object" && value !== null) {
+    if (value.hasOwnProperty("dataType")) {
+      if (value.dataType === "Map") return new Map(value.value);
+      else if (value.dataType === "Set") return new Set(value.value);
     }
   }
   return value;

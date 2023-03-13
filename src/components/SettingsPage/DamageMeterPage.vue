@@ -294,9 +294,35 @@
       </q-item-section>
     </q-item>
 
+    <template
+      v-for="buffFilterType of Object.keys(
+        settingsStore.settings.damageMeter.buffFilter
+      )"
+      :key="buffFilterType"
+    >
+      <q-separator spaced />
+      <q-item-label header style="text-transform: capitalize">
+        {{ buffFilterType }} Buffs
+      </q-item-label>
+      <div class="row">
+        <q-item
+          v-for="[idx, name] of buffCategories.entries()"
+          :key="idx"
+          tag="label"
+          class="col-3"
+        >
+          <q-item-section side top>
+            <q-checkbox v-model="buffDisplayModel[buffFilterType][idx]"
+          /></q-item-section>
+
+          <q-item-section>
+            <q-item-label> Show {{ name }} </q-item-label>
+          </q-item-section>
+        </q-item>
+      </div>
+    </template>
     <q-separator spaced />
     <q-item-label header>Classes</q-item-label>
-
     <q-item
       v-for="className in Object.keys(
         settingsStore.settings.damageMeter.classes
@@ -399,12 +425,43 @@ const nameDisplayOptions = ref([
     value: "none",
   },
 ]);
+const buffCategories = ref([
+  "Damage",
+  "Crit",
+  "Attack Speed",
+  "Move Speed",
+  "HP",
+  "Defense",
+  "Resource",
+  "Cooldown",
+  "Stagger",
+  "Shield",
+  "Any",
+]);
 
 var nameDisplayModel = ref("");
+const buffDisplayModel = ref({ party: {}, self: {}, other: {} });
 
 watch(nameDisplayModel, (newVal, oldVal) => {
   settingsStore.settings.damageMeter.functionality.nameDisplayV2 = newVal.value;
 });
+
+watch(
+  buffDisplayModel,
+  (newVal, oldVal) => {
+    console.log(newVal);
+    for (const buffFilterType of Object.keys(
+      settingsStore.settings.damageMeter.buffFilter
+    )) {
+      let val = 0;
+      for (const catIdx in buffCategories.value) {
+        val += newVal[buffFilterType][catIdx] << catIdx;
+      }
+      settingsStore.settings.damageMeter.buffFilter[buffFilterType] = val;
+    }
+  },
+  { deep: true }
+);
 
 function resetDamageMeterPosition() {
   window.messageApi.send("window-to-main", {
@@ -417,6 +474,18 @@ onMounted(() => {
     (x) =>
       x.value === settingsStore.settings.damageMeter.functionality.nameDisplayV2
   );
+
+  for (const buffFilterType of Object.keys(
+    settingsStore.settings.damageMeter.buffFilter
+  )) {
+    for (const catIdx in buffCategories.value) {
+      buffDisplayModel.value[buffFilterType][catIdx] =
+        ((settingsStore.settings.damageMeter.buffFilter[buffFilterType] >>
+          catIdx) &
+          1) ===
+        1;
+    }
+  }
 });
 </script>
 

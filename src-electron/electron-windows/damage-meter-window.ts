@@ -1,6 +1,7 @@
 import { app, BrowserWindow, shell } from "electron";
 import log from "electron-log";
-import { Game, LogParser } from "loa-details-log-parser";
+import { LogParser } from "loa-details-log-parser";
+import type { Game } from "loa-details-log-parser/data";
 import path from "path";
 import { Settings } from "../util/app-settings";
 import { upload } from "../util/uploads";

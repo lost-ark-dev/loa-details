@@ -9,11 +9,7 @@ import { PKTStream } from "meter-core/pkt-stream";
 import { join } from "path";
 import { mainFolder } from "./util/directories.js";
 
-export function InitLogger(
-  logParser: LogParser,
-  useRawSocket: boolean,
-  listenPort: number
-) {
+export function InitMeterData() {
   // create MeterData and read data
   const meterData = new MeterData();
   meterData.processEnumData(
@@ -34,7 +30,20 @@ export function InitLogger(
   meterData.processSkillBuffEffectData(
     JSON.parse(readFileSync("./meter-data/databases/SkillEffect.json", "utf-8"))
   );
+  meterData.processCombatEffectData(
+    JSON.parse(
+      readFileSync("./meter-data/databases/CombatEffect.json", "utf-8")
+    )
+  );
+  return meterData;
+}
 
+export function InitLogger(
+  logParser: LogParser,
+  meterData: MeterData,
+  useRawSocket: boolean,
+  listenPort: number
+) {
   // create Decompressor
   const oodle_state = readFileSync("./meter-data/oodle_state.bin");
   const xorTable = readFileSync("./meter-data/xor.bin");

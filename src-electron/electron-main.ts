@@ -26,7 +26,7 @@ import {
   parseLogs,
   wipeParsedLogs,
 } from "./log-parser/file-parser";
-import { InitLogger } from "./logger";
+import { InitLogger, InitMeterData } from "./logger";
 import { getSettings, saveSettings } from "./util/app-settings";
 import { mainFolder } from "./util/directories";
 import { saveScreenshot } from "./util/screenshot";
@@ -77,7 +77,9 @@ if (!gotTheLock) {
   });
 }
 
-const logParser = new LogParser(true);
+const meterData = InitMeterData();
+
+const logParser = new LogParser(meterData, true);
 logParser.debugLines = true;
 
 let appSettings = getSettings();
@@ -200,6 +202,7 @@ function startApplication() {
   try {
     InitLogger(
       logParser,
+      meterData,
       appSettings?.general?.useRawSocket,
       appSettings?.general?.listenPort ?? 6040
     );
@@ -269,7 +272,7 @@ const ipcFunctions: {
     event.reply("on-settings-change", appSettings);
   },
   "parse-logs": async (event) => {
-    await parseLogs(event, appSettings.logs.splitOnPhaseTransition);
+    await parseLogs(event, appSettings.logs.splitOnPhaseTransition, meterData);
   },
   "get-parsed-logs": async (event) => {
     const parsedLogs = await getParsedLogs();
@@ -354,6 +357,10 @@ const ipcFunctions: {
   },
 };
 
+ipcMain.on("get-meter-data-path", (event) => {
+  if (process.env.DEBUGGING) event.returnValue = "./meter-data";
+  else event.returnValue = path.resolve("./meter-data");
+});
 ipcMain.on("minimize", () => {
   mainWindow?.minimize();
 });

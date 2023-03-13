@@ -1,5 +1,5 @@
 <template>
-  <tr v-if="Object.keys(player.skills).length > 1">
+  <tr v-if="player !== undefined && Object.keys(player.skills).length > 1">
     <td class="td-class-img">
       <img :src="getClassImage(player.class)" />
     </td>
@@ -7,7 +7,10 @@
       <span>{{ entryName }}</span>
     </td>
     <td
-      v-if="settingsStore.settings.damageMeter.tabs.deathTime.enabled"
+      v-if="
+        settingsStore.settings.damageMeter.tabs.deathTime.enabled &&
+        ['dmg', 'tank', 'heal', 'shield'].includes(damageType)
+      "
       class="text-center"
     >
       {{ deathTime }}
@@ -20,6 +23,12 @@
       <span class="ex">
         {{ abbreviatedDamage[1] }}
       </span>
+      <q-tooltip
+        class="dmg_full_value"
+        anchor="top middle"
+        self="bottom middle"
+        >{{ abbreviatedDamage[2] }}</q-tooltip
+      >
     </td>
     <template v-if="['dmg', 'tank', 'heal', 'shield'].includes(damageType)">
       <td
@@ -47,6 +56,12 @@
         <span class="ex">
           {{ DPS[1] }}
         </span>
+        <q-tooltip
+          class="dmg_full_value"
+          anchor="top middle"
+          self="bottom middle"
+          >{{ DPS[2] }}</q-tooltip
+        >
       </td>
       <td
         v-if="
@@ -67,7 +82,7 @@
       >
         {{
           (
-            (player.hits.frontAttack / player.hits.totalHitsWithFa) *
+            (player.hits.frontAttack / (player.hits.totalHitsWithFa ?? 0)) *
             100
           ).toFixed(1)
         }}
@@ -82,7 +97,7 @@
       >
         {{
           (
-            (player.hits.backAttack / player.hits.totalHitsWithBa) *
+            (player.hits.backAttack / (player.hits.totalHitsWithBa ?? 0)) *
             100
           ).toFixed(1)
         }}
@@ -157,6 +172,49 @@
         {{ player.hits.counter }}
       </td>
     </template>
+    <template
+      v-else-if="
+        [
+          'party_buff_dmg',
+          'self_buff_dmg',
+          'other_buff_dmg',
+          'party_buff_hit',
+          'self_buff_hit',
+          'other_buff_hit',
+        ].includes(damageType)
+      "
+    >
+      <template
+        v-if="
+          (damageType === 'party_buff_dmg' &&
+            settingsStore.settings.damageMeter.tabs.dPartyBuff.enabled) ||
+          (damageType === 'party_buff_hit' &&
+            settingsStore.settings.damageMeter.tabs.hPartyBuff.enabled) ||
+          (damageType === 'self_buff_dmg' &&
+            settingsStore.settings.damageMeter.tabs.dSelfBuff.enabled) ||
+          (damageType === 'self_buff_hit' &&
+            settingsStore.settings.damageMeter.tabs.hSelfBuff.enabled) ||
+          (damageType === 'other_buff_dmg' &&
+            settingsStore.settings.damageMeter.tabs.dOtherBuff.enabled) ||
+          (damageType === 'other_buff_hit' &&
+            settingsStore.settings.damageMeter.tabs.dParhOtherBufftyBuff
+              .enabled)
+        "
+      >
+        <td
+          v-for="[columnKey, columnData] of sortedBuffs"
+          :key="columnKey"
+          style="width: 90px; text-align: center"
+        >
+          <BuffTableBodyEntry
+            :buffEntry="getBuffPercent(player, damageType, columnData)"
+            :entry-data="player"
+            :buffData="columnData"
+          />
+        </td>
+      </template>
+    </template>
+    <!--  
     <template v-else-if="['buff_dmg', 'buff_hit'].includes(damageType)">
       <template
         v-if="
@@ -255,6 +313,7 @@
         </td>
       </template>
     </template>
+    -->
     <div
       class="player-bar"
       :style="`
@@ -275,26 +334,29 @@
   </tr>
 </template>
 
-<script setup>
-import { computed } from "vue";
+<script setup lang="ts">
+import { computed, PropType, defineEmits } from "vue";
 import { classes } from "src/constants/classes";
 import { abbreviateNumber } from "src/util/number-helpers";
 import { useSettingsStore } from "src/stores/settings";
+import { Game, StatusEffect } from "loa-details-log-parser/data";
+import BuffTableBodyEntry from "./BuffTableBodyEntry.vue";
+import { EntityExtended, getBuffPercent } from "../../util/helpers";
 
 const settingsStore = useSettingsStore();
-
 const props = defineProps({
-  player: Object,
+  player: { type: Object as PropType<EntityExtended> },
+  sortedBuffs: { type: Map<string, Map<number, StatusEffect>>, required: true },
   damageType: { type: String, default: "dmg" },
-  fightDuration: Number,
-  lastCombatPacket: Number,
-  nameDisplay: String,
-  sessionState: Object,
+  fightDuration: { type: Number, required: true },
+  lastCombatPacket: { type: Number, required: true },
+  nameDisplay: { type: String, required: true },
+  sessionState: { type: Object as PropType<Game>, required: true },
 });
 
 const entryName = computed(() => {
   let res = "";
-
+  if (!props.player) return res;
   if (props.player.isDead) {
     res += "💀 ";
   }
@@ -336,6 +398,7 @@ const entryName = computed(() => {
 });
 
 const abbreviatedDamage = computed(() => {
+  if (!props.player) return "";
   let damage = props.player.damageDealt;
   if (props.damageType === "tank") damage = props.player.damageTaken;
   else if (props.damageType === "heal") damage = props.player.healingDone;
@@ -345,15 +408,16 @@ const abbreviatedDamage = computed(() => {
 });
 
 const DPS = computed(() => {
+  if (!props.player) return "";
   let a = props.player.damageDealt;
   if (props.damageType === "tank") a = props.player.damageTaken;
   else if (props.damageType === "heal") a = props.player.healingDone;
   else if (props.damageType === "shield") a = props.player.shieldDone;
-
-  return abbreviateNumber((a / (props.fightDuration / 1000)).toFixed(0));
+  return abbreviateNumber(a / (props.fightDuration / 1000)); //return abbreviateNumber((a / (props.fightDuration / 1000)).toFixed(0));
 });
 
 const deathTime = computed(() => {
+  if (!props.player) return "";
   if (props.player.isDead) {
     const curDate = props.lastCombatPacket;
     return ((curDate - props.player.deathTime) / 1000).toFixed(0) + "s";
@@ -361,7 +425,7 @@ const deathTime = computed(() => {
   return "";
 });
 
-function getClassImage(className) {
+function getClassImage(className: string) {
   if (className in classes)
     return new URL(
       `../../assets/images/classes/${className}.png`,

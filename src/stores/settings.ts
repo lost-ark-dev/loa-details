@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { classes } from "../constants/classes";
 import { merge } from "lodash";
 import { ClassSettings, Settings } from "../../src-electron/util/app-settings";
+import { StatusEffectBuffTypeFlags } from "loa-details-log-parser/data";
 
 export const useSettingsStore = defineStore("settings", {
   state: () => ({
@@ -108,19 +109,23 @@ export const useSettingsStore = defineStore("settings", {
             enabled: true,
           },
           dBuffedBySup: {
-            name: "Dmg % buffed by Support",
+            name: "Dmg % dealt during Support buffs",
             enabled: false,
           },
           dDebuffedBySup: {
-            name: "Dmg % debuffed by Support",
+            name: "Dmg % dealt during Support debuffs",
             enabled: false,
           },
-          dBuffed: {
-            name: "Dmg % Buffed",
-            enabled: false,
+          dPartyBuff: {
+            name: "Dmg % dealt during party synergies",
+            enabled: true,
           },
-          dDebuffed: {
-            name: "Dmg % Debuffed",
+          dSelfBuff: {
+            name: "Dmg % dealt during self synergies (set, food, engravings, skills)",
+            enabled: true,
+          },
+          dOtherBuff: {
+            name: "Dmg % dealt during other buffs",
             enabled: false,
           },
           faRate: {
@@ -136,19 +141,23 @@ export const useSettingsStore = defineStore("settings", {
             enabled: true,
           },
           hBuffedBySup: {
-            name: "Hit % buffed by Support",
+            name: "Hit % dealt during Support buffs",
             enabled: false,
           },
           hDebuffedBySup: {
-            name: "Hit % debuffed by Support",
+            name: "Hit % dealt during Support debuffs",
             enabled: false,
           },
-          hBuffed: {
-            name: "Hit % Buffed",
+          hPartyBuff: {
+            name: "Hit % dealt during party synergies",
             enabled: false,
           },
-          hDebuffed: {
-            name: "Hit % Debuffed",
+          hSelfBuff: {
+            name: "Hit % dealt during self synergies (set, food, engravings, skills)",
+            enabled: false,
+          },
+          hOtherBuff: {
+            name: "Hit % dealt during other buffs",
             enabled: false,
           },
           maxDmg: {
@@ -159,14 +168,39 @@ export const useSettingsStore = defineStore("settings", {
             name: "Skill View / Average Damage",
             enabled: true,
           },
+          avgCast: {
+            name: "Skill View / Average Damage per Cast",
+            enabled: false,
+          },
           totalHits: {
             name: "Skill View / Total Hits",
             enabled: true,
+          },
+          totalCasts: {
+            name: "Skill View / Total Casts",
+            enabled: false,
           },
           hpm: {
             name: "Skill View / Hits per Minute",
             enabled: true,
           },
+          cpm: {
+            name: "Skill View / Casts per Minute",
+            enabled: false,
+          },
+        },
+        buffFilter: {
+          party:
+            StatusEffectBuffTypeFlags.DMG |
+            StatusEffectBuffTypeFlags.CRIT |
+            StatusEffectBuffTypeFlags.ATKSPEED |
+            StatusEffectBuffTypeFlags.COOLDOWN,
+          self:
+            StatusEffectBuffTypeFlags.DMG |
+            StatusEffectBuffTypeFlags.CRIT |
+            StatusEffectBuffTypeFlags.ATKSPEED |
+            StatusEffectBuffTypeFlags.COOLDOWN,
+          other: StatusEffectBuffTypeFlags.ANY,
         },
         classes: {},
       },

@@ -40,3 +40,9 @@ contextBridge.exposeInMainWorld("windowControlApi", {
   setIgnoreMouseEvents: (ignore: boolean, options: IgnoreMouseEventsOptions) =>
     ipcRenderer.send("setIgnoreMouseEvents", ignore, options),
 });
+
+contextBridge.exposeInMainWorld("helperApi", {
+  getMeterDataPath: () => {
+    return ipcRenderer.sendSync("get-meter-data-path");
+  },
+});

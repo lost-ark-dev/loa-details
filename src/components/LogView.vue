@@ -38,24 +38,64 @@
       <q-btn flat size="sm" @click="damageType = 'heal'"> HEAL </q-btn>
       <q-btn flat size="sm" @click="damageType = 'shield'"> SHIELD </q-btn>
       <template
-        v-if="
-          settingsStore.settings.damageMeter.tabs.dBuffed.enabled ||
-          settingsStore.settings.damageMeter.tabs.dDebuffed.enabled
-        "
+        v-if="settingsStore.settings.damageMeter.tabs.dPartyBuff.enabled"
       >
-        <q-btn flat size="sm" @click="damageType = 'buff_dmg'">
-          BUFF DMG
-        </q-btn>
+        <q-btn
+          flat
+          size="sm"
+          @click="damageType = 'party_buff_dmg'"
+          label="PARTY BUFF DMG"
+        />
       </template>
       <template
-        v-if="
-          settingsStore.settings.damageMeter.tabs.hBuffed.enabled ||
-          settingsStore.settings.damageMeter.tabs.hDebuffed.enabled
-        "
+        v-if="settingsStore.settings.damageMeter.tabs.dSelfBuff.enabled"
       >
-        <q-btn flat size="sm" @click="damageType = 'buff_hit'">
-          BUFF HIT
-        </q-btn>
+        <q-btn
+          flat
+          size="sm"
+          @click="damageType = 'self_buff_dmg'"
+          label="SELF BUFF DMG"
+        />
+      </template>
+      <template
+        v-if="settingsStore.settings.damageMeter.tabs.dOtherBuff.enabled"
+      >
+        <q-btn
+          flat
+          size="sm"
+          @click="damageType = 'other_buff_dmg'"
+          label="OTHER BUFF DMG"
+        />
+      </template>
+      <template
+        v-if="settingsStore.settings.damageMeter.tabs.hPartyBuff.enabled"
+      >
+        <q-btn
+          flat
+          size="sm"
+          @click="damageType = 'party_buff_hit'"
+          label="PARTY BUFF HIT"
+        />
+      </template>
+      <template
+        v-if="settingsStore.settings.damageMeter.tabs.hSelfBuff.enabled"
+      >
+        <q-btn
+          flat
+          size="sm"
+          @click="damageType = 'self_buff_hit'"
+          label="SELF BUFF HIT"
+        />
+      </template>
+      <template
+        v-if="settingsStore.settings.damageMeter.tabs.hOtherBuff.enabled"
+      >
+        <q-btn
+          flat
+          size="sm"
+          @click="damageType = 'other_buff_hit'"
+          label="OTHER BUFF HIT"
+        />
       </template>
     </div>
 

@@ -93,9 +93,11 @@
               sessionBoss && sessionBoss.currentHp && sessionBoss.maxHp
                 ? abbreviateNumber(
                     sessionBoss.currentHp < 0 ? 0 : sessionBoss.currentHp
-                  ).join("") +
+                  )
+                    .slice(0, 1)
+                    .join("") +
                   " / " +
-                  abbreviateNumber(sessionBoss.maxHp).join("") +
+                  abbreviateNumber(sessionBoss.maxHp).slice(0, 1).join("") +
                   " (" +
                   (
                     ((sessionBoss.currentHp < 0 ? 0 : sessionBoss.currentHp) /
@@ -175,7 +177,9 @@
     <footer v-if="!isMinimized" class="footer">
       <div>
         <q-btn flat size="sm" @click="damageType = 'dmg'" label="DMG">
-          <q-tooltip> Show damage </q-tooltip>
+          <q-tooltip anchor="top middle" self="bottom middle">
+            Show damage
+          </q-tooltip>
         </q-btn>
         <q-btn flat size="sm" @click="damageType = 'tank'" label="TANK">
           <q-tooltip> Show damage taken </q-tooltip>
@@ -187,36 +191,91 @@
           <q-tooltip> Show shield done </q-tooltip>
         </q-btn>
         <template
-          v-if="
-            settingsStore.settings.damageMeter.tabs.dBuffed.enabled ||
-            settingsStore.settings.damageMeter.tabs.dDebuffed.enabled
-          "
+          v-if="settingsStore.settings.damageMeter.tabs.dPartyBuff.enabled"
         >
           <q-btn
             flat
             size="sm"
-            @click="damageType = 'buff_dmg'"
-            label="BUFF DMG"
+            @click="damageType = 'party_buff_dmg'"
+            label="PBDmg"
           >
-            <q-tooltip> Show damage done during buffs </q-tooltip>
-          </q-btn></template
-        >
-
+            <q-tooltip>
+              PARTY BUFF DMG: Show damage % dealt during party synergies
+            </q-tooltip>
+          </q-btn>
+        </template>
         <template
-          v-if="
-            settingsStore.settings.damageMeter.tabs.hBuffed.enabled ||
-            settingsStore.settings.damageMeter.tabs.hDebuffed.enabled
-          "
+          v-if="settingsStore.settings.damageMeter.tabs.dSelfBuff.enabled"
         >
           <q-btn
             flat
             size="sm"
-            @click="damageType = 'buff_hit'"
-            label="BUFF HIT"
+            @click="damageType = 'self_buff_dmg'"
+            label="SBDmg"
           >
-            <q-tooltip> Show hits done during buffs </q-tooltip>
-          </q-btn></template
+            <q-tooltip>
+              SELF BUFF DMG: Show damage % dealt during self synergies (set,
+              food, engravings, skills)
+            </q-tooltip>
+          </q-btn>
+        </template>
+        <template
+          v-if="settingsStore.settings.damageMeter.tabs.dOtherBuff.enabled"
         >
+          <q-btn
+            flat
+            size="sm"
+            @click="damageType = 'other_buff_dmg'"
+            label="OBDmg"
+          >
+            <q-tooltip>
+              OTHER BUFF DMG: Show damage % dealt during other buffs
+            </q-tooltip>
+          </q-btn>
+        </template>
+        <template
+          v-if="settingsStore.settings.damageMeter.tabs.hPartyBuff.enabled"
+        >
+          <q-btn
+            flat
+            size="sm"
+            @click="damageType = 'party_buff_hit'"
+            label="PBHit"
+          >
+            <q-tooltip>
+              PARTY BUFF HIT: Show % hits done during party synergies
+            </q-tooltip>
+          </q-btn>
+        </template>
+        <template
+          v-if="settingsStore.settings.damageMeter.tabs.hSelfBuff.enabled"
+        >
+          <q-btn
+            flat
+            size="sm"
+            @click="damageType = 'self_buff_hit'"
+            label="SBHit"
+          >
+            <q-tooltip>
+              SELF BUFF HIT: Show % hits done during self synergies (set, food,
+              engravings, skills)
+            </q-tooltip>
+          </q-btn>
+        </template>
+        <template
+          v-if="settingsStore.settings.damageMeter.tabs.hOtherBuff.enabled"
+        >
+          <q-btn
+            flat
+            size="sm"
+            @click="damageType = 'other_buff_hit'"
+            label="OBHit"
+          >
+            <q-tooltip>
+              OTHER BUFF HIT: Show % hits done during other buffs
+            </q-tooltip>
+          </q-btn>
+        </template>
       </div>
 
       <div style="margin-left: auto">
@@ -267,7 +326,7 @@ import {
 } from "src/util/number-helpers";
 import { sleep } from "src/util/sleep";
 import html2canvas from "html2canvas";
-import { Game, Entity } from "loa-details-log-parser";
+import type { Game, Entity } from "loa-details-log-parser/data";
 import { encounters } from "src/constants/encounters.js";
 import { useSettingsStore } from "src/stores/settings";
 

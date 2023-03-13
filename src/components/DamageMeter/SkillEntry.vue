@@ -1,9 +1,15 @@
 <template>
   <tr>
     <td class="td-skill-img">
-      <img :src="getSkillImage(skill.id)" />
+      <img :src="getIconPath(skill.icon)" />
+      <q-tooltip
+        class="dmg_full_value"
+        anchor="top middle"
+        self="bottom middle"
+        >{{ skill.id }}</q-tooltip
+      >
     </td>
-    <td class="ellipsis">{{ getSkillName(skill) }}</td>
+    <td class="ellipsis">{{ skill.name }}</td>
     <td
       v-if="settingsStore.settings.damageMeter.tabs.damage.enabled"
       class="text-center"
@@ -12,6 +18,12 @@
       <span class="ex">
         {{ abbreviatedDamage[1] }}
       </span>
+      <q-tooltip
+        class="dmg_full_value"
+        anchor="top middle"
+        self="bottom middle"
+        >{{ abbreviatedDamage[2] }}</q-tooltip
+      >
     </td>
     <template v-if="['dmg', 'tank', 'heal', 'shield'].includes(damageType)">
       <td
@@ -28,6 +40,12 @@
         <span class="ex">
           {{ DPS[1] }}
         </span>
+        <q-tooltip
+          class="dmg_full_value"
+          anchor="top middle"
+          self="bottom middle"
+          >{{ DPS[2] }}</q-tooltip
+        >
       </td>
       <td
         v-if="settingsStore.settings.damageMeter.tabs.critRate.enabled"
@@ -96,9 +114,10 @@
       >
         {{
           skill.hits.total > 0
-            ? ((skill.damageBuffedBySupport / skill.totalDamage) * 100).toFixed(
-                1
-              )
+            ? (
+                (skill.damageDealtBuffedBySupport / skill.damageDealt) *
+                100
+              ).toFixed(1)
             : (0).toFixed(1)
         }}
         <span class="ex">%</span>
@@ -110,7 +129,7 @@
         {{
           skill.hits.total > 0
             ? (
-                (skill.damageDebuffedBySupport / skill.totalDamage) *
+                (skill.damageDealtDebuffedBySupport / skill.damageDealt) *
                 100
               ).toFixed(1)
             : (0).toFixed(1)
@@ -136,10 +155,25 @@
         </span>
       </td>
       <td
+        v-if="settingsStore.settings.damageMeter.tabs.avgCast.enabled"
+        class="text-center"
+      >
+        {{ avgCast[0] }}
+        <span class="ex">
+          {{ avgCast[1] }}
+        </span>
+      </td>
+      <td
         v-if="settingsStore.settings.damageMeter.tabs.totalHits.enabled"
         class="text-center"
       >
         {{ skill.hits.total }}
+      </td>
+      <td
+        v-if="settingsStore.settings.damageMeter.tabs.totalCasts.enabled"
+        class="text-center"
+      >
+        {{ skill.hits.casts }}
       </td>
       <td
         v-if="settingsStore.settings.damageMeter.tabs.hpm.enabled"
@@ -150,7 +184,60 @@
           {{ HPM[1] }}
         </span>
       </td>
+      <td
+        v-if="settingsStore.settings.damageMeter.tabs.cpm.enabled"
+        class="text-center"
+      >
+        {{ CPM[0] }}
+        <span class="ex">
+          {{ CPM[1] }}
+        </span>
+      </td>
     </template>
+
+    <template
+      v-else-if="
+        [
+          'party_buff_dmg',
+          'self_buff_dmg',
+          'other_buff_dmg',
+          'party_buff_hit',
+          'self_buff_hit',
+          'other_buff_hit',
+        ].includes(damageType)
+      "
+    >
+      <template
+        v-if="
+          (damageType === 'party_buff_dmg' &&
+            settingsStore.settings.damageMeter.tabs.dPartyBuff.enabled) ||
+          (damageType === 'party_buff_hit' &&
+            settingsStore.settings.damageMeter.tabs.hPartyBuff.enabled) ||
+          (damageType === 'self_buff_dmg' &&
+            settingsStore.settings.damageMeter.tabs.dSelfBuff.enabled) ||
+          (damageType === 'self_buff_hit' &&
+            settingsStore.settings.damageMeter.tabs.hSelfBuff.enabled) ||
+          (damageType === 'other_buff_dmg' &&
+            settingsStore.settings.damageMeter.tabs.dOtherBuff.enabled) ||
+          (damageType === 'other_buff_hit' &&
+            settingsStore.settings.damageMeter.tabs.dParhOtherBufftyBuff
+              .enabled)
+        "
+      >
+        <td
+          v-for="[columnKey, columnData] of sortedBuffs"
+          :key="columnKey"
+          style="width: 90px; text-align: center"
+        >
+          <BuffTableBodyEntry
+            :buffEntry="getBuffPercent(skill, damageType, columnData)"
+            :entry-data="skill"
+            :buffData="columnData"
+          />
+        </td>
+      </template>
+    </template>
+    <!--
     <template v-else-if="['buff_dmg', 'buff_hit'].includes(damageType)">
       <template
         v-if="
@@ -252,6 +339,7 @@
         </td>
       </template>
     </template>
+  -->
     <div
       class="player-bar"
       :style="`
@@ -262,35 +350,47 @@
   </tr>
 </template>
 
-<script setup>
-import { computed } from "vue";
+<script setup lang="ts">
+import { computed, PropType } from "vue";
 import { skills } from "src/constants/skills.js";
 import { abbreviateNumber } from "src/util/number-helpers";
 import { useSettingsStore } from "src/stores/settings";
+import { Game, StatusEffect } from "loa-details-log-parser/data";
+import BuffTableBodyEntry from "./BuffTableBodyEntry.vue";
+import {
+  getIconPath,
+  getBuffPercent,
+  EntitySkillsExtended,
+} from "../../util/helpers";
 
 const settingsStore = useSettingsStore();
 
 const props = defineProps({
-  sessionState: Object,
-  skill: Object,
+  sortedBuffs: { type: Map<string, Map<number, StatusEffect>>, required: true },
+  sessionState: { type: Object as PropType<Game>, required: true },
+  skill: { type: Object as PropType<EntitySkillsExtended>, required: true },
   damageType: { type: String, default: "dmg" },
-  className: String,
-  fightDuration: Number,
+  className: { type: String, required: true },
+  fightDuration: { type: Number, required: true },
 });
 
 const abbreviatedDamage = computed(() => {
-  return abbreviateNumber(props.skill.totalDamage);
+  return abbreviateNumber(props.skill.damageDealt);
 });
-
 const DPS = computed(() => {
   return abbreviateNumber(
-    props.skill.totalDamage / (props.fightDuration / 1000)
+    props.skill.damageDealt / (props.fightDuration / 1000)
   );
 });
 
 const HPM = computed(() => {
   return abbreviateNumber(
     props.skill.hits.total / (props.fightDuration / 1000 / 60)
+  );
+});
+const CPM = computed(() => {
+  return abbreviateNumber(
+    props.skill.hits.casts / (props.fightDuration / 1000 / 60)
   );
 });
 
@@ -300,11 +400,24 @@ const maxDamage = computed(() => {
 
 const avgDamage = computed(() => {
   if (props.skill.hits.total === 0)
-    return abbreviateNumber(props.skill.totalDamage);
-  return abbreviateNumber(props.skill.totalDamage / props.skill.hits.total);
+    return abbreviateNumber(props.skill.damageDealt);
+  return abbreviateNumber(props.skill.damageDealt / props.skill.hits.total);
 });
-
-function getSkillImage(id) {
+const avgCast = computed(() => {
+  if (props.skill.hits.total === 0)
+    return abbreviateNumber(props.skill.damageDealt);
+  return abbreviateNumber(props.skill.damageDealt / props.skill.hits.casts);
+});
+type LOASkill = {
+  id: number;
+  name: string;
+  display?: string;
+  class: string;
+  level: number;
+  baseSkill?: number;
+  icon?: boolean;
+};
+function getSkillImage(id: number): string {
   if (id > 99999) return getSkillImage(id / 10);
   const s = getSkill(id);
   if (s?.baseSkill) return getSkillImage(s.baseSkill);
@@ -324,7 +437,7 @@ function getSkillImage(id) {
     .href;
 }
 
-function getSkillName(skill) {
+function getSkillName(skill: LOASkill) {
   const s = getSkill(skill.id);
 
   if (s != null) {
@@ -333,7 +446,7 @@ function getSkillName(skill) {
   return skill.name;
 }
 
-function skillHasIcon(s) {
+function skillHasIcon(s: LOASkill) {
   if (
     s.name.startsWith("Basic Attack") ||
     s?.display?.startsWith("Basic Attack") ||
@@ -342,7 +455,7 @@ function skillHasIcon(s) {
     return false;
   return true;
 }
-function getSkill(id) {
+function getSkill(id: number) {
   return skills.find((k) => k.id == id);
 }
 </script>
