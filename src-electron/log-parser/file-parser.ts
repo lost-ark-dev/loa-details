@@ -86,12 +86,16 @@ export async function parseLogs(
     totalJobs++;
 
     //Ignore error (d.ts of workerfarm badly designed)
-    workers["fileParserWorker"](
-      filename,
-      splitOnPhaseTransition,
-      mainFolder,
-      parsedLogFolder,
-      meterData,
+    //workers["fileParserWorker"]
+    //TODO: fix multithreading adding meterData dependency to the fileparser breaks multithreading (we can't pass it as to the child process, probably too big)
+    fileParserWorker(
+      {
+        filename,
+        splitOnPhaseTransition,
+        mainFolder,
+        parsedLogFolder,
+        meterData,
+      },
       function (error: string, output: string) {
         completedJobs++;
         log.info(error, output);
