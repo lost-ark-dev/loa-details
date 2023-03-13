@@ -449,13 +449,16 @@ watch(nameDisplayModel, (newVal, oldVal) => {
 watch(
   buffDisplayModel,
   (newVal, oldVal) => {
-    console.log(newVal);
     for (const buffFilterType of Object.keys(
       settingsStore.settings.damageMeter.buffFilter
     )) {
       let val = 0;
       for (const catIdx in buffCategories.value) {
-        val += newVal[buffFilterType][catIdx] << catIdx;
+        if (buffCategories.value[catIdx] === "Any") {
+          val += newVal[buffFilterType][catIdx] << 50;
+        } else {
+          val += newVal[buffFilterType][catIdx] << catIdx;
+        }
       }
       settingsStore.settings.damageMeter.buffFilter[buffFilterType] = val;
     }
@@ -479,11 +482,19 @@ onMounted(() => {
     settingsStore.settings.damageMeter.buffFilter
   )) {
     for (const catIdx in buffCategories.value) {
-      buffDisplayModel.value[buffFilterType][catIdx] =
-        ((settingsStore.settings.damageMeter.buffFilter[buffFilterType] >>
-          catIdx) &
-          1) ===
-        1;
+      if (buffCategories.value[catIdx] === "Any") {
+        buffDisplayModel.value[buffFilterType][catIdx] =
+          ((settingsStore.settings.damageMeter.buffFilter[buffFilterType] >>
+            50) &
+            1) ===
+          1;
+      } else {
+        buffDisplayModel.value[buffFilterType][catIdx] =
+          ((settingsStore.settings.damageMeter.buffFilter[buffFilterType] >>
+            catIdx) &
+            1) ===
+          1;
+      }
     }
   }
 });
