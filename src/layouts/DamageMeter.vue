@@ -94,10 +94,10 @@
                 ? abbreviateNumber(
                     sessionBoss.currentHp < 0 ? 0 : sessionBoss.currentHp
                   )
-                    .slice(0, 1)
+                    .slice(0, 2)
                     .join("") +
                   " / " +
-                  abbreviateNumber(sessionBoss.maxHp).slice(0, 1).join("") +
+                  abbreviateNumber(sessionBoss.maxHp).slice(0, 2).join("") +
                   " (" +
                   (
                     ((sessionBoss.currentHp < 0 ? 0 : sessionBoss.currentHp) /
