@@ -176,27 +176,27 @@
 
     <footer v-if="!isMinimized" class="footer">
       <div>
-        <q-btn flat size="sm" @click="damageType = 'dmg'" label="DMG">
+        <q-btn flat size="sm" :color="damageType === 'dmg' ? 'primary' : undefined" @click="damageType = 'dmg'" label="DMG">
           <q-tooltip anchor="top middle" self="bottom middle">
             Show damage
           </q-tooltip>
         </q-btn>
-        <q-btn flat size="sm" @click="damageType = 'tank'" label="TANK">
+        <q-btn flat size="sm" :color="damageType === 'tank' ? 'primary' : undefined" @click="damageType = 'tank'" label="TANK">
           <q-tooltip> Show damage taken </q-tooltip>
         </q-btn>
-        <q-btn flat size="sm" @click="damageType = 'heal'" label="HEAL">
+        <q-btn flat size="sm" :color="damageType === 'heal' ? 'primary' : undefined" @click="damageType = 'heal'" label="HEAL">
           <q-tooltip> Show healing done </q-tooltip>
         </q-btn>
-        <q-btn v-if="settingsStore.settings.damageMeter.tabs.shieldGiven.enabled" flat size="sm" @click="damageType = 'shield'" label="SHIELD D">
+        <q-btn v-if="settingsStore.settings.damageMeter.tabs.shieldGiven.enabled" :color="damageType === 'shield' ? 'primary' : undefined" flat size="sm" @click="damageType = 'shield'" label="SHIELD D">
           <q-tooltip> Show shield done </q-tooltip>
         </q-btn>
-        <q-btn v-if="settingsStore.settings.damageMeter.tabs.shieldGotten.enabled" flat size="sm" @click="damageType = 'shield_gotten'" label="SHIELD G">
+        <q-btn v-if="settingsStore.settings.damageMeter.tabs.shieldGotten.enabled" :color="damageType === 'shield_gotten' ? 'primary' : undefined" flat size="sm" @click="damageType = 'shield_gotten'" label="SHIELD G">
           <q-tooltip> Show shield gotten </q-tooltip>
         </q-btn>
-        <q-btn v-if="settingsStore.settings.damageMeter.tabs.eshieldGiven.enabled" flat size="sm" @click="damageType = 'eshield_given'" label="ESHIELD D">
+        <q-btn v-if="settingsStore.settings.damageMeter.tabs.eshieldGiven.enabled" :color="damageType === 'eshield_given' ? 'primary' : undefined" flat size="sm" @click="damageType = 'eshield_given'" label="ESHIELD D">
           <q-tooltip> Show effective shield done </q-tooltip>
         </q-btn>
-        <q-btn v-if="settingsStore.settings.damageMeter.tabs.eshieldGotten.enabled" flat size="sm" @click="damageType = 'eshield_gotten'" label="ESHIELD G">
+        <q-btn v-if="settingsStore.settings.damageMeter.tabs.eshieldGotten.enabled" :color="damageType === 'eshield_gotten' ? 'primary' : undefined" flat size="sm" @click="damageType = 'eshield_gotten'" label="ESHIELD G">
           <q-tooltip> Show effective shield gotten </q-tooltip>
         </q-btn>
         <template
@@ -205,6 +205,7 @@
           <q-btn
             flat
             size="sm"
+            :color="damageType === 'party_buff_dmg' ? 'primary' : undefined"
             @click="damageType = 'party_buff_dmg'"
             label="PBDmg"
           >
@@ -219,6 +220,7 @@
           <q-btn
             flat
             size="sm"
+            :color="damageType === 'self_buff_dmg' ? 'primary' : undefined"
             @click="damageType = 'self_buff_dmg'"
             label="SBDmg"
           >
@@ -234,6 +236,7 @@
           <q-btn
             flat
             size="sm"
+            :color="damageType === 'other_buff_dmg' ? 'primary' : undefined"
             @click="damageType = 'other_buff_dmg'"
             label="OBDmg"
           >
@@ -248,6 +251,7 @@
           <q-btn
             flat
             size="sm"
+            :color="damageType === 'party_buff_hit' ? 'primary' : undefined"
             @click="damageType = 'party_buff_hit'"
             label="PBHit"
           >
@@ -262,6 +266,7 @@
           <q-btn
             flat
             size="sm"
+            :color="damageType === 'self_buff_hit' ? 'primary' : undefined"
             @click="damageType = 'self_buff_hit'"
             label="SBHit"
           >
@@ -277,6 +282,7 @@
           <q-btn
             flat
             size="sm"
+            :color="damageType === 'other_buff_hit' ? 'primary' : undefined"
             @click="damageType = 'other_buff_hit'"
             label="OBHit"
           >
