@@ -169,7 +169,7 @@ export const reformatEntitySkills = (skills) => {
         backHits: skill.hits.backAttack,
         frontHits: skill.hits.frontAttack,
         counters: skill.hits.counter,
-        damageDealt: skill.totalDamage,
+        damageDealt: skill.damageDealt,
         topDamage: skill.maxDamage,
       },
     };
