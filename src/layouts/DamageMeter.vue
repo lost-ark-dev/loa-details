@@ -187,16 +187,16 @@
         <q-btn flat size="sm" @click="damageType = 'heal'" label="HEAL">
           <q-tooltip> Show healing done </q-tooltip>
         </q-btn>
-        <q-btn flat size="sm" @click="damageType = 'shield'" label="SHIELD D">
+        <q-btn v-if="settingsStore.settings.damageMeter.tabs.shieldGiven.enabled" flat size="sm" @click="damageType = 'shield'" label="SHIELD D">
           <q-tooltip> Show shield done </q-tooltip>
         </q-btn>
-        <q-btn flat size="sm" @click="damageType = 'shield_gotten'" label="SHIELD G">
+        <q-btn v-if="settingsStore.settings.damageMeter.tabs.shieldGotten.enabled" flat size="sm" @click="damageType = 'shield_gotten'" label="SHIELD G">
           <q-tooltip> Show shield gotten </q-tooltip>
         </q-btn>
-        <q-btn flat size="sm" @click="damageType = 'eshield_given'" label="ESHIELD D">
+        <q-btn v-if="settingsStore.settings.damageMeter.tabs.eshieldGiven.enabled" flat size="sm" @click="damageType = 'eshield_given'" label="ESHIELD D">
           <q-tooltip> Show effective shield done </q-tooltip>
         </q-btn>
-        <q-btn flat size="sm" @click="damageType = 'eshield_gotten'" label="ESHIELD G">
+        <q-btn v-if="settingsStore.settings.damageMeter.tabs.eshieldGotten.enabled" flat size="sm" @click="damageType = 'eshield_gotten'" label="ESHIELD G">
           <q-tooltip> Show effective shield gotten </q-tooltip>
         </q-btn>
         <template
