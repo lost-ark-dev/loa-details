@@ -187,8 +187,17 @@
         <q-btn flat size="sm" @click="damageType = 'heal'" label="HEAL">
           <q-tooltip> Show healing done </q-tooltip>
         </q-btn>
-        <q-btn flat size="sm" @click="damageType = 'shield'" label="SHIELD">
+        <q-btn flat size="sm" @click="damageType = 'shield'" label="SHIELD D">
           <q-tooltip> Show shield done </q-tooltip>
+        </q-btn>
+        <q-btn flat size="sm" @click="damageType = 'shield_gotten'" label="SHIELD G">
+          <q-tooltip> Show shield gotten </q-tooltip>
+        </q-btn>
+        <q-btn flat size="sm" @click="damageType = 'eshield_given'" label="ESHIELD D">
+          <q-tooltip> Show effective shield done </q-tooltip>
+        </q-btn>
+        <q-btn flat size="sm" @click="damageType = 'eshield_gotten'" label="ESHIELD G">
+          <q-tooltip> Show effective shield gotten </q-tooltip>
         </q-btn>
         <template
           v-if="settingsStore.settings.damageMeter.tabs.dPartyBuff.enabled"

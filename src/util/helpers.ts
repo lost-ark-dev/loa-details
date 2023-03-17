@@ -19,6 +19,9 @@ export type tabNames =
   | "tank"
   | "heal"
   | "shield"
+  | "shield_gotten"
+  | "eshield_gotten"
+  | "eshield_given"
   | "party_buff_dmg"
   | "self_buff_dmg"
   | "other_buff_dmg"
@@ -39,6 +42,12 @@ export type EntityExtended = Entity & {
   healPercentageTop?: string;
   shieldPercentageTotal?: string;
   shieldPercentageTop?: string;
+  shieldGottenPercentageTotal?: string;
+  shieldGottenPercentageTop?: string;
+  eshieldGivenPercentageTotal?: string;
+  eshieldGivenPercentageTop?: string;
+  eshieldGottenPercentageTotal?: string;
+  eshieldGottenPercentageTop?: string;
   hits: HitsExtended;
 };
 export type EntitySkillsExtended = EntitySkills & {

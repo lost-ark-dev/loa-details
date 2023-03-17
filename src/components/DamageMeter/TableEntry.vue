@@ -9,7 +9,7 @@
     <td
       v-if="
         settingsStore.settings.damageMeter.tabs.deathTime.enabled &&
-        ['dmg', 'tank', 'heal', 'shield'].includes(damageType)
+        ['dmg', 'tank', 'heal', 'shield', 'shield_gotten', 'eshield_given', 'eshield_gotten'].includes(damageType)
       "
       class="text-center"
     >
@@ -30,7 +30,7 @@
         >{{ abbreviatedDamage[2] }}</q-tooltip
       >
     </td>
-    <template v-if="['dmg', 'tank', 'heal', 'shield'].includes(damageType)">
+    <template v-if="['dmg', 'tank', 'heal', 'shield', 'shield_gotten', 'eshield_given', 'eshield_gotten'].includes(damageType)">
       <td
         v-if="settingsStore.settings.damageMeter.tabs.damagePercent.enabled"
         class="text-center"
@@ -44,6 +44,12 @@
             ? player.healPercentageTotal
             : damageType === "shield"
             ? player.shieldPercentageTotal
+            : damageType === "shield_gotten"
+            ? player.shieldGottenPercentageTotal
+            : damageType == "eshield_given"
+            ? player.eshieldGivenPercentageTotal
+            : damageType == "eshield_gotten"
+            ? player.eshieldGottenPercentageTotal
             : 0
         }}
         <span class="ex">%</span>
@@ -171,6 +177,50 @@
       >
         {{ player.hits.counter }}
       </td>
+      <template
+        v-if="damageType === 'shield'"
+      >
+        <td
+          v-for="columnData of sortedAppliedShieldingBuffs"
+          :key="columnData[0]"
+          style="width: 90px; text-align: center"
+        >
+        {{player.shieldDoneBy.get(columnData[0]) ?? 0}}
+        </td>
+      </template>
+      <template
+        v-if="damageType === 'shield_gotten'"
+      >
+        <td
+          v-for="columnData of sortedAppliedShieldingBuffs"
+          :key="columnData[0]"
+          style="width: 90px; text-align: center"
+        >
+        {{player.shieldReceivedBy.get(columnData[0]) ?? 0}}
+        </td>
+      </template>
+      <template
+        v-if="damageType === 'eshield_given'"
+      >
+        <td
+          v-for="columnData of sortedEffectiveShieldingBuffs"
+          :key="columnData[0]"
+          style="width: 90px; text-align: center"
+        >
+        {{player.damagePreventedWithShieldOnOthersBy.get(columnData[0]) ?? 0}}
+        </td>
+      </template>
+      <template
+        v-if="damageType === 'eshield_gotten'"
+      >
+        <td
+          v-for="columnData of sortedEffectiveShieldingBuffs"
+          :key="columnData[0]"
+          style="width: 90px; text-align: center"
+        >
+        {{player.damagePreventedByShieldBy.get(columnData[0]) ?? 0}}
+        </td>
+      </template>
     </template>
     <template
       v-else-if="
@@ -214,7 +264,7 @@
         </td>
       </template>
     </template>
-    <!--  
+    <!--
     <template v-else-if="['buff_dmg', 'buff_hit'].includes(damageType)">
       <template
         v-if="
@@ -347,6 +397,8 @@ const settingsStore = useSettingsStore();
 const props = defineProps({
   player: { type: Object as PropType<EntityExtended> },
   sortedBuffs: { type: Map<string, Map<number, StatusEffect>>, required: true },
+  sortedAppliedShieldingBuffs: { type: Map<number, StatusEffect>, required: true },
+  sortedEffectiveShieldingBuffs: { type: Map<number, StatusEffect>, required: true },
   damageType: { type: String, default: "dmg" },
   fightDuration: { type: Number, required: true },
   lastCombatPacket: { type: Number, required: true },
@@ -403,6 +455,9 @@ const abbreviatedDamage = computed(() => {
   if (props.damageType === "tank") damage = props.player.damageTaken;
   else if (props.damageType === "heal") damage = props.player.healingDone;
   else if (props.damageType === "shield") damage = props.player.shieldDone;
+  else if (props.damageType === "shield_gotten") damage = props.player.shieldReceived;
+  else if (props.damageType === "eshield_given") damage = props.player.damagePreventedWithShieldOnOthers;
+  else if (props.damageType === "eshield_gotten") damage = props.player.damagePreventedByShield;
 
   return abbreviateNumber(damage);
 });
@@ -413,6 +468,9 @@ const DPS = computed(() => {
   if (props.damageType === "tank") a = props.player.damageTaken;
   else if (props.damageType === "heal") a = props.player.healingDone;
   else if (props.damageType === "shield") a = props.player.shieldDone;
+  else if (props.damageType === "shield_gotten") a = props.player.shieldReceived;
+  else if (props.damageType === "eshield_given") a = props.player.damagePreventedWithShieldOnOthers;
+  else if (props.damageType === "eshield_gotten") a = props.player.damagePreventedByShield;
   return abbreviateNumber(a / (props.fightDuration / 1000)); //return abbreviateNumber((a / (props.fightDuration / 1000)).toFixed(0));
 });
 
