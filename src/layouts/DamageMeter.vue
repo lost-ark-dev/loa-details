@@ -315,8 +315,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
-import type { Ref } from "vue";
+import { onMounted, ref, shallowRef, ShallowRef } from "vue";
 import { Notify, QTooltip } from "quasar";
 import {
   numberFormat,
@@ -433,29 +432,29 @@ function requestSessionRestart() {
   window.messageApi.send("window-to-main", { message: "reset-session" });
 }
 
-function getSessionBoss() {
-  if (sessionState.value.entities) {
-    const entities = Object.values(sessionState.value.entities);
+function getSessionBoss(value: Partial<Game>) {
+  if (value.entities) {
+    const entities = Object.values(value.entities);
     if (entities.length > 0) {
       for (const entity of entities.sort(
         (a, b) => b.lastUpdate - a.lastUpdate
       )) {
         for (const encounter of Object.values(encounters)) {
           if (encounter.encounterNames.includes(entity.name)) {
-            sessionBoss.value = entity;
+            sessionBoss = entity;
             return;
           }
         }
       }
     } else {
-      sessionBoss.value = null as unknown as Entity;
+      sessionBoss = null as unknown as Entity;
     }
   }
 }
 
-const sessionState: Ref<Partial<Game>> = ref({});
-const sessionDPS = ref(0);
-const sessionBoss: Ref<Partial<Entity>> = ref({});
+const sessionState: ShallowRef<Partial<Game>> = shallowRef({});
+let sessionDPS = 0;
+let sessionBoss: Partial<Entity> = {};
 
 onMounted(() => {
   settingsStore.initSettings();
@@ -473,30 +472,29 @@ onMounted(() => {
   window.messageApi.send("window-to-main", { message: "get-settings" });
 
   window.messageApi.receive("pcap-on-state-change", (value: Partial<Game>) => {
-    sessionState.value = value;
-
     if (
-      sessionState.value.damageStatistics?.totalDamageDealt &&
+      value.damageStatistics?.totalDamageDealt &&
       fightDuration.value > 0
     ) {
-      sessionDPS.value = toFixedNumber(
-        sessionState.value.damageStatistics.totalDamageDealt /
+      sessionDPS = toFixedNumber(
+        value.damageStatistics.totalDamageDealt /
           (fightDuration.value / 1000),
         0
       );
       if (settingsStore.settings.damageMeter.header.bossHP.enabled)
         //Don't run if disabled
-        getSessionBoss();
+        getSessionBoss(value);
     }
+    sessionState.value = value;
   });
 
   window.messageApi.receive("pcap-on-reset-state", (value) => {
-    isFightPaused.value = false;
     fightPausedOn = 0;
     fightPausedForMs = 0;
+    sessionDPS = 0;
+    sessionBoss = null as unknown as Entity;
     damageType.value = "dmg";
-    sessionDPS.value = 0;
-    sessionBoss.value = null as unknown as Entity;
+    isFightPaused.value = false;
   });
 
   window.messageApi.receive("pcap-on-message", (value) => {
