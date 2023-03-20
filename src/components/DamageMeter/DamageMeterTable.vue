@@ -592,7 +592,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch, PropType, Ref } from "vue";
+import { computed, onMounted, ref, watch, PropType, Ref, ShallowRef, shallowRef } from "vue";
 import { useSettingsStore } from "src/stores/settings";
 import {
   Game,
@@ -656,18 +656,18 @@ function focusPlayer(player: Entity) {
   focusedPlayerClass.value = player.class;
   calculateSkills();
 }
-const entitiesCopy: Ref<EntityExtended[]> = ref([]);
+let entitiesCopy: EntityExtended[] = [];
 
-const sortedEntities: Ref<EntityExtended[]> = ref([]);
-const sortedSkills: Ref<EntitySkillsExtended[]> = ref([]);
+const sortedEntities: ShallowRef<EntityExtended[]> = shallowRef([]);
+let sortedSkills: EntitySkillsExtended[] = [];
 
 function sortEntities() {
   if (!props.sessionState) return;
   if (Object.keys(props.sessionState).length <= 0) return;
 
   //TODO we changed that to not deepclone for performance boost, be carefull not to edit entities below (outside of display-reserved fields)
-  entitiesCopy.value = Object.values(props.sessionState.entities);
-  const res = entitiesCopy.value
+  entitiesCopy = Object.values(props.sessionState.entities);
+  const res = entitiesCopy
     .filter((entity) => {
       if (!entity.isPlayer) return false;
 
@@ -724,15 +724,15 @@ function sortEntities() {
     entity.hits.totalHitsWithFa = totalHitsWithFa > 0 ? totalHitsWithFa : 1;
   }
 
-  sortedEntities.value = res;
   calculateSkills();
+  sortedEntities.value = res;
 }
 
 function calculateSkills() {
-  sortedSkills.value = [];
+  sortedSkills = [];
   if (focusedPlayer.value === "#") return;
 
-  const entity = entitiesCopy.value.find((e) => {
+  const entity = entitiesCopy.find((e) => {
     return e.name === focusedPlayer.value;
   });
   if (!entity) return;
@@ -752,7 +752,7 @@ function calculateSkills() {
     ).toFixed(1);
   }
 
-  sortedSkills.value = res;
+  sortedSkills = res;
 }
 
 function getPercentage(
