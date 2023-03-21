@@ -175,110 +175,35 @@
     />
 
     <footer v-if="!isMinimized" class="footer">
-      <div>
-        <q-btn flat size="sm" @click="damageType = 'dmg'" label="DMG">
+
+      <div class="tabs" id="footer-tabs">
+        <q-tabs
+        dense
+        v-model="damageType"
+        class="text-teal"
+        align="left"
+        :breakpoint="0"
+      >
+        <template v-for="tab of tabs.tabData">
+        <q-tab v-if="tab.enabled && tab.isVisible"  dense :key="tab.type" :name="tab.type" :label="tab.label">
           <q-tooltip anchor="top middle" self="bottom middle">
-            Show damage
+            {{ tab.tooltip }}
           </q-tooltip>
-        </q-btn>
-        <q-btn flat size="sm" @click="damageType = 'tank'" label="TANK">
-          <q-tooltip> Show damage taken </q-tooltip>
-        </q-btn>
-        <q-btn flat size="sm" @click="damageType = 'heal'" label="HEAL">
-          <q-tooltip> Show healing done </q-tooltip>
-        </q-btn>
-        <q-btn flat size="sm" @click="damageType = 'shield'" label="SHIELD">
-          <q-tooltip> Show shield done </q-tooltip>
-        </q-btn>
-        <template
-          v-if="settingsStore.settings.damageMeter.tabs.dPartyBuff.enabled"
-        >
-          <q-btn
-            flat
-            size="sm"
-            @click="damageType = 'party_buff_dmg'"
-            label="PBDmg"
-          >
-            <q-tooltip>
-              PARTY BUFF DMG: Show damage % dealt during party synergies
-            </q-tooltip>
-          </q-btn>
+        </q-tab>
         </template>
-        <template
-          v-if="settingsStore.settings.damageMeter.tabs.dSelfBuff.enabled"
-        >
-          <q-btn
-            flat
-            size="sm"
-            @click="damageType = 'self_buff_dmg'"
-            label="SBDmg"
-          >
-            <q-tooltip>
-              SELF BUFF DMG: Show damage % dealt during self synergies (set,
-              food, engravings, skills)
-            </q-tooltip>
-          </q-btn>
-        </template>
-        <template
-          v-if="settingsStore.settings.damageMeter.tabs.dOtherBuff.enabled"
-        >
-          <q-btn
-            flat
-            size="sm"
-            @click="damageType = 'other_buff_dmg'"
-            label="OBDmg"
-          >
-            <q-tooltip>
-              OTHER BUFF DMG: Show damage % dealt during other buffs
-            </q-tooltip>
-          </q-btn>
-        </template>
-        <template
-          v-if="settingsStore.settings.damageMeter.tabs.hPartyBuff.enabled"
-        >
-          <q-btn
-            flat
-            size="sm"
-            @click="damageType = 'party_buff_hit'"
-            label="PBHit"
-          >
-            <q-tooltip>
-              PARTY BUFF HIT: Show % hits done during party synergies
-            </q-tooltip>
-          </q-btn>
-        </template>
-        <template
-          v-if="settingsStore.settings.damageMeter.tabs.hSelfBuff.enabled"
-        >
-          <q-btn
-            flat
-            size="sm"
-            @click="damageType = 'self_buff_hit'"
-            label="SBHit"
-          >
-            <q-tooltip>
-              SELF BUFF HIT: Show % hits done during self synergies (set, food,
-              engravings, skills)
-            </q-tooltip>
-          </q-btn>
-        </template>
-        <template
-          v-if="settingsStore.settings.damageMeter.tabs.hOtherBuff.enabled"
-        >
-          <q-btn
-            flat
-            size="sm"
-            @click="damageType = 'other_buff_hit'"
-            label="OBHit"
-          >
-            <q-tooltip>
-              OTHER BUFF HIT: Show % hits done during other buffs
-            </q-tooltip>
-          </q-btn>
-        </template>
+        <q-btn-dropdown v-if="tabs.isOverflowing" auto-close stretch flat >
+          <q-list>
+            <template v-for="tab of tabs.tabData">
+            <q-item v-if="tab.enabled && !tab.isVisible" :active="tab.type === damageType"  :key="tab.type" clickable @click="damageType = tab.type">
+              <q-item-section>{{ tab.label }}</q-item-section>
+            </q-item>
+            </template>
+          </q-list>
+        </q-btn-dropdown>
+      </q-tabs>
       </div>
 
-      <div style="margin-left: auto">
+      <div class="functions">
         <span
           v-if="
             settingsStore.settings.damageMeter.design.compactDesign &&
@@ -315,7 +240,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, shallowRef, ShallowRef } from "vue";
+import { computed, ComputedRef, onMounted, Ref, ref, shallowRef, ShallowRef } from "vue";
 import { Notify, QTooltip } from "quasar";
 import {
   numberFormat,
@@ -455,10 +380,16 @@ function getSessionBoss(value: Partial<Game>) {
 const sessionState: ShallowRef<Partial<Game>> = shallowRef({});
 let sessionDPS = 0;
 let sessionBoss: Partial<Entity> = {};
+const windowWidth: Ref<number> = ref(0);
 
 onMounted(() => {
   settingsStore.initSettings();
-
+  window.addEventListener('resize', () => {
+    if (windowWidth.value != window.innerWidth) {
+      windowWidth.value = window.innerWidth;
+    }
+  });
+  windowWidth.value = window.innerWidth;
   window.messageApi.receive("shortcut-action", (value) => {
     if (value === "toggle-minimized-state") toggleMinimizedState();
     else if (value === "reset-session") requestSessionRestart();
@@ -467,6 +398,10 @@ onMounted(() => {
 
   window.messageApi.receive("on-settings-change", (value) => {
     settingsStore.loadSettings(value);
+    // this is done to make tabs recompute now that we have settings
+    // or settings changed the values is important since we do not
+    // recompute for every slight window change
+    windowWidth.value = windowWidth.value + 100;
   });
 
   window.messageApi.send("window-to-main", { message: "get-settings" });
@@ -642,6 +577,119 @@ function toggleUploads() {
     !settingsStore.settings.uploads.uploadLogs;
   settingsStore.saveSettings();
 }
+
+const tabs: ComputedRef<{ tabData: { type: string; label: string; tooltip: string; enabled: boolean; isVisible: boolean; }[]; isOverflowing: boolean; width: number; }> = computed(() => {
+  const widthX = windowWidth.value;
+  if (tabs.value !== undefined && (tabs.value.width === widthX || (widthX > tabs.value.width && (widthX-tabs.value.width) < 50 ))) return tabs.value;
+  const allTabData = [
+    {
+      type: "dmg",
+      label: "DMG",
+      tooltip: " Show damage ",
+      enabled: true,
+      isVisible: true,
+    },
+    {
+      type: "tank",
+      label: "TANK",
+      tooltip: " Show damage taken ",
+      enabled: true,
+      isVisible: true,
+    },
+    {
+      type: "heal",
+      label: "HEAL",
+      tooltip: " Show healing done ",
+      enabled: false,
+      isVisible: true,
+    },
+    {
+      type: "shield",
+      label: "SHIELD D",
+      tooltip: " Show shield done ",
+      enabled: false,
+      isVisible: true,
+    },
+    {
+      type: "party_buff_dmg",
+      label: "PBDmg",
+      tooltip: " PARTY BUFF DMG: Show damage % dealt during party synergies ",
+      enabled: settingsStore.settings.damageMeter.tabs.dPartyBuff.enabled,
+      isVisible: true,
+    },
+    {
+      type: "self_buff_dmg",
+      label: "SBDmg",
+      tooltip: " SELF BUFF DMG: Show damage % dealt during self synergies (set, food, engravings, skills) ",
+      enabled: settingsStore.settings.damageMeter.tabs.dSelfBuff.enabled,
+      isVisible: true,
+    },
+    {
+      type: "other_buff_dmg",
+      label: "OBDmg",
+      tooltip: " OTHER BUFF DMG: Show damage % dealt during other buffs ",
+      enabled: settingsStore.settings.damageMeter.tabs.dOtherBuff.enabled,
+      isVisible: true,
+    },
+    {
+      type: "party_buff_hit",
+      label: "PBHit",
+      tooltip: " PARTY BUFF HIT: Show hit % dealt during party synergies ",
+      enabled: settingsStore.settings.damageMeter.tabs.hPartyBuff.enabled,
+      isVisible: true,
+    },
+    {
+      type: "self_buff_hit",
+      label: "SBHit",
+      tooltip: " SELF BUFF HIT: Show hit % dealt during self synergies (set, food, engravings, skills) ",
+      enabled: settingsStore.settings.damageMeter.tabs.hSelfBuff.enabled,
+      isVisible: true,
+    },
+    {
+      type: "other_buff_hit",
+      label: "OBHit",
+      tooltip: " OTHER BUFF HIT: Show hit % dealt during other buffs ",
+      enabled: settingsStore.settings.damageMeter.tabs.hOtherBuff.enabled,
+      isVisible: true,
+    },
+  ];
+  let tabData = allTabData.filter((obj) => {
+    return obj.enabled;
+  });
+  const footerTabsElement = document.getElementById("footer-tabs");
+  let isOverflowing = false;
+  let width = 0;
+  if (footerTabsElement) {
+    width = footerTabsElement.clientWidth;
+    const qtabs = footerTabsElement.querySelectorAll(".q-tab");
+    let firstInvisibleElement = true;
+    for (let idx = 0; idx < tabData.length; idx++) {
+      let elWidth = idx < qtabs.length ? qtabs[idx].clientWidth : 100;
+      if (elWidth > 100) elWidth = 100;
+      width = width - elWidth;
+      if (width < 0) {
+        // this element does not fit completly anymore
+        tabData[idx].isVisible = false;
+        if (firstInvisibleElement) {
+          isOverflowing = true;
+          if (idx > 0) {
+            // make space for the dropdown
+            tabData[idx-1].isVisible = false;
+            firstInvisibleElement = false;
+          }
+        }
+      } else {
+        tabData[idx].isVisible = true;
+      }
+    }
+  }
+  return {
+    tabData: tabData,
+    isOverflowing: isOverflowing,
+    width: widthX,
+    widthLeft: width,
+  }
+});
 </script>
 
 <style>
@@ -704,6 +752,8 @@ li {
   width: 100%;
   bottom: 0;
   left: 0;
+  display: flex;
+  flex-direction: row;
 }
 .compact-nav .time-compact,
 .compact-nav .info-box {
@@ -731,5 +781,20 @@ li {
 }
 .watermark-logo {
   width: 112px;
+}
+.q-tabs--dense .q-tab {
+  min-height: 30px;
+  max-height: 30px;
+  max-width: 100px;
+}
+.tabs {
+  overflow: hidden;
+  height: 32px;
+  flex: auto;
+}
+.functions {
+  overflow: hidden;
+  height: 32px;
+  flex: 0 0 auto;
 }
 </style>
