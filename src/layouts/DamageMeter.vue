@@ -175,32 +175,49 @@
     />
 
     <footer v-if="!isMinimized" class="footer">
-
       <div class="tabs" id="footer-tabs">
-        <q-tabs
-        dense
-        v-model="damageType"
-        class="text-teal"
-        align="left"
-        :breakpoint="0"
-      >
-        <template v-for="tab of tabs.tabData">
-        <q-tab v-if="tab.enabled && tab.isVisible"  dense :key="tab.type" :name="tab.type" :label="tab.label">
-          <q-tooltip anchor="top middle" self="bottom middle">
-            {{ tab.tooltip }}
-          </q-tooltip>
-        </q-tab>
-        </template>
-        <q-btn-dropdown v-if="tabs.isOverflowing" auto-close stretch flat >
-          <q-list>
-            <template v-for="tab of tabs.tabData">
-            <q-item v-if="tab.enabled && !tab.isVisible" :active="tab.type === damageType"  :key="tab.type" clickable @click="damageType = tab.type">
-              <q-item-section>{{ tab.label }}</q-item-section>
-            </q-item>
-            </template>
-          </q-list>
-        </q-btn-dropdown>
-      </q-tabs>
+        <q-tabs dense v-model="damageType" align="left" :breakpoint="0">
+          <template v-for="tab of tabs.tabData">
+            <q-tab
+              v-if="tab.enabled && tab.isVisible"
+              dense
+              :key="tab.type"
+              :name="tab.type"
+              :label="tab.label"
+            >
+              <q-tooltip anchor="top middle" self="bottom middle">
+                {{ tab.tooltip }}
+              </q-tooltip>
+            </q-tab>
+          </template>
+          <q-btn-dropdown
+            v-if="tabs.isOverflowing"
+            auto-close
+            stretch
+            flat
+            dropdown-icon="arrow_drop_up"
+          >
+            <q-list>
+              <template v-for="tab of tabs.tabData">
+                <q-item
+                  v-if="tab.enabled && !tab.isVisible"
+                  :active="tab.type === damageType"
+                  :key="tab.type"
+                  clickable
+                  @click="damageType = tab.type"
+                >
+                  <q-item-section
+                    >{{ tab.label }}
+                    <q-tooltip anchor="top middle" self="bottom middle">
+                      {{ tab.tooltip }}
+                    </q-tooltip>
+                  </q-item-section>
+                  <div class="q-tab__indicator absolute-bottom"></div>
+                </q-item>
+              </template>
+            </q-list>
+          </q-btn-dropdown>
+        </q-tabs>
       </div>
 
       <div class="functions">
@@ -240,7 +257,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, onMounted, Ref, ref, shallowRef, ShallowRef } from "vue";
+import {
+  computed,
+  ComputedRef,
+  onMounted,
+  Ref,
+  ref,
+  shallowRef,
+  ShallowRef,
+} from "vue";
 import { Notify, QTooltip } from "quasar";
 import {
   numberFormat,
@@ -384,7 +409,7 @@ const windowWidth: Ref<number> = ref(0);
 
 onMounted(() => {
   settingsStore.initSettings();
-  window.addEventListener('resize', () => {
+  window.addEventListener("resize", () => {
     if (windowWidth.value != window.innerWidth) {
       windowWidth.value = window.innerWidth;
     }
@@ -407,18 +432,11 @@ onMounted(() => {
   window.messageApi.send("window-to-main", { message: "get-settings" });
 
   window.messageApi.receive("pcap-on-state-change", (value: Partial<Game>) => {
-    if (
-      value.damageStatistics?.totalDamageDealt &&
-      fightDuration.value > 0
-    ) {
+    if (value.damageStatistics?.totalDamageDealt && fightDuration.value > 0) {
       sessionDPS = toFixedNumber(
-        value.damageStatistics.totalDamageDealt /
-          (fightDuration.value / 1000),
+        value.damageStatistics.totalDamageDealt / (fightDuration.value / 1000),
         0
       );
-      if (settingsStore.settings.damageMeter.header.bossHP.enabled)
-        //Don't run if disabled
-        getSessionBoss(value);
     }
     sessionState.value = value;
   });
@@ -578,9 +596,24 @@ function toggleUploads() {
   settingsStore.saveSettings();
 }
 
-const tabs: ComputedRef<{ tabData: { type: string; label: string; tooltip: string; enabled: boolean; isVisible: boolean; }[]; isOverflowing: boolean; width: number; }> = computed(() => {
+const tabs: ComputedRef<{
+  tabData: {
+    type: string;
+    label: string;
+    tooltip: string;
+    enabled: boolean;
+    isVisible: boolean;
+  }[];
+  isOverflowing: boolean;
+  width: number;
+}> = computed(() => {
   const widthX = windowWidth.value;
-  if (tabs.value !== undefined && (tabs.value.width === widthX || (widthX > tabs.value.width && (widthX-tabs.value.width) < 50 ))) return tabs.value;
+  if (
+    tabs.value !== undefined &&
+    (tabs.value.width === widthX ||
+      (widthX > tabs.value.width && widthX - tabs.value.width < 50))
+  )
+    return tabs.value;
   const allTabData = [
     {
       type: "dmg",
@@ -620,7 +653,8 @@ const tabs: ComputedRef<{ tabData: { type: string; label: string; tooltip: strin
     {
       type: "self_buff_dmg",
       label: "SBDmg",
-      tooltip: " SELF BUFF DMG: Show damage % dealt during self synergies (set, food, engravings, skills) ",
+      tooltip:
+        " SELF BUFF DMG: Show damage % dealt during self synergies (set, food, engravings, skills) ",
       enabled: settingsStore.settings.damageMeter.tabs.dSelfBuff.enabled,
       isVisible: true,
     },
@@ -641,7 +675,8 @@ const tabs: ComputedRef<{ tabData: { type: string; label: string; tooltip: strin
     {
       type: "self_buff_hit",
       label: "SBHit",
-      tooltip: " SELF BUFF HIT: Show hit % dealt during self synergies (set, food, engravings, skills) ",
+      tooltip:
+        " SELF BUFF HIT: Show hit % dealt during self synergies (set, food, engravings, skills) ",
       enabled: settingsStore.settings.damageMeter.tabs.hSelfBuff.enabled,
       isVisible: true,
     },
@@ -674,7 +709,7 @@ const tabs: ComputedRef<{ tabData: { type: string; label: string; tooltip: strin
           isOverflowing = true;
           if (idx > 0) {
             // make space for the dropdown
-            tabData[idx-1].isVisible = false;
+            tabData[idx - 1].isVisible = false;
             firstInvisibleElement = false;
           }
         }
@@ -688,7 +723,7 @@ const tabs: ComputedRef<{ tabData: { type: string; label: string; tooltip: strin
     isOverflowing: isOverflowing,
     width: widthX,
     widthLeft: width,
-  }
+  };
 });
 </script>
 
@@ -791,6 +826,23 @@ li {
   overflow: hidden;
   height: 32px;
   flex: auto;
+}
+.tabs .q-tab__label {
+  font-size: 12px;
+}
+.q-item .q-item__section--main {
+  font-size: 12px;
+  color: rgb(189, 189, 189);
+}
+.q-item .q-tab__indicator {
+  color: rgb(189, 189, 189);
+  opacity: 0;
+}
+.q-item.q-router-link--active .q-item__section--main {
+  font-weight: bolder;
+}
+.q-item.q-router-link--active .q-tab__indicator {
+  opacity: 1;
 }
 .functions {
   overflow: hidden;

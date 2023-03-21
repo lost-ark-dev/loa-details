@@ -1,5 +1,5 @@
 <template>
-  <tr v-if="player !== undefined && Object.keys(player.skills).length > 1">
+  <tr v-if="player !== undefined && player.skills.size > 1">
     <td class="td-class-img">
       <img :src="getClassImage(player.class)" />
     </td>

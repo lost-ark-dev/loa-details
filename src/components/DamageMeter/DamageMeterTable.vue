@@ -592,7 +592,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch, PropType, Ref, ShallowRef, shallowRef } from "vue";
+import {
+  computed,
+  onMounted,
+  ref,
+  watch,
+  PropType,
+  Ref,
+  ShallowRef,
+  shallowRef,
+} from "vue";
 import { useSettingsStore } from "src/stores/settings";
 import {
   Game,
@@ -666,7 +675,7 @@ function sortEntities() {
   if (Object.keys(props.sessionState).length <= 0) return;
 
   //TODO we changed that to not deepclone for performance boost, be carefull not to edit entities below (outside of display-reserved fields)
-  entitiesCopy = Object.values(props.sessionState.entities);
+  entitiesCopy = Array.from(props.sessionState.entities.values());
   const res = entitiesCopy
     .filter((entity) => {
       if (!entity.isPlayer) return false;
@@ -712,13 +721,13 @@ function sortEntities() {
     let totalHitsWithBa = 0,
       totalHitsWithFa = 0;
 
-    for (const skill of Object.values(entity.skills)) {
+    entity.skills.forEach((skill) => {
       if (skill.hits.backAttack / skill.hits.total >= 0.07)
         totalHitsWithBa += skill.hits.total;
 
       if (skill.hits.frontAttack / skill.hits.total >= 0.07)
         totalHitsWithFa += skill.hits.total;
-    }
+    });
 
     entity.hits.totalHitsWithBa = totalHitsWithBa > 0 ? totalHitsWithBa : 1;
     entity.hits.totalHitsWithFa = totalHitsWithFa > 0 ? totalHitsWithFa : 1;
@@ -737,7 +746,7 @@ function calculateSkills() {
   });
   if (!entity) return;
 
-  const res = Object.values(entity.skills).sort(
+  const res = Array.from(entity.skills.values()).sort(
     (a, b) => b.damageDealt - a.damageDealt
   ) as EntitySkillsExtended[];
 
@@ -966,7 +975,7 @@ function addStatusEffectIfNeeded(
   if (focusedPlayer !== "#" && props.sessionState) {
     // Check if the focused user has benifited from that buff
     // We only care about focused players, else we display everything
-    const focus = props.sessionState.entities[focusedPlayer];
+    const focus = props.sessionState.entities.get(focusedPlayer);
     if (!focus) return;
     // Hide buffs that doesn't benefit focused player
     if (
