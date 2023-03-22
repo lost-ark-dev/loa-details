@@ -2,6 +2,8 @@ import Store from "electron-store";
 import log from "electron-log";
 import { cloneDeep, merge } from "lodash";
 import { StatusEffectBuffTypeFlags } from "loa-details-log-parser/data";
+import { classes } from "src/constants/classes";
+import { app } from "electron";
 
 const store = new Store();
 
@@ -21,6 +23,14 @@ export function getSettings() {
     log.info("Setting retrieval failed: " + e);
   }
 
+  // Cleanup settings for unused data
+  for (const k in appSettings.damageMeter.classes) {
+    if (!(k in classes)) delete appSettings.damageMeter.classes[k];
+  }
+  for (const k in appSettings.damageMeter.tabs) {
+    if (!(k in defaultSettings.damageMeter.tabs))
+      delete appSettings.damageMeter.tabs[k];
+  }
   return appSettings;
 }
 
