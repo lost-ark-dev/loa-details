@@ -3,7 +3,6 @@ import log from "electron-log";
 import { cloneDeep, merge } from "lodash";
 import { StatusEffectBuffTypeFlags } from "loa-details-log-parser/data";
 import { classes } from "src/constants/classes";
-import { app } from "electron";
 
 const store = new Store();
 
