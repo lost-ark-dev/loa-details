@@ -11,7 +11,7 @@ import { fileParserWorker } from "loa-details-log-parser/worker";
 
 dayjs.extend(customParseFormat);
 
-const LOG_PARSER_VERSION = 14;
+const LOG_PARSER_VERSION = 15;
 
 export async function parseLogs(
   event: IpcMainEvent,
