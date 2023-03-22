@@ -1,7 +1,7 @@
 <template>
   <tr v-if="player !== undefined && player.skills.size > 1">
     <td class="td-class-img">
-      <img :src="getClassImage(player.class)" />
+      <img :src="getClassImage(player.classId)" />
     </td>
     <td class="ellipsis">
       <span>{{ entryName }}</span>
@@ -342,6 +342,9 @@ import { useSettingsStore } from "src/stores/settings";
 import { Game, StatusEffect } from "loa-details-log-parser/data";
 import BuffTableBodyEntry from "./BuffTableBodyEntry.vue";
 import { EntityExtended, getBuffPercent } from "../../util/helpers";
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+//@ts-ignore
+import PCData from "/meter-data/databases/PCData.json";
 
 const settingsStore = useSettingsStore();
 const props = defineProps({
@@ -425,14 +428,13 @@ const deathTime = computed(() => {
   return "";
 });
 
-function getClassImage(className: string) {
-  if (className in classes)
+function getClassImage(classId: number) {
+  if (classId in PCData)
     return new URL(
-      `../../assets/images/classes/${className}.png`,
+      `../../assets/images/classes/${classId}.png`,
       import.meta.url
     ).href;
 
-  return new URL("../../assets/images/classes/Warrior.png", import.meta.url)
-    .href;
+  return new URL("../../assets/images/classes/101.png", import.meta.url).href;
 }
 </script>
