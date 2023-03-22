@@ -88,20 +88,32 @@
             v-if="settingsStore.settings.damageMeter.header.bossHP.enabled"
             style="margin-right: 12px"
           >
-            {{ sessionBoss && sessionBoss.name ? "HP" : "No Boss" }}
             {{
-              sessionBoss && sessionBoss.currentHp && sessionBoss.maxHp
+              sessionState.currentBoss && sessionState.currentBoss.name
+                ? "HP"
+                : "No Boss"
+            }}
+            {{
+              sessionState.currentBoss &&
+              sessionState.currentBoss.currentHp &&
+              sessionState.currentBoss.maxHp
                 ? abbreviateNumber(
-                    sessionBoss.currentHp < 0 ? 0 : sessionBoss.currentHp
+                    sessionState.currentBoss.currentHp < 0
+                      ? 0
+                      : sessionState.currentBoss.currentHp
                   )
                     .slice(0, 2)
                     .join("") +
                   " / " +
-                  abbreviateNumber(sessionBoss.maxHp).slice(0, 2).join("") +
+                  abbreviateNumber(sessionState.currentBoss.maxHp)
+                    .slice(0, 2)
+                    .join("") +
                   " (" +
                   (
-                    ((sessionBoss.currentHp < 0 ? 0 : sessionBoss.currentHp) /
-                      sessionBoss.maxHp) *
+                    ((sessionState.currentBoss.currentHp < 0
+                      ? 0
+                      : sessionState.currentBoss.currentHp) /
+                      sessionState.currentBoss.maxHp) *
                     100
                   ).toFixed(1) +
                   "%)"
@@ -382,29 +394,8 @@ function requestSessionRestart() {
   window.messageApi.send("window-to-main", { message: "reset-session" });
 }
 
-function getSessionBoss(value: Partial<Game>) {
-  if (value.entities) {
-    const entities = Object.values(value.entities);
-    if (entities.length > 0) {
-      for (const entity of entities.sort(
-        (a, b) => b.lastUpdate - a.lastUpdate
-      )) {
-        for (const encounter of Object.values(encounters)) {
-          if (encounter.encounterNames.includes(entity.name)) {
-            sessionBoss = entity;
-            return;
-          }
-        }
-      }
-    } else {
-      sessionBoss = null as unknown as Entity;
-    }
-  }
-}
-
 const sessionState: ShallowRef<Partial<Game>> = shallowRef({});
 let sessionDPS = 0;
-let sessionBoss: Partial<Entity> = {};
 const windowWidth: Ref<number> = ref(0);
 
 onMounted(() => {
@@ -445,7 +436,6 @@ onMounted(() => {
     fightPausedOn = 0;
     fightPausedForMs = 0;
     sessionDPS = 0;
-    sessionBoss = null as unknown as Entity;
     damageType.value = "dmg";
     isFightPaused.value = false;
   });
