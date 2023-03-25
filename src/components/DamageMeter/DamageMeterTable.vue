@@ -1,5 +1,16 @@
 <template>
   <div class="damage-meter-table-wrapper" :style="wrapperStyle">
+    <template
+      v-if="damageType==='dps_graph'"
+    >
+      <DPSGraph
+        :session-state="sessionState"
+
+      />
+    </template>
+    <template
+      v-else
+    >
     <table class="damage-meter-table">
       <thead>
         <q-menu touch-position context-menu>
@@ -588,6 +599,7 @@
         />
       </tbody>
     </table>
+    </template>
   </div>
 </template>
 
@@ -623,6 +635,7 @@ import {
   EntitySkillsExtended,
   tabNames,
 } from "../../util/helpers";
+import DPSGraph from "components/DamageMeter/DPSGraph.vue";
 
 const settingsStore = useSettingsStore();
 

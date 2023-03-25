@@ -95,6 +95,16 @@
           label="OTHER BUFF HIT"
         />
       </template>
+      <template
+        v-if="settingsStore.settings.damageMeter.tabs.dpsGraph.enabled"
+      >
+        <q-btn
+          flat
+          size="sm"
+          @click="damageType = 'dps_graph'"
+          label="DPS GRAPH"
+        />
+      </template>
     </div>
 
     <DamageMeterTable
