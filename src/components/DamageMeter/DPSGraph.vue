@@ -12,7 +12,7 @@
 import { registerTheme, use } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
 import { LineChart } from "echarts/charts";
-import { GridComponent, LegendComponent, TitleComponent, TooltipComponent } from "echarts/components";
+import { GridComponent, LegendComponent, TitleComponent, TooltipComponent, MarkPointComponent } from "echarts/components";
 import { onMounted, PropType, ref, watch } from "vue";
 import { EChartsOption, SeriesOption } from "echarts";
 import VChart from "vue-echarts";
@@ -29,8 +29,8 @@ use([
   GridComponent,
   TitleComponent,
   TooltipComponent,
-  LegendComponent
-
+  LegendComponent,
+  MarkPointComponent
 ]);
 const props = defineProps({
   sessionState: { type: Object as PropType<Game>, required: true }
@@ -79,32 +79,30 @@ function prepare() {
   const intervals = generateIntervals(start, props.sessionState?.lastCombatPacket);
   entitiesCopy = Array.from(props.sessionState?.entities.values()).filter(e => e.isPlayer && e.damageDealt > 0);
   entitiesCopy.sort((a, b) => a.damageDealt - b.damageDealt);
-  let last = start
   entitiesCopy.forEach(e => {
     const markPoints: any[] = []
     legend.push(e.name);
     const data: string[] = [];
-    intervals.forEach(i => {
+    let last = start
+    intervals.forEach((i, index) => {
       const damage = getDamage(start, start + i, e);
       const dps = i > 0 ? damage / (i / 1000.0) : 0;
       data.push(dps.toFixed(0));
       if( e.deaths>0 && last<=e.deathTime && e.deathTime<=start+i ) {
         markPoints.push({
           name: "Death",
-          value: "Death",
-          xAxis: i/1000,
-          yAxis: dps
+          value: "💀",
+          coord: [index, dps],
         })
       }
       last = start+i
     });
-    console.log(e.name, markPoints)
 
     series.push({
       name: e.name,
       type: "line",
       color: settingsStore.getClassColor(e.class),
-      markPoint: {data:markPoints},
+      markPoint:{data: markPoints},
       data
     });
   });
