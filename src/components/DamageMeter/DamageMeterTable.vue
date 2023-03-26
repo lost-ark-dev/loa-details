@@ -9,14 +9,6 @@
       />
     </template>
     <template
-      v-else-if="damageType==='breakdown_graph'"
-    >
-      <BreakdownGraph
-        :session-state="sessionState"
-
-      />
-    </template>
-    <template
       v-else
     >
     <table class="damage-meter-table">
