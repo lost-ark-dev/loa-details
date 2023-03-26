@@ -736,10 +736,10 @@ const getBossStatus = () => {
   }
 
   let percent = (boss.currentHp / boss.maxHp)
-  let status = `${boss.name} | ${boss.currentHp}/${boss.maxHp} (${(percent*100).toFixed(2)}%)`
+  let status = `${boss.name} ${boss.currentHp}/${boss.maxHp} (${(percent*100).toFixed(2)}%)`
   if (boss.currentHp < 0) {
     percent = 0
-    status = `${boss.name} | 0 (${boss.currentHp})/${boss.maxHp} (0%)`
+    status = `${boss.name} 0 (${boss.currentHp})/${boss.maxHp} (0%)`
   }
 
   return {
