@@ -12,15 +12,23 @@
 import { registerTheme, use } from "echarts/core";
 import { CanvasRenderer } from "echarts/renderers";
 import { LineChart } from "echarts/charts";
-import { GridComponent, LegendComponent, TitleComponent, TooltipComponent, MarkPointComponent } from "echarts/components";
+import {
+  GridComponent,
+  LegendComponent,
+  TitleComponent,
+  TooltipComponent,
+  MarkPointComponent,
+  DataZoomComponent, ToolboxComponent
+} from "echarts/components";
 import { onMounted, PropType, ref, watch } from "vue";
 import { EChartsOption, SeriesOption } from "echarts";
 import VChart from "vue-echarts";
 import { Entity, Game } from "loa-details-log-parser/data";
-import { EntityExtended } from "src/util/helpers";
+import { EntityExtended, getPlayerName } from "src/util/helpers";
 import { useSettingsStore } from "stores/settings";
 import { theme } from "components/DamageMeter/theme";
 import PCData from "app/meter-data/databases/PCData.json";
+import { millisToMinutesAndSeconds } from "src/util/number-helpers";
 
 registerTheme("loa", theme);
 use([
@@ -30,10 +38,16 @@ use([
   TitleComponent,
   TooltipComponent,
   LegendComponent,
-  MarkPointComponent
+  MarkPointComponent,
+  ToolboxComponent,
+  DataZoomComponent
 ]);
 const props = defineProps({
-  sessionState: { type: Object as PropType<Game>, required: true }
+  sessionState: { type: Object as PropType<Game>, required: true },
+  nameDisplay: {
+    type: String,
+    default: "name+class",
+  },
 });
 const settingsStore = useSettingsStore();
 
@@ -45,17 +59,13 @@ const initOptions = ref({ renderer: "canvas" });
 watch(props, () => prepare());
 onMounted(() => prepare());
 
-function generateIntervals(start?: number, end?: number) {
+function generateIntervals(start: number, end: number, intervalCount: number) {
   if (!start || !end) return [];
   const duration = end - start;
   const intervals: number[] = [];
-  const parts = duration / 5000;
-  for (let i = 0; i <= Math.floor(parts); i++) {
-    if (i === Math.floor(parts)) {
-      intervals.push(parts * 5000);
-    } else {
-      intervals.push(i * 5000);
-    }
+  const intervalLength = duration / intervalCount;
+  for (let i = 0; i < intervalCount; i++) {
+    intervals.push(i * intervalLength);
   }
   return intervals;
 }
@@ -69,24 +79,26 @@ function getDamage(start: number, end: number, entity: Entity) {
   if (!damage || isNaN(damage)) {
     return 0;
   }
-  return damage;
+  return damage / (end-start) * 1000;
 }
 
 function prepare() {
   const legend: string[] = [];
   const series: SeriesOption[] = [];
   const start = props.sessionState?.fightStartedOn ?? 0;
-  const intervals = generateIntervals(start, props.sessionState?.lastCombatPacket);
+  const intervals = generateIntervals(start, props.sessionState?.lastCombatPacket??0, 100);
+  const windowSize = intervals[1]*2
   entitiesCopy = Array.from(props.sessionState?.entities.values()).filter(e => e.isPlayer && e.damageDealt > 0);
   entitiesCopy.sort((a, b) => a.damageDealt - b.damageDealt);
   entitiesCopy.forEach(e => {
     const markPoints: any[] = []
-    legend.push(e.name);
+    const playerName = getPlayerName(e, props.nameDisplay);
+    legend.push(playerName);
     const data: string[] = [];
     let last = start
     intervals.forEach((i, index) => {
-      const damage = getDamage(start, start + i, e);
-      const dps = i > 0 ? damage / (i / 1000.0) : 0;
+      const dps = getDamage(start + i - windowSize, start + i + windowSize, e);
+
       data.push(dps.toFixed(0));
       if( e.deaths>0 && last<=e.deathTime && e.deathTime<=start+i ) {
         markPoints.push({
@@ -99,7 +111,7 @@ function prepare() {
     });
 
     series.push({
-      name: e.name,
+      name: playerName,
       type: "line",
       color: settingsStore.getClassColor(e.class),
       markPoint:{data: markPoints},
@@ -131,7 +143,7 @@ function prepare() {
 
     xAxis: [{
       type: "category",
-      data: intervals.map(i => i / 1000),
+      data: intervals.map(i => millisToMinutesAndSeconds(i)),
       boundaryGap: false
     }],
     aria: {
@@ -145,7 +157,23 @@ function prepare() {
         type: "value"
       }
     ],
-    series
+    series,
+    toolbox: {
+      left: "center",
+      itemSize: 25,
+      top: 55,
+      feature: {
+        dataZoom: {
+          yAxisIndex: "none"
+        },
+        restore: {}
+      }
+    },
+    dataZoom: [
+      {
+        type: "inside", throttle: 50
+      }
+    ],
   };
 }
 

@@ -99,3 +99,46 @@ export function getIconPath(iconName: string | undefined): string {
 export function getClassName(id: number | undefined): string {
   return id ? PCData[id] ?? "" : "";
 }
+
+export function getPlayerName (player: EntityExtended|undefined, nameDisplay: string) {
+  let res = "";
+  if (!player) return res;
+  if (player.isDead) {
+    res += "💀 ";
+  }
+
+  let hasName = false;
+  if (nameDisplay.includes("name")) {
+    hasName = true;
+    res += player.name + " ";
+  }
+
+  if (
+    nameDisplay.includes("gear") ||
+    nameDisplay.includes("class")
+  ) {
+    if (hasName) res += "(";
+
+    let hasGearScore = false;
+    if (
+      nameDisplay.includes("gear") &&
+      player.gearScore &&
+      player.gearScore != 0
+    ) {
+      res += player.gearScore;
+      hasGearScore = true;
+    }
+
+    if (nameDisplay.includes("class")) {
+      if (hasGearScore) {
+        res += " ";
+      }
+
+      res += player.class;
+    }
+
+    if (hasName) res += ")";
+  }
+
+  return res;
+}

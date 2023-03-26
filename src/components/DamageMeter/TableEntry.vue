@@ -214,7 +214,7 @@
         </td>
       </template>
     </template>
-    <!--  
+    <!--
     <template v-else-if="['buff_dmg', 'buff_hit'].includes(damageType)">
       <template
         v-if="
@@ -341,7 +341,7 @@ import { abbreviateNumber } from "src/util/number-helpers";
 import { useSettingsStore } from "src/stores/settings";
 import { Game, StatusEffect } from "loa-details-log-parser/data";
 import BuffTableBodyEntry from "./BuffTableBodyEntry.vue";
-import { EntityExtended, getBuffPercent } from "../../util/helpers";
+import { EntityExtended, getBuffPercent, getPlayerName } from "../../util/helpers";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 import PCData from "/meter-data/databases/PCData.json";
@@ -357,48 +357,7 @@ const props = defineProps({
   sessionState: { type: Object as PropType<Game>, required: true },
 });
 
-const entryName = computed(() => {
-  let res = "";
-  if (!props.player) return res;
-  if (props.player.isDead) {
-    res += "💀 ";
-  }
-
-  let hasName = false;
-  if (props.nameDisplay.includes("name")) {
-    hasName = true;
-    res += props.player.name + " ";
-  }
-
-  if (
-    props.nameDisplay.includes("gear") ||
-    props.nameDisplay.includes("class")
-  ) {
-    if (hasName) res += "(";
-
-    let hasGearScore = false;
-    if (
-      props.nameDisplay.includes("gear") &&
-      props.player.gearScore &&
-      props.player.gearScore != 0
-    ) {
-      res += props.player.gearScore;
-      hasGearScore = true;
-    }
-
-    if (props.nameDisplay.includes("class")) {
-      if (hasGearScore) {
-        res += " ";
-      }
-
-      res += props.player.class;
-    }
-
-    if (hasName) res += ")";
-  }
-
-  return res;
-});
+const entryName = computed(() => getPlayerName(props.player, props.nameDisplay))
 
 const abbreviatedDamage = computed(() => {
   if (!props.player) return "";
