@@ -16,6 +16,7 @@ const LOG_PARSER_VERSION = 15;
 export async function parseLogs(
   event: IpcMainEvent,
   splitOnPhaseTransition: boolean,
+  multithreadParsing: boolean,
   meterData: MeterData
 ) {
   const s = require.resolve("loa-details-log-parser/worker");
@@ -87,52 +88,71 @@ export async function parseLogs(
 
     //Ignore error (d.ts of workerfarm badly designed)
     //workers["fileParserWorker"]
-    //TODO: fix multithreading adding meterData dependency to the fileparser breaks multithreading (we can't pass it as to the child process, probably too big)
-    fileParserWorker(
-      {
-        filename,
-        splitOnPhaseTransition,
-        mainFolder,
-        parsedLogFolder,
-        meterData,
-      },
-      function (error: string, output: string) {
-        completedJobs++;
-        log.info(error, output);
+    const callback = function (error: string, output: string) {
+      completedJobs++;
+      log.info(error, output);
 
-        if (output === "no encounters found" || output === "empty log") {
-          // remove log file if 1 hour or more have passed since it was last modified
-          if (
-            new Date().getTime() - logStats.mtime.getTime() >
-            1 * 60 * 60 * 1000
-          ) {
-            log.info("removing empty log", filename);
-            unlinkSync(path.join(mainFolder, filename));
-          }
-        } else {
-          mainJson[filename] = {
-            mtime: new Date(logStats.mtime),
-            logParserVersion: LOG_PARSER_VERSION,
-          };
+      if (output === "no encounters found" || output === "empty log") {
+        // remove log file if 1 hour or more have passed since it was last modified
+        if (
+          new Date().getTime() - logStats.mtime.getTime() >
+          1 * 60 * 60 * 1000
+        ) {
+          log.info("removing empty log", filename);
+          unlinkSync(path.join(mainFolder, filename));
         }
-
-        if (event) {
-          event.reply("log-parser-status", {
-            completedJobs,
-            totalJobs,
-          });
-        }
-
-        if (completedJobs === totalJobs) {
-          workerFarm.end(workers);
-
-          writeFileSync(
-            path.join(mainFolder, "main.json"),
-            JSON.stringify(mainJson)
-          );
-        }
+      } else {
+        mainJson[filename] = {
+          mtime: new Date(logStats.mtime),
+          logParserVersion: LOG_PARSER_VERSION,
+        };
       }
-    );
+
+      if (event) {
+        event.reply("log-parser-status", {
+          completedJobs,
+          totalJobs,
+        });
+      }
+
+      if (completedJobs === totalJobs) {
+        workerFarm.end(workers);
+
+        writeFileSync(
+          path.join(mainFolder, "main.json"),
+          JSON.stringify(mainJson)
+        );
+      }
+    };
+    if (multithreadParsing) {
+      //TODO: each thread has to load all meter data db files, which is probably not optimal
+      // Another way for doing would be to have a meter-data thread and do IPC requests from the parser
+      // OR
+      // Handles workers differently, to init them once with meterdata, then just load a new logfile instead of restarting it
+      workers["fileParserWorker"](
+        {
+          filename,
+          splitOnPhaseTransition,
+          mainFolder,
+          parsedLogFolder,
+          meterDataPath: meterData.modulePath,
+          dbPath: meterData.dbPath,
+        },
+        callback
+      );
+    } else {
+      fileParserWorker(
+        {
+          filename,
+          splitOnPhaseTransition,
+          mainFolder,
+          parsedLogFolder,
+          meterDataPath: meterData.modulePath,
+          dbPath: meterData.dbPath,
+        },
+        callback
+      );
+    }
   }
 
   if (totalJobs === 0 && event)

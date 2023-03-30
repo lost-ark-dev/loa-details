@@ -11,30 +11,8 @@ import { mainFolder } from "./util/directories.js";
 
 export function InitMeterData() {
   // create MeterData and read data
-  const meterData = new MeterData();
-  meterData.processEnumData(
-    JSON.parse(readFileSync("./meter-data/databases/Enums.json", "utf-8"))
-  );
-  meterData.processNpcData(
-    JSON.parse(readFileSync("./meter-data/databases/Npc.json", "utf-8"))
-  );
-  meterData.processPCData(
-    JSON.parse(readFileSync("./meter-data/databases/PCData.json", "utf-8"))
-  );
-  meterData.processSkillData(
-    JSON.parse(readFileSync("./meter-data/databases/Skill.json", "utf-8"))
-  );
-  meterData.processSkillBuffData(
-    JSON.parse(readFileSync("./meter-data/databases/SkillBuff.json", "utf-8"))
-  );
-  meterData.processSkillBuffEffectData(
-    JSON.parse(readFileSync("./meter-data/databases/SkillEffect.json", "utf-8"))
-  );
-  meterData.processCombatEffectData(
-    JSON.parse(
-      readFileSync("./meter-data/databases/CombatEffect.json", "utf-8")
-    )
-  );
+  const meterData = new MeterData(require.resolve("meter-core/data"));
+  meterData.loadDbs("./meter-data/databases");
   return meterData;
 }
 

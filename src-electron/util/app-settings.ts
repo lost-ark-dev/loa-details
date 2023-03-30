@@ -124,6 +124,7 @@ export type Settings = {
     minimumEncounterDurationInMinutes: number;
     minimumDurationInMinutes: number;
     splitOnPhaseTransition: boolean;
+    multithreadParsing: boolean;
   };
 };
 // TODO: find a better way to handle this
@@ -330,5 +331,6 @@ const defaultSettings: Settings = {
     minimumEncounterDurationInMinutes: 0.5,
     minimumDurationInMinutes: 0.0,
     splitOnPhaseTransition: true,
+    multithreadParsing: true,
   },
 };

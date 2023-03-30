@@ -107,6 +107,21 @@
     </q-item>
 
     <q-separator spaced />
+    <q-item-label header>Parser</q-item-label>
+    <q-item tag="label">
+      <q-item-section side top>
+        <q-checkbox v-model="settingsStore.settings.logs.multithreadParsing" />
+      </q-item-section>
+      <q-item-section>
+        <q-item-label>Multithread parsing</q-item-label>
+        <q-item-label caption>
+          If enabled, the app will spawn multiple processes to speed up log
+          parsing (may use more resources while parsing logs).
+        </q-item-label>
+      </q-item-section>
+    </q-item>
+
+    <q-separator spaced />
     <q-item-label header>Actions</q-item-label>
   </q-list>
 

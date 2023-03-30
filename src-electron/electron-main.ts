@@ -191,7 +191,7 @@ function startApplication() {
             mainWindow?.setPosition(0, 0);
             store.set("windows.main.X", 0);
             store.set("windows.main.Y", 0);
-          }
+          },
         },
         {
           label: "Damage Meter",
@@ -209,7 +209,7 @@ function startApplication() {
             store.set("windows.main.Y", 0);
           },
         },
-      ]
+      ],
     },
     {
       label: "Quit",
@@ -304,7 +304,12 @@ const ipcFunctions: {
     event.reply("on-settings-change", appSettings);
   },
   "parse-logs": async (event) => {
-    await parseLogs(event, appSettings.logs.splitOnPhaseTransition, meterData);
+    await parseLogs(
+      event,
+      appSettings.logs.splitOnPhaseTransition,
+      appSettings.logs.multithreadParsing,
+      meterData
+    );
   },
   "get-parsed-logs": async (event) => {
     const parsedLogs = await getParsedLogs();

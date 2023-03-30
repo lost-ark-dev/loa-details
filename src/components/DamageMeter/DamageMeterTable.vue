@@ -853,7 +853,7 @@ function filterStatusEffects(
     buff.target === StatusEffectTarget.PARTY
   ) {
     const key = `${getClassName(buff.source.skill?.classid)}_${
-      buff.uniquegroup ? buff.uniquegroup : buff.source.skill?.id
+      buff.uniquegroup ? buff.uniquegroup : buff.source.skill?.name
     }`;
     if (["party_buff_dmg", "party_buff_hit"].includes(damageType))
       addStatusEffectIfNeeded(
@@ -915,7 +915,7 @@ function filterStatusEffects(
         )
           return; // We hide other classes self buffs (classskill & identity)
         key = `${getClassName(buff.source.skill?.classid)}_${
-          buff.uniquegroup ? buff.uniquegroup : buff.source.skill?.id
+          buff.uniquegroup ? buff.uniquegroup : buff.source.skill?.name
         }`;
       }
       addStatusEffectIfNeeded(

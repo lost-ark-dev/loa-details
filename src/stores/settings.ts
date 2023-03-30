@@ -209,6 +209,7 @@ export const useSettingsStore = defineStore("settings", {
         minimumEncounterDurationInMinutes: 0.5,
         minimumDurationInMinutes: 0.0,
         splitOnPhaseTransition: true,
+        multithreadParsing: true,
       },
     } as Settings,
   }),
