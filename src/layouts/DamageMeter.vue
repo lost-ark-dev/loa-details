@@ -88,15 +88,11 @@
             v-if="settingsStore.settings.damageMeter.header.bossHP.enabled"
             style="margin-right: 12px"
           >
-            {{
-              sessionState.currentBoss && sessionState.currentBoss.name
-                ? "HP"
-                : "No Boss"
-            }}
+            {{ sessionState.currentBoss ? "HP" : "No Boss" }}
             {{
               sessionState.currentBoss &&
-              sessionState.currentBoss.currentHp &&
-              sessionState.currentBoss.maxHp
+              sessionState.currentBoss.currentHp !== undefined &&
+              sessionState.currentBoss.maxHp !== undefined
                 ? abbreviateNumber(
                     sessionState.currentBoss.currentHp < 0
                       ? 0
