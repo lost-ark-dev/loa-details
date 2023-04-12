@@ -188,6 +188,10 @@ export const useSettingsStore = defineStore("settings", {
             name: "Skill View / Casts per Minute",
             enabled: false,
           },
+          dpsGraph: {
+            name: "DPS Graph",
+            enabled: true,
+          },
         },
         buffFilter: {
           party:

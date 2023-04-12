@@ -1,0 +1,194 @@
+<template>
+  <v-chart
+    class="dps-chart"
+    :option="data"
+    auto-resize
+    :init-options="initOptions"
+    theme="loa"
+  />
+</template>
+
+<script setup lang="ts">
+import { registerTheme, use } from "echarts/core";
+import { CanvasRenderer } from "echarts/renderers";
+import { LineChart } from "echarts/charts";
+import {
+  GridComponent,
+  LegendComponent,
+  TitleComponent,
+  TooltipComponent,
+  MarkPointComponent,
+  DataZoomComponent, ToolboxComponent
+} from "echarts/components";
+import { onMounted, PropType, ref, watch } from "vue";
+import { EChartsOption, SeriesOption } from "echarts";
+import VChart from "vue-echarts";
+import { Entity, Game } from "loa-details-log-parser/data";
+import { EntityExtended, getPlayerName } from "src/util/helpers";
+import { useSettingsStore } from "stores/settings";
+import { theme } from "components/DamageMeter/theme";
+import PCData from "app/meter-data/databases/PCData.json";
+import { millisToMinutesAndSeconds } from "src/util/number-helpers";
+
+registerTheme("loa", theme);
+use([
+  CanvasRenderer,
+  LineChart,
+  GridComponent,
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  MarkPointComponent,
+  ToolboxComponent,
+  DataZoomComponent
+]);
+const props = defineProps({
+  sessionState: { type: Object as PropType<Game>, required: true },
+  nameDisplay: {
+    type: String,
+    default: "name+class",
+  },
+});
+const settingsStore = useSettingsStore();
+
+let entitiesCopy: EntityExtended[] = [];
+
+
+const data = ref<EChartsOption>({});
+const initOptions = ref({ renderer: "canvas" });
+watch(props, () => prepare());
+onMounted(() => prepare());
+
+function generateIntervals(start: number, end: number, intervalCount: number) {
+  if (!start || !end) return [];
+  const duration = end - start;
+  const intervals: number[] = [];
+  const intervalLength = duration / intervalCount;
+  for (let i = 0; i < intervalCount; i++) {
+    intervals.push(i * intervalLength);
+  }
+  return intervals;
+}
+
+function getDamage(start: number, end: number, entity: Entity) {
+  const skills = Array.from(entity.skills.values());
+  const damage = skills.reduce((acc, skill) => {
+    const entries = skill.breakdown.filter(d => d.timestamp >= start && d.timestamp <= end);
+    return acc + entries.reduce((acc, d) => acc + d.damage, 0);
+  }, 0);
+  if (!damage || isNaN(damage)) {
+    return 0;
+  }
+  return damage / (end-start) * 1000;
+}
+
+function prepare() {
+  const legend: string[] = [];
+  const series: SeriesOption[] = [];
+  const start = props.sessionState?.fightStartedOn ?? 0;
+  const intervals = generateIntervals(start, props.sessionState?.lastCombatPacket??0, 100);
+  const windowSize = intervals[1]*2
+  entitiesCopy = Array.from(props.sessionState?.entities.values()).filter(e => e.isPlayer && e.damageDealt > 0);
+  entitiesCopy.sort((a, b) => a.damageDealt - b.damageDealt);
+  entitiesCopy.forEach(e => {
+    const markPoints: any[] = []
+    const playerName = getPlayerName(e, props.nameDisplay);
+    legend.push(playerName);
+    const data: string[] = [];
+    let last = start
+    intervals.forEach((i, index) => {
+      const dps = getDamage(start + i - windowSize, start + i + windowSize, e);
+
+      data.push(dps.toFixed(0));
+      if( e.deaths>0 && last<=e.deathTime && e.deathTime<=start+i ) {
+        markPoints.push({
+          name: "Death",
+          value: "💀",
+          coord: [index, dps],
+        })
+      }
+      last = start+i
+    });
+
+    series.push({
+      name: playerName,
+      type: "line",
+      color: settingsStore.getClassColor(e.class),
+      markPoint:{data: markPoints},
+      data
+    });
+  });
+  data.value = {
+    tooltip: {
+      trigger: "axis",
+      axisPointer: {
+        type: "cross",
+        label: {
+          backgroundColor: "#6a7985"
+        }
+      }
+    },
+    legend: {
+      data: legend,
+      top: 25,
+      type: "scroll"
+    },
+    grid: {
+      left: "3%",
+      right: "4%",
+      bottom: "3%",
+      containLabel: true
+
+    },
+
+    xAxis: [{
+      type: "category",
+      data: intervals.map(i => millisToMinutesAndSeconds(i)),
+      boundaryGap: false
+    }],
+    aria: {
+      enabled: true,
+      decal: {
+        show: true
+      }
+    },
+    yAxis: [
+      {
+        type: "value"
+      }
+    ],
+    series,
+    toolbox: {
+      left: "center",
+      itemSize: 25,
+      top: 55,
+      feature: {
+        dataZoom: {
+          yAxisIndex: "none"
+        },
+        restore: {}
+      }
+    },
+    dataZoom: [
+      {
+        type: "inside", throttle: 50
+      }
+    ],
+  };
+}
+
+function getClassImage(classId: number) {
+  if (classId in PCData)
+    return new URL(
+      `../../assets/images/classes/${classId}.png`,
+      import.meta.url
+    ).href;
+
+  return new URL("../../assets/images/classes/101.png", import.meta.url).href;
+}
+</script>
+<style scoped>
+.dps-chart {
+  min-height: 300px !important;
+}
+</style>

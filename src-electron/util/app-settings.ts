@@ -310,6 +310,10 @@ const defaultSettings: Settings = {
         name: "Skill View / Casts per Minute",
         enabled: false,
       },
+      dpsGraph: {
+        name: "DPS Graph",
+        enabled: true,
+      },
     },
     buffFilter: {
       party:
