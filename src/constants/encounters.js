@@ -76,20 +76,26 @@ export const encounters = {
   },
   KakulG1: {
     name: "Kakul-Saydon Gate 1",
-    image: new URL("../assets/images/encounters/Kakul-Saydon.png", import.meta.url)
-      .href,
+    image: new URL(
+      "../assets/images/encounters/Kakul-Saydon.png",
+      import.meta.url
+    ).href,
     encounterNames: ["Saydon"],
   },
   KakulG2: {
     name: "Kakul-Saydon Gate 2",
-    image: new URL("../assets/images/encounters/Kakul-Saydon.png", import.meta.url)
-      .href,
+    image: new URL(
+      "../assets/images/encounters/Kakul-Saydon.png",
+      import.meta.url
+    ).href,
     encounterNames: ["Kakul"],
   },
   KakulG3: {
     name: "Kakul-Saydon Gate 3",
-    image: new URL("../assets/images/encounters/Kakul-Saydon.png", import.meta.url)
-      .href,
+    image: new URL(
+      "../assets/images/encounters/Kakul-Saydon.png",
+      import.meta.url
+    ).href,
     encounterNames: ["Kakul-Saydon"],
   },
   BrelshazaG1: {
@@ -200,6 +206,12 @@ export const encounters = {
       import.meta.url
     ).href,
     encounterNames: ["Frost Helgaia", "Frost Helgaia+"],
+  },
+  Hanumatan: {
+    name: "Hanumatan",
+    image: new URL("../assets/images/encounters/hanumatan.png", import.meta.url)
+      .href,
+    encounterNames: ["Hanumatan", "Hanumatan+"],
   },
   Helgaia: {
     name: "Helgaia",
