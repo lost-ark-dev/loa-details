@@ -1,7 +1,7 @@
 {
   "extends": "@quasar/app-vite/tsconfig-preset",
   "compilerOptions": {
-    "moduleResolution": "Node16",
+    "moduleResolution": "node16",
     "baseUrl": ".",
     "resolveJsonModule": true,
     "esModuleInterop": true

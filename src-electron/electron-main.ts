@@ -113,6 +113,17 @@ try {
 } catch (_) {}
 
 app.whenReady().then(() => {
+  if (process.env.DEBUGGING) {
+    import("electron-devtools-installer")
+      .then(({ default: installExtension, VUEJS_DEVTOOLS }) => {
+        installExtension
+          .default(VUEJS_DEVTOOLS)
+          .then((name) => console.log(`Added Extension:  ${name}`))
+          .catch((err) => console.log("An error occurred: ", err));
+      })
+      .catch((err) => console.log("An error occurred: ", err));
+  }
+
   // Don't create prelauncher if debugging
   if (!process.env.DEBUGGING) {
     prelauncherWindow = createPrelauncherWindow();

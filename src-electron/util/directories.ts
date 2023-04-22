@@ -1,4 +1,4 @@
-import * as platformFolders from "platform-folders";
+import { app } from "electron";
 import fs from "fs";
 import path from "path";
 import { getSettings } from "./app-settings";
@@ -6,7 +6,7 @@ import { getSettings } from "./app-settings";
 const appSettings = getSettings();
 const customPath = appSettings.general.customLogPath;
 
-const documentsFolder = platformFolders.getDocumentsFolder();
+const documentsFolder = app.getPath("documents");
 
 export const mainFolder =
   customPath === null

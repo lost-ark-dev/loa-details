@@ -51,8 +51,8 @@ module.exports = configure(function (/* ctx */) {
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#build
     build: {
       target: {
-        browser: ["chrome100"], // electron 18 is using chromium 100
-        node: "node16",
+        browser: ["chrome112"], // electron 24
+        node: "node18",
       },
 
       vueRouterMode: "hash", // available values: 'hash', 'history'
