@@ -1,6 +1,6 @@
 {
   "name": "loa-details",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Damage meter for Lost Ark",
   "productName": "LOA Details",
   "author": "Herysia, Mathicha, Eren Kara <erenkyi0@gmail.com>",
@@ -20,12 +20,14 @@
     "electron-log": "^4.4.8",
     "electron-store": "^8.1.0",
     "electron-updater": "^5.3.0",
+    "lodash": "^4.17.21",
     "meter-core": "github:lost-ark-dev/meter-core"
   },
   "devDependencies": {
     "@electron/rebuild": "^3.2.13",
     "@quasar/app-vite": "^1.2.2",
     "@quasar/extras": "^1.16.2",
+    "@types/lodash": "^4.14.194",
     "@types/node": "*",
     "@typescript-eslint/eslint-plugin": "^5.59.0",
     "@typescript-eslint/parser": "^5.59.0",

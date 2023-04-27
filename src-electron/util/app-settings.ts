@@ -2,6 +2,7 @@ import Store from "electron-store";
 import log from "electron-log";
 import { StatusEffectBuffTypeFlags } from "meter-core/logger/data";
 import { classes } from "src/constants/classes";
+import { merge } from "lodash"; //TODO: when we rework, remove lodash (required for merge)
 
 const store = new Store();
 
@@ -12,9 +13,9 @@ export function getSettings() {
     const settingsStr = store.get("settings");
 
     if (typeof settingsStr === "object")
-      Object.assign(appSettings, structuredClone(settingsStr));
+      merge(appSettings, structuredClone(settingsStr));
     else if (typeof settingsStr === "string")
-      Object.assign(appSettings, JSON.parse(settingsStr));
+      merge(appSettings, JSON.parse(settingsStr));
 
     log.info("Found and applied settings.");
   } catch (e) {

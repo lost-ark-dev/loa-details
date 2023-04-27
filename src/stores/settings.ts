@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { classes } from "../constants/classes";
 import { ClassSettings, Settings } from "../../src-electron/util/app-settings";
 import { StatusEffectBuffTypeFlags } from "meter-core/logger/data";
+import { merge } from "lodash"; //TODO: when we rework, remove lodash (required for merge)
 
 export const useSettingsStore = defineStore("settings", {
   state: () => ({
@@ -222,7 +223,7 @@ export const useSettingsStore = defineStore("settings", {
   },
   actions: {
     initSettings() {
-      Object.assign(this.settings.damageMeter.classes, classes);
+      merge(this.settings.damageMeter.classes, classes);
       for (const classSetting of Object.values(
         this.settings.damageMeter.classes
       ) as [ClassSettings]) {
@@ -230,7 +231,7 @@ export const useSettingsStore = defineStore("settings", {
       }
     },
     loadSettings(settingsToLoad: Settings) {
-      Object.assign(this.settings, settingsToLoad);
+      merge(this.settings, settingsToLoad);
     },
     saveSettings() {
       window.messageApi.send("window-to-main", {
