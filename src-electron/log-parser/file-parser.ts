@@ -8,12 +8,10 @@ import { mainFolder, parsedLogFolder } from "../util/directories";
 import { ReplayLogger } from "meter-core/logger/logger";
 import { Parser } from "meter-core/logger/parser";
 import { MeterData } from "meter-core/data";
-import { GameState } from "meter-core/logger/data";
+import { GameState, PARSED_LOG_VERSION } from "meter-core/logger/data";
 import { randomUUID } from "crypto";
 
 dayjs.extend(customParseFormat);
-
-const LOG_PARSER_VERSION = 15;
 
 export async function parseLogs(
   event: IpcMainEvent,
@@ -66,7 +64,7 @@ export async function parseLogs(
         if (
           new Date(mainJson[filename].mtime).getTime() <
             new Date(logStats.mtime).getTime() ||
-          mainJson[filename].logParserVersion < LOG_PARSER_VERSION
+          mainJson[filename].logParserVersion < PARSED_LOG_VERSION
         ) {
           shouldUnlink = true;
         }
@@ -107,7 +105,7 @@ export async function parseLogs(
       } else {
         mainJson[filename] = {
           mtime: new Date(logStats.mtime),
-          logParserVersion: LOG_PARSER_VERSION,
+          logParserVersion: PARSED_LOG_VERSION,
         };
       }
 
