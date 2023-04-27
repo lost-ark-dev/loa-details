@@ -80,13 +80,15 @@
         "
         class="text-center"
       >
-        {{
-          (
-            (player.hits.frontAttack / (player.hits.totalHitsWithFa ?? 0)) *
-            100
-          ).toFixed(1)
-        }}
-        <span class="ex">%</span>
+        <template v-if="player.hits.totalFrontAttack > 0">
+          {{
+            (
+              (player.hits.frontAttack / player.hits.totalFrontAttack) *
+              100
+            ).toFixed(1)
+          }}
+          <span class="ex">%</span>
+        </template>
       </td>
       <td
         v-if="
@@ -95,13 +97,15 @@
         "
         class="text-center"
       >
-        {{
-          (
-            (player.hits.backAttack / (player.hits.totalHitsWithBa ?? 0)) *
-            100
-          ).toFixed(1)
-        }}
-        <span class="ex">%</span>
+        <template v-if="player.hits.totalBackAttack > 0">
+          {{
+            (
+              (player.hits.backAttack / player.hits.totalBackAttack) *
+              100
+            ).toFixed(1)
+          }}
+          <span class="ex">%</span>
+        </template>
       </td>
       <td
         v-if="
@@ -326,7 +330,9 @@
                   ? player.shieldPercentageTop
                   : player.damagePercentageTop
               }%;
-              background:${settingsStore.getClassColor(player.class)};
+              background:${settingsStore.getClassColor(
+                getClassName(player.classId)
+              )};
               `"
     >
       <!-- Player percentage bar -->
@@ -335,13 +341,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, PropType, defineEmits } from "vue";
-import { classes } from "src/constants/classes";
+import { computed, PropType } from "vue";
 import { abbreviateNumber } from "src/util/number-helpers";
 import { useSettingsStore } from "src/stores/settings";
-import { Game, StatusEffect } from "loa-details-log-parser/data";
+import { GameState, StatusEffect } from "meter-core/logger/data";
 import BuffTableBodyEntry from "./BuffTableBodyEntry.vue";
-import { EntityExtended, getBuffPercent } from "../../util/helpers";
+import {
+  EntityExtended,
+  getBuffPercent,
+  getClassName,
+} from "../../util/helpers";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 import PCData from "/meter-data/databases/PCData.json";
@@ -354,7 +363,7 @@ const props = defineProps({
   fightDuration: { type: Number, required: true },
   lastCombatPacket: { type: Number, required: true },
   nameDisplay: { type: String, required: true },
-  sessionState: { type: Object as PropType<Game>, required: true },
+  sessionState: { type: Object as PropType<GameState>, required: true },
 });
 
 const entryName = computed(() => {
@@ -391,7 +400,7 @@ const entryName = computed(() => {
         res += " ";
       }
 
-      res += props.player.class;
+      res += getClassName(props.player.classId);
     }
 
     if (hasName) res += ")";

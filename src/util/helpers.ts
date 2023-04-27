@@ -2,14 +2,14 @@
 //@ts-ignore
 import PCData from "/meter-data/databases/PCData.json";
 import {
-  Entity,
+  EntityState,
   EntitySkills,
   Hits,
   StatusEffect,
-} from "loa-details-log-parser/data";
+} from "meter-core/logger/data";
 
 export type EntryData = {
-  hits: HitsExtended;
+  hits: Hits;
   damageDealt: number;
   damageDealtDebuffedBy: Map<number, number>;
   damageDealtBuffedBy: Map<number, number>;
@@ -26,11 +26,7 @@ export type tabNames =
   | "self_buff_hit"
   | "other_buff_hit";
 
-export type HitsExtended = Hits & {
-  totalHitsWithBa?: number;
-  totalHitsWithFa?: number;
-};
-export type EntityExtended = Entity & {
+export type EntityExtended = EntityState & {
   damagePercentageTotal?: string;
   damagePercentageTop?: string;
   tankPercentageTotal?: string;
@@ -39,7 +35,7 @@ export type EntityExtended = Entity & {
   healPercentageTop?: string;
   shieldPercentageTotal?: string;
   shieldPercentageTop?: string;
-  hits: HitsExtended;
+  hits: Hits;
 };
 export type EntitySkillsExtended = EntitySkills & {
   damagePercent?: string;

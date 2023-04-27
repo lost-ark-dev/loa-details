@@ -1,6 +1,6 @@
 import { Settings } from "app/src-electron/util/app-settings";
 import { ProgressInfo } from "electron-updater";
-import { Game } from "loa-details-log-parser";
+import { GameState } from "meter-core/logger/data";
 export type MessageEvent =
   | { message: "download-progress"; value: ProgressInfo }
   | {
@@ -18,7 +18,7 @@ export interface MessageApi {
   receive(channel: "on-settings-change", func: (value: Settings) => void): void;
   receive(
     channel: "pcap-on-state-change",
-    func: (value: Partial<Game>) => void
+    func: (value: GameState) => void
   ): void;
   receive(channel: "pcap-on-message", func: (value: string) => void): void;
   receive(

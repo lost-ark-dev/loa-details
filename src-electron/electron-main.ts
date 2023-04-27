@@ -12,7 +12,6 @@ import {
 import log from "electron-log";
 import Store from "electron-store";
 import { unlinkSync } from "fs";
-import { LogParser } from "loa-details-log-parser";
 import os from "os";
 import path from "path";
 import {
@@ -41,6 +40,7 @@ import {
   updaterEventEmitter,
 } from "./util/updater";
 import { adminRelauncher, PktCaptureMode } from "meter-core/pkt-capture";
+import { Parser } from "meter-core/logger/parser";
 
 if (app.commandLine.hasSwitch("disable-hardware-acceleration")) {
   log.info("Hardware acceleration disabled");
@@ -77,21 +77,42 @@ if (!gotTheLock) {
   });
 }
 
-const meterData = InitMeterData();
-
-const logParser = new LogParser(meterData, true);
-logParser.debugLines = true;
-
 let appSettings = getSettings();
 
-logParser.dontResetOnZoneChange =
-  appSettings.damageMeter.functionality.dontResetOnZoneChange;
-
-logParser.resetAfterPhaseTransition =
-  appSettings.damageMeter.functionality.resetAfterPhaseTransition;
-
-logParser.removeOverkillDamage =
-  appSettings.damageMeter.functionality.removeOverkillDamage;
+// log file stuff
+const padTo2Digits = (num: number) => num.toString().padStart(2, "0");
+const date = new Date();
+const filename =
+  "LostArk_" +
+  [
+    date.getFullYear(),
+    padTo2Digits(date.getMonth() + 1),
+    padTo2Digits(date.getDate()),
+    padTo2Digits(date.getHours()),
+    padTo2Digits(date.getMinutes()),
+    padTo2Digits(date.getSeconds()),
+  ].join("-") +
+  ".raw";
+const meterData = InitMeterData();
+let liveParser: Parser;
+try {
+  liveParser = InitLogger(
+    meterData,
+    appSettings?.general?.useRawSocket,
+    appSettings?.general?.listenPort ?? 6040,
+    filename,
+    {
+      isLive: true,
+      dontResetOnZoneChange:
+        appSettings.damageMeter.functionality.dontResetOnZoneChange,
+      resetAfterPhaseTransition:
+        appSettings.damageMeter.functionality.resetAfterPhaseTransition,
+      splitOnPhaseTransition: appSettings.logs.splitOnPhaseTransition,
+    }
+  );
+} catch (e) {
+  log.error(e);
+}
 
 appSettings.appVersion = app.getVersion();
 
@@ -240,18 +261,7 @@ function startApplication() {
   });
 
   mainWindow = createMainWindow(appSettings);
-  damageMeterWindow = createDamageMeterWindow(logParser, appSettings);
-
-  try {
-    InitLogger(
-      logParser,
-      meterData,
-      appSettings?.general?.useRawSocket,
-      appSettings?.general?.listenPort ?? 6040
-    );
-  } catch (e) {
-    log.error(e);
-  }
+  damageMeterWindow = createDamageMeterWindow(liveParser, appSettings);
 
   initializeShortcuts(appSettings);
 
@@ -284,12 +294,10 @@ const ipcFunctions: {
   [key: string]: (event: Electron.IpcMainEvent, arg: any) => void;
 } = {
   "reset-session": () => {
-    logParser.softReset();
+    liveParser.reset();
   },
   "cancel-reset-session": () => {
-    if (logParser.resetTimer) {
-      logParser.cancelReset();
-    }
+    liveParser.cancelReset();
   },
   "save-settings": (event, arg: { value: string }) => {
     appSettings = JSON.parse(arg.value);
@@ -299,15 +307,13 @@ const ipcFunctions: {
 
     mainWindow?.webContents.send("on-settings-change", appSettings);
     damageMeterWindow?.webContents.send("on-settings-change", appSettings);
-
-    logParser.dontResetOnZoneChange =
-      appSettings.damageMeter.functionality.dontResetOnZoneChange;
-
-    logParser.removeOverkillDamage =
-      appSettings.damageMeter.functionality.removeOverkillDamage;
-
-    logParser.resetAfterPhaseTransition =
-      appSettings.damageMeter.functionality.resetAfterPhaseTransition;
+    liveParser.updateOptions({
+      dontResetOnZoneChange:
+        appSettings.damageMeter.functionality.dontResetOnZoneChange,
+      resetAfterPhaseTransition:
+        appSettings.damageMeter.functionality.resetAfterPhaseTransition,
+      splitOnPhaseTransition: appSettings.logs.splitOnPhaseTransition,
+    });
 
     damageMeterWindow?.setOpacity(appSettings.damageMeter.design.opacity);
   },
@@ -318,8 +324,8 @@ const ipcFunctions: {
     await parseLogs(
       event,
       appSettings.logs.splitOnPhaseTransition,
-      appSettings.logs.multithreadParsing,
-      meterData
+      meterData,
+      filename
     );
   },
   "get-parsed-logs": async (event) => {

@@ -36,7 +36,7 @@
 <script setup lang="ts">
 import { PropType } from "vue";
 import { QTooltip } from "quasar";
-import { StatusEffect } from "loa-details-log-parser/data";
+import { StatusEffect } from "meter-core/logger/data";
 import { getIconPath, EntryData } from "../../util/helpers";
 
 const props = defineProps({

@@ -62,23 +62,29 @@
         v-if="settingsStore.settings.damageMeter.tabs.faRate.enabled"
         class="text-center"
       >
-        {{
-          skill.hits.total > 0
-            ? ((skill.hits.frontAttack / skill.hits.total) * 100).toFixed(1)
-            : (0).toFixed(1)
-        }}
-        <span class="ex">%</span>
+        <template v-if="skill.hits.totalFrontAttack > 0">
+          {{
+            (
+              (skill.hits.frontAttack / skill.hits.totalFrontAttack) *
+              100
+            ).toFixed(1)
+          }}
+          <span class="ex">%</span>
+        </template>
       </td>
       <td
         v-if="settingsStore.settings.damageMeter.tabs.baRate.enabled"
         class="text-center"
       >
-        {{
-          skill.hits.total > 0
-            ? ((skill.hits.backAttack / skill.hits.total) * 100).toFixed(1)
-            : (0).toFixed(1)
-        }}
-        <span class="ex">%</span>
+        <template v-if="skill.hits.totalBackAttack > 0">
+          {{
+            (
+              (skill.hits.backAttack / skill.hits.totalBackAttack) *
+              100
+            ).toFixed(1)
+          }}
+          <span class="ex">%</span>
+        </template>
       </td>
       <td
         v-if="settingsStore.settings.damageMeter.tabs.hBuffedBySup.enabled"
@@ -355,7 +361,7 @@ import { computed, PropType } from "vue";
 import { skills } from "src/constants/skills.js";
 import { abbreviateNumber } from "src/util/number-helpers";
 import { useSettingsStore } from "src/stores/settings";
-import { Game, StatusEffect } from "loa-details-log-parser/data";
+import { GameState, StatusEffect } from "meter-core/logger/data";
 import BuffTableBodyEntry from "./BuffTableBodyEntry.vue";
 import {
   getIconPath,
@@ -367,7 +373,7 @@ const settingsStore = useSettingsStore();
 
 const props = defineProps({
   sortedBuffs: { type: Map<string, Map<number, StatusEffect>>, required: true },
-  sessionState: { type: Object as PropType<Game>, required: true },
+  sessionState: { type: Object as PropType<GameState>, required: true },
   skill: { type: Object as PropType<EntitySkillsExtended>, required: true },
   damageType: { type: String, default: "dmg" },
   className: { type: String, required: true },

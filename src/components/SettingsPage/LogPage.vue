@@ -105,7 +105,7 @@
         </q-slider>
       </q-item-section>
     </q-item>
-
+    <!--
     <q-separator spaced />
     <q-item-label header>Parser</q-item-label>
     <q-item tag="label">
@@ -123,8 +123,8 @@
 
     <q-separator spaced />
     <q-item-label header>Actions</q-item-label>
+    -->
   </q-list>
-
   <q-btn
     style="margin-left: 16px"
     unelevated

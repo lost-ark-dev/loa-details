@@ -1,21 +1,20 @@
 import Store from "electron-store";
 import log from "electron-log";
-import { cloneDeep, merge } from "lodash";
-import { StatusEffectBuffTypeFlags } from "loa-details-log-parser/data";
+import { StatusEffectBuffTypeFlags } from "meter-core/logger/data";
 import { classes } from "src/constants/classes";
 
 const store = new Store();
 
 export function getSettings() {
-  let appSettings = cloneDeep(defaultSettings);
+  const appSettings = structuredClone(defaultSettings);
 
   try {
     const settingsStr = store.get("settings");
 
     if (typeof settingsStr === "object")
-      appSettings = merge(appSettings, cloneDeep(settingsStr));
+      Object.assign(appSettings, structuredClone(settingsStr));
     else if (typeof settingsStr === "string")
-      merge(appSettings, JSON.parse(settingsStr));
+      Object.assign(appSettings, JSON.parse(settingsStr));
 
     log.info("Found and applied settings.");
   } catch (e) {
@@ -89,7 +88,6 @@ export type Settings = {
   damageMeter: {
     functionality: {
       dontResetOnZoneChange: boolean;
-      removeOverkillDamage: boolean;
       pauseOnPhaseTransition: boolean;
       resetAfterPhaseTransition: boolean;
       autoMinimize: boolean;
@@ -176,7 +174,6 @@ const defaultSettings: Settings = {
   damageMeter: {
     functionality: {
       dontResetOnZoneChange: false,
-      removeOverkillDamage: true,
       pauseOnPhaseTransition: true,
       resetAfterPhaseTransition: true,
       autoMinimize: false,

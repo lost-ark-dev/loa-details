@@ -604,14 +604,14 @@ import {
 } from "vue";
 import { useSettingsStore } from "src/stores/settings";
 import {
-  Game,
-  Entity,
+  GameState,
+  EntityState,
   EntitySkills,
   Hits,
   StatusEffect,
   StatusEffectTarget,
   StatusEffectBuffTypeFlags,
-} from "loa-details-log-parser/data";
+} from "meter-core/logger/data";
 
 import TableEntry from "./TableEntry.vue";
 import SkillEntry from "./SkillEntry.vue";
@@ -628,7 +628,7 @@ const settingsStore = useSettingsStore();
 
 // TODO: move these to a pinia store
 const props = defineProps({
-  sessionState: { type: Object as PropType<Game>, required: true },
+  sessionState: { type: Object as PropType<GameState>, required: true },
   damageType: {
     type: String,
     default: "dmg",
@@ -660,9 +660,9 @@ onMounted(() => {
 
 const focusedPlayer = ref("#");
 const focusedPlayerClass = ref("");
-function focusPlayer(player: Entity) {
+function focusPlayer(player: EntityState) {
   focusedPlayer.value = player.name;
-  focusedPlayerClass.value = player.class;
+  focusedPlayerClass.value = getClassName(player.classId);
   calculateSkills();
 }
 let entitiesCopy: EntityExtended[] = [];
@@ -717,20 +717,6 @@ function sortEntities() {
 
     entity.shieldPercentageTotal = getPercentage(entity, "shield", "total");
     entity.shieldPercentageTop = getPercentage(entity, "shield", "top");
-
-    let totalHitsWithBa = 0,
-      totalHitsWithFa = 0;
-
-    entity.skills.forEach((skill) => {
-      if (skill.hits.backAttack / skill.hits.total >= 0.07)
-        totalHitsWithBa += skill.hits.total;
-
-      if (skill.hits.frontAttack / skill.hits.total >= 0.07)
-        totalHitsWithFa += skill.hits.total;
-    });
-
-    entity.hits.totalHitsWithBa = totalHitsWithBa > 0 ? totalHitsWithBa : 1;
-    entity.hits.totalHitsWithFa = totalHitsWithFa > 0 ? totalHitsWithFa : 1;
   }
 
   calculateSkills();
@@ -765,7 +751,7 @@ function calculateSkills() {
 }
 
 function getPercentage(
-  player: Entity,
+  player: EntityState,
   dmgType: tabNames,
   relativeTo: "total" | "top"
 ) {

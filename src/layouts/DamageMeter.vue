@@ -283,7 +283,7 @@ import {
 } from "src/util/number-helpers";
 import { sleep } from "src/util/sleep";
 import html2canvas from "html2canvas";
-import type { Game, Entity } from "loa-details-log-parser/data";
+import type { GameState, EntityState } from "meter-core/logger/data";
 import { encounters } from "src/constants/encounters.js";
 import { useSettingsStore } from "src/stores/settings";
 
@@ -390,7 +390,7 @@ function requestSessionRestart() {
   window.messageApi.send("window-to-main", { message: "reset-session" });
 }
 
-const sessionState: ShallowRef<Partial<Game>> = shallowRef({});
+const sessionState: ShallowRef<Partial<GameState>> = shallowRef({});
 let sessionDPS = 0;
 const windowWidth: Ref<number> = ref(0);
 
@@ -418,15 +418,19 @@ onMounted(() => {
 
   window.messageApi.send("window-to-main", { message: "get-settings" });
 
-  window.messageApi.receive("pcap-on-state-change", (value: Partial<Game>) => {
-    if (value.damageStatistics?.totalDamageDealt && fightDuration.value > 0) {
-      sessionDPS = toFixedNumber(
-        value.damageStatistics.totalDamageDealt / (fightDuration.value / 1000),
-        0
-      );
+  window.messageApi.receive(
+    "pcap-on-state-change",
+    (value: Partial<GameState>) => {
+      if (value.damageStatistics?.totalDamageDealt && fightDuration.value > 0) {
+        sessionDPS = toFixedNumber(
+          value.damageStatistics.totalDamageDealt /
+            (fightDuration.value / 1000),
+          0
+        );
+      }
+      sessionState.value = value;
     }
-    sessionState.value = value;
-  });
+  );
 
   window.messageApi.receive("pcap-on-reset-state", (value) => {
     fightPausedOn = 0;

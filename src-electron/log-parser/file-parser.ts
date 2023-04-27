@@ -1,13 +1,15 @@
-import { MeterData } from "meter-core/data";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { IpcMainEvent } from "electron";
 import log from "electron-log";
 import { promises as fsPromises, unlinkSync, writeFileSync } from "fs";
 import path from "path";
-import workerFarm from "worker-farm";
 import { mainFolder, parsedLogFolder } from "../util/directories";
-import { fileParserWorker } from "loa-details-log-parser/worker";
+import { ReplayLogger } from "meter-core/logger/logger";
+import { Parser } from "meter-core/logger/parser";
+import { MeterData } from "meter-core/data";
+import { GameState } from "meter-core/logger/data";
+import { randomUUID } from "crypto";
 
 dayjs.extend(customParseFormat);
 
@@ -16,12 +18,9 @@ const LOG_PARSER_VERSION = 15;
 export async function parseLogs(
   event: IpcMainEvent,
   splitOnPhaseTransition: boolean,
-  multithreadParsing: boolean,
-  meterData: MeterData
+  meterData: MeterData,
+  liveLogName: string
 ) {
-  const s = require.resolve("loa-details-log-parser/worker");
-  const workers = workerFarm(s, ["fileParserWorker"]);
-
   const unparsedLogs = await fsPromises.readdir(mainFolder);
   const parsedLogs = await fsPromises.readdir(parsedLogFolder);
 
@@ -53,7 +52,7 @@ export async function parseLogs(
 
   for (const filename of unparsedLogs) {
     // Check if filename fits the format "LostArk_2020-01-01-00-00-00.log"
-    if (!filename.match(/^LostArk_\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}.log$/))
+    if (!filename.match(/^LostArk_\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}.raw$/))
       continue;
 
     const filenameSlice = filename.slice(0, -4);
@@ -86,18 +85,22 @@ export async function parseLogs(
 
     totalJobs++;
 
-    //Ignore error (d.ts of workerfarm badly designed)
-    //workers["fileParserWorker"]
-    const callback = function (error: string, output: string) {
-      completedJobs++;
-      log.info(error, output);
+    const logger = new ReplayLogger();
 
-      if (output === "no encounters found" || output === "empty log") {
-        // remove log file if 1 hour or more have passed since it was last modified
-        if (
-          new Date().getTime() - logStats.mtime.getTime() >
-          1 * 60 * 60 * 1000
-        ) {
+    const parser = new Parser(logger, meterData, {
+      isLive: false,
+      splitOnPhaseTransition,
+    });
+    logger.on("fileEnd", (endEvent: string) => {
+      completedJobs++;
+      const encounters = parser.encounters;
+      const output = parseLog(encounters, parsedLogFolder, filenameSlice);
+
+      if (endEvent === "closed") {
+        log.info("invalid log file: ", filename);
+      } else if (output === "no encounters found" || endEvent === "closed") {
+        // remove log file if not current file
+        if (filename !== liveLogName) {
           log.info("removing empty log", filename);
           unlinkSync(path.join(mainFolder, filename));
         }
@@ -116,43 +119,14 @@ export async function parseLogs(
       }
 
       if (completedJobs === totalJobs) {
-        workerFarm.end(workers);
-
         writeFileSync(
           path.join(mainFolder, "main.json"),
           JSON.stringify(mainJson)
         );
       }
-    };
-    if (multithreadParsing) {
-      //TODO: each thread has to load all meter data db files, which is probably not optimal
-      // Another way for doing would be to have a meter-data thread and do IPC requests from the parser
-      // OR
-      // Handles workers differently, to init them once with meterdata, then just load a new logfile instead of restarting it
-      workers["fileParserWorker"](
-        {
-          filename,
-          splitOnPhaseTransition,
-          mainFolder,
-          parsedLogFolder,
-          meterDataPath: meterData.modulePath,
-          dbPath: meterData.dbPath,
-        },
-        callback
-      );
-    } else {
-      fileParserWorker(
-        {
-          filename,
-          splitOnPhaseTransition,
-          mainFolder,
-          parsedLogFolder,
-          meterDataPath: meterData.modulePath,
-          dbPath: meterData.dbPath,
-        },
-        callback
-      );
-    }
+    });
+
+    logger.readLogByChunk(path.join(mainFolder, filename));
   }
 
   if (totalJobs === 0 && event)
@@ -160,6 +134,75 @@ export async function parseLogs(
       completedJobs: 1,
       totalJobs: 1,
     });
+}
+
+function parseLog(
+  encounters: GameState[],
+  parsedLogFolder: string,
+  filenameSlice: string
+): "log parsed" | "no encounters found" | "log parser error" {
+  try {
+    if (encounters.length > 0) {
+      const masterLog: { encounters: Encounter[] } = { encounters: [] };
+
+      for (const encounter of encounters) {
+        const duration = encounter.lastCombatPacket - encounter.fightStartedOn;
+
+        if (duration <= 1000) continue;
+
+        let mostDamageTakenEntity = {
+          name: "",
+          damageTaken: 0,
+          isPlayer: false,
+        };
+
+        encounter.entities.forEach((i) => {
+          if (i.damageTaken > mostDamageTakenEntity.damageTaken) {
+            mostDamageTakenEntity = {
+              name: i.name,
+              damageTaken: i.damageTaken,
+              isPlayer: i.isPlayer,
+            };
+          }
+        });
+
+        const encounterDetails = {
+          duration,
+          mostDamageTakenEntity,
+        };
+
+        const encounterId = randomUUID();
+        const encounterFile = `${filenameSlice}_${encounterId}_encounter.json`;
+        masterLog.encounters.push({
+          encounterId,
+          encounterFile,
+          ...encounterDetails,
+        });
+
+        writeFileSync(
+          path.join(parsedLogFolder, encounterFile),
+          JSON.stringify(
+            {
+              ...encounter,
+              ...encounterDetails,
+            },
+            replacer
+          )
+        );
+      }
+
+      writeFileSync(
+        path.join(parsedLogFolder, filenameSlice + ".json"),
+        JSON.stringify(masterLog)
+      );
+
+      return "log parsed";
+    }
+
+    return "no encounters found";
+  } catch (e) {
+    return "log parser error";
+  }
 }
 
 export async function getParsedLogs() {
@@ -223,3 +266,29 @@ function reviver(_key: string, value: any) {
   }
   return value;
 }
+function replacer(_key: any, value: any) {
+  if (value instanceof Map) {
+    return {
+      dataType: "Map",
+      value: Array.from(value.entries()),
+    };
+  } else if (value instanceof Set) {
+    return {
+      dataType: "Set",
+      value: Array.from(value.values()),
+    };
+  } else {
+    return value;
+  }
+}
+
+type Encounter = {
+  encounterId: string;
+  encounterFile: string;
+  duration: number;
+  mostDamageTakenEntity: {
+    name: string;
+    damageTaken: number;
+    isPlayer: boolean;
+  };
+};

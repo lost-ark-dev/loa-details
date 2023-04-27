@@ -1,14 +1,14 @@
 import { app, BrowserWindow, shell } from "electron";
 import log from "electron-log";
-import { LogParser } from "loa-details-log-parser";
-import type { Game } from "loa-details-log-parser/data";
+import type { GameState } from "meter-core/logger/data";
 import path from "path";
 import { Settings } from "../util/app-settings";
 import { upload } from "../util/uploads";
 import { initWindow } from "../util/window-init";
+import { Parser } from "meter-core/logger/parser";
 
 export function createDamageMeterWindow(
-  logParser: LogParser,
+  liveParser: Parser,
   appSettings: Settings
 ) {
   let damageMeterWindow: BrowserWindow | null = new BrowserWindow({
@@ -50,7 +50,7 @@ export function createDamageMeterWindow(
   damageMeterWindow.setAlwaysOnTop(true, "normal");
 
   // Event listeners
-  logParser.on("reset-state", (state: Game) => {
+  liveParser.on("reset-state", (state: GameState) => {
     try {
       damageMeterWindow?.webContents.send("pcap-on-reset-state", "1");
 
@@ -87,7 +87,7 @@ export function createDamageMeterWindow(
       log.error(e);
     }
   });
-  logParser.on("state-change", (newState: unknown) => {
+  liveParser.on("state-change", (newState: GameState) => {
     try {
       if (typeof damageMeterWindow !== "undefined" && damageMeterWindow) {
         damageMeterWindow.webContents.send("pcap-on-state-change", newState);
@@ -96,9 +96,9 @@ export function createDamageMeterWindow(
       log.error(e);
     }
   });
-  logParser.on("message", (val: unknown) => {
+  liveParser.on("message", (msg: string) => {
     try {
-      damageMeterWindow?.webContents.send("pcap-on-message", val);
+      damageMeterWindow?.webContents.send("pcap-on-message", msg);
     } catch (e) {
       log.error(e);
     }

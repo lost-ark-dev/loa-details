@@ -1,8 +1,7 @@
 import { defineStore } from "pinia";
 import { classes } from "../constants/classes";
-import { merge } from "lodash";
 import { ClassSettings, Settings } from "../../src-electron/util/app-settings";
-import { StatusEffectBuffTypeFlags } from "loa-details-log-parser/data";
+import { StatusEffectBuffTypeFlags } from "meter-core/logger/data";
 
 export const useSettingsStore = defineStore("settings", {
   state: () => ({
@@ -54,7 +53,6 @@ export const useSettingsStore = defineStore("settings", {
       damageMeter: {
         functionality: {
           dontResetOnZoneChange: false,
-          removeOverkillDamage: true,
           pauseOnPhaseTransition: true,
           resetAfterPhaseTransition: true,
           autoMinimize: false,
@@ -224,7 +222,7 @@ export const useSettingsStore = defineStore("settings", {
   },
   actions: {
     initSettings() {
-      merge(this.settings.damageMeter.classes, classes);
+      Object.assign(this.settings.damageMeter.classes, classes);
       for (const classSetting of Object.values(
         this.settings.damageMeter.classes
       ) as [ClassSettings]) {
@@ -232,7 +230,7 @@ export const useSettingsStore = defineStore("settings", {
       }
     },
     loadSettings(settingsToLoad: Settings) {
-      merge(this.settings, settingsToLoad);
+      Object.assign(this.settings, settingsToLoad);
     },
     saveSettings() {
       window.messageApi.send("window-to-main", {

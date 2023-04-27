@@ -143,24 +143,6 @@
 
     <q-item tag="label">
       <q-item-section side top>
-        <q-checkbox
-          v-model="
-            settingsStore.settings.damageMeter.functionality
-              .removeOverkillDamage
-          "
-        />
-      </q-item-section>
-      <q-item-section>
-        <q-item-label>Remove Overkill Damage</q-item-label>
-        <q-item-label caption>
-          If the last hit on a mob does more damage than it has HP remaining,
-          remove the excess damage.
-        </q-item-label>
-      </q-item-section>
-    </q-item>
-
-    <q-item tag="label">
-      <q-item-section side top>
         <q-item-label>Name Display</q-item-label>
         <q-item-label caption>
           Choose how you'd like to display names on the damage meter.
