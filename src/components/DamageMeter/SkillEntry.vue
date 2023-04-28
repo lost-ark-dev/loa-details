@@ -25,7 +25,7 @@
         >{{ abbreviatedDamage[2] }}</q-tooltip
       >
     </td>
-    <template v-if="['dmg', 'tank', 'heal', 'shield'].includes(damageType)">
+    <template v-if="['dmg', 'tank', 'heal', 'shield_given'].includes(damageType)">
       <td
         v-if="settingsStore.settings.damageMeter.tabs.damagePercent.enabled"
         class="text-center"
