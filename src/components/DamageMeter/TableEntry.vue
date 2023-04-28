@@ -43,7 +43,7 @@
             : damageType === "heal"
             ? player.healPercentageTotal
             : damageType === "shield_given"
-            ? player.shieldPercentageTotal
+            ? player.shieldGivenPercentageTotal
             : damageType === "shield_gotten"
             ? player.shieldGottenPercentageTotal
             : damageType == "eshield_given"
@@ -375,8 +375,14 @@
                   ? player.tankPercentageTop
                   : damageType === 'heal'
                   ? player.healPercentageTop
-                  : damageType.startsWith('shield') || damageType.startsWith('eshield')
-                  ? player.shieldPercentageTop
+                  : damageType === 'shield_given'
+                  ? player.shieldGivenPercentageTop
+                  : damageType === 'shield_gotten'
+                  ? player.shieldGottenPercentageTop
+                  : damageType === 'eshield_given'
+                  ? player.eshieldGivenPercentageTop
+                  : damageType === 'eshield_gotten'
+                  ? player.eshieldGottenPercentageTop
                   : player.damagePercentageTop
               }%;
               background:${settingsStore.getClassColor(

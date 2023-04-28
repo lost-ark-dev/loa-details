@@ -283,8 +283,7 @@ import {
 } from "src/util/number-helpers";
 import { sleep } from "src/util/sleep";
 import html2canvas from "html2canvas";
-import type { GameState, EntityState } from "meter-core/logger/data";
-import { encounters } from "src/constants/encounters.js";
+import type { GameState } from "meter-core/logger/data";
 import { useSettingsStore } from "src/stores/settings";
 
 import DamageMeterTable from "src/components/DamageMeter/DamageMeterTable.vue";

@@ -744,8 +744,14 @@ function sortEntities() {
       if (props.damageType === "tank" && entity.damageTaken > 0) return true;
       else if (props.damageType === "heal" && entity.healingDone > 0)
         return true;
-      else if (props.damageType === "shield_given" && entity.shieldDone > 0)
-        return true;
+      else if (props.damageType === "shield_given")
+        return entity.shieldDone > 0;
+      else if (props.damageType === "shield_gotten")
+        return entity.shieldReceived > 0;
+      else if (props.damageType === "eshield_given")
+        return entity.damagePreventedWithShieldOnOthers > 0;
+      else if (props.damageType === "eshield_gotten")
+        return entity.damagePreventedByShield > 0;
       else if (/*props.damageType === "dmg" &&*/ entity.damageDealt > 0)
         // default to dmg if not one of the above
         return true;
@@ -763,6 +769,12 @@ function sortEntities() {
         return b.healingDone - a.healingDone;
       else if (props.damageType === "shield_given")
         return b.shieldDone - a.shieldDone;
+      else if (props.damageType === "shield_gotten")
+        return b.shieldReceived - a.shieldReceived;
+      else if (props.damageType === "eshield_given")
+        return b.damagePreventedWithShieldOnOthers - a.damagePreventedWithShieldOnOthers;
+      else if (props.damageType === "eshield_gotten")
+        return b.damagePreventedByShield - a.damagePreventedByShield;
       else return b.damageDealt - a.damageDealt;
     });
 
@@ -776,8 +788,8 @@ function sortEntities() {
     entity.healPercentageTotal = getPercentage(entity, "heal", "total");
     entity.healPercentageTop = getPercentage(entity, "heal", "top");
 
-    entity.shieldPercentageTotal = getPercentage(entity, "shield_given", "total");
-    entity.shieldPercentageTop = getPercentage(entity, "shield_given", "top");
+    entity.shieldGivenPercentageTotal = getPercentage(entity, "shield_given", "total");
+    entity.shieldGivenPercentageTop = getPercentage(entity, "shield_given", "top");
 
     entity.shieldGottenPercentageTotal = getPercentage(entity, "shield_gotten", "total");
     entity.shieldGottenPercentageTop = getPercentage(entity, "shield_gotten", "top");

@@ -36,8 +36,8 @@ export type EntityExtended = EntityState & {
   tankPercentageTop?: string;
   healPercentageTotal?: string;
   healPercentageTop?: string;
-  shieldPercentageTotal?: string;
-  shieldPercentageTop?: string;
+  shieldGivenPercentageTotal?: string;
+  shieldGivenPercentageTop?: string;
   hits: Hits;
   shieldGottenPercentageTotal?: string;
   shieldGottenPercentageTop?: string;
