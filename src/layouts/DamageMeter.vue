@@ -283,8 +283,7 @@ import {
 } from "src/util/number-helpers";
 import { sleep } from "src/util/sleep";
 import html2canvas from "html2canvas";
-import type { GameState, EntityState } from "meter-core/logger/data";
-import { encounters } from "src/constants/encounters.js";
+import type { GameState } from "meter-core/logger/data";
 import { useSettingsStore } from "src/stores/settings";
 
 import DamageMeterTable from "src/components/DamageMeter/DamageMeterTable.vue";
@@ -627,10 +626,31 @@ const tabs: ComputedRef<{
       isVisible: true,
     },
     {
-      type: "shield",
+      type: "shield_given",
       label: "SHIELD D",
       tooltip: " Show shield done ",
-      enabled: false,
+      enabled: settingsStore.settings.damageMeter.tabs.shieldGiven.enabled,
+      isVisible: true,
+    },
+    {
+      type: "shield_gotten",
+      label: "SHIELD G",
+      tooltip: " Show shield gotten ",
+      enabled: settingsStore.settings.damageMeter.tabs.shieldGotten.enabled,
+      isVisible: true,
+    },
+    {
+      type: "eshield_given",
+      label: "ESHIELD D",
+      tooltip: " Show effective shield done ",
+      enabled: settingsStore.settings.damageMeter.tabs.eshieldGiven.enabled,
+      isVisible: true,
+    },
+    {
+      type: "eshield_gotten",
+      label: "ESHIELD G",
+      tooltip: " Show effective shield gotten ",
+      enabled: settingsStore.settings.damageMeter.tabs.eshieldGotten.enabled,
       isVisible: true,
     },
     {

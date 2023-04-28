@@ -31,7 +31,7 @@
           <th style="width: 26px"></th>
           <th style="width: 100%"></th>
           <template
-            v-if="['dmg', 'tank', 'heal', 'shield'].includes(damageType)"
+            v-if="['dmg', 'tank', 'heal', 'shield_given', 'shield_gotten', 'eshield_given', 'eshield_gotten'].includes(damageType)"
           >
             <th
               v-if="settingsStore.settings.damageMeter.tabs.deathTime.enabled"
@@ -50,8 +50,12 @@
                   ? "Tanked"
                   : damageType === "heal"
                   ? "Healed"
-                  : damageType === "shield"
+                  : damageType === "shield_given"
                   ? "Shielded"
+                  : damageType === "shield_gotten"
+                  ? "Received"
+                  : damageType === "eshield_given" || damageType === "eshield_gotten"
+                  ? "Prevented"
                   : ""
               }}
             </th>
@@ -68,7 +72,7 @@
                   ? "T"
                   : damageType === "heal"
                   ? "H"
-                  : damageType === "shield"
+                  : ["shield_given", "shield_gotten", "eshield_given", "eshield_gotten"].includes(damageType)
                   ? "S"
                   : ""
               }}%
@@ -84,7 +88,7 @@
                   ? "TPS"
                   : damageType === "heal"
                   ? "HPS"
-                  : damageType === "shield"
+                  : ["shield_given", "shield_gotten", "eshield_given", "eshield_gotten"].includes(damageType)
                   ? "SPS"
                   : ""
               }}
@@ -186,8 +190,7 @@
                 (damageType === 'other_buff_dmg' &&
                   settingsStore.settings.damageMeter.tabs.dOtherBuff.enabled) ||
                 (damageType === 'other_buff_hit' &&
-                  settingsStore.settings.damageMeter.tabs.dParhOtherBufftyBuff
-                    .enabled)
+                  settingsStore.settings.damageMeter.tabs.hOtherBuff.enabled)
               "
             >
               <th
@@ -288,6 +291,58 @@
           >
             CNTR
           </th>
+          <template
+              v-if="['shield_given', 'shield_gotten'].includes(damageType)"
+          >
+            <th
+              v-for="[columnKey, columnData] of sortedAppliedShieldingBuffs"
+              :key="columnKey"
+              style="width: 90px; text-align: center"
+            >
+              <div class="header_text">
+                {{
+                  getClassName(
+                    columnData.source.skill?.classid
+                  )
+                }}
+              </div>
+              <div class="header_container">
+                  <div>
+                    <img
+                      class="header_img"
+                      :src="getIconPath(columnData.source.icon)"
+                    />
+                    <BuffHeaderTooltip :buff-id="columnKey" :buff="columnData" />
+                  </div>
+              </div>
+            </th>
+          </template>
+          <template
+              v-if="['eshield_given', 'eshield_gotten'].includes(damageType)"
+          >
+            <th
+              v-for="[columnKey, columnData] of sortedEffectiveShieldingBuffs"
+              :key="columnKey"
+              style="width: 90px; text-align: center"
+            >
+              <div class="header_text">
+                {{
+                  getClassName(
+                    columnData.source.skill?.classid
+                  )
+                }}
+              </div>
+              <div class="header_container">
+                  <div>
+                    <img
+                      class="header_img"
+                      :src="getIconPath(columnData.source.icon)"
+                    />
+                    <BuffHeaderTooltip :buff-id="columnKey" :buff="columnData" />
+                  </div>
+              </div>
+            </th>
+          </template>
         </tr>
         <tr v-else-if="focusedPlayer !== '#'">
           <th style="width: 32px"></th>
@@ -299,7 +354,7 @@
             Damage
           </th>
           <template
-            v-if="['dmg', 'tank', 'heal', 'shield'].includes(damageType)"
+            v-if="['dmg', 'tank', 'heal', 'shield_given'].includes(damageType)"
           >
             <th
               v-if="
@@ -536,6 +591,8 @@
           :key="player.id"
           :player="player"
           :sortedBuffs="sortedBuffs"
+          :sortedAppliedShieldingBuffs="sortedAppliedShieldingBuffs"
+          :sortedEffectiveShieldingBuffs="sortedEffectiveShieldingBuffs"
           :damage-type="damageType"
           :fight-duration="Math.max(1000, duration)"
           :last-combat-packet="
@@ -562,6 +619,8 @@
             "
             :key="focusedPlayer"
             :sortedBuffs="sortedBuffs"
+            :sortedAppliedShieldingBuffs="new Map()"
+            :sortedEffectiveShieldingBuffs="new Map()"
             :damage-type="damageType"
             :fight-duration="Math.max(1000, duration)"
             :last-combat-packet="
@@ -580,6 +639,8 @@
           :key="skill.name"
           :skill="skill"
           :sortedBuffs="sortedBuffs"
+          :sortedAppliedShieldingBuffs="new Map()"
+          :sortedEffectiveShieldingBuffs="new Map()"
           :damage-type="damageType"
           :class-name="focusedPlayerClass"
           :fight-duration="Math.max(1000, duration)"
@@ -683,8 +744,14 @@ function sortEntities() {
       if (props.damageType === "tank" && entity.damageTaken > 0) return true;
       else if (props.damageType === "heal" && entity.healingDone > 0)
         return true;
-      else if (props.damageType === "shield" && entity.shieldDone > 0)
-        return true;
+      else if (props.damageType === "shield_given")
+        return entity.shieldDone > 0;
+      else if (props.damageType === "shield_gotten")
+        return entity.shieldReceived > 0;
+      else if (props.damageType === "eshield_given")
+        return entity.damagePreventedWithShieldOnOthers > 0;
+      else if (props.damageType === "eshield_gotten")
+        return entity.damagePreventedByShield > 0;
       else if (/*props.damageType === "dmg" &&*/ entity.damageDealt > 0)
         // default to dmg if not one of the above
         return true;
@@ -700,8 +767,14 @@ function sortEntities() {
       if (props.damageType === "tank") return b.damageTaken - a.damageTaken;
       else if (props.damageType === "heal")
         return b.healingDone - a.healingDone;
-      else if (props.damageType === "shield")
+      else if (props.damageType === "shield_given")
         return b.shieldDone - a.shieldDone;
+      else if (props.damageType === "shield_gotten")
+        return b.shieldReceived - a.shieldReceived;
+      else if (props.damageType === "eshield_given")
+        return b.damagePreventedWithShieldOnOthers - a.damagePreventedWithShieldOnOthers;
+      else if (props.damageType === "eshield_gotten")
+        return b.damagePreventedByShield - a.damagePreventedByShield;
       else return b.damageDealt - a.damageDealt;
     });
 
@@ -715,8 +788,18 @@ function sortEntities() {
     entity.healPercentageTotal = getPercentage(entity, "heal", "total");
     entity.healPercentageTop = getPercentage(entity, "heal", "top");
 
-    entity.shieldPercentageTotal = getPercentage(entity, "shield", "total");
-    entity.shieldPercentageTop = getPercentage(entity, "shield", "top");
+    entity.shieldGivenPercentageTotal = getPercentage(entity, "shield_given", "total");
+    entity.shieldGivenPercentageTop = getPercentage(entity, "shield_given", "top");
+
+    entity.shieldGottenPercentageTotal = getPercentage(entity, "shield_gotten", "total");
+    entity.shieldGottenPercentageTop = getPercentage(entity, "shield_gotten", "top");
+
+    entity.eshieldGivenPercentageTotal = getPercentage(entity, "eshield_given", "total");
+    entity.eshieldGivenPercentageTop = getPercentage(entity, "eshield_given", "top");
+
+    entity.eshieldGottenPercentageTotal = getPercentage(entity, "eshield_gotten", "total");
+    entity.eshieldGottenPercentageTop = getPercentage(entity, "eshield_gotten", "top");
+
   }
 
   calculateSkills();
@@ -759,7 +842,10 @@ function getPercentage(
   let a = player.damageDealt;
   if (dmgType === "tank") a = player.damageTaken;
   else if (dmgType === "heal") a = player.healingDone;
-  else if (dmgType === "shield") a = player.shieldDone;
+  else if (dmgType === "shield_given") a = player.shieldDone;
+  else if (dmgType === "shield_gotten") a = player.shieldReceived;
+  else if (dmgType === "eshield_gotten") a = player.damagePreventedByShield;
+  else if (dmgType === "eshield_given") a = player.damagePreventedWithShieldOnOthers;
 
   let b = 0;
   if (dmgType === "dmg") {
@@ -774,11 +860,24 @@ function getPercentage(
     if (relativeTo === "top")
       b = props.sessionState.damageStatistics.topHealingDone;
     else b = props.sessionState.damageStatistics.totalHealingDone;
-  } else if (dmgType === "shield") {
+  } else if (dmgType === "shield_given") {
     if (relativeTo === "top")
       b = props.sessionState.damageStatistics.topShieldDone;
     else b = props.sessionState.damageStatistics.totalShieldDone;
+  } else if (dmgType == "shield_gotten") {
+    if (relativeTo === "top")
+      b = props.sessionState.damageStatistics.topShieldGotten;
+    else b = props.sessionState.damageStatistics.totalShieldDone;
+  } else if (dmgType == "eshield_gotten") {
+    if (relativeTo === "top")
+      b = props.sessionState.damageStatistics.topEffectiveShieldingUsed;
+    else b = props.sessionState.damageStatistics.totalEffectiveShieldingDone;
+  } else if (dmgType == "eshield_given") {
+    if (relativeTo === "top")
+      b = props.sessionState.damageStatistics.topEffectiveShieldingDone;
+    else b = props.sessionState.damageStatistics.totalEffectiveShieldingDone;
   }
+
 
   return ((a / b) * 100).toFixed(1);
 }
@@ -977,6 +1076,24 @@ function addStatusEffectIfNeeded(
     collection.set(tableKey, new Map([[buffId, statusEffect]]));
   }
 }
+
+const sortedAppliedShieldingBuffs = computed(() => {
+  //TODO: this is used to update columns when new buffs are tracked, we should only do this every few frames
+  // We could also track for difference only & not re-do everything
+  if (!["shield_given", "shield_gotten"].includes(props.damageType)){
+    return new Map();
+  }
+  return new Map([...props.sessionState.damageStatistics.appliedShieldingBuffs.entries()].sort());
+});
+
+const sortedEffectiveShieldingBuffs = computed(() => {
+  //TODO: this is used to update columns when new buffs are tracked, we should only do this every few frames
+  // We could also track for difference only & not re-do everything
+  if (!["eshield_gotten", "eshield_given"].includes(props.damageType)){
+    return new Map();
+  }
+  return new Map([...props.sessionState.damageStatistics.effectiveShieldingBuffs.entries()].sort());
+});
 </script>
 
 <style>

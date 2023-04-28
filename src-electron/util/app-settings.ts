@@ -308,6 +308,22 @@ const defaultSettings: Settings = {
         name: "Skill View / Casts per Minute",
         enabled: false,
       },
+      shieldGiven: {
+        name: "Tab: Shield applied to other players",
+        enabled: true,
+      },
+      shieldGotten: {
+        name: "Tab: Shield gotten from other players",
+        enabled: false,
+      },
+      eshieldGiven: {
+        name: "Tab: Effective (used up) shield given to other players",
+        enabled: true,
+      },
+      eshieldGotten: {
+        name: "Tab: Effective (used up) shield gotten from other players",
+        enabled: false,
+      },
     },
     buffFilter: {
       party:
