@@ -1,12 +1,6 @@
 <template>
   <q-scroll-area style="height: calc(100vh - 4px - 32px - 66px)">
-    <q-tabs
-      v-model="tab"
-      inline-label
-      outside-arrows
-      mobile-arrows
-      class="settings-tabs text-white shadow-2"
-    >
+    <q-tabs v-model="tab" inline-label outside-arrows mobile-arrows class="settings-tabs text-white shadow-2">
       <q-tab name="general" icon="display_settings" label="General" />
       <q-tab name="damage_meter" icon="speed" label="Damage Meter" />
       <q-tab name="log" icon="article" label="Log " />
@@ -24,7 +18,7 @@
   </q-scroll-area>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
 import GeneralPage from "src/components/SettingsPage/GeneralPage.vue";
 import DamageMeterPage from "src/components/SettingsPage/DamageMeterPage.vue";

@@ -40,11 +40,7 @@ export function InitLogger(
     useRawSocket ? PktCaptureMode.MODE_RAW_SOCKET : PktCaptureMode.MODE_PCAP,
     listenPort
   );
-  log.info(
-    `Listening on ${capture.captures.size} devices(s): ${Array.from(
-      capture.captures.keys()
-    ).join(", ")}`
-  );
+  log.info(`Listening on ${capture.captures.size} devices(s): ${Array.from(capture.captures.keys()).join(", ")}`);
   capture.on("packet", (buf) => {
     try {
       const badPkt = stream.read(buf);

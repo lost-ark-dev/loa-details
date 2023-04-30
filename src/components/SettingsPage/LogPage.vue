@@ -3,16 +3,14 @@
     <q-item-label header>General</q-item-label>
     <q-item tag="label">
       <q-item-section side top>
-        <q-checkbox
-          v-model="settingsStore.settings.logs.splitOnPhaseTransition"
-        />
+        <q-checkbox v-model="settingsStore.logs.splitOnPhaseTransition" />
       </q-item-section>
 
       <q-item-section>
         <q-item-label>Split on phase transition</q-item-label>
         <q-item-label caption>
-          If enabled, it will create another "encounter" on phase transitions (a
-          new phase begins/ends or when the raid wipes).
+          If enabled, it will create another "encounter" on phase transitions (a new phase begins/ends or when the raid
+          wipes).
         </q-item-label>
       </q-item-section>
     </q-item>
@@ -25,18 +23,16 @@
       <q-item-section>
         <q-slider
           style="margin: 0 16px"
-          :model-value="
-            settingsStore.settings.logs.minimumSessionDurationInMinutes
-          "
+          :model-value="settingsStore.logs.minimumSessionDurationInMinutes"
           @change="
             (val) => {
-              settingsStore.settings.logs.minimumSessionDurationInMinutes = val;
+              settingsStore.logs.minimumSessionDurationInMinutes = val;
             }
           "
           color="primary"
           label-always
           switch-label-side
-          :label-value="`Minimum ${settingsStore.settings.logs.minimumSessionDurationInMinutes} minute(s)`"
+          :label-value="`Minimum ${settingsStore.logs.minimumSessionDurationInMinutes} minute(s)`"
           markers
           marker-labels
           :min="0"
@@ -47,10 +43,7 @@
             <div
               v-for="marker in scope.markerList"
               :key="marker.index"
-              :class="[
-                `text-blue-${2 + Math.ceil(marker.value / 2)}`,
-                marker.classes,
-              ]"
+              :class="[`text-blue-${2 + Math.ceil(marker.value / 2)}`, marker.classes]"
               :style="marker.style"
               @click="model = marker.value"
             >
@@ -69,19 +62,16 @@
       <q-item-section>
         <q-slider
           style="margin: 0 16px"
-          :model-value="
-            settingsStore.settings.logs.minimumEncounterDurationInMinutes
-          "
+          :model-value="settingsStore.logs.minimumEncounterDurationInMinutes"
           @change="
             (val) => {
-              settingsStore.settings.logs.minimumEncounterDurationInMinutes =
-                val;
+              settingsStore.logs.minimumEncounterDurationInMinutes = val;
             }
           "
           color="primary"
           label-always
           switch-label-side
-          :label-value="`Minimum ${settingsStore.settings.logs.minimumEncounterDurationInMinutes} minute(s)`"
+          :label-value="`Minimum ${settingsStore.logs.minimumEncounterDurationInMinutes} minute(s)`"
           markers
           marker-labels
           :min="0"
@@ -92,10 +82,7 @@
             <div
               v-for="marker in scope.markerList"
               :key="marker.index"
-              :class="[
-                `text-blue-${2 + Math.ceil(marker.value / 2)}`,
-                marker.classes,
-              ]"
+              :class="[`text-blue-${2 + Math.ceil(marker.value / 2)}`, marker.classes]"
               :style="marker.style"
               @click="model = marker.value"
             >
@@ -110,7 +97,7 @@
     <q-item-label header>Parser</q-item-label>
     <q-item tag="label">
       <q-item-section side top>
-        <q-checkbox v-model="settingsStore.settings.logs.multithreadParsing" />
+        <q-checkbox v-model="settingsStore.logs.multithreadParsing" />
       </q-item-section>
       <q-item-section>
         <q-item-label>Multithread parsing</q-item-label>
@@ -125,23 +112,11 @@
     <q-item-label header>Actions</q-item-label>
     -->
   </q-list>
-  <q-btn
-    style="margin-left: 16px"
-    unelevated
-    color="red"
-    label="Wipe Parsed Log Cache"
-    @click="wipeParsedLogs"
-  />
-  <q-btn
-    style="margin-left: 16px"
-    unelevated
-    color="primary"
-    label="Open Folder"
-    @click="openLogDirectory"
-  />
+  <q-btn style="margin-left: 16px" unelevated color="red" label="Wipe Parsed Log Cache" @click="wipeParsedLogs" />
+  <q-btn style="margin-left: 16px" unelevated color="primary" label="Open Folder" @click="openLogDirectory" />
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { useSettingsStore } from "src/stores/settings";
 const settingsStore = useSettingsStore();
 

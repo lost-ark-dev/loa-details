@@ -89,11 +89,5 @@ export function millisToHourMinuteSeconds(millis: number) {
   const minutes = Math.floor(hoursmillis / (60 * 1000));
   const minutesmillis = millis % (60 * 1000);
   const sec = Math.floor(minutesmillis / 1000);
-  return (
-    String(hours).padStart(2, "0") +
-    ":" +
-    String(minutes).padStart(2, "0") +
-    ":" +
-    String(sec).padStart(2, "0")
-  );
+  return String(hours).padStart(2, "0") + ":" + String(minutes).padStart(2, "0") + ":" + String(sec).padStart(2, "0");
 }

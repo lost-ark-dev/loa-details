@@ -1,12 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 import PCData from "/meter-data/databases/PCData.json";
-import {
-  EntityState,
-  EntitySkills,
-  Hits,
-  StatusEffect,
-} from "meter-core/logger/data";
+import { EntityState, EntitySkills, Hits, StatusEffect } from "meter-core/logger/data";
 
 export type EntryData = {
   hits: Hits;
@@ -50,11 +45,7 @@ export type EntitySkillsExtended = EntitySkills & {
   damagePercent?: string;
   relativePercent?: string;
 };
-export function getBuffPercent(
-  data: EntryData,
-  damageType: string,
-  columnData: Map<number, StatusEffect>
-) {
+export function getBuffPercent(data: EntryData, damageType: string, columnData: Map<number, StatusEffect>) {
   const ret = new Map<number, number>();
   let totalPercent = 0;
   columnData.forEach((statusEffect, id) => {
@@ -66,18 +57,11 @@ export function getBuffPercent(
       // Buff hits
 
       val = ((data.hits.hitsBuffedBy.get(id) ?? 0) / data.hits.total) * 100;
-    } else if (
-      statusEffect.category === "debuff" &&
-      damageType.includes("dmg")
-    ) {
+    } else if (statusEffect.category === "debuff" && damageType.includes("dmg")) {
       // Debuff dmg
 
-      val =
-        ((data.damageDealtDebuffedBy.get(id) ?? 0) / data.damageDealt) * 100;
-    } else if (
-      statusEffect.category === "debuff" &&
-      damageType.includes("hit")
-    ) {
+      val = ((data.damageDealtDebuffedBy.get(id) ?? 0) / data.damageDealt) * 100;
+    } else if (statusEffect.category === "debuff" && damageType.includes("hit")) {
       // Debuff hits
 
       val = ((data.hits.hitsDebuffedBy.get(id) ?? 0) / data.hits.total) * 100;

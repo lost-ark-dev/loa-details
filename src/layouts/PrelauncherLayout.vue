@@ -1,13 +1,11 @@
 <template>
-  <div
-    class="q-electron-drag flex column items-center justify-center prelauncher"
-  >
+  <div class="q-electron-drag flex column items-center justify-center prelauncher">
     <img class="loader-img" :src="loaderImg" />
     <span class="loader-msg">{{ currentMessage }}</span>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { onMounted, ref } from "vue";
 
 const currentMessage = ref("Checking for updates...");
@@ -22,9 +20,7 @@ onMounted(() => {
     } else if (eventMessage.message === "update-not-available") {
       currentMessage.value = "Starting LOA Details...";
     } else if (eventMessage.message === "download-progress") {
-      currentMessage.value = `Downloading update ${eventMessage.value.percent.toFixed(
-        0
-      )}%`;
+      currentMessage.value = `Downloading update ${eventMessage.value.percent.toFixed(0)}%`;
     } else if (eventMessage.message === "update-downloaded") {
       currentMessage.value = "Starting updater...";
     } else if (eventMessage.message === "error") {

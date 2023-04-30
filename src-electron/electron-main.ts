@@ -10,37 +10,19 @@ import {
   Tray,
 } from "electron";
 import log from "electron-log";
-import Store from "electron-store";
 import { unlinkSync } from "fs";
+import { Parser } from "meter-core/logger/parser";
+import { adminRelauncher, PktCaptureMode } from "meter-core/pkt-capture";
 import os from "os";
 import path from "path";
-import {
-  createDamageMeterWindow,
-  createMainWindow,
-  createPrelauncherWindow,
-} from "./electron-windows";
-import {
-  getLogData,
-  getParsedLogs,
-  parseLogs,
-  wipeParsedLogs,
-} from "./log-parser/file-parser";
+import { createDamageMeterWindow, createMainWindow, createPrelauncherWindow } from "./electron-windows";
+import { getLogData, getParsedLogs, parseLogs, wipeParsedLogs } from "./log-parser/file-parser";
 import { InitLogger, InitMeterData } from "./logger";
-import { getSettings, saveSettings } from "./util/app-settings";
 import { mainFolder } from "./util/directories";
 import { saveScreenshot } from "./util/screenshot";
-import {
-  initializeShortcuts,
-  shortcutEventEmitter,
-  updateShortcuts,
-} from "./util/shortcuts-manager";
-import {
-  checkForUpdates,
-  quitAndInstall,
-  updaterEventEmitter,
-} from "./util/updater";
-import { adminRelauncher, PktCaptureMode } from "meter-core/pkt-capture";
-import { Parser } from "meter-core/logger/parser";
+import { initializeShortcuts, shortcutEventEmitter, updateShortcuts } from "./util/shortcuts-manager";
+import { store } from "./util/store";
+import { checkForUpdates, quitAndInstall, updaterEventEmitter } from "./util/updater";
 
 if (app.commandLine.hasSwitch("disable-hardware-acceleration")) {
   log.info("Hardware acceleration disabled");
@@ -54,11 +36,7 @@ console.warn = log.warn;
 console.info = log.info;
 // We keep log/debug for console only
 
-const store = new Store();
-
-let prelauncherWindow: BrowserWindow | null,
-  mainWindow: BrowserWindow | null,
-  damageMeterWindow: BrowserWindow | null;
+let prelauncherWindow: BrowserWindow | null, mainWindow: BrowserWindow | null, damageMeterWindow: BrowserWindow | null;
 let tray = null;
 
 const appLockKey = { myKey: "loa-details" };
@@ -77,8 +55,6 @@ if (!gotTheLock) {
   });
 }
 
-let appSettings = getSettings();
-
 // log file stuff
 const padTo2Digits = (num: number) => num.toString().padStart(2, "0");
 const date = new Date();
@@ -96,32 +72,18 @@ const filename =
 const meterData = InitMeterData();
 let liveParser: Parser;
 try {
-  liveParser = InitLogger(
-    meterData,
-    appSettings?.general?.useRawSocket,
-    appSettings?.general?.listenPort ?? 6040,
-    filename,
-    {
-      isLive: true,
-      dontResetOnZoneChange:
-        appSettings.damageMeter.functionality.dontResetOnZoneChange,
-      resetAfterPhaseTransition:
-        appSettings.damageMeter.functionality.resetAfterPhaseTransition,
-      splitOnPhaseTransition: appSettings.logs.splitOnPhaseTransition,
-    }
-  );
+  liveParser = InitLogger(meterData, store.get("general").useRawSocket, store.get("general").listenPort, filename, {
+    isLive: true,
+    dontResetOnZoneChange: store.get("damageMeter").functionality.dontResetOnZoneChange,
+    resetAfterPhaseTransition: store.get("damageMeter").functionality.resetAfterPhaseTransition,
+    splitOnPhaseTransition: store.get("logs").splitOnPhaseTransition,
+  });
 } catch (e) {
   log.error(e);
 }
 
-appSettings.appVersion = app.getVersion();
-
 //We relaunch admin as early as possible to be smoother, as -relaunch parameter is set, admin won't be checked again later on
-adminRelauncher(
-  appSettings.general.useRawSocket
-    ? PktCaptureMode.MODE_RAW_SOCKET
-    : PktCaptureMode.MODE_PCAP
-);
+adminRelauncher(store.get("general").useRawSocket ? PktCaptureMode.MODE_RAW_SOCKET : PktCaptureMode.MODE_PCAP);
 //Note: relauncher doesn't work in dev mode, consider starting as admin
 //TODO: disable when in dev ?
 
@@ -159,24 +121,13 @@ app.whenReady().then(() => {
 let prelauncherStatus = "open";
 
 updaterEventEmitter.on("event", (details) => {
-  if (
-    typeof prelauncherWindow !== "undefined" &&
-    prelauncherWindow &&
-    prelauncherWindow.webContents
-  ) {
+  if (typeof prelauncherWindow !== "undefined" && prelauncherWindow && prelauncherWindow.webContents) {
     prelauncherWindow.webContents.send("updater-message", details);
-  } else if (
-    typeof mainWindow !== "undefined" &&
-    mainWindow &&
-    mainWindow.webContents
-  ) {
+  } else if (typeof mainWindow !== "undefined" && mainWindow && mainWindow.webContents) {
     mainWindow.webContents.send("updater-message", details);
   }
 
-  if (
-    details.message === "update-not-available" &&
-    prelauncherStatus === "open"
-  ) {
+  if (details.message === "update-not-available" && prelauncherStatus === "open") {
     startApplication();
     if (typeof prelauncherWindow != "undefined") {
       prelauncherStatus = "closed";
@@ -186,11 +137,7 @@ updaterEventEmitter.on("event", (details) => {
   }
 
   // quitAndInstall only when prelauncher is visible (aka startup of application)
-  if (
-    details.message === "update-downloaded" &&
-    typeof prelauncherWindow != "undefined" &&
-    prelauncherWindow
-  ) {
+  if (details.message === "update-downloaded" && typeof prelauncherWindow != "undefined" && prelauncherWindow) {
     quitAndInstall(false, true); // isSilent=false, forceRunAfter=true
   }
 });
@@ -260,26 +207,20 @@ function startApplication() {
     mainWindow?.focus();
   });
 
-  mainWindow = createMainWindow(appSettings);
-  damageMeterWindow = createDamageMeterWindow(liveParser, appSettings);
+  mainWindow = createMainWindow();
+  damageMeterWindow = createDamageMeterWindow(liveParser);
 
-  initializeShortcuts(appSettings);
+  initializeShortcuts();
 
   shortcutEventEmitter.on("shortcut", (shortcut) => {
     log.debug(shortcut);
 
     if (shortcut.action === "minimizeDamageMeter") {
-      damageMeterWindow?.webContents.send(
-        "shortcut-action",
-        "toggle-minimized-state"
-      );
+      damageMeterWindow?.webContents.send("shortcut-action", "toggle-minimized-state");
     } else if (shortcut.action === "resetSession") {
       damageMeterWindow?.webContents.send("shortcut-action", "reset-session");
     } else if (shortcut.action === "pauseDamageMeter") {
-      damageMeterWindow?.webContents.send(
-        "shortcut-action",
-        "pause-damage-meter"
-      );
+      damageMeterWindow?.webContents.send("shortcut-action", "pause-damage-meter");
     }
   });
 }
@@ -299,34 +240,24 @@ const ipcFunctions: {
   "cancel-reset-session": () => {
     liveParser.cancelReset();
   },
-  "save-settings": (event, arg: { value: string }) => {
-    appSettings = JSON.parse(arg.value);
-    saveSettings(arg.value);
+  "save-settings": () => {
+    updateShortcuts();
 
-    updateShortcuts(appSettings);
-
-    mainWindow?.webContents.send("on-settings-change", appSettings);
-    damageMeterWindow?.webContents.send("on-settings-change", appSettings);
+    mainWindow?.webContents.send("on-settings-change");
+    damageMeterWindow?.webContents.send("on-settings-change");
     liveParser.updateOptions({
-      dontResetOnZoneChange:
-        appSettings.damageMeter.functionality.dontResetOnZoneChange,
-      resetAfterPhaseTransition:
-        appSettings.damageMeter.functionality.resetAfterPhaseTransition,
-      splitOnPhaseTransition: appSettings.logs.splitOnPhaseTransition,
+      dontResetOnZoneChange: store.get("damageMeter").functionality.dontResetOnZoneChange,
+      resetAfterPhaseTransition: store.get("damageMeter").functionality.resetAfterPhaseTransition,
+      splitOnPhaseTransition: store.get("logs").splitOnPhaseTransition,
     });
 
-    damageMeterWindow?.setOpacity(appSettings.damageMeter.design.opacity);
+    damageMeterWindow?.setOpacity(store.get("damageMeter").design.opacity);
   },
   "get-settings": (event) => {
-    event.reply("on-settings-change", appSettings);
+    event.reply("on-settings-change");
   },
   "parse-logs": async (event) => {
-    await parseLogs(
-      event,
-      appSettings.logs.splitOnPhaseTransition,
-      meterData,
-      filename
-    );
+    await parseLogs(event, store.get("logs").splitOnPhaseTransition, meterData, filename);
   },
   "get-parsed-logs": async (event) => {
     const parsedLogs = await getParsedLogs();
@@ -365,7 +296,7 @@ const ipcFunctions: {
     store.set("windows.damage_meter.Y", 0);
   },
   "toggle-damage-meter-minimized-state": (event, arg) => {
-    if (appSettings.damageMeter.functionality.minimizeToTaskbar) {
+    if (store.get("damageMeter").functionality.minimizeToTaskbar) {
       if (arg.value) damageMeterWindow?.minimize();
       else damageMeterWindow?.restore();
     } else {
@@ -374,11 +305,8 @@ const ipcFunctions: {
           newH = 64;
 
         damageMeterWindowOldSize = damageMeterWindow?.getSize() || [0, 0];
-        damageMeterWindowOldMinimumSize =
-          damageMeterWindow?.getMinimumSize() || [0, 0];
-        damageMeterWindowOldPosition = damageMeterWindow?.getPosition() || [
-          0, 0,
-        ];
+        damageMeterWindowOldMinimumSize = damageMeterWindow?.getMinimumSize() || [0, 0];
+        damageMeterWindowOldPosition = damageMeterWindow?.getPosition() || [0, 0];
 
         damageMeterPositionDifference = [
           damageMeterWindowOldPosition[0] + damageMeterWindowOldSize[0] - newW,
@@ -388,24 +316,12 @@ const ipcFunctions: {
         damageMeterWindow?.setResizable(false);
         damageMeterWindow?.setMinimumSize(newW, newH);
         damageMeterWindow?.setSize(newW, newH);
-        damageMeterWindow?.setPosition(
-          damageMeterPositionDifference[0],
-          damageMeterPositionDifference[1]
-        );
+        damageMeterWindow?.setPosition(damageMeterPositionDifference[0], damageMeterPositionDifference[1]);
       } else {
         damageMeterWindow?.setResizable(true);
-        damageMeterWindow?.setMinimumSize(
-          damageMeterWindowOldMinimumSize[0],
-          damageMeterWindowOldMinimumSize[1]
-        );
-        damageMeterWindow?.setSize(
-          damageMeterWindowOldSize[0],
-          damageMeterWindowOldSize[1]
-        );
-        damageMeterWindow?.setPosition(
-          damageMeterWindowOldPosition[0],
-          damageMeterWindowOldPosition[1]
-        );
+        damageMeterWindow?.setMinimumSize(damageMeterWindowOldMinimumSize[0], damageMeterWindowOldMinimumSize[1]);
+        damageMeterWindow?.setSize(damageMeterWindowOldSize[0], damageMeterWindowOldSize[1]);
+        damageMeterWindow?.setPosition(damageMeterWindowOldPosition[0], damageMeterWindowOldPosition[1]);
       }
     }
   },
@@ -432,12 +348,9 @@ ipcMain.on("hide", () => {
   mainWindow?.hide();
 });
 
-ipcMain.on(
-  "setIgnoreMouseEvents",
-  (event, ignore: boolean, options?: IgnoreMouseEventsOptions) => {
-    damageMeterWindow?.setIgnoreMouseEvents(ignore, options);
-  }
-);
+ipcMain.on("setIgnoreMouseEvents", (event, ignore: boolean, options?: IgnoreMouseEventsOptions) => {
+  damageMeterWindow?.setIgnoreMouseEvents(ignore, options);
+});
 
 ipcMain.on("window-to-main", (event, arg) => {
   const ipcFunction =
@@ -456,7 +369,7 @@ app.on("window-all-closed", () => {
 
 app.on("activate", () => {
   if (mainWindow === null) {
-    mainWindow = createMainWindow(appSettings);
+    mainWindow = createMainWindow();
   }
 });
 

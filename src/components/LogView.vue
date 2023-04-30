@@ -12,14 +12,7 @@
         </span>
         <span style="margin-right: 12px">
           Total DPS
-          {{
-            numberFormat(
-              (
-                logData.damageStatistics.totalDamageDealt /
-                (logData.duration / 1000)
-              ).toFixed(0)
-            )
-          }}
+          {{ numberFormat((logData.damageStatistics.totalDamageDealt / (logData.duration / 1000)).toFixed(0)) }}
         </span>
         <span style="margin-right: 12px">
           Total TNK
@@ -39,65 +32,23 @@
       <q-btn flat size="sm" @click="damageType = 'shield_gotten'"> SHIELD G </q-btn>
       <q-btn flat size="sm" @click="damageType = 'eshield_given'"> ESHIELD D </q-btn>
       <q-btn flat size="sm" @click="damageType = 'eshield_gotten'"> ESHIELD G </q-btn>
-      <template
-        v-if="settingsStore.settings.damageMeter.tabs.dPartyBuff.enabled"
-      >
-        <q-btn
-          flat
-          size="sm"
-          @click="damageType = 'party_buff_dmg'"
-          label="PARTY BUFF DMG"
-        />
+      <template v-if="settingsStore.damageMeter.tabs.dPartyBuff.enabled">
+        <q-btn flat size="sm" @click="damageType = 'party_buff_dmg'" label="PARTY BUFF DMG" />
       </template>
-      <template
-        v-if="settingsStore.settings.damageMeter.tabs.dSelfBuff.enabled"
-      >
-        <q-btn
-          flat
-          size="sm"
-          @click="damageType = 'self_buff_dmg'"
-          label="SELF BUFF DMG"
-        />
+      <template v-if="settingsStore.damageMeter.tabs.dSelfBuff.enabled">
+        <q-btn flat size="sm" @click="damageType = 'self_buff_dmg'" label="SELF BUFF DMG" />
       </template>
-      <template
-        v-if="settingsStore.settings.damageMeter.tabs.dOtherBuff.enabled"
-      >
-        <q-btn
-          flat
-          size="sm"
-          @click="damageType = 'other_buff_dmg'"
-          label="OTHER BUFF DMG"
-        />
+      <template v-if="settingsStore.damageMeter.tabs.dOtherBuff.enabled">
+        <q-btn flat size="sm" @click="damageType = 'other_buff_dmg'" label="OTHER BUFF DMG" />
       </template>
-      <template
-        v-if="settingsStore.settings.damageMeter.tabs.hPartyBuff.enabled"
-      >
-        <q-btn
-          flat
-          size="sm"
-          @click="damageType = 'party_buff_hit'"
-          label="PARTY BUFF HIT"
-        />
+      <template v-if="settingsStore.damageMeter.tabs.hPartyBuff.enabled">
+        <q-btn flat size="sm" @click="damageType = 'party_buff_hit'" label="PARTY BUFF HIT" />
       </template>
-      <template
-        v-if="settingsStore.settings.damageMeter.tabs.hSelfBuff.enabled"
-      >
-        <q-btn
-          flat
-          size="sm"
-          @click="damageType = 'self_buff_hit'"
-          label="SELF BUFF HIT"
-        />
+      <template v-if="settingsStore.damageMeter.tabs.hSelfBuff.enabled">
+        <q-btn flat size="sm" @click="damageType = 'self_buff_hit'" label="SELF BUFF HIT" />
       </template>
-      <template
-        v-if="settingsStore.settings.damageMeter.tabs.hOtherBuff.enabled"
-      >
-        <q-btn
-          flat
-          size="sm"
-          @click="damageType = 'other_buff_hit'"
-          label="OTHER BUFF HIT"
-        />
+      <template v-if="settingsStore.damageMeter.tabs.hOtherBuff.enabled">
+        <q-btn flat size="sm" @click="damageType = 'other_buff_hit'" label="OTHER BUFF HIT" />
       </template>
     </div>
 
@@ -107,22 +58,15 @@
       :damage-type="damageType"
       :duration="logData.duration"
       :name-display="
-        isTakingScreenshot
-          ? hideNamesOnScreenshot
-            ? 'gear+class'
-            : 'name+gear+class'
-          : 'name+gear+class'
+        isTakingScreenshot ? (hideNamesOnScreenshot ? 'gear+class' : 'name+gear+class') : 'name+gear+class'
       "
     />
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
-import {
-  numberFormat,
-  millisToMinutesAndSeconds,
-} from "src/util/number-helpers";
+import { numberFormat, millisToMinutesAndSeconds } from "src/util/number-helpers";
 import { Notify } from "quasar";
 import { sleep } from "src/util/sleep";
 import html2canvas from "html2canvas";
@@ -168,7 +112,7 @@ async function takeScreenshot(hideNames = true) {
     1
   );
 
-  if (settingsStore.settings.general.saveScreenshots) {
+  if (settingsStore.general.saveScreenshots) {
     window.messageApi.send("window-to-main", {
       message: "save-screenshot",
       value: screenshot.toDataURL(),

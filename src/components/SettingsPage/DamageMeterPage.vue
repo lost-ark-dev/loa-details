@@ -12,107 +12,72 @@
 
     <q-item tag="label">
       <q-item-section side top>
-        <q-checkbox
-          v-model="
-            settingsStore.settings.damageMeter.functionality
-              .dontResetOnZoneChange
-          "
-        />
+        <q-checkbox v-model="settingsStore.damageMeter.functionality.dontResetOnZoneChange" />
       </q-item-section>
 
       <q-item-section>
         <q-item-label>Don't reset on zone changes</q-item-label>
         <q-item-label caption>
-          If enabled, it will never reset the session automatically and it won't
-          show pop-ups for it. It will only reset when 'Reset Session' is
-          clicked.
+          If enabled, it will never reset the session automatically and it won't show pop-ups for it. It will only reset
+          when 'Reset Session' is clicked.
         </q-item-label>
       </q-item-section>
     </q-item>
 
     <q-item tag="label">
       <q-item-section side top>
-        <q-checkbox
-          v-model="
-            settingsStore.settings.damageMeter.functionality
-              .pauseOnPhaseTransition
-          "
-        />
+        <q-checkbox v-model="settingsStore.damageMeter.functionality.pauseOnPhaseTransition" />
       </q-item-section>
 
       <q-item-section>
-        <q-item-label>
-          Pause meter on raid wipes or phase transitions
-        </q-item-label>
+        <q-item-label> Pause meter on raid wipes or phase transitions </q-item-label>
         <q-item-label caption>
-          If enabled, it will try to pause whenever a boss dies, a new phase
-          begins/ends or when the raid wipes.
+          If enabled, it will try to pause whenever a boss dies, a new phase begins/ends or when the raid wipes.
         </q-item-label>
       </q-item-section>
     </q-item>
 
     <q-item tag="label">
       <q-item-section side top>
-        <q-checkbox
-          v-model="
-            settingsStore.settings.damageMeter.functionality
-              .resetAfterPhaseTransition
-          "
-        />
+        <q-checkbox v-model="settingsStore.damageMeter.functionality.resetAfterPhaseTransition" />
       </q-item-section>
 
       <q-item-section>
-        <q-item-label>
-          Reset meter after raid wipes or phase transitions when new combat is
-          detected
-        </q-item-label>
+        <q-item-label> Reset meter after raid wipes or phase transitions when new combat is detected </q-item-label>
         <q-item-label caption>
-          If enabled, it will reset the current session after a combat event
-          happens following a phase transition event (boss dies, raid wipes,
-          etc).
+          If enabled, it will reset the current session after a combat event happens following a phase transition event
+          (boss dies, raid wipes, etc).
           <br />
-          Example: You wipe on Valtan, and re-enter. Once you or your allies
-          attack, the meter will reset.
+          Example: You wipe on Valtan, and re-enter. Once you or your allies attack, the meter will reset.
         </q-item-label>
       </q-item-section>
     </q-item>
 
     <q-item tag="label">
       <q-item-section side top>
-        <q-checkbox
-          v-model="
-            settingsStore.settings.damageMeter.functionality.autoMinimize
-          "
-        />
+        <q-checkbox v-model="settingsStore.damageMeter.functionality.autoMinimize" />
       </q-item-section>
 
       <q-item-section>
         <q-item-label>Auto minimize</q-item-label>
         <q-item-label caption>
           Minimizes the damage meter after
-          {{
-            settingsStore.settings.damageMeter.functionality.autoMinimizeTimer
-          }}
-          seconds of inactivitiy and will go back to it's non minimized state on
-          combat.
+          {{ settingsStore.damageMeter.functionality.autoMinimizeTimer }}
+          seconds of inactivitiy and will go back to it's non minimized state on combat.
         </q-item-label>
       </q-item-section>
     </q-item>
 
     <q-item tag="label">
       <q-item-section side top>
-        <q-checkbox
-          v-model="
-            settingsStore.settings.damageMeter.functionality.minimizeToTaskbar
-          "
-        />
+        <q-checkbox v-model="settingsStore.damageMeter.functionality.minimizeToTaskbar" />
       </q-item-section>
 
       <q-item-section>
         <q-item-label>Minimize to taskbar</q-item-label>
         <q-item-label caption>
-          Instead of "minimizing" the damage meter into a small box, minimize it
-          into a taskbar making it completely invisible.
+          Instead of "minimizing" the damage meter into a small box, minimize it into a taskbar making it completely
+          invisible.
         </q-item-label>
       </q-item-section>
     </q-item>
@@ -123,19 +88,16 @@
       </q-item-section>
       <q-item-section>
         <q-slider
-          :model-value="
-            settingsStore.settings.damageMeter.functionality.autoMinimizeTimer
-          "
+          :model-value="settingsStore.damageMeter.functionality.autoMinimizeTimer"
           @change="
             (val) => {
-              settingsStore.settings.damageMeter.functionality.autoMinimizeTimer =
-                val;
+              settingsStore.damageMeter.functionality.autoMinimizeTimer = val;
             }
           "
           :min="5"
           :max="180"
           label
-          :label-value="`Auto minimize after ${settingsStore.settings.damageMeter.functionality.autoMinimizeTimer} seconds.`"
+          :label-value="`Auto minimize after ${settingsStore.damageMeter.functionality.autoMinimizeTimer} seconds.`"
           label-always
         />
       </q-item-section>
@@ -144,16 +106,10 @@
     <q-item tag="label">
       <q-item-section side top>
         <q-item-label>Name Display</q-item-label>
-        <q-item-label caption>
-          Choose how you'd like to display names on the damage meter.
-        </q-item-label>
+        <q-item-label caption> Choose how you'd like to display names on the damage meter. </q-item-label>
       </q-item-section>
       <q-item-section>
-        <q-select
-          filled
-          v-model="nameDisplayModel"
-          :options="nameDisplayOptions"
-        />
+        <q-select filled v-model="nameDisplayModel" :options="nameDisplayOptions" />
       </q-item-section>
     </q-item>
 
@@ -162,49 +118,39 @@
 
     <q-item tag="label">
       <q-item-section side top>
-        <q-checkbox
-          v-model="settingsStore.settings.damageMeter.design.compactDesign"
-        />
+        <q-checkbox v-model="settingsStore.damageMeter.design.compactDesign" />
       </q-item-section>
 
       <q-item-section>
         <q-item-label>Compact Design</q-item-label>
         <q-item-label caption>
-          Hides the header along with timer and total damages to create a
-          smaller damage meter.
+          Hides the header along with timer and total damages to create a smaller damage meter.
         </q-item-label>
       </q-item-section>
     </q-item>
 
     <q-item tag="label">
       <q-item-section side top>
-        <q-checkbox
-          v-model="settingsStore.settings.damageMeter.design.pinUserToTop"
-        />
+        <q-checkbox v-model="settingsStore.damageMeter.design.pinUserToTop" />
       </q-item-section>
 
       <q-item-section>
         <q-item-label>Pin my bar on top</q-item-label>
         <q-item-label caption>
-          Pins the current player's bar to the top regardless of the damage
-          dealt/tanked.
-          <br />Note: This won't work if you open the app mid-fight instead of
-          opening it before the fight.
+          Pins the current player's bar to the top regardless of the damage dealt/tanked.
+          <br />Note: This won't work if you open the app mid-fight instead of opening it before the fight.
         </q-item-label>
       </q-item-section>
     </q-item>
     <q-item tag="label">
       <q-item-section side top>
-        <q-checkbox
-          v-model="settingsStore.settings.damageMeter.design.transparency"
-        />
+        <q-checkbox v-model="settingsStore.damageMeter.design.transparency" />
       </q-item-section>
 
       <q-item-section>
         <q-item-label>Transparency</q-item-label>
         <q-item-label caption>
-          Toggle window transparency. Disable if you experience issues inside
-          VM. (Requires restart)
+          Toggle window transparency. Disable if you experience issues inside VM. (Requires restart)
         </q-item-label>
       </q-item-section>
     </q-item>
@@ -215,17 +161,17 @@
       </q-item-section>
       <q-item-section>
         <q-slider
-          :model-value="settingsStore.settings.damageMeter.design.opacity"
+          :model-value="settingsStore.damageMeter.design.opacity"
           @change="
             (val) => {
-              settingsStore.settings.damageMeter.design.opacity = val;
+              settingsStore.damageMeter.design.opacity = val;
             }
           "
           :min="0.1"
           :max="1"
           :step="0.1"
           label
-          :label-value="`Opacity: ${settingsStore.settings.damageMeter.design.opacity}`"
+          :label-value="`Opacity: ${settingsStore.damageMeter.design.opacity}`"
           label-always
           :markers="true"
         />
@@ -235,21 +181,15 @@
     <q-separator spaced />
     <q-item-label header>Header Tabs</q-item-label>
 
-    <q-item
-      v-for="tabName in Object.keys(settingsStore.settings.damageMeter.header)"
-      :key="tabName"
-      tag="label"
-    >
+    <q-item v-for="tabName in Object.keys(settingsStore.damageMeter.header)" :key="tabName" tag="label">
       <q-item-section side top>
-        <q-checkbox
-          v-model="settingsStore.settings.damageMeter.header[tabName].enabled"
-        />
+        <q-checkbox v-model="settingsStore.damageMeter.header[tabName].enabled" />
       </q-item-section>
 
       <q-item-section>
         <q-item-label>
           Show
-          {{ settingsStore.settings.damageMeter.header[tabName].name }}
+          {{ settingsStore.damageMeter.header[tabName].name }}
         </q-item-label>
       </q-item-section>
     </q-item>
@@ -257,45 +197,25 @@
     <q-separator spaced />
     <q-item-label header>Tabs</q-item-label>
 
-    <q-item
-      v-for="tabName in Object.keys(settingsStore.settings.damageMeter.tabs)"
-      :key="tabName"
-      tag="label"
-    >
+    <q-item v-for="tabName in Object.keys(settingsStore.damageMeter.tabs)" :key="tabName" tag="label">
       <q-item-section side top>
-        <q-checkbox
-          v-model="settingsStore.settings.damageMeter.tabs[tabName].enabled"
-        />
+        <q-checkbox v-model="settingsStore.damageMeter.tabs[tabName].enabled" />
       </q-item-section>
 
       <q-item-section>
         <q-item-label>
           Show
-          {{ settingsStore.settings.damageMeter.tabs[tabName].name }}
+          {{ settingsStore.damageMeter.tabs[tabName].name }}
         </q-item-label>
       </q-item-section>
     </q-item>
 
-    <template
-      v-for="buffFilterType of Object.keys(
-        settingsStore.settings.damageMeter.buffFilter
-      )"
-      :key="buffFilterType"
-    >
+    <template v-for="buffFilterType of Object.keys(settingsStore.damageMeter.buffFilter)" :key="buffFilterType">
       <q-separator spaced />
-      <q-item-label header style="text-transform: capitalize">
-        {{ buffFilterType }} Buffs
-      </q-item-label>
+      <q-item-label header style="text-transform: capitalize"> {{ buffFilterType }} Buffs </q-item-label>
       <div class="row">
-        <q-item
-          v-for="[idx, name] of buffCategories.entries()"
-          :key="idx"
-          tag="label"
-          class="col-3"
-        >
-          <q-item-section side top>
-            <q-checkbox v-model="buffDisplayModel[buffFilterType][idx]"
-          /></q-item-section>
+        <q-item v-for="[idx, name] of buffCategories.entries()" :key="idx" tag="label" class="col-3">
+          <q-item-section side top> <q-checkbox v-model="buffDisplayModel[buffFilterType][idx]" /></q-item-section>
 
           <q-item-section>
             <q-item-label> Show {{ name }} </q-item-label>
@@ -305,30 +225,16 @@
     </template>
     <q-separator spaced />
     <q-item-label header>Classes</q-item-label>
-    <q-item
-      v-for="className in Object.keys(
-        settingsStore.settings.damageMeter.classes
-      )"
-      :key="className"
-      tag="label"
-    >
+    <q-item v-for="className in Object.keys(settingsStore.damageMeter.classes)" :key="className" tag="label">
       <q-item-section>
         <q-item-label>
-          <div
-            class="fake-player-bar"
-            :style="
-              'background:' +
-              settingsStore.settings.damageMeter.classes[className].color
-            "
-          >
+          <div class="fake-player-bar" :style="'background:' + settingsStore.damageMeter.classes[className].color">
             You ({{ className }})
           </div>
           <span
             @click="
-              settingsStore.settings.damageMeter.classes[className].color =
-                settingsStore.settings.damageMeter.classes[
-                  className
-                ].defaultColor
+              settingsStore.damageMeter.classes[className].color =
+                settingsStore.damageMeter.classes[className].defaultColor
             "
           >
             Reset {{ className }} color
@@ -336,26 +242,15 @@
         </q-item-label>
       </q-item-section>
       <q-item-section side>
-        <q-input
-          v-model="settingsStore.settings.damageMeter.classes[className].color"
-          :rules="['anyColor']"
-        >
+        <q-input v-model="settingsStore.damageMeter.classes[className].color" :rules="['anyColor']">
           <template v-slot:append>
             <q-icon name="colorize" class="cursor-pointer">
-              <q-popup-proxy
-                cover
-                transition-show="scale"
-                transition-hide="scale"
-              >
+              <q-popup-proxy cover transition-show="scale" transition-hide="scale">
                 <q-color
-                  :model-value="
-                    settingsStore.settings.damageMeter.classes[className].color
-                  "
+                  :model-value="settingsStore.damageMeter.classes[className].color"
                   @change="
                     (val) => {
-                      settingsStore.settings.damageMeter.classes[
-                        className
-                      ].color = val;
+                      settingsStore.damageMeter.classes[className].color = val;
                     }
                   "
                 />
@@ -368,7 +263,7 @@
   </q-list>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch, onMounted } from "vue";
 import { useSettingsStore } from "src/stores/settings";
 const settingsStore = useSettingsStore();
@@ -425,15 +320,13 @@ var nameDisplayModel = ref("");
 const buffDisplayModel = ref({ party: {}, self: {}, other: {} });
 
 watch(nameDisplayModel, (newVal, oldVal) => {
-  settingsStore.settings.damageMeter.functionality.nameDisplayV2 = newVal.value;
+  settingsStore.damageMeter.functionality.nameDisplayV2 = newVal.value;
 });
 
 watch(
   buffDisplayModel,
   (newVal, oldVal) => {
-    for (const buffFilterType of Object.keys(
-      settingsStore.settings.damageMeter.buffFilter
-    )) {
+    for (const buffFilterType of Object.keys(settingsStore.damageMeter.buffFilter)) {
       let val = 0;
       for (const catIdx in buffCategories.value) {
         if (buffCategories.value[catIdx] === "Any") {
@@ -442,7 +335,7 @@ watch(
           val += newVal[buffFilterType][catIdx] << catIdx;
         }
       }
-      settingsStore.settings.damageMeter.buffFilter[buffFilterType] = val;
+      settingsStore.damageMeter.buffFilter[buffFilterType] = val;
     }
   },
   { deep: true }
@@ -456,26 +349,17 @@ function resetDamageMeterPosition() {
 
 onMounted(() => {
   nameDisplayModel.value = nameDisplayOptions.value.find(
-    (x) =>
-      x.value === settingsStore.settings.damageMeter.functionality.nameDisplayV2
+    (x) => x.value === settingsStore.damageMeter.functionality.nameDisplayV2
   );
 
-  for (const buffFilterType of Object.keys(
-    settingsStore.settings.damageMeter.buffFilter
-  )) {
+  for (const buffFilterType of Object.keys(settingsStore.damageMeter.buffFilter)) {
     for (const catIdx in buffCategories.value) {
       if (buffCategories.value[catIdx] === "Any") {
         buffDisplayModel.value[buffFilterType][catIdx] =
-          ((settingsStore.settings.damageMeter.buffFilter[buffFilterType] >>
-            50) &
-            1) ===
-          1;
+          ((settingsStore.damageMeter.buffFilter[buffFilterType] >> 50) & 1) === 1;
       } else {
         buffDisplayModel.value[buffFilterType][catIdx] =
-          ((settingsStore.settings.damageMeter.buffFilter[buffFilterType] >>
-            catIdx) &
-            1) ===
-          1;
+          ((settingsStore.damageMeter.buffFilter[buffFilterType] >> catIdx) & 1) === 1;
       }
     }
   }

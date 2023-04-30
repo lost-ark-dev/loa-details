@@ -1,14 +1,7 @@
 <template>
   <q-layout view="lHh Lpr lFf" style="min-height: calc(100vh - 16px)">
     <div v-if="drawerLeft" class="drawer-background"></div>
-    <q-drawer
-      v-model="drawerLeft"
-      overlay
-      bordered
-      :width="300"
-      class="text-white"
-      :no-swipe-backdrop="true"
-    >
+    <q-drawer v-model="drawerLeft" overlay bordered :width="300" class="text-white" :no-swipe-backdrop="true">
       <q-scroll-area class="fit">
         <div class="drawer-container">
           <q-btn
@@ -28,22 +21,14 @@
             </div>
           </router-link>
 
-          <router-link
-            :to="{ path: '/logs' }"
-            custom
-            v-slot="{ href, navigate }"
-          >
+          <router-link :to="{ path: '/logs' }" custom v-slot="{ href, navigate }">
             <div class="drawer-item" :href="href" @click="navigate">
               <q-icon name="timeline" />
               Logs
             </div>
           </router-link>
 
-          <router-link
-            :to="{ path: '/settings' }"
-            custom
-            v-slot="{ href, navigate }"
-          >
+          <router-link :to="{ path: '/settings' }" custom v-slot="{ href, navigate }">
             <div class="drawer-item" :href="href" @click="navigate">
               <q-icon name="settings" />
               Settings
@@ -57,9 +42,7 @@
       <div>
         <span class="gilroy-extra-bold">LOA</span>
         <span class="gilroy-light"> DETAILS </span>
-        <span style="font-size: 10px; margin-left: 4px">
-          v{{ settingsStore.settings.appVersion }}
-        </span>
+        <span style="font-size: 10px; margin-left: 4px"> v{{ settingsStore.appVersion }} </span>
       </div>
 
       <q-space />
@@ -72,14 +55,7 @@
     </div>
 
     <div class="app-links q-pa-sm q-pl-md row items-center">
-      <q-btn
-        @click="drawerLeft = !drawerLeft"
-        class="link-item"
-        flat
-        round
-        dense
-        icon="menu"
-      />
+      <q-btn @click="drawerLeft = !drawerLeft" class="link-item" flat round dense icon="menu" />
 
       <router-link :to="{ path: '/' }" custom v-slot="{ href, navigate }">
         <div
@@ -103,11 +79,7 @@
         </div>
       </router-link>
 
-      <router-link
-        :to="{ path: '/settings' }"
-        custom
-        v-slot="{ href, navigate }"
-      >
+      <router-link :to="{ path: '/settings' }" custom v-slot="{ href, navigate }">
         <div
           class="link-item q-ml-lg non-selectable"
           :class="{ active: route.path === '/settings' }"
@@ -123,11 +95,7 @@
         Discord
       </div>
 
-      <div
-        class="link-item non-selectable"
-        style="margin-left: auto"
-        @click="updateButton"
-      >
+      <div class="link-item non-selectable" style="margin-left: auto" @click="updateButton">
         {{ updateButtonText }}
       </div>
     </div>
@@ -165,8 +133,7 @@ function toggleMaximize() {
 function closeApp() {
   if (process.env.MODE === "electron") {
     let hideToTray = true; // On by default
-    if (settingsStore?.settings?.general?.closeToSystemTray === false)
-      hideToTray = false;
+    if (settingsStore.general.closeToSystemTray === false) hideToTray = false;
 
     if (hideToTray) window.windowControlApi.hide();
     else window.windowControlApi.close();
@@ -195,10 +162,8 @@ function updateButton() {
 }
 
 onMounted(() => {
-  settingsStore.initSettings();
-
-  window.messageApi.receive("on-settings-change", (value: Settings) => {
-    settingsStore.loadSettings(value);
+  window.messageApi.receive("on-settings-change", () => {
+    settingsStore.reload();
   });
 
   window.messageApi.receive("updater-message", (eventMessage) => {
@@ -212,9 +177,7 @@ onMounted(() => {
         updateButtonText.value = "Check for Updates";
       }, 3000);
     } else if (eventMessage.message === "download-progress") {
-      updateButtonText.value = `Downloading update ${(
-        eventMessage.value as ProgressInfo
-      ).percent.toFixed(0)}%`;
+      updateButtonText.value = `Downloading update ${(eventMessage.value as ProgressInfo).percent.toFixed(0)}%`;
     } else if (eventMessage.message === "update-downloaded") {
       updateButtonText.value = "Install New Update";
       isUpdateAvailable.value = true;

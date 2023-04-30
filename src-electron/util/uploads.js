@@ -1,26 +1,21 @@
 import axios from "axios";
-import {
-  abyssRaids,
-  getClassIdFromName,
-  guardians,
-  raidBosses,
-} from "./helpers";
-import { mainFolder } from "./directories";
+import log from "electron-log";
 import fs from "fs";
 import path from "path";
-import log from "electron-log";
+import { store } from "../util/store";
+import { mainFolder } from "./directories";
+import { abyssRaids, getClassIdFromName, guardians, raidBosses } from "./helpers";
 
-export const upload = async (sessionLog, appSettings) => {
+export const upload = async (sessionLog) => {
   try {
     const session = reformat(sessionLog);
 
     if (!session) return undefined;
     validate(session);
 
-    const boss = getBosses(
-      session.damageStatistics.totalDamageDealt,
-      session.entities
-    ).sort((a, b) => b.lastUpdate - a.lastUpdate)[0];
+    const boss = getBosses(session.damageStatistics.totalDamageDealt, session.entities).sort(
+      (a, b) => b.lastUpdate - a.lastUpdate
+    )[0];
 
     if (!boss) throw new Error("Upload doesn't contain a boss");
 
@@ -29,13 +24,13 @@ export const upload = async (sessionLog, appSettings) => {
       boss,
     ];
 
-    const apiUrl = appSettings.uploads.api.value;
-    const uploadEndpoint = appSettings.uploads.endpoint.value;
-    const uploadKey = appSettings.uploads.uploadKey;
-    const includeRegion = appSettings.uploads.includeRegion;
+    const apiUrl = store.get("uploads").api;
+    const uploadEndpoint = store.get("uploads").endpoint;
+    const uploadKey = store.get("uploads").uploadKey;
+    const includeRegion = store.get("uploads").includeRegion;
 
-    if (includeRegion) session.region = appSettings.general.server;
-    session.unlisted = appSettings.uploads.uploadUnlisted;
+    if (includeRegion) session.region = "steam";
+    session.unlisted = store.get("uploads").uploadUnlisted;
 
     if (process.env.DEBUGGING) {
       if (!fs.existsSync(path.join(mainFolder, "uploads"))) {
@@ -43,13 +38,9 @@ export const upload = async (sessionLog, appSettings) => {
         fs.mkdirSync(path.join(mainFolder, "uploads"));
       }
 
-      fs.writeFile(
-        mainFolder + "/uploads/" + +new Date() + "-upload.json",
-        JSON.stringify(session, null, 2),
-        (err) => {
-          if (err) log.error(err);
-        }
-      );
+      fs.writeFile(mainFolder + "/uploads/" + +new Date() + "-upload.json", JSON.stringify(session, null, 2), (err) => {
+        if (err) log.error(err);
+      });
     }
 
     const upload = { key: uploadKey, data: session };
@@ -63,9 +54,7 @@ export const upload = async (sessionLog, appSettings) => {
       log.error("Uploading failed:", message, id);
       throw new Error("Upload failed: " + message);
     } else {
-      throw new Error(
-        "Upload failed: " + (process.env.DEBUGGING ? e : e.message)
-      );
+      throw new Error("Upload failed: " + (process.env.DEBUGGING ? e : e.message));
     }
   }
 };
@@ -82,9 +71,7 @@ export const validate = (session) => {
 
   const allPlayersHaveSkills = players.every((e) => e.skills);
   if (!allPlayersHaveSkills) {
-    throw new Error(
-      "Validating upload failed: some players do not have skills"
-    );
+    throw new Error("Validating upload failed: some players do not have skills");
   }
 };
 
@@ -237,9 +224,7 @@ export const reformatEntities = (entities) => {
 export const getEntityDamageInRange = (begin, end, entity) => {
   const skills = Object.values(entity.skills);
   const damageDealtInRange = skills.reduce((acc, skill) => {
-    const skillEntries = skill.breakdown.filter(
-      (d) => d.timestamp >= begin && d.timestamp <= end
-    );
+    const skillEntries = skill.breakdown.filter((d) => d.timestamp >= begin && d.timestamp <= end);
     return acc + skillEntries.reduce((acc, d) => acc + d.damage, 0);
   }, 0);
 

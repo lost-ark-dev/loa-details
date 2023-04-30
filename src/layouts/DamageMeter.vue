@@ -3,112 +3,65 @@
     <nav
       class="nav q-electron-drag"
       :class="
-        settingsStore.settings.damageMeter.design.compactDesign &&
-        !isMinimized &&
-        !isTakingScreenshot
-          ? 'compact-nav'
-          : ''
+        settingsStore.damageMeter.design.compactDesign && !isMinimized && !isTakingScreenshot ? 'compact-nav' : ''
       "
     >
       <span
         v-if="!isMinimized"
-        :class="
-          settingsStore.settings.damageMeter.design.compactDesign &&
-          !isTakingScreenshot
-            ? 'time-compact'
-            : 'time'
-        "
+        :class="settingsStore.damageMeter.design.compactDesign && !isTakingScreenshot ? 'time-compact' : 'time'"
       >
         {{ millisToMinutesAndSeconds(fightDuration) }}
       </span>
       <div class="info-box">
-        <div
-          v-if="
-            !settingsStore.settings.damageMeter.design.compactDesign ||
-            isMinimized ||
-            isTakingScreenshot
-          "
-        >
+        <div v-if="!settingsStore.damageMeter.design.compactDesign || isMinimized || isTakingScreenshot">
           LOA Details
-          <span v-if="!isMinimized">
-            v{{ settingsStore.settings.appVersion }}
-          </span>
+          <span v-if="!isMinimized"> v{{ settingsStore.appVersion }} </span>
         </div>
-        <div
-          v-if="!isMinimized && sessionState.damageStatistics"
-          class="q-electron-drag--exception"
-        >
+        <div v-if="!isMinimized && sessionState.damageStatistics" class="q-electron-drag--exception">
           <q-menu touch-position context-menu>
             <q-list dense style="min-width: 100px">
               <q-item
-                v-for="tabName in Object.keys(
-                  settingsStore.settings.damageMeter.header
-                )"
+                v-for="tabName in Object.keys(settingsStore.damageMeter.header) as Array<keyof typeof settingsStore.damageMeter.header>"
                 :key="tabName"
                 clickable
                 @click="toggleHeaderDisplay(tabName)"
               >
                 <q-item-section side>
-                  <q-icon
-                    v-if="
-                      settingsStore.settings.damageMeter.header[tabName].enabled
-                    "
-                    name="check"
-                  />
+                  <q-icon v-if="settingsStore.damageMeter.header[tabName]" name="check" />
                   <q-icon v-else name="close" />
                 </q-item-section>
                 <q-item-section>
-                  {{ settingsStore.settings.damageMeter.header[tabName].name }}
+                  {{ headerDisplayName[tabName] }}
                 </q-item-section>
               </q-item>
             </q-list>
           </q-menu>
-          <span
-            v-if="settingsStore.settings.damageMeter.header.damage.enabled"
-            style="margin-right: 12px"
-          >
+          <span v-if="settingsStore.damageMeter.header.damage" style="margin-right: 12px">
             Total DMG
             {{ numberFormat(sessionState.damageStatistics.totalDamageDealt) }}
           </span>
-          <span
-            v-if="settingsStore.settings.damageMeter.header.dps.enabled"
-            style="margin-right: 12px"
-          >
+          <span v-if="settingsStore.damageMeter.header.dps" style="margin-right: 12px">
             Total DPS
             {{ numberFormat(sessionDPS) }}
           </span>
-          <span
-            v-if="settingsStore.settings.damageMeter.header.tank.enabled"
-            style="margin-right: 12px"
-          >
+          <span v-if="settingsStore.damageMeter.header.tank" style="margin-right: 12px">
             Total TNK
             {{ numberFormat(sessionState.damageStatistics.totalDamageTaken) }}
           </span>
-          <span
-            v-if="settingsStore.settings.damageMeter.header.bossHP.enabled"
-            style="margin-right: 12px"
-          >
+          <span v-if="settingsStore.damageMeter.header.bossHP" style="margin-right: 12px">
             {{ sessionState.currentBoss ? "HP" : "No Boss" }}
             {{
               sessionState.currentBoss &&
               sessionState.currentBoss.currentHp !== undefined &&
               sessionState.currentBoss.maxHp !== undefined
-                ? abbreviateNumber(
-                    sessionState.currentBoss.currentHp < 0
-                      ? 0
-                      : sessionState.currentBoss.currentHp
-                  )
+                ? abbreviateNumber(sessionState.currentBoss.currentHp < 0 ? 0 : sessionState.currentBoss.currentHp)
                     .slice(0, 2)
                     .join("") +
                   " / " +
-                  abbreviateNumber(sessionState.currentBoss.maxHp)
-                    .slice(0, 2)
-                    .join("") +
+                  abbreviateNumber(sessionState.currentBoss.maxHp).slice(0, 2).join("") +
                   " (" +
                   (
-                    ((sessionState.currentBoss.currentHp < 0
-                      ? 0
-                      : sessionState.currentBoss.currentHp) /
+                    ((sessionState.currentBoss.currentHp < 0 ? 0 : sessionState.currentBoss.currentHp) /
                       sessionState.currentBoss.maxHp) *
                     100
                   ).toFixed(1) +
@@ -119,27 +72,11 @@
         </div>
       </div>
       <div v-if="!isTakingScreenshot" style="margin-left: auto">
-        <q-btn
-          v-if="!isMinimized"
-          round
-          icon="screenshot_monitor"
-          @click="takeScreenshot"
-          flat
-          size="sm"
-        >
+        <q-btn v-if="!isMinimized" round icon="screenshot_monitor" @click="takeScreenshot" flat size="sm">
           <q-tooltip> Take a screenshot of the damage meter </q-tooltip>
         </q-btn>
-        <q-btn
-          v-if="!isMinimized"
-          round
-          icon="fa-solid fa-ghost"
-          @click="enableClickthrough"
-          flat
-          size="sm"
-        >
-          <q-tooltip ref="clickthroughTooltip">
-            Enable clickthrough on damage meter
-          </q-tooltip>
+        <q-btn v-if="!isMinimized" round icon="fa-solid fa-ghost" @click="enableClickthrough" flat size="sm">
+          <q-tooltip ref="clickthroughTooltip"> Enable clickthrough on damage meter </q-tooltip>
         </q-btn>
         <q-btn
           v-if="!isMinimized"
@@ -151,13 +88,7 @@
         >
           <q-tooltip> Pause timer </q-tooltip>
         </q-btn>
-        <q-btn
-          round
-          :icon="isMinimized ? 'add' : 'remove'"
-          @click="toggleMinimizedState"
-          flat
-          size="sm"
-        >
+        <q-btn round :icon="isMinimized ? 'add' : 'remove'" @click="toggleMinimizedState" flat size="sm">
           <q-tooltip> Minimize damage meter </q-tooltip>
         </q-btn>
       </div>
@@ -172,39 +103,21 @@
       :session-state="sessionState"
       :duration="fightDuration"
       :damage-type="damageType"
-      :wrapper-style="`height:calc(100vh - 32px - ${
-        settingsStore?.settings?.damageMeter?.design?.compactDesign
-          ? '32'
-          : '64'
-      }px)`"
-      :name-display="
-        settingsStore?.settings?.damageMeter?.functionality?.nameDisplayV2
-      "
+      :wrapper-style="`height:calc(100vh - 32px - ${settingsStore.damageMeter.design.compactDesign ? '32' : '64'}px)`"
+      :name-display="settingsStore.damageMeter.functionality?.nameDisplayV2"
     />
 
     <footer v-if="!isMinimized" class="footer">
       <div class="tabs" id="footer-tabs">
         <q-tabs dense v-model="damageType" align="left" :breakpoint="0">
           <template v-for="tab of tabs.tabData">
-            <q-tab
-              v-if="tab.enabled && tab.isVisible"
-              dense
-              :key="tab.type"
-              :name="tab.type"
-              :label="tab.label"
-            >
+            <q-tab v-if="tab.enabled && tab.isVisible" dense :key="tab.type" :name="tab.type" :label="tab.label">
               <q-tooltip anchor="top middle" self="bottom middle">
                 {{ tab.tooltip }}
               </q-tooltip>
             </q-tab>
           </template>
-          <q-btn-dropdown
-            v-if="tabs.isOverflowing"
-            auto-close
-            stretch
-            flat
-            dropdown-icon="arrow_drop_up"
-          >
+          <q-btn-dropdown v-if="tabs.isOverflowing" auto-close stretch flat dropdown-icon="arrow_drop_up">
             <q-list>
               <template v-for="tab of tabs.tabData">
                 <q-item
@@ -229,34 +142,20 @@
       </div>
 
       <div class="functions">
-        <span
-          v-if="
-            settingsStore.settings.damageMeter.design.compactDesign &&
-            !isTakingScreenshot
-          "
-        >
-          v{{ settingsStore.settings.appVersion }}
+        <span v-if="settingsStore.damageMeter.design.compactDesign && !isTakingScreenshot">
+          v{{ settingsStore.appVersion }}
         </span>
         <q-btn
           flat
           size="sm"
-          :disabled="settingsStore.settings.uploads.uploadKey.length != 32"
-          :label="`UPLOADING: ${
-            settingsStore.settings.uploads.uploadLogs ? ' ON' : ' OFF'
-          }`"
-          :color="
-            settingsStore.settings.uploads.uploadLogs ? 'positive' : 'negative'
-          "
+          :disabled="settingsStore.uploads.uploadKey === null || settingsStore.uploads.uploadKey.length != 32"
+          :label="`UPLOADING: ${settingsStore.uploads.uploadLogs ? ' ON' : ' OFF'}`"
+          :color="settingsStore.uploads.uploadLogs ? 'positive' : 'negative'"
           @click="toggleUploads"
         >
           <q-tooltip>Toggles uploading encounters</q-tooltip>
         </q-btn>
-        <q-btn
-          flat
-          size="sm"
-          @click="requestSessionRestart"
-          label="RESET SESSION"
-        >
+        <q-btn flat size="sm" @click="requestSessionRestart" label="RESET SESSION">
           <q-tooltip> Resets the timer and damages </q-tooltip>
         </q-btn>
       </div>
@@ -265,28 +164,16 @@
 </template>
 
 <script setup lang="ts">
-import {
-  computed,
-  ComputedRef,
-  onMounted,
-  Ref,
-  ref,
-  shallowRef,
-  ShallowRef,
-} from "vue";
+import { computed, ComputedRef, onMounted, Ref, ref, shallowRef, ShallowRef } from "vue";
 import { Notify, QTooltip } from "quasar";
-import {
-  numberFormat,
-  millisToMinutesAndSeconds,
-  toFixedNumber,
-  abbreviateNumber,
-} from "src/util/number-helpers";
+import { numberFormat, millisToMinutesAndSeconds, toFixedNumber, abbreviateNumber } from "src/util/number-helpers";
 import { sleep } from "src/util/sleep";
 import html2canvas from "html2canvas";
 import type { GameState } from "meter-core/logger/data";
 import { useSettingsStore } from "src/stores/settings";
 
 import DamageMeterTable from "src/components/DamageMeter/DamageMeterTable.vue";
+import { type headerDisplayKey, headerDisplayName } from "src/constants/configStringsStuffThatIdkWhereToPut";
 
 const logoImg = new URL("../assets/images/logo.png", import.meta.url).href;
 
@@ -314,18 +201,15 @@ function enableClickthrough() {
   }
 
   Notify.create({
-    message:
-      "<center>ALT+TAB back to the damage meter window to disable clickthrough.</center>",
+    message: "<center>ALT+TAB back to the damage meter window to disable clickthrough.</center>",
     color: "primary",
     html: true,
   });
 }
 
-function toggleHeaderDisplay(tabName: string) {
-  const tab = settingsStore.settings.damageMeter.header[tabName];
-  tab.enabled = !tab.enabled;
-
-  settingsStore.saveSettings();
+function toggleHeaderDisplay(tabName: headerDisplayKey) {
+  settingsStore.damageMeter.header[tabName] = !settingsStore.damageMeter.header[tabName];
+  settingsStore.save();
 }
 
 const sessionDuration = ref(0);
@@ -370,7 +254,7 @@ async function takeScreenshot() {
     1
   );
 
-  if (settingsStore.settings.general.saveScreenshots) {
+  if (settingsStore.general.saveScreenshots) {
     window.messageApi.send("window-to-main", {
       message: "save-screenshot",
       value: screenshot.toDataURL(),
@@ -394,7 +278,7 @@ let sessionDPS = 0;
 const windowWidth: Ref<number> = ref(0);
 
 onMounted(() => {
-  settingsStore.initSettings();
+  /* settingsStore.initSettings(); */
   window.addEventListener("resize", () => {
     if (windowWidth.value != window.innerWidth) {
       windowWidth.value = window.innerWidth;
@@ -407,8 +291,8 @@ onMounted(() => {
     else if (value === "pause-damage-meter") toggleFightPause();
   });
 
-  window.messageApi.receive("on-settings-change", (value) => {
-    settingsStore.loadSettings(value);
+  window.messageApi.receive("on-settings-change", () => {
+    settingsStore.reload();
     // this is done to make tabs recompute now that we have settings
     // or settings changed the values is important since we do not
     // recompute for every slight window change
@@ -417,19 +301,12 @@ onMounted(() => {
 
   window.messageApi.send("window-to-main", { message: "get-settings" });
 
-  window.messageApi.receive(
-    "pcap-on-state-change",
-    (value: Partial<GameState>) => {
-      if (value.damageStatistics?.totalDamageDealt && fightDuration.value > 0) {
-        sessionDPS = toFixedNumber(
-          value.damageStatistics.totalDamageDealt /
-            (fightDuration.value / 1000),
-          0
-        );
-      }
-      sessionState.value = value;
+  window.messageApi.receive("pcap-on-state-change", (value: Partial<GameState>) => {
+    if (value.damageStatistics?.totalDamageDealt && fightDuration.value > 0) {
+      sessionDPS = toFixedNumber(value.damageStatistics.totalDamageDealt / (fightDuration.value / 1000), 0);
     }
-  );
+    sessionState.value = value;
+  });
 
   window.messageApi.receive("pcap-on-reset-state", (value) => {
     fightPausedOn = 0;
@@ -457,8 +334,7 @@ onMounted(() => {
                 });
 
                 Notify.create({
-                  message:
-                    "Reset cancelled. Session won't reset until you click reset or change zones again.",
+                  message: "Reset cancelled. Session won't reset until you click reset or change zones again.",
                 });
               },
             },
@@ -470,16 +346,8 @@ onMounted(() => {
       // phase-transition-1: boss dead, includes argos phases
       // phase-transition-2: wipe
 
-      if (
-        value === "phase-transition-0" ||
-        value === "phase-transition-1" ||
-        value === "phase-transition-2"
-      ) {
-        if (
-          settingsStore.settings.damageMeter.functionality
-            .pauseOnPhaseTransition &&
-          !isFightPaused.value
-        ) {
+      if (value === "phase-transition-0" || value === "phase-transition-1" || value === "phase-transition-2") {
+        if (settingsStore.damageMeter.functionality.pauseOnPhaseTransition && !isFightPaused.value) {
           toggleFightPause();
 
           let pauseReason = "Raid Over";
@@ -520,11 +388,7 @@ onMounted(() => {
   });
 
   window.messageApi.receive("on-restore-from-taskbar", (value) => {
-    if (
-      settingsStore.settings.damageMeter.functionality.minimizeToTaskbar &&
-      value
-    )
-      isMinimized.value = false;
+    if (settingsStore.damageMeter.functionality.minimizeToTaskbar && value) isMinimized.value = false;
   });
 
   setInterval(() => {
@@ -536,19 +400,13 @@ onMounted(() => {
 
     if (sessionState.value.fightStartedOn || 0 > 0) {
       if (!isFightPaused.value)
-        fightDuration.value =
-          curTime - (sessionState.value.fightStartedOn || 0) - fightPausedForMs;
+        fightDuration.value = curTime - (sessionState.value.fightStartedOn || 0) - fightPausedForMs;
     } else fightDuration.value = 0;
 
-    if (settingsStore.settings.damageMeter.functionality.autoMinimize) {
+    if (settingsStore.damageMeter.functionality.autoMinimize) {
       let sendResizeMessage = false;
       const diff = curTime - (sessionState.value.lastCombatPacket || 0);
-      if (
-        !isAutoMinimized.value &&
-        diff >=
-          settingsStore.settings.damageMeter.functionality.autoMinimizeTimer *
-            1000
-      ) {
+      if (!isAutoMinimized.value && diff >= settingsStore.damageMeter.functionality.autoMinimizeTimer * 1000) {
         if (!isMinimized.value) {
           // don't try to minimize if it's already minimized
           isMinimized.value = true;
@@ -556,12 +414,7 @@ onMounted(() => {
           sendResizeMessage = true;
         }
       }
-      if (
-        isAutoMinimized.value &&
-        diff <
-          settingsStore.settings.damageMeter.functionality.autoMinimizeTimer *
-            1000
-      ) {
+      if (isAutoMinimized.value && diff < settingsStore.damageMeter.functionality.autoMinimizeTimer * 1000) {
         isMinimized.value = false;
         isAutoMinimized.value = false;
         sendResizeMessage = true;
@@ -580,9 +433,8 @@ onMounted(() => {
 });
 
 function toggleUploads() {
-  settingsStore.settings.uploads.uploadLogs =
-    !settingsStore.settings.uploads.uploadLogs;
-  settingsStore.saveSettings();
+  settingsStore.uploads.uploadLogs = !settingsStore.uploads.uploadLogs;
+  settingsStore.save();
 }
 
 const tabs: ComputedRef<{
@@ -599,8 +451,7 @@ const tabs: ComputedRef<{
   const widthX = windowWidth.value;
   if (
     tabs.value !== undefined &&
-    (tabs.value.width === widthX ||
-      (widthX > tabs.value.width && widthX - tabs.value.width < 50))
+    (tabs.value.width === widthX || (widthX > tabs.value.width && widthX - tabs.value.width < 50))
   )
     return tabs.value;
   const allTabData = [
@@ -629,72 +480,70 @@ const tabs: ComputedRef<{
       type: "shield_given",
       label: "SHIELD D",
       tooltip: " Show shield done ",
-      enabled: settingsStore.settings.damageMeter.tabs.shieldGiven.enabled,
+      enabled: settingsStore.damageMeter.tabs.shieldGiven,
       isVisible: true,
     },
     {
       type: "shield_gotten",
       label: "SHIELD G",
       tooltip: " Show shield gotten ",
-      enabled: settingsStore.settings.damageMeter.tabs.shieldGotten.enabled,
+      enabled: settingsStore.damageMeter.tabs.shieldGotten,
       isVisible: true,
     },
     {
       type: "eshield_given",
       label: "ESHIELD D",
       tooltip: " Show effective shield done ",
-      enabled: settingsStore.settings.damageMeter.tabs.eshieldGiven.enabled,
+      enabled: settingsStore.damageMeter.tabs.eshieldGiven,
       isVisible: true,
     },
     {
       type: "eshield_gotten",
       label: "ESHIELD G",
       tooltip: " Show effective shield gotten ",
-      enabled: settingsStore.settings.damageMeter.tabs.eshieldGotten.enabled,
+      enabled: settingsStore.damageMeter.tabs.eshieldGotten,
       isVisible: true,
     },
     {
       type: "party_buff_dmg",
       label: "PBDmg",
       tooltip: " PARTY BUFF DMG: Show damage % dealt during party synergies ",
-      enabled: settingsStore.settings.damageMeter.tabs.dPartyBuff.enabled,
+      enabled: settingsStore.damageMeter.tabs.dPartyBuff,
       isVisible: true,
     },
     {
       type: "self_buff_dmg",
       label: "SBDmg",
-      tooltip:
-        " SELF BUFF DMG: Show damage % dealt during self synergies (set, food, engravings, skills) ",
-      enabled: settingsStore.settings.damageMeter.tabs.dSelfBuff.enabled,
+      tooltip: " SELF BUFF DMG: Show damage % dealt during self synergies (set, food, engravings, skills) ",
+      enabled: settingsStore.damageMeter.tabs.dSelfBuff,
       isVisible: true,
     },
     {
       type: "other_buff_dmg",
       label: "OBDmg",
       tooltip: " OTHER BUFF DMG: Show damage % dealt during other buffs ",
-      enabled: settingsStore.settings.damageMeter.tabs.dOtherBuff.enabled,
+      enabled: settingsStore.damageMeter.tabs.dOtherBuff,
       isVisible: true,
     },
     {
       type: "party_buff_hit",
       label: "PBHit",
       tooltip: " PARTY BUFF HIT: Show hit % dealt during party synergies ",
-      enabled: settingsStore.settings.damageMeter.tabs.hPartyBuff.enabled,
+      enabled: settingsStore.damageMeter.tabs.hPartyBuff,
       isVisible: true,
     },
     {
       type: "self_buff_hit",
       label: "SBHit",
-      tooltip:
-        " SELF BUFF HIT: Show hit % dealt during self synergies (set, food, engravings, skills) ",
-      enabled: settingsStore.settings.damageMeter.tabs.hSelfBuff.enabled,
+      tooltip: " SELF BUFF HIT: Show hit % dealt during self synergies (set, food, engravings, skills) ",
+      enabled: settingsStore.damageMeter.tabs.hSelfBuff,
       isVisible: true,
     },
     {
       type: "other_buff_hit",
       label: "OBHit",
       tooltip: " OTHER BUFF HIT: Show hit % dealt during other buffs ",
-      enabled: settingsStore.settings.damageMeter.tabs.hOtherBuff.enabled,
+      enabled: settingsStore.damageMeter.tabs.hOtherBuff,
       isVisible: true,
     },
   ];

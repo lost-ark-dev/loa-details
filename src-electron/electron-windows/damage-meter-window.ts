@@ -1,16 +1,13 @@
 import { app, BrowserWindow, shell } from "electron";
 import log from "electron-log";
 import type { GameState } from "meter-core/logger/data";
+import { Parser } from "meter-core/logger/parser";
 import path from "path";
-import { Settings } from "../util/app-settings";
+import { store } from "../util/store";
 import { upload } from "../util/uploads";
 import { initWindow } from "../util/window-init";
-import { Parser } from "meter-core/logger/parser";
 
-export function createDamageMeterWindow(
-  liveParser: Parser,
-  appSettings: Settings
-) {
+export function createDamageMeterWindow(liveParser: Parser) {
   let damageMeterWindow: BrowserWindow | null = new BrowserWindow({
     icon: path.resolve(__dirname, "icons/icon.png"),
     show: false,
@@ -19,8 +16,8 @@ export function createDamageMeterWindow(
     minWidth: 360,
     minHeight: 124,
     frame: false,
-    transparent: appSettings?.damageMeter?.design?.transparency ?? true,
-    opacity: appSettings?.damageMeter?.design?.opacity || 0.9,
+    transparent: store.get("damageMeter").design.transparency,
+    opacity: store.get("damageMeter").design.opacity,
     resizable: true,
     autoHideMenuBar: true,
     fullscreenable: false,
@@ -54,14 +51,14 @@ export function createDamageMeterWindow(
     try {
       damageMeterWindow?.webContents.send("pcap-on-reset-state", "1");
 
-      const uploadsEnabled = appSettings.uploads.uploadLogs;
+      const uploadsEnabled = store.get("uploads").uploadLogs;
       log.debug("uploadsEnabled", uploadsEnabled);
       if (uploadsEnabled) {
         log.info("Starting an upload");
 
-        const openInBrowser = appSettings.uploads.openOnUpload;
+        const openInBrowser = store.get("uploads").openOnUpload;
 
-        upload(state, appSettings)
+        upload(state)
           .then((response) => {
             if (!response) return;
 
@@ -71,7 +68,7 @@ export function createDamageMeterWindow(
             });
 
             if (openInBrowser) {
-              const url = `${appSettings.uploads.site.value}/logs/${response.id}`;
+              const url = `${store.get("uploads").site}/logs/${response.id}`;
               shell.openExternal(url);
             }
           })

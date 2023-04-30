@@ -1,4 +1,4 @@
-import { MessageApi } from "app/types";
+import { MessageApi, StoreApi } from "app/types";
 import { contextBridge, IgnoreMouseEventsOptions, ipcRenderer } from "electron";
 
 contextBridge.exposeInMainWorld("messageApi", {
@@ -46,3 +46,12 @@ contextBridge.exposeInMainWorld("helperApi", {
     return ipcRenderer.sendSync("get-meter-data-path");
   },
 });
+
+contextBridge.exposeInMainWorld("store", {
+  get: (key: string) => ipcRenderer.sendSync("store:get", key),
+  set: (key: string, value: any) => ipcRenderer.sendSync("store:set", key, value),
+  has: (key: string) => ipcRenderer.sendSync("store:has", key),
+  reset: (key: string) => ipcRenderer.sendSync("store:reset", key),
+  delete: (key: string) => ipcRenderer.sendSync("store:delete", key),
+  clear: () => ipcRenderer.sendSync("store:clear"),
+} satisfies StoreApi);

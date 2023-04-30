@@ -1,17 +1,13 @@
 import { app } from "electron";
 import fs from "fs";
 import path from "path";
-import { getSettings } from "./app-settings";
+import { store } from "../util/store";
 
-const appSettings = getSettings();
-const customPath = appSettings.general.customLogPath;
+const customPath = store.get("general").customLogPath;
 
 const documentsFolder = app.getPath("documents");
 
-export const mainFolder =
-  customPath === null
-    ? path.join(documentsFolder, "Lost Ark Logs")
-    : customPath;
+export const mainFolder = customPath === null ? path.join(documentsFolder, "Lost Ark Logs") : customPath;
 if (!fs.existsSync(mainFolder)) {
   fs.mkdirSync(mainFolder);
 }

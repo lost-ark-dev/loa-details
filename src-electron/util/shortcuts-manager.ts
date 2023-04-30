@@ -1,31 +1,33 @@
-import { app, globalShortcut, dialog } from "electron";
-import EventEmitter from "events";
+import { app, dialog, globalShortcut } from "electron";
 import log from "electron-log";
-import { Settings } from "./app-settings";
+import EventEmitter from "events";
+import { store } from "../util/store";
 
 export const shortcutEventEmitter = new EventEmitter();
 
-export function updateShortcuts(appSettings: Settings) {
+export function updateShortcuts() {
   globalShortcut.unregisterAll();
-  initializeShortcuts(appSettings);
+  initializeShortcuts();
 }
 
-export function initializeShortcuts(appSettings: Settings) {
-  for (const [action, key] of Object.entries(appSettings.shortcuts)) {
-    const ret = globalShortcut.register(key.value, () => {
-      shortcutEventEmitter.emit("shortcut", {
-        key,
-        action,
+export function initializeShortcuts() {
+  for (const [action, key] of Object.entries(store.get("shortcuts"))) {
+    if (key) {
+      const ret = globalShortcut.register(key, () => {
+        shortcutEventEmitter.emit("shortcut", {
+          key,
+          action,
+        });
+
+        log.debug(`Shortcut ${key} pressed`);
       });
 
-      log.debug(`Shortcut ${key.value} pressed`);
-    });
-
-    if (!ret) {
-      dialog.showErrorBox(
-        "Shortcut registration failed",
-        "Couldn't register the shortcut: CommandOrControl+X+Y, it's probably being used by another program. You can change that shortcut in the settings. You can still use LOA Details."
-      );
+      if (!ret) {
+        dialog.showErrorBox(
+          "Shortcut registration failed",
+          "Couldn't register the shortcut: CommandOrControl+X+Y, it's probably being used by another program. You can change that shortcut in the settings. You can still use LOA Details."
+        );
+      }
     }
   }
 }

@@ -32,10 +32,7 @@ export async function parseLogs(
   };
 
   if (unparsedLogs.includes("main.json")) {
-    const mainStr = await fsPromises.readFile(
-      path.join(mainFolder, "main.json"),
-      "utf-8"
-    );
+    const mainStr = await fsPromises.readFile(path.join(mainFolder, "main.json"), "utf-8");
     mainJson = JSON.parse(mainStr);
   }
 
@@ -50,8 +47,7 @@ export async function parseLogs(
 
   for (const filename of unparsedLogs) {
     // Check if filename fits the format "LostArk_2020-01-01-00-00-00.log"
-    if (!filename.match(/^LostArk_\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}.raw$/))
-      continue;
+    if (!filename.match(/^LostArk_\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}.raw$/)) continue;
 
     const filenameSlice = filename.slice(0, -4);
     const jsonName = filenameSlice + ".json";
@@ -62,8 +58,7 @@ export async function parseLogs(
       let shouldUnlink = false;
       if (Object.keys(mainJson).includes(filename)) {
         if (
-          new Date(mainJson[filename].mtime).getTime() <
-            new Date(logStats.mtime).getTime() ||
+          new Date(mainJson[filename].mtime).getTime() < new Date(logStats.mtime).getTime() ||
           mainJson[filename].logParserVersion < PARSED_LOG_VERSION
         ) {
           shouldUnlink = true;
@@ -117,10 +112,7 @@ export async function parseLogs(
       }
 
       if (completedJobs === totalJobs) {
-        writeFileSync(
-          path.join(mainFolder, "main.json"),
-          JSON.stringify(mainJson)
-        );
+        writeFileSync(path.join(mainFolder, "main.json"), JSON.stringify(mainJson));
       }
     });
 
@@ -189,10 +181,7 @@ function parseLog(
         );
       }
 
-      writeFileSync(
-        path.join(parsedLogFolder, filenameSlice + ".json"),
-        JSON.stringify(masterLog)
-      );
+      writeFileSync(path.join(parsedLogFolder, filenameSlice + ".json"), JSON.stringify(masterLog));
 
       return "log parsed";
     }
@@ -212,19 +201,14 @@ export async function getParsedLogs() {
     try {
       if (filename.slice(0, -5).endsWith("encounter")) continue;
 
-      const contents = await fsPromises.readFile(
-        path.join(parsedLogFolder, filename),
-        "utf-8"
-      );
+      const contents = await fsPromises.readFile(path.join(parsedLogFolder, filename), "utf-8");
 
       const parsedContents = await JSON.parse(contents, reviver);
 
       res.push({
         filename,
         parsedContents,
-        date: new Date(
-          dayjs(filename.slice(8, -5), "YYYY-MM-DD-HH-mm-ss").toDate()
-        ),
+        date: new Date(dayjs(filename.slice(8, -5), "YYYY-MM-DD-HH-mm-ss").toDate()),
       });
     } catch (e) {
       log.error(e);
@@ -237,10 +221,7 @@ export async function getParsedLogs() {
 
 export async function getLogData(filename: string) {
   try {
-    const contents = await fsPromises.readFile(
-      path.join(parsedLogFolder, filename),
-      "utf-8"
-    );
+    const contents = await fsPromises.readFile(path.join(parsedLogFolder, filename), "utf-8");
     return await JSON.parse(contents, reviver);
   } catch (e) {
     log.error(e);
