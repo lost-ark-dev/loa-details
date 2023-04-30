@@ -28,7 +28,7 @@ export function numberFormat(n: number) {
 
 // returns an array with 2 values based on its abbreviation
 // ex: 123456 => [123, "k"]
-export function abbreviateNumber(n: number) {
+export function abbreviateNumber(n: number): [number, string, string] {
   if (n >= 1e3 && n < 1e6)
     return [
       +(n / 1e3).toFixed(1),
@@ -63,7 +63,7 @@ export function abbreviateNumber(n: number) {
     ];
   else
     return [
-      tryParseInt(n).toFixed(1),
+      +tryParseInt(n).toFixed(1),
       "",
       n.toLocaleString("en-US", {
         maximumFractionDigits: 0,

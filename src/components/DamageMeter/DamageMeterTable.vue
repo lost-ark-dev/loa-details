@@ -31,7 +31,17 @@
           <th style="width: 26px"></th>
           <th style="width: 100%"></th>
           <template
-            v-if="['dmg', 'tank', 'heal', 'shield_given', 'shield_gotten', 'eshield_given', 'eshield_gotten'].includes(damageType)"
+            v-if="
+              [
+                'dmg',
+                'tank',
+                'heal',
+                'shield_given',
+                'shield_gotten',
+                'eshield_given',
+                'eshield_gotten',
+              ].includes(damageType)
+            "
           >
             <th
               v-if="settingsStore.settings.damageMeter.tabs.deathTime.enabled"
@@ -54,7 +64,8 @@
                   ? "Shielded"
                   : damageType === "shield_gotten"
                   ? "Received"
-                  : damageType === "eshield_given" || damageType === "eshield_gotten"
+                  : damageType === "eshield_given" ||
+                    damageType === "eshield_gotten"
                   ? "Prevented"
                   : ""
               }}
@@ -72,7 +83,12 @@
                   ? "T"
                   : damageType === "heal"
                   ? "H"
-                  : ["shield_given", "shield_gotten", "eshield_given", "eshield_gotten"].includes(damageType)
+                  : [
+                      "shield_given",
+                      "shield_gotten",
+                      "eshield_given",
+                      "eshield_gotten",
+                    ].includes(damageType)
                   ? "S"
                   : ""
               }}%
@@ -88,7 +104,12 @@
                   ? "TPS"
                   : damageType === "heal"
                   ? "HPS"
-                  : ["shield_given", "shield_gotten", "eshield_given", "eshield_gotten"].includes(damageType)
+                  : [
+                      "shield_given",
+                      "shield_gotten",
+                      "eshield_given",
+                      "eshield_gotten",
+                    ].includes(damageType)
                   ? "SPS"
                   : ""
               }}
@@ -128,7 +149,8 @@
                 <div class="header_text">
                   {{
                     getClassName(
-                      columnData.values().next().value.source.skill?.classid
+                      (columnData.values().next().value as StatusEffect).source
+                        .skill?.classid
                     )
                   }}
                 </div>
@@ -166,7 +188,8 @@
                   {{
                     columnKey.includes("_")
                       ? columnKey.split("_")[1]
-                      : columnData.values().next().value.buffcategory
+                      : (columnData.values().next().value as StatusEffect)
+                          .buffcategory
                   }}
                 </div>
                 <div class="header_container">
@@ -199,7 +222,10 @@
                 style="width: 90px; text-align: center"
               >
                 <div class="header_text">
-                  {{ columnData.values().next().value.source.name }}
+                  {{
+                    (columnData.values().next().value as StatusEffect).source
+                      .name
+                  }}
                 </div>
                 <div class="header_container">
                   <template
@@ -292,7 +318,7 @@
             CNTR
           </th>
           <template
-              v-if="['shield_given', 'shield_gotten'].includes(damageType)"
+            v-if="['shield_given', 'shield_gotten'].includes(damageType)"
           >
             <th
               v-for="[columnKey, columnData] of sortedAppliedShieldingBuffs"
@@ -300,25 +326,39 @@
               style="width: 90px; text-align: center"
             >
               <div class="header_text">
-                {{
-                  getClassName(
-                    columnData.source.skill?.classid
-                  )
-                }}
+                <template
+                  v-for="se of [(columnData.values().next().value as StatusEffect)]"
+                >
+                  {{
+                    se.source.skill
+                      ? getClassName(se.source.skill.classid)
+                      : se.buffcategory
+                  }}
+                </template>
               </div>
+
               <div class="header_container">
+                <template
+                  v-for="[buffId, buffData] of columnData"
+                  :key="buffId"
+                >
                   <div>
                     <img
                       class="header_img"
-                      :src="getIconPath(columnData.source.icon)"
+                      :src="
+                        getIconPath(
+                          buffData.source.skill?.icon ?? buffData.source.icon
+                        )
+                      "
                     />
-                    <BuffHeaderTooltip :buff-id="columnKey" :buff="columnData" />
+                    <BuffHeaderTooltip :buff-id="buffId" :buff="buffData" />
                   </div>
+                </template>
               </div>
             </th>
           </template>
           <template
-              v-if="['eshield_given', 'eshield_gotten'].includes(damageType)"
+            v-if="['eshield_given', 'eshield_gotten'].includes(damageType)"
           >
             <th
               v-for="[columnKey, columnData] of sortedEffectiveShieldingBuffs"
@@ -326,20 +366,33 @@
               style="width: 90px; text-align: center"
             >
               <div class="header_text">
-                {{
-                  getClassName(
-                    columnData.source.skill?.classid
-                  )
-                }}
+                <template
+                  v-for="se of [(columnData.values().next().value as StatusEffect)]"
+                >
+                  {{
+                    se.source.skill
+                      ? getClassName(se.source.skill.classid)
+                      : se.buffcategory
+                  }}
+                </template>
               </div>
               <div class="header_container">
+                <template
+                  v-for="[buffId, buffData] of columnData"
+                  :key="buffId"
+                >
                   <div>
                     <img
                       class="header_img"
-                      :src="getIconPath(columnData.source.icon)"
+                      :src="
+                        getIconPath(
+                          buffData.source.skill?.icon ?? buffData.source.icon
+                        )
+                      "
                     />
-                    <BuffHeaderTooltip :buff-id="columnKey" :buff="columnData" />
+                    <BuffHeaderTooltip :buff-id="buffId" :buff="buffData" />
                   </div>
+                </template>
               </div>
             </th>
           </template>
@@ -353,9 +406,7 @@
           >
             Damage
           </th>
-          <template
-            v-if="['dmg', 'tank', 'heal', 'shield_given'].includes(damageType)"
-          >
+          <template v-if="['dmg', 'tank', 'heal'].includes(damageType)">
             <th
               v-if="
                 settingsStore.settings.damageMeter.tabs.damagePercent.enabled
@@ -491,7 +542,8 @@
                 <div class="header_text">
                   {{
                     getClassName(
-                      columnData.values().next().value.source.skill?.classid
+                      (columnData.values().next().value as StatusEffect).source
+                        .skill?.classid
                     )
                   }}
                 </div>
@@ -526,7 +578,10 @@
                 style="width: 90px; text-align: center"
               >
                 <div class="header_text">
-                  {{ columnData.values().next().value.source.name }}
+                  {{
+                    (columnData.values().next().value as StatusEffect).source
+                      .name
+                  }}
                 </div>
                 <div class="header_container">
                   <template
@@ -559,7 +614,10 @@
                 style="width: 90px; text-align: center"
               >
                 <div class="header_text">
-                  {{ columnData.values().next().value.source.name }}
+                  {{
+                    (columnData.values().next().value as StatusEffect).source
+                      .name
+                  }}
                 </div>
                 <div class="header_container">
                   <template
@@ -662,6 +720,7 @@ import {
   Ref,
   ShallowRef,
   shallowRef,
+  ComputedRef,
 } from "vue";
 import { useSettingsStore } from "src/stores/settings";
 import {
@@ -713,6 +772,18 @@ function toggleTabDisplay(tabName: string) {
 }
 
 watch(props, () => {
+  //Prevent skill breakdown view for shield tabs
+  if (
+    focusedPlayer.value !== "#" &&
+    [
+      "shield_given",
+      "shield_gotten",
+      "eshield_given",
+      "eshield_gotten",
+    ].includes(props.damageType)
+  )
+    focusedPlayer.value = "#";
+
   sortEntities();
 });
 onMounted(() => {
@@ -726,6 +797,19 @@ function focusPlayer(player: EntityState) {
   focusedPlayerClass.value = getClassName(player.classId);
   calculateSkills();
 }
+watch(focusedPlayer, (val) => {
+  //Prevent skill breakdown view for shield tabs
+  if (
+    [
+      "shield_given",
+      "shield_gotten",
+      "eshield_given",
+      "eshield_gotten",
+    ].includes(props.damageType)
+  ) {
+    focusedPlayer.value = "#";
+  }
+});
 let entitiesCopy: EntityExtended[] = [];
 
 const sortedEntities: ShallowRef<EntityExtended[]> = shallowRef([]);
@@ -772,7 +856,10 @@ function sortEntities() {
       else if (props.damageType === "shield_gotten")
         return b.shieldReceived - a.shieldReceived;
       else if (props.damageType === "eshield_given")
-        return b.damagePreventedWithShieldOnOthers - a.damagePreventedWithShieldOnOthers;
+        return (
+          b.damagePreventedWithShieldOnOthers -
+          a.damagePreventedWithShieldOnOthers
+        );
       else if (props.damageType === "eshield_gotten")
         return b.damagePreventedByShield - a.damagePreventedByShield;
       else return b.damageDealt - a.damageDealt;
@@ -788,18 +875,49 @@ function sortEntities() {
     entity.healPercentageTotal = getPercentage(entity, "heal", "total");
     entity.healPercentageTop = getPercentage(entity, "heal", "top");
 
-    entity.shieldGivenPercentageTotal = getPercentage(entity, "shield_given", "total");
-    entity.shieldGivenPercentageTop = getPercentage(entity, "shield_given", "top");
+    entity.shieldGivenPercentageTotal = getPercentage(
+      entity,
+      "shield_given",
+      "total"
+    );
+    entity.shieldGivenPercentageTop = getPercentage(
+      entity,
+      "shield_given",
+      "top"
+    );
 
-    entity.shieldGottenPercentageTotal = getPercentage(entity, "shield_gotten", "total");
-    entity.shieldGottenPercentageTop = getPercentage(entity, "shield_gotten", "top");
+    entity.shieldGottenPercentageTotal = getPercentage(
+      entity,
+      "shield_gotten",
+      "total"
+    );
+    entity.shieldGottenPercentageTop = getPercentage(
+      entity,
+      "shield_gotten",
+      "top"
+    );
 
-    entity.eshieldGivenPercentageTotal = getPercentage(entity, "eshield_given", "total");
-    entity.eshieldGivenPercentageTop = getPercentage(entity, "eshield_given", "top");
+    entity.eshieldGivenPercentageTotal = getPercentage(
+      entity,
+      "eshield_given",
+      "total"
+    );
+    entity.eshieldGivenPercentageTop = getPercentage(
+      entity,
+      "eshield_given",
+      "top"
+    );
 
-    entity.eshieldGottenPercentageTotal = getPercentage(entity, "eshield_gotten", "total");
-    entity.eshieldGottenPercentageTop = getPercentage(entity, "eshield_gotten", "top");
-
+    entity.eshieldGottenPercentageTotal = getPercentage(
+      entity,
+      "eshield_gotten",
+      "total"
+    );
+    entity.eshieldGottenPercentageTop = getPercentage(
+      entity,
+      "eshield_gotten",
+      "top"
+    );
   }
 
   calculateSkills();
@@ -845,7 +963,8 @@ function getPercentage(
   else if (dmgType === "shield_given") a = player.shieldDone;
   else if (dmgType === "shield_gotten") a = player.shieldReceived;
   else if (dmgType === "eshield_gotten") a = player.damagePreventedByShield;
-  else if (dmgType === "eshield_given") a = player.damagePreventedWithShieldOnOthers;
+  else if (dmgType === "eshield_given")
+    a = player.damagePreventedWithShieldOnOthers;
 
   let b = 0;
   if (dmgType === "dmg") {
@@ -878,53 +997,54 @@ function getPercentage(
     else b = props.sessionState.damageStatistics.totalEffectiveShieldingDone;
   }
 
-
   return ((a / b) * 100).toFixed(1);
 }
-const sortedBuffs = computed(() => {
-  //TODO: this is used to update columns when new buffs are tracked, we should only do this every few frames
-  // We could also track for difference only & not re-do everything
-  if (
-    ![
-      "party_buff_dmg",
-      "self_buff_dmg",
-      "other_buff_dmg",
-      "party_buff_hit",
-      "self_buff_hit",
-      "other_buff_hit",
-    ].includes(props.damageType)
-  ) {
-    return new Map();
-  }
-  //["party_buff_dmg", "party_buff_hit"].includes(damageType)
-  //["self_buff_dmg", "self_buff_hit"].includes(damageType)
-  //["other_buff_dmg", "other_buff_hit"].includes(damageType)
-  const statusEffects: Map<string, Map<number, StatusEffect>> = new Map();
-  props.sessionState.damageStatistics.debuffs.forEach((debuff, id) => {
-    if (debuff.category === "debuff") {
-      filterStatusEffects(
-        debuff,
-        id,
-        props.damageType,
-        statusEffects,
-        focusedPlayer.value
-      );
+const sortedBuffs: ComputedRef<Map<string, Map<number, StatusEffect>>> =
+  computed(() => {
+    //TODO: this is used to update columns when new buffs are tracked, we should only do this every few frames
+    // We could also track for difference only & not re-do everything
+    if (
+      ![
+        "party_buff_dmg",
+        "self_buff_dmg",
+        "other_buff_dmg",
+        "party_buff_hit",
+        "self_buff_hit",
+        "other_buff_hit",
+      ].includes(props.damageType)
+    ) {
+      return new Map();
     }
+    //["party_buff_dmg", "party_buff_hit"].includes(damageType)
+    //["self_buff_dmg", "self_buff_hit"].includes(damageType)
+    //["other_buff_dmg", "other_buff_hit"].includes(damageType)
+    const statusEffects: Map<string, Map<number, StatusEffect>> = new Map();
+    props.sessionState.damageStatistics.debuffs.forEach((debuff, id) => {
+      if (debuff.category === "debuff") {
+        filterStatusEffects(
+          debuff,
+          id,
+          props.damageType,
+          statusEffects,
+          focusedPlayer.value
+        );
+      }
+    });
+    props.sessionState.damageStatistics.buffs.forEach((buff, id) => {
+      if (buff.category === "buff") {
+        filterStatusEffects(
+          buff,
+          id,
+          props.damageType,
+          statusEffects,
+          focusedPlayer.value
+        );
+      }
+    });
+
+    //sortedBuffs.value = new Map([...statusEffects.entries()].sort());
+    return new Map([...statusEffects.entries()].sort());
   });
-  props.sessionState.damageStatistics.buffs.forEach((buff, id) => {
-    if (buff.category === "buff") {
-      filterStatusEffects(
-        buff,
-        id,
-        props.damageType,
-        statusEffects,
-        focusedPlayer.value
-      );
-    }
-  });
-  //sortedBuffs.value = new Map([...statusEffects.entries()].sort());
-  return new Map([...statusEffects.entries()].sort());
-});
 function filterStatusEffects(
   buff: StatusEffect,
   id: number,
@@ -940,7 +1060,16 @@ function filterStatusEffects(
     const key = `${getClassName(buff.source.skill?.classid)}_${
       buff.uniquegroup ? buff.uniquegroup : buff.source.skill?.name
     }`;
-    if (["party_buff_dmg", "party_buff_hit"].includes(damageType))
+    if (
+      [
+        "party_buff_dmg",
+        "party_buff_hit",
+        "eshield_gotten",
+        "eshield_given",
+        "shield_given",
+        "shield_gotten",
+      ].includes(damageType)
+    )
       addStatusEffectIfNeeded(
         statusEffects,
         key,
@@ -957,7 +1086,14 @@ function filterStatusEffects(
     )
   ) {
     if (
-      ["self_buff_dmg", "self_buff_hit"].includes(damageType) &&
+      [
+        "self_buff_dmg",
+        "self_buff_hit",
+        "eshield_gotten",
+        "eshield_given",
+        "shield_given",
+        "shield_gotten",
+      ].includes(damageType) &&
       focusedPlayer === "#"
     ) {
       addStatusEffectIfNeeded(
@@ -971,7 +1107,14 @@ function filterStatusEffects(
     }
   } else if (["set"].includes(buff.buffcategory)) {
     if (
-      ["self_buff_dmg", "self_buff_hit"].includes(damageType) &&
+      [
+        "self_buff_dmg",
+        "self_buff_hit",
+        "eshield_gotten",
+        "eshield_given",
+        "shield_given",
+        "shield_gotten",
+      ].includes(damageType) &&
       focusedPlayer === "#"
     ) {
       addStatusEffectIfNeeded(
@@ -988,7 +1131,14 @@ function filterStatusEffects(
   ) {
     // self & other identity, classskill, engravings
     if (
-      ["self_buff_dmg", "self_buff_hit"].includes(damageType) &&
+      [
+        "self_buff_dmg",
+        "self_buff_hit",
+        "eshield_gotten",
+        "eshield_given",
+        "shield_given",
+        "shield_gotten",
+      ].includes(damageType) &&
       focusedPlayer !== "#"
     ) {
       let key;
@@ -1014,10 +1164,19 @@ function filterStatusEffects(
     }
   } else {
     // others
-    if (["other_buff_dmg", "other_buff_hit"].includes(damageType)) {
-      const key = `${buff.buffcategory}_${
-        buff.uniquegroup ? buff.uniquegroup : id
-      }`;
+    const key = `${buff.buffcategory}_${
+      buff.uniquegroup ? buff.uniquegroup : id
+    }`;
+    if (
+      [
+        "other_buff_dmg",
+        "other_buff_hit",
+        "eshield_gotten",
+        "eshield_given",
+        "shield_given",
+        "shield_gotten",
+      ].includes(damageType)
+    ) {
       addStatusEffectIfNeeded(
         statusEffects,
         key,
@@ -1034,6 +1193,15 @@ function isStatusEffectFiltered(
   statusEffect: StatusEffect
 ) {
   if (!damageType.includes("_")) return false;
+  if (
+    [
+      "eshield_gotten",
+      "eshield_given",
+      "shield_given",
+      "shield_gotten",
+    ].includes(damageType)
+  )
+    return true;
   if (
     (settingsStore.settings.damageMeter.buffFilter[damageType.split("_")[0]] &
       StatusEffectBuffTypeFlags.ANY) !==
@@ -1068,7 +1236,54 @@ function addStatusEffectIfNeeded(
       !focus.hits.hitsDebuffedBy.get(buffId)
     )
       return;
+  } else if (damageType === "shield_given") {
+    if (
+      sortedEntities.value.find((entity) => {
+        console.log(
+          statusEffect.source.name,
+          entity.name,
+          entity.shieldDoneBy.get(buffId)
+        );
+        return entity.shieldDoneBy.get(buffId) ?? 0 > 0;
+      }) === undefined
+    )
+      return;
+  } else if (damageType === "shield_gotten") {
+    if (
+      sortedEntities.value.find(
+        (entity) => entity.shieldReceivedBy.get(buffId) ?? 0 > 0
+      ) === undefined
+    )
+      return;
+  } else if (damageType === "eshield_given") {
+    if (
+      sortedEntities.value.find(
+        (entity) =>
+          entity.damagePreventedWithShieldOnOthersBy.get(buffId) ?? 0 > 0
+      ) === undefined
+    )
+      return;
+  } else if (damageType === "eshield_gotten") {
+    if (
+      sortedEntities.value.find((entity) => {
+        console.log(
+          statusEffect.source.name,
+          entity.name,
+          entity.damagePreventedByShieldBy.get(buffId)
+        );
+        return entity.damagePreventedByShieldBy.get(buffId) ?? 0 > 0;
+      }) === undefined
+    )
+      return;
   }
+  addStatusEffect(collection, tableKey, buffId, statusEffect);
+}
+function addStatusEffect(
+  collection: Map<string, Map<number, StatusEffect>>,
+  tableKey: string,
+  buffId: number,
+  statusEffect: StatusEffect
+) {
   // Add status effect to collection
   if (collection.has(tableKey)) {
     collection.get(tableKey)?.set(buffId, statusEffect);
@@ -1077,22 +1292,53 @@ function addStatusEffectIfNeeded(
   }
 }
 
-const sortedAppliedShieldingBuffs = computed(() => {
+const sortedAppliedShieldingBuffs: ComputedRef<
+  Map<string, Map<number, StatusEffect>>
+> = computed(() => {
   //TODO: this is used to update columns when new buffs are tracked, we should only do this every few frames
   // We could also track for difference only & not re-do everything
-  if (!["shield_given", "shield_gotten"].includes(props.damageType)){
+  if (!["shield_given", "shield_gotten"].includes(props.damageType)) {
     return new Map();
   }
-  return new Map([...props.sessionState.damageStatistics.appliedShieldingBuffs.entries()].sort());
+
+  const statusEffects: Map<string, Map<number, StatusEffect>> = new Map();
+  props.sessionState.damageStatistics.appliedShieldingBuffs.forEach(
+    (effect, id) => {
+      filterStatusEffects(
+        effect,
+        id,
+        props.damageType,
+        statusEffects,
+        focusedPlayer.value
+      );
+    }
+  );
+  return new Map([...statusEffects.entries()].sort());
 });
 
-const sortedEffectiveShieldingBuffs = computed(() => {
+const sortedEffectiveShieldingBuffs: ComputedRef<
+  Map<string, Map<number, StatusEffect>>
+> = computed(() => {
   //TODO: this is used to update columns when new buffs are tracked, we should only do this every few frames
   // We could also track for difference only & not re-do everything
-  if (!["eshield_gotten", "eshield_given"].includes(props.damageType)){
+  if (!["eshield_gotten", "eshield_given"].includes(props.damageType)) {
     return new Map();
   }
-  return new Map([...props.sessionState.damageStatistics.effectiveShieldingBuffs.entries()].sort());
+
+  const statusEffects: Map<string, Map<number, StatusEffect>> = new Map();
+  props.sessionState.damageStatistics.effectiveShieldingBuffs.forEach(
+    (effect, id) => {
+      filterStatusEffects(
+        effect,
+        id,
+        props.damageType,
+        statusEffects,
+        focusedPlayer.value
+      );
+    }
+  );
+
+  return new Map([...statusEffects.entries()].sort());
 });
 </script>
 

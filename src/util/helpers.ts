@@ -1,6 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 import PCData from "/meter-data/databases/PCData.json";
+
 import {
   EntityState,
   EntitySkills,
@@ -50,6 +51,33 @@ export type EntitySkillsExtended = EntitySkills & {
   damagePercent?: string;
   relativePercent?: string;
 };
+
+export function getShieldTableEntry(
+  data: EntityExtended,
+  damageType: string,
+  columnData: Map<number, StatusEffect>
+): number {
+  let ret = 0;
+  if (damageType === "shield_given") {
+    columnData.forEach((se, id) => {
+      ret += data.shieldDoneBy.get(id) ?? 0;
+    });
+  } else if (damageType === "shield_gotten") {
+    columnData.forEach((se, id) => {
+      ret += data.shieldReceivedBy.get(id) ?? 0;
+    });
+  } else if (damageType === "eshield_given") {
+    columnData.forEach((se, id) => {
+      ret += data.damagePreventedWithShieldOnOthersBy.get(id) ?? 0;
+    });
+  } else if (damageType === "eshield_gotten") {
+    columnData.forEach((se, id) => {
+      ret += data.damagePreventedByShieldBy.get(id) ?? 0;
+    });
+  }
+  return ret;
+}
+
 export function getBuffPercent(
   data: EntryData,
   damageType: string,

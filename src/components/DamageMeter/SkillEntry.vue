@@ -14,18 +14,9 @@
       v-if="settingsStore.settings.damageMeter.tabs.damage.enabled"
       class="text-center"
     >
-      {{ abbreviatedDamage[0] }}
-      <span class="ex">
-        {{ abbreviatedDamage[1] }}
-      </span>
-      <q-tooltip
-        class="dmg_full_value"
-        anchor="top middle"
-        self="bottom middle"
-        >{{ abbreviatedDamage[2] }}</q-tooltip
-      >
+      <AbbreviatedNumberTemplate :val="skill.damageDealt" :hover="true" />
     </td>
-    <template v-if="['dmg', 'tank', 'heal', 'shield_given'].includes(damageType)">
+    <template v-if="['dmg', 'tank', 'heal'].includes(damageType)">
       <td
         v-if="settingsStore.settings.damageMeter.tabs.damagePercent.enabled"
         class="text-center"
@@ -36,16 +27,7 @@
         v-if="settingsStore.settings.damageMeter.tabs.dps.enabled"
         class="text-center"
       >
-        {{ DPS[0] }}
-        <span class="ex">
-          {{ DPS[1] }}
-        </span>
-        <q-tooltip
-          class="dmg_full_value"
-          anchor="top middle"
-          self="bottom middle"
-          >{{ DPS[2] }}</q-tooltip
-        >
+        <AbbreviatedNumberTemplate :val="DPS" :hover="true" />
       </td>
       <td
         v-if="settingsStore.settings.damageMeter.tabs.critRate.enabled"
@@ -368,6 +350,7 @@ import {
   getBuffPercent,
   EntitySkillsExtended,
 } from "../../util/helpers";
+import AbbreviatedNumberTemplate from "./AbbreviatedNumberTemplate.vue";
 
 const settingsStore = useSettingsStore();
 
@@ -380,13 +363,8 @@ const props = defineProps({
   fightDuration: { type: Number, required: true },
 });
 
-const abbreviatedDamage = computed(() => {
-  return abbreviateNumber(props.skill.damageDealt);
-});
 const DPS = computed(() => {
-  return abbreviateNumber(
-    props.skill.damageDealt / (props.fightDuration / 1000)
-  );
+  return props.skill.damageDealt / (props.fightDuration / 1000);
 });
 
 const HPM = computed(() => {

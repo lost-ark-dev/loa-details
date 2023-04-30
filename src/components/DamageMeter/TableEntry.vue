@@ -1,5 +1,5 @@
 <template>
-  <tr v-if="player !== undefined && player.skills.size > 1">
+  <tr v-if="player !== undefined">
     <td class="td-class-img">
       <img :src="getClassImage(player.classId)" />
     </td>
@@ -9,7 +9,15 @@
     <td
       v-if="
         settingsStore.settings.damageMeter.tabs.deathTime.enabled &&
-        ['dmg', 'tank', 'heal', 'shield_given', 'shield_gotten', 'eshield_given', 'eshield_gotten'].includes(damageType)
+        [
+          'dmg',
+          'tank',
+          'heal',
+          'shield_given',
+          'shield_gotten',
+          'eshield_given',
+          'eshield_gotten',
+        ].includes(damageType)
       "
       class="text-center"
     >
@@ -19,18 +27,21 @@
       v-if="settingsStore.settings.damageMeter.tabs.damage.enabled"
       class="text-center"
     >
-      {{ abbreviatedDamage[0] }}
-      <span class="ex">
-        {{ abbreviatedDamage[1] }}
-      </span>
-      <q-tooltip
-        class="dmg_full_value"
-        anchor="top middle"
-        self="bottom middle"
-        >{{ abbreviatedDamage[2] }}</q-tooltip
-      >
+      <AbbreviatedNumberTemplate :val="DAMAGE" :hover="true" />
     </td>
-    <template v-if="['dmg', 'tank', 'heal', 'shield_given', 'shield_gotten', 'eshield_given', 'eshield_gotten'].includes(damageType)">
+    <template
+      v-if="
+        [
+          'dmg',
+          'tank',
+          'heal',
+          'shield_given',
+          'shield_gotten',
+          'eshield_given',
+          'eshield_gotten',
+        ].includes(damageType)
+      "
+    >
       <td
         v-if="settingsStore.settings.damageMeter.tabs.damagePercent.enabled"
         class="text-center"
@@ -58,16 +69,7 @@
         v-if="settingsStore.settings.damageMeter.tabs.dps.enabled"
         class="text-center"
       >
-        {{ DPS[0] }}
-        <span class="ex">
-          {{ DPS[1] }}
-        </span>
-        <q-tooltip
-          class="dmg_full_value"
-          anchor="top middle"
-          self="bottom middle"
-          >{{ DPS[2] }}</q-tooltip
-        >
+        <AbbreviatedNumberTemplate :val="DPS" :hover="true" />
       </td>
       <td
         v-if="
@@ -181,48 +183,31 @@
       >
         {{ player.hits.counter }}
       </td>
-      <template
-        v-if="damageType === 'shield_given'"
-      >
+
+      <template v-if="['shield_given', 'shield_gotten'].includes(damageType)">
         <td
-          v-for="columnData of sortedAppliedShieldingBuffs"
-          :key="columnData[0]"
+          v-for="[columnKey, columnData] of sortedAppliedShieldingBuffs"
+          :key="columnKey"
           style="width: 90px; text-align: center"
         >
-        {{player.shieldDoneBy.get(columnData[0]) ?? 0}}
+          <AbbreviatedNumberTemplate
+            :val="getShieldTableEntry(player, damageType, columnData)"
+            :hide-zero="true"
+            :hover="true"
+          />
         </td>
       </template>
-      <template
-        v-if="damageType === 'shield_gotten'"
-      >
+      <template v-if="['eshield_given', 'eshield_gotten'].includes(damageType)">
         <td
-          v-for="columnData of sortedAppliedShieldingBuffs"
-          :key="columnData[0]"
+          v-for="[columnKey, columnData] of sortedEffectiveShieldingBuffs"
+          :key="columnKey"
           style="width: 90px; text-align: center"
         >
-        {{player.shieldReceivedBy.get(columnData[0]) ?? 0}}
-        </td>
-      </template>
-      <template
-        v-if="damageType === 'eshield_given'"
-      >
-        <td
-          v-for="columnData of sortedEffectiveShieldingBuffs"
-          :key="columnData[0]"
-          style="width: 90px; text-align: center"
-        >
-        {{player.damagePreventedWithShieldOnOthersBy.get(columnData[0]) ?? 0}}
-        </td>
-      </template>
-      <template
-        v-if="damageType === 'eshield_gotten'"
-      >
-        <td
-          v-for="columnData of sortedEffectiveShieldingBuffs"
-          :key="columnData[0]"
-          style="width: 90px; text-align: center"
-        >
-        {{player.damagePreventedByShieldBy.get(columnData[0]) ?? 0}}
+          <AbbreviatedNumberTemplate
+            :val="getShieldTableEntry(player, damageType, columnData)"
+            :hide-zero="true"
+            :hover="true"
+          />
         </td>
       </template>
     </template>
@@ -409,13 +394,21 @@ import {
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
 import PCData from "/meter-data/databases/PCData.json";
+import AbbreviatedNumberTemplate from "./AbbreviatedNumberTemplate.vue";
+import { getShieldTableEntry } from "../../util/helpers";
 
 const settingsStore = useSettingsStore();
 const props = defineProps({
   player: { type: Object as PropType<EntityExtended> },
   sortedBuffs: { type: Map<string, Map<number, StatusEffect>>, required: true },
-  sortedAppliedShieldingBuffs: { type: Map<number, StatusEffect>, required: true },
-  sortedEffectiveShieldingBuffs: { type: Map<number, StatusEffect>, required: true },
+  sortedAppliedShieldingBuffs: {
+    type: Map<string, Map<number, StatusEffect>>,
+    required: true,
+  },
+  sortedEffectiveShieldingBuffs: {
+    type: Map<string, Map<number, StatusEffect>>,
+    required: true,
+  },
   damageType: { type: String, default: "dmg" },
   fightDuration: { type: Number, required: true },
   lastCombatPacket: { type: Number, required: true },
@@ -466,29 +459,36 @@ const entryName = computed(() => {
   return res;
 });
 
-const abbreviatedDamage = computed(() => {
-  if (!props.player) return "";
+const DAMAGE = computed(() => {
+  if (!props.player) return 0;
   let damage = props.player.damageDealt;
   if (props.damageType === "tank") damage = props.player.damageTaken;
   else if (props.damageType === "heal") damage = props.player.healingDone;
-  else if (props.damageType === "shield_given") damage = props.player.shieldDone;
-  else if (props.damageType === "shield_gotten") damage = props.player.shieldReceived;
-  else if (props.damageType === "eshield_given") damage = props.player.damagePreventedWithShieldOnOthers;
-  else if (props.damageType === "eshield_gotten") damage = props.player.damagePreventedByShield;
+  else if (props.damageType === "shield_given")
+    damage = props.player.shieldDone;
+  else if (props.damageType === "shield_gotten")
+    damage = props.player.shieldReceived;
+  else if (props.damageType === "eshield_given")
+    damage = props.player.damagePreventedWithShieldOnOthers;
+  else if (props.damageType === "eshield_gotten")
+    damage = props.player.damagePreventedByShield;
 
-  return abbreviateNumber(damage);
+  return damage;
 });
 
 const DPS = computed(() => {
-  if (!props.player) return "";
+  if (!props.player) return 0;
   let a = props.player.damageDealt;
   if (props.damageType === "tank") a = props.player.damageTaken;
   else if (props.damageType === "heal") a = props.player.healingDone;
   else if (props.damageType === "shield_given") a = props.player.shieldDone;
-  else if (props.damageType === "shield_gotten") a = props.player.shieldReceived;
-  else if (props.damageType === "eshield_given") a = props.player.damagePreventedWithShieldOnOthers;
-  else if (props.damageType === "eshield_gotten") a = props.player.damagePreventedByShield;
-  return abbreviateNumber(a / (props.fightDuration / 1000)); //return abbreviateNumber((a / (props.fightDuration / 1000)).toFixed(0));
+  else if (props.damageType === "shield_gotten")
+    a = props.player.shieldReceived;
+  else if (props.damageType === "eshield_given")
+    a = props.player.damagePreventedWithShieldOnOthers;
+  else if (props.damageType === "eshield_gotten")
+    a = props.player.damagePreventedByShield;
+  return a / (props.fightDuration / 1000); //return abbreviateNumber((a / (props.fightDuration / 1000)).toFixed(0));
 });
 
 const deathTime = computed(() => {
