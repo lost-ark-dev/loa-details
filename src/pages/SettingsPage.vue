@@ -19,12 +19,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import GeneralPage from "src/components/SettingsPage/GeneralPage.vue";
 import DamageMeterPage from "src/components/SettingsPage/DamageMeterPage.vue";
-import UploadPage from "src/components/SettingsPage/UploadPage.vue";
+import GeneralPage from "src/components/SettingsPage/GeneralPage.vue";
 import LogPage from "src/components/SettingsPage/LogPage.vue";
 import ShortcutsPage from "src/components/SettingsPage/ShortcutsPage.vue";
+import UploadPage from "src/components/SettingsPage/UploadPage.vue";
+import { ref } from "vue";
 
 import { useSettingsStore } from "src/stores/settings";
 const settingsStore = useSettingsStore();
@@ -32,7 +32,7 @@ const settingsStore = useSettingsStore();
 let tab = ref("general");
 
 settingsStore.$subscribe(() => {
-  settingsStore.saveSettings();
+  settingsStore.save();
 });
 </script>
 

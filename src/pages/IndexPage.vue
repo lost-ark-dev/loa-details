@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-function openLinkInBrowser(link) {
+function openLinkInBrowser(link: string) {
   window.messageApi.send("window-to-main", {
     message: "open-link",
     value: link,

@@ -69,8 +69,8 @@
         <q-item-label caption>
           An API key is required to upload logged sessions.<br />
           Login at
-          <span @click="openSite(settingsStore.uploads.site.value)" class="text-primary" style="cursor: pointer">{{
-            settingsStore.uploads.site.value
+          <span @click="openSite(settingsStore.uploads.site)" class="text-primary" style="cursor: pointer">{{
+            settingsStore.uploads.site
           }}</span>
           to get one.
         </q-item-label>
@@ -166,9 +166,9 @@
   </q-list>
 </template>
 
-<script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+<script setup>
 import { useSettingsStore } from "src/stores/settings";
+import { onMounted, ref, watch } from "vue";
 const settingsStore = useSettingsStore();
 
 const isPwd = ref(true);

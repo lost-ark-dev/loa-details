@@ -181,15 +181,19 @@
     <q-separator spaced />
     <q-item-label header>Header Tabs</q-item-label>
 
-    <q-item v-for="tabName in Object.keys(settingsStore.damageMeter.header)" :key="tabName" tag="label">
+    <q-item
+      v-for="tabName in Object.keys(settingsStore.damageMeter.header) as Array<keyof typeof settingsStore.damageMeter.header>"
+      :key="tabName"
+      tag="label"
+    >
       <q-item-section side top>
-        <q-checkbox v-model="settingsStore.damageMeter.header[tabName].enabled" />
+        <q-checkbox v-model="settingsStore.damageMeter.header[tabName]" />
       </q-item-section>
 
       <q-item-section>
         <q-item-label>
           Show
-          {{ settingsStore.damageMeter.header[tabName].name }}
+          {{ headerDisplayName[tabName] }}
         </q-item-label>
       </q-item-section>
     </q-item>
@@ -197,15 +201,19 @@
     <q-separator spaced />
     <q-item-label header>Tabs</q-item-label>
 
-    <q-item v-for="tabName in Object.keys(settingsStore.damageMeter.tabs)" :key="tabName" tag="label">
+    <q-item
+      v-for="tabName in Object.keys(settingsStore.damageMeter.tabs) as Array<keyof typeof settingsStore.damageMeter.tabs>"
+      :key="tabName"
+      tag="label"
+    >
       <q-item-section side top>
-        <q-checkbox v-model="settingsStore.damageMeter.tabs[tabName].enabled" />
+        <q-checkbox v-model="settingsStore.damageMeter.tabs[tabName]" />
       </q-item-section>
 
       <q-item-section>
         <q-item-label>
           Show
-          {{ settingsStore.damageMeter.tabs[tabName].name }}
+          {{ tabsDisplayName[tabName] }}
         </q-item-label>
       </q-item-section>
     </q-item>
@@ -263,9 +271,10 @@
   </q-list>
 </template>
 
-<script setup lang="ts">
-import { ref, watch, onMounted } from "vue";
+<script setup>
 import { useSettingsStore } from "src/stores/settings";
+import { onMounted, ref, watch } from "vue";
+import { headerDisplayName, tabsDisplayName } from "../../constants/configStringsStuffThatIdkWhereToPut";
 const settingsStore = useSettingsStore();
 
 const nameDisplayOptions = ref([

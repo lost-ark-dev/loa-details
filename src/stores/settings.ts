@@ -1,8 +1,4 @@
 import { defineStore } from "pinia";
-import { classes } from "../constants/classes";
-import { ClassSettings, Settings } from "../../src-electron/util/app-settings";
-import { StatusEffectBuffTypeFlags } from "meter-core/logger/data";
-import { merge } from "lodash"; //TODO: when we rework, remove lodash (required for merge)
 
 export const useSettingsStore = defineStore("store", {
   state: () => ({

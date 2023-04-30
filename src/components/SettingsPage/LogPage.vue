@@ -116,7 +116,7 @@
   <q-btn style="margin-left: 16px" unelevated color="primary" label="Open Folder" @click="openLogDirectory" />
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { useSettingsStore } from "src/stores/settings";
 const settingsStore = useSettingsStore();
 

@@ -1,5 +1,5 @@
-import { MessageApi, StoreApi } from "app/types";
-import { contextBridge, IgnoreMouseEventsOptions, ipcRenderer } from "electron";
+import { MessageApi, StoreApi, WindowControlApi, appVersionApi } from "app/types";
+import { IgnoreMouseEventsOptions, contextBridge, ipcRenderer } from "electron";
 
 contextBridge.exposeInMainWorld("messageApi", {
   send: (channel, data) => {
@@ -30,7 +30,7 @@ contextBridge.exposeInMainWorld("messageApi", {
       ipcRenderer.on(channel, (event, args) => func(args));
     }
   },
-} as MessageApi);
+} satisfies MessageApi);
 
 contextBridge.exposeInMainWorld("windowControlApi", {
   minimize: () => ipcRenderer.send("minimize"),
@@ -39,13 +39,15 @@ contextBridge.exposeInMainWorld("windowControlApi", {
   hide: () => ipcRenderer.send("hide"),
   setIgnoreMouseEvents: (ignore: boolean, options: IgnoreMouseEventsOptions) =>
     ipcRenderer.send("setIgnoreMouseEvents", ignore, options),
-});
+} satisfies WindowControlApi);
 
 contextBridge.exposeInMainWorld("helperApi", {
-  getMeterDataPath: () => {
-    return ipcRenderer.sendSync("get-meter-data-path");
-  },
+  getMeterDataPath: () => ipcRenderer.sendSync("get-meter-data-path"),
 });
+
+contextBridge.exposeInMainWorld("appVersion", {
+  get: () => ipcRenderer.sendSync("appVersion"),
+} satisfies appVersionApi);
 
 contextBridge.exposeInMainWorld("store", {
   get: (key: string) => ipcRenderer.sendSync("store:get", key),

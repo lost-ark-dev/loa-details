@@ -42,7 +42,7 @@
       <div>
         <span class="gilroy-extra-bold">LOA</span>
         <span class="gilroy-light"> DETAILS </span>
-        <span style="font-size: 10px; margin-left: 4px"> v{{ settingsStore.appVersion }} </span>
+        <span style="font-size: 10px; margin-left: 4px"> v{{ appVersion }} </span>
       </div>
 
       <q-space />
@@ -107,13 +107,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { useSettingsStore } from "src/stores/settings";
-import { useRoute } from "vue-router";
-import { Settings } from "app/src-electron/util/app-settings";
 import { ProgressInfo } from "electron-updater";
+import { useSettingsStore } from "src/stores/settings";
+import { onMounted, ref } from "vue";
+import { useRoute } from "vue-router";
 
 const settingsStore = useSettingsStore();
+const appVersion = window.appVersionApi.get();
 
 const route = useRoute();
 const drawerLeft = ref(false);

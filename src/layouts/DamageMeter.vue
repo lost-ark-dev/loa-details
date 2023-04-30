@@ -15,7 +15,7 @@
       <div class="info-box">
         <div v-if="!settingsStore.damageMeter.design.compactDesign || isMinimized || isTakingScreenshot">
           LOA Details
-          <span v-if="!isMinimized"> v{{ settingsStore.appVersion }} </span>
+          <span v-if="!isMinimized"> v{{ appVersion }} </span>
         </div>
         <div v-if="!isMinimized && sessionState.damageStatistics" class="q-electron-drag--exception">
           <q-menu touch-position context-menu>
@@ -142,9 +142,7 @@
       </div>
 
       <div class="functions">
-        <span v-if="settingsStore.damageMeter.design.compactDesign && !isTakingScreenshot">
-          v{{ settingsStore.appVersion }}
-        </span>
+        <span v-if="settingsStore.damageMeter.design.compactDesign && !isTakingScreenshot"> v{{ appVersion }} </span>
         <q-btn
           flat
           size="sm"
@@ -164,20 +162,21 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ComputedRef, onMounted, Ref, ref, shallowRef, ShallowRef } from "vue";
-import { Notify, QTooltip } from "quasar";
-import { numberFormat, millisToMinutesAndSeconds, toFixedNumber, abbreviateNumber } from "src/util/number-helpers";
-import { sleep } from "src/util/sleep";
 import html2canvas from "html2canvas";
 import type { GameState } from "meter-core/logger/data";
+import { Notify, QTooltip } from "quasar";
 import { useSettingsStore } from "src/stores/settings";
+import { abbreviateNumber, millisToMinutesAndSeconds, numberFormat, toFixedNumber } from "src/util/number-helpers";
+import { sleep } from "src/util/sleep";
+import { computed, ComputedRef, onMounted, Ref, ref, shallowRef, ShallowRef } from "vue";
 
 import DamageMeterTable from "src/components/DamageMeter/DamageMeterTable.vue";
-import { type headerDisplayKey, headerDisplayName } from "src/constants/configStringsStuffThatIdkWhereToPut";
+import { headerDisplayName, type headerDisplayKey } from "src/constants/configStringsStuffThatIdkWhereToPut";
 
 const logoImg = new URL("../assets/images/logo.png", import.meta.url).href;
 
 const settingsStore = useSettingsStore();
+const appVersion = window.appVersionApi.get();
 
 const isMinimized = ref(false);
 const isAutoMinimized = ref(false);

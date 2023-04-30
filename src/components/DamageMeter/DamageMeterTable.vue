@@ -380,23 +380,21 @@
 </template>
 
 <script setup lang="ts">
-import { tabDisplayName, type tabDisplayKey } from "../../constants/configStringsStuffThatIdkWhereToPut";
-import { computed, onMounted, ref, watch, PropType, Ref, ShallowRef, shallowRef } from "vue";
-import { useSettingsStore } from "src/stores/settings";
 import {
-  GameState,
   EntityState,
-  EntitySkills,
-  Hits,
+  GameState,
   StatusEffect,
-  StatusEffectTarget,
   StatusEffectBuffTypeFlags,
+  StatusEffectTarget,
 } from "meter-core/logger/data";
+import { useSettingsStore } from "src/stores/settings";
+import { PropType, ShallowRef, computed, onMounted, ref, shallowRef, watch } from "vue";
+import { tabDisplayName, type tabDisplayKey } from "../../constants/configStringsStuffThatIdkWhereToPut";
+import { EntityExtended, EntitySkillsExtended, getClassName, getIconPath, tabNames } from "../../util/helpers";
 
-import TableEntry from "./TableEntry.vue";
-import SkillEntry from "./SkillEntry.vue";
 import BuffHeaderTooltip from "./BuffHeaderTooltip.vue";
-import { getIconPath, getClassName, EntityExtended, EntitySkillsExtended, tabNames } from "../../util/helpers";
+import SkillEntry from "./SkillEntry.vue";
+import TableEntry from "./TableEntry.vue";
 
 const settingsStore = useSettingsStore();
 

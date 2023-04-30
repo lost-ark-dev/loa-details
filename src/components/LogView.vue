@@ -32,22 +32,22 @@
       <q-btn flat size="sm" @click="damageType = 'shield_gotten'"> SHIELD G </q-btn>
       <q-btn flat size="sm" @click="damageType = 'eshield_given'"> ESHIELD D </q-btn>
       <q-btn flat size="sm" @click="damageType = 'eshield_gotten'"> ESHIELD G </q-btn>
-      <template v-if="settingsStore.damageMeter.tabs.dPartyBuff.enabled">
+      <template v-if="settingsStore.damageMeter.tabs.dPartyBuff">
         <q-btn flat size="sm" @click="damageType = 'party_buff_dmg'" label="PARTY BUFF DMG" />
       </template>
-      <template v-if="settingsStore.damageMeter.tabs.dSelfBuff.enabled">
+      <template v-if="settingsStore.damageMeter.tabs.dSelfBuff">
         <q-btn flat size="sm" @click="damageType = 'self_buff_dmg'" label="SELF BUFF DMG" />
       </template>
-      <template v-if="settingsStore.damageMeter.tabs.dOtherBuff.enabled">
+      <template v-if="settingsStore.damageMeter.tabs.dOtherBuff">
         <q-btn flat size="sm" @click="damageType = 'other_buff_dmg'" label="OTHER BUFF DMG" />
       </template>
-      <template v-if="settingsStore.damageMeter.tabs.hPartyBuff.enabled">
+      <template v-if="settingsStore.damageMeter.tabs.hPartyBuff">
         <q-btn flat size="sm" @click="damageType = 'party_buff_hit'" label="PARTY BUFF HIT" />
       </template>
-      <template v-if="settingsStore.damageMeter.tabs.hSelfBuff.enabled">
+      <template v-if="settingsStore.damageMeter.tabs.hSelfBuff">
         <q-btn flat size="sm" @click="damageType = 'self_buff_hit'" label="SELF BUFF HIT" />
       </template>
-      <template v-if="settingsStore.damageMeter.tabs.hOtherBuff.enabled">
+      <template v-if="settingsStore.damageMeter.tabs.hOtherBuff">
         <q-btn flat size="sm" @click="damageType = 'other_buff_hit'" label="OTHER BUFF HIT" />
       </template>
     </div>
@@ -64,7 +64,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
 import { ref } from "vue";
 import { numberFormat, millisToMinutesAndSeconds } from "src/util/number-helpers";
 import { Notify } from "quasar";

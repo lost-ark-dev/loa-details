@@ -119,9 +119,9 @@
   </q-list>
 </template>
 
-<script setup lang="ts">
-import { ref, watch, onMounted } from "vue";
+<script setup>
 import { useSettingsStore } from "src/stores/settings";
+import { onMounted, ref, watch } from "vue";
 const settingsStore = useSettingsStore();
 
 const serverOptions = ref([

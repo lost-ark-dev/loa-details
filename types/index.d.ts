@@ -1,4 +1,3 @@
-import type { Settings } from "app/src-electron/util/app-settings";
 import type { StoreType } from "app/src-electron/util/store";
 import type { ProgressInfo } from "electron-updater";
 import type { GameState } from "meter-core/logger/data";
@@ -9,9 +8,8 @@ export type MessageEvent =
 
 export interface MessageApi {
   send(channel: string, data: MessageEvent): void;
-  receive(channel: "on-settings-change", func: (value: Settings) => void): void;
+  receive(channel: "on-settings-change", func: () => void): void;
   receive(channel: "updater-message", func: (eventMessage: MessageEvent) => void): void;
-  receive(channel: "on-settings-change", func: (value: Settings) => void): void;
   receive(channel: "pcap-on-state-change", func: (value: GameState) => void): void;
   receive(channel: "pcap-on-message", func: (value: string) => void): void;
   receive(channel: "uploader-message", func: (value: { failed: boolean; message: string }) => void): void;
@@ -24,6 +22,10 @@ export interface WindowControlApi {
   close: () => void;
   hide: () => void;
   setIgnoreMouseEvents: (ignore: boolean, options: Electron.IgnoreMouseEventsOptions) => void;
+}
+
+export interface appVersionApi {
+  get: () => string;
 }
 
 export interface StoreApi {
@@ -41,6 +43,7 @@ declare global {
   interface Window {
     messageApi: MessageApi;
     windowControlApi: WindowControlApi;
+    appVersionApi: appVersionApi;
     storeApi: StoreApi;
   }
 }

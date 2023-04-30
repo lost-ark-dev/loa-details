@@ -165,15 +165,15 @@
   </q-scroll-area>
 </template>
 
-<script setup lang="ts">
-import { ref, reactive, onMounted } from "vue";
+<script setup>
 import dayjs from "dayjs";
-import { millisToMinutesAndSeconds, millisToHourMinuteSeconds } from "src/util/number-helpers";
+import { millisToHourMinuteSeconds, millisToMinutesAndSeconds } from "src/util/number-helpers";
+import { onMounted, reactive, ref } from "vue";
 
 import LogView from "src/components/LogView.vue";
 
-import { useSettingsStore } from "src/stores/settings";
 import { useLogViewerStore } from "src/stores/log-viewer";
+import { useSettingsStore } from "src/stores/settings";
 import { sleep } from "src/util/sleep";
 
 import { encounters } from "src/constants/encounters";

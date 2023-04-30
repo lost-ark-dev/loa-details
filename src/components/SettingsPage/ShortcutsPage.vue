@@ -33,10 +33,10 @@
   </q-list>
 </template>
 
-<script setup lang="ts">
-import { ref, watch, onMounted, reactive } from "vue";
-import { shortcutSuffixOptions, shortcutOptions } from "src/constants/shortcut-options";
+<script setup>
+import { shortcutOptions, shortcutSuffixOptions } from "src/constants/shortcut-options";
 import { useSettingsStore } from "src/stores/settings";
+import { reactive } from "vue";
 const settingsStore = useSettingsStore();
 
 const shortcutDescriptions = reactive({
