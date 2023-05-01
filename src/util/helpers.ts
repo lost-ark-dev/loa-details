@@ -52,9 +52,24 @@ export type EntitySkillsExtended = EntitySkills & {
   relativePercent?: string;
 };
 
+export type DamageType =
+  | "dmg"
+  | "tank"
+  | "heal"
+  | "party_buff_dmg"
+  | "party_buff_hit"
+  | "self_buff_dmg"
+  | "self_buff_hit"
+  | "other_buff_dmg"
+  | "other_buff_hit"
+  | "shield_given"
+  | "shield_gotten"
+  | "eshield_given"
+  | "eshield_gotten";
+
 export function getShieldTableEntry(
   data: EntityExtended,
-  damageType: string,
+  damageType: DamageType,
   columnData: Map<number, StatusEffect>
 ): number {
   let ret = 0;
@@ -80,7 +95,7 @@ export function getShieldTableEntry(
 
 export function getBuffPercent(
   data: EntryData,
-  damageType: string,
+  damageType: DamageType,
   columnData: Map<number, StatusEffect>
 ) {
   const ret = new Map<number, number>();

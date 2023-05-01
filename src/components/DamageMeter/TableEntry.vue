@@ -1,7 +1,7 @@
 <template>
   <tr v-if="player !== undefined">
     <td class="td-class-img">
-      <img :src="getClassImage(player.classId)" />
+      <img :src="getClassImage(player.classId, player.icon)" />
     </td>
     <td class="ellipsis">
       <span>{{ entryName }}</span>
@@ -370,9 +370,11 @@
                   ? player.eshieldGottenPercentageTop
                   : player.damagePercentageTop
               }%;
-              background:${settingsStore.getClassColor(
-                getClassName(player.classId)
-              )};
+              background:${
+                player.isEsther
+                  ? settingsStore.settings.damageMeter.functionality.estherColor
+                  : settingsStore.getClassColor(getClassName(player.classId))
+              };
               `"
     >
       <!-- Player percentage bar -->
@@ -382,14 +384,15 @@
 
 <script setup lang="ts">
 import { computed, PropType } from "vue";
-import { abbreviateNumber } from "src/util/number-helpers";
 import { useSettingsStore } from "src/stores/settings";
 import { GameState, StatusEffect } from "meter-core/logger/data";
 import BuffTableBodyEntry from "./BuffTableBodyEntry.vue";
 import {
+  DamageType,
   EntityExtended,
   getBuffPercent,
   getClassName,
+  getIconPath,
 } from "../../util/helpers";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
@@ -409,7 +412,7 @@ const props = defineProps({
     type: Map<string, Map<number, StatusEffect>>,
     required: true,
   },
-  damageType: { type: String, default: "dmg" },
+  damageType: { type: String as PropType<DamageType>, default: "dmg" },
   fightDuration: { type: Number, required: true },
   lastCombatPacket: { type: Number, required: true },
   nameDisplay: { type: String, required: true },
@@ -422,22 +425,19 @@ const entryName = computed(() => {
   if (props.player.isDead) {
     res += "💀 ";
   }
-
+  const nameDisplay = props.player.isEsther ? "name" : props.nameDisplay;
   let hasName = false;
-  if (props.nameDisplay.includes("name")) {
+  if (nameDisplay.includes("name")) {
     hasName = true;
     res += props.player.name + " ";
   }
 
-  if (
-    props.nameDisplay.includes("gear") ||
-    props.nameDisplay.includes("class")
-  ) {
+  if (nameDisplay.includes("gear") || nameDisplay.includes("class")) {
     if (hasName) res += "(";
 
     let hasGearScore = false;
     if (
-      props.nameDisplay.includes("gear") &&
+      nameDisplay.includes("gear") &&
       props.player.gearScore &&
       props.player.gearScore != 0
     ) {
@@ -445,7 +445,7 @@ const entryName = computed(() => {
       hasGearScore = true;
     }
 
-    if (props.nameDisplay.includes("class")) {
+    if (nameDisplay.includes("class")) {
       if (hasGearScore) {
         res += " ";
       }
@@ -500,7 +500,10 @@ const deathTime = computed(() => {
   return "";
 });
 
-function getClassImage(classId: number) {
+function getClassImage(classId: number, override: string | undefined) {
+  if (override !== undefined) {
+    return getIconPath(override);
+  }
   if (classId in PCData)
     return new URL(
       `../../assets/images/classes/${classId}.png`,

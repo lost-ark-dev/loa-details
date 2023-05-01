@@ -168,8 +168,10 @@
     </nav>
 
     <DamageMeterTable
-      v-if="!isMinimized && sessionState"
-      :session-state="sessionState"
+      v-if="
+        !isMinimized && sessionState && sessionState.startedOn !== undefined
+      "
+      :session-state="(sessionState as GameState)"
       :duration="fightDuration"
       :damage-type="damageType"
       :wrapper-style="`height:calc(100vh - 32px - ${
@@ -287,6 +289,7 @@ import type { GameState } from "meter-core/logger/data";
 import { useSettingsStore } from "src/stores/settings";
 
 import DamageMeterTable from "src/components/DamageMeter/DamageMeterTable.vue";
+import { DamageType } from "src/util/helpers";
 
 const logoImg = new URL("../assets/images/logo.png", import.meta.url).href;
 
@@ -294,7 +297,7 @@ const settingsStore = useSettingsStore();
 
 const isMinimized = ref(false);
 const isAutoMinimized = ref(false);
-const damageType = ref("dmg");
+const damageType: Ref<DamageType> = ref("dmg");
 
 function toggleMinimizedState() {
   isMinimized.value = !isMinimized.value;
@@ -389,7 +392,9 @@ function requestSessionRestart() {
   window.messageApi.send("window-to-main", { message: "reset-session" });
 }
 
-const sessionState: ShallowRef<Partial<GameState>> = shallowRef({});
+const sessionState: ShallowRef<GameState | Record<string, never>> = shallowRef(
+  {}
+);
 let sessionDPS = 0;
 const windowWidth: Ref<number> = ref(0);
 
@@ -417,19 +422,15 @@ onMounted(() => {
 
   window.messageApi.send("window-to-main", { message: "get-settings" });
 
-  window.messageApi.receive(
-    "pcap-on-state-change",
-    (value: Partial<GameState>) => {
-      if (value.damageStatistics?.totalDamageDealt && fightDuration.value > 0) {
-        sessionDPS = toFixedNumber(
-          value.damageStatistics.totalDamageDealt /
-            (fightDuration.value / 1000),
-          0
-        );
-      }
-      sessionState.value = value;
+  window.messageApi.receive("pcap-on-state-change", (value: GameState) => {
+    if (value.damageStatistics?.totalDamageDealt && fightDuration.value > 0) {
+      sessionDPS = toFixedNumber(
+        value.damageStatistics.totalDamageDealt / (fightDuration.value / 1000),
+        0
+      );
     }
-  );
+    sessionState.value = value;
+  });
 
   window.messageApi.receive("pcap-on-reset-state", (value) => {
     fightPausedOn = 0;
@@ -587,7 +588,7 @@ function toggleUploads() {
 
 const tabs: ComputedRef<{
   tabData: {
-    type: string;
+    type: DamageType;
     label: string;
     tooltip: string;
     enabled: boolean;
@@ -603,7 +604,13 @@ const tabs: ComputedRef<{
       (widthX > tabs.value.width && widthX - tabs.value.width < 50))
   )
     return tabs.value;
-  const allTabData = [
+  const allTabData: {
+    type: DamageType;
+    label: string;
+    tooltip: string;
+    enabled: boolean;
+    isVisible: boolean;
+  }[] = [
     {
       type: "dmg",
       label: "DMG",

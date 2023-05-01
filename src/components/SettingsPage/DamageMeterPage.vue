@@ -117,6 +117,75 @@
       </q-item-section>
     </q-item>
 
+    <q-item tag="label">
+      <q-item-section side top>
+        <q-checkbox
+          v-model="
+            settingsStore.settings.damageMeter.functionality.displayEsther
+          "
+        />
+      </q-item-section>
+
+      <q-item-section>
+        <q-item-label>Display Esther</q-item-label>
+        <q-item-label caption>
+          Display Esther damage in "dmg" tab.
+        </q-item-label>
+      </q-item-section>
+    </q-item>
+
+    <q-item tag="label">
+      <q-item-section>
+        <q-item-label>
+          <div
+            class="fake-player-bar"
+            :style="
+              'background:' +
+              settingsStore.settings.damageMeter.functionality.estherColor
+            "
+          >
+            Nineveh
+          </div>
+          <span
+            @click="
+              settingsStore.settings.damageMeter.functionality.estherColor =
+                '#c2fc03'
+            "
+          >
+            Reset Esther color
+          </span>
+        </q-item-label>
+      </q-item-section>
+      <q-item-section side>
+        <q-input
+          v-model="settingsStore.settings.damageMeter.functionality.estherColor"
+          :rules="['anyColor']"
+        >
+          <template v-slot:append>
+            <q-icon name="colorize" class="cursor-pointer">
+              <q-popup-proxy
+                cover
+                transition-show="scale"
+                transition-hide="scale"
+              >
+                <q-color
+                  :model-value="
+                    settingsStore.settings.damageMeter.functionality.estherColor
+                  "
+                  @change="
+                    (val) => {
+                      settingsStore.settings.damageMeter.functionality.estherColor =
+                        val;
+                    }
+                  "
+                />
+              </q-popup-proxy>
+            </q-icon>
+          </template>
+        </q-input>
+      </q-item-section>
+    </q-item>
+
     <q-item>
       <q-item-section side>
         <q-icon name="access_time" />

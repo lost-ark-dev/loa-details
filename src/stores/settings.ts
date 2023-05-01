@@ -56,6 +56,8 @@ export const useSettingsStore = defineStore("settings", {
           dontResetOnZoneChange: false,
           pauseOnPhaseTransition: true,
           resetAfterPhaseTransition: true,
+          displayEsther: true,
+          estherColor: "#c2fc03",
           autoMinimize: false,
           autoMinimizeTimer: 60,
           minimizeToTaskbar: false,

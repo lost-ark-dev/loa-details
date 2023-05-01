@@ -667,44 +667,52 @@
         "
       >
         <template
-          v-if="['self_buff_dmg', 'self_buff_hit'].includes(damageType)"
+          v-for="player in sortedEntities.filter((e) => {
+            return e.name === focusedPlayer;
+          })"
         >
-          <TableEntry
-            :player="
-              sortedEntities.find((e) => {
-                return e.name === focusedPlayer;
-              })
-            "
-            :key="focusedPlayer"
+          <template
+            v-if="['self_buff_dmg', 'self_buff_hit'].includes(damageType)"
+          >
+            <TableEntry
+              :player="player"
+              :key="player.id"
+              :sortedBuffs="sortedBuffs"
+              :sortedAppliedShieldingBuffs="new Map()"
+              :sortedEffectiveShieldingBuffs="new Map()"
+              :damage-type="damageType"
+              :fight-duration="Math.max(1000, duration)"
+              :last-combat-packet="
+                sessionState?.lastCombatPacket
+                  ? sessionState.lastCombatPacket
+                  : 0
+              "
+              :name-display="nameDisplay"
+              :session-state="sessionState"
+              @click.right="focusedPlayer = '#'"
+            />
+            <tr class="spacing-row" :key="player.id">
+              <div></div>
+            </tr>
+          </template>
+          <SkillEntry
+            v-for="skill in sortedSkills"
+            :key="player.id + skill.name"
+            :skill="skill"
             :sortedBuffs="sortedBuffs"
             :sortedAppliedShieldingBuffs="new Map()"
             :sortedEffectiveShieldingBuffs="new Map()"
             :damage-type="damageType"
-            :fight-duration="Math.max(1000, duration)"
-            :last-combat-packet="
-              sessionState?.lastCombatPacket ? sessionState.lastCombatPacket : 0
+            :color="
+              player.isEsther
+                ? settingsStore.settings.damageMeter.functionality.estherColor
+                : settingsStore.getClassColor(getClassName(player.classId))
             "
-            :name-display="nameDisplay"
+            :fight-duration="Math.max(1000, duration)"
             :session-state="sessionState"
             @click.right="focusedPlayer = '#'"
           />
-          <tr class="spacing-row">
-            <div></div>
-          </tr>
         </template>
-        <SkillEntry
-          v-for="skill in sortedSkills"
-          :key="skill.name"
-          :skill="skill"
-          :sortedBuffs="sortedBuffs"
-          :sortedAppliedShieldingBuffs="new Map()"
-          :sortedEffectiveShieldingBuffs="new Map()"
-          :damage-type="damageType"
-          :class-name="focusedPlayerClass"
-          :fight-duration="Math.max(1000, duration)"
-          :session-state="sessionState"
-          @click.right="focusedPlayer = '#'"
-        />
       </tbody>
     </table>
   </div>
@@ -742,6 +750,7 @@ import {
   EntityExtended,
   EntitySkillsExtended,
   tabNames,
+  DamageType,
 } from "../../util/helpers";
 
 const settingsStore = useSettingsStore();
@@ -750,7 +759,7 @@ const settingsStore = useSettingsStore();
 const props = defineProps({
   sessionState: { type: Object as PropType<GameState>, required: true },
   damageType: {
-    type: String,
+    type: String as PropType<DamageType>,
     default: "dmg",
   },
   duration: {
@@ -811,7 +820,6 @@ watch(focusedPlayer, (val) => {
   }
 });
 let entitiesCopy: EntityExtended[] = [];
-
 const sortedEntities: ShallowRef<EntityExtended[]> = shallowRef([]);
 let sortedSkills: EntitySkillsExtended[] = [];
 
@@ -823,7 +831,13 @@ function sortEntities() {
   entitiesCopy = Array.from(props.sessionState.entities.values());
   const res = entitiesCopy
     .filter((entity) => {
-      if (!entity.isPlayer) return false;
+      if (
+        !entity.isPlayer &&
+        (props.damageType !== "dmg" ||
+          !entity.isEsther ||
+          !settingsStore.settings.damageMeter.functionality.displayEsther)
+      )
+        return false;
 
       if (props.damageType === "tank" && entity.damageTaken > 0) return true;
       else if (props.damageType === "heal" && entity.healingDone > 0)
@@ -1048,7 +1062,7 @@ const sortedBuffs: ComputedRef<Map<string, Map<number, StatusEffect>>> =
 function filterStatusEffects(
   buff: StatusEffect,
   id: number,
-  damageType: string,
+  damageType: DamageType,
   statusEffects: Map<string, Map<number, StatusEffect>>,
   focusedPlayer: string
 ) {
@@ -1189,7 +1203,7 @@ function filterStatusEffects(
   }
 }
 function isStatusEffectFiltered(
-  damageType: string,
+  damageType: DamageType,
   statusEffect: StatusEffect
 ) {
   if (!damageType.includes("_")) return false;
@@ -1220,7 +1234,7 @@ function addStatusEffectIfNeeded(
   buffId: number,
   statusEffect: StatusEffect,
   focusedPlayer: string,
-  damageType: string
+  damageType: DamageType
 ) {
   if (!isStatusEffectFiltered(damageType, statusEffect)) {
     return;

@@ -35,10 +35,18 @@
     <div v-if="!isTakingScreenshot">
       <q-btn flat size="sm" @click="damageType = 'dmg'"> DMG </q-btn>
       <q-btn flat size="sm" @click="damageType = 'tank'"> TANK </q-btn>
-      <q-btn flat size="sm" @click="damageType = 'shield_given'"> SHIELD D </q-btn>
-      <q-btn flat size="sm" @click="damageType = 'shield_gotten'"> SHIELD G </q-btn>
-      <q-btn flat size="sm" @click="damageType = 'eshield_given'"> ESHIELD D </q-btn>
-      <q-btn flat size="sm" @click="damageType = 'eshield_gotten'"> ESHIELD G </q-btn>
+      <q-btn flat size="sm" @click="damageType = 'shield_given'">
+        SHIELD D
+      </q-btn>
+      <q-btn flat size="sm" @click="damageType = 'shield_gotten'">
+        SHIELD G
+      </q-btn>
+      <q-btn flat size="sm" @click="damageType = 'eshield_given'">
+        ESHIELD D
+      </q-btn>
+      <q-btn flat size="sm" @click="damageType = 'eshield_gotten'">
+        ESHIELD G
+      </q-btn>
       <template
         v-if="settingsStore.settings.damageMeter.tabs.dPartyBuff.enabled"
       >

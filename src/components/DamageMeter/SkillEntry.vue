@@ -332,7 +332,7 @@
       class="player-bar"
       :style="`
               width:${skill.relativePercent}%;
-              background:${settingsStore.getClassColor(className)};
+              background:${color};
               `"
     ></div>
   </tr>
@@ -340,7 +340,6 @@
 
 <script setup lang="ts">
 import { computed, PropType } from "vue";
-import { skills } from "src/constants/skills.js";
 import { abbreviateNumber } from "src/util/number-helpers";
 import { useSettingsStore } from "src/stores/settings";
 import { GameState, StatusEffect } from "meter-core/logger/data";
@@ -349,6 +348,7 @@ import {
   getIconPath,
   getBuffPercent,
   EntitySkillsExtended,
+  DamageType,
 } from "../../util/helpers";
 import AbbreviatedNumberTemplate from "./AbbreviatedNumberTemplate.vue";
 
@@ -358,8 +358,8 @@ const props = defineProps({
   sortedBuffs: { type: Map<string, Map<number, StatusEffect>>, required: true },
   sessionState: { type: Object as PropType<GameState>, required: true },
   skill: { type: Object as PropType<EntitySkillsExtended>, required: true },
-  damageType: { type: String, default: "dmg" },
-  className: { type: String, required: true },
+  damageType: { type: String as PropType<DamageType>, default: "dmg" },
+  color: { type: String, required: true },
   fightDuration: { type: Number, required: true },
 });
 
@@ -392,54 +392,4 @@ const avgCast = computed(() => {
     return abbreviateNumber(props.skill.damageDealt);
   return abbreviateNumber(props.skill.damageDealt / props.skill.hits.casts);
 });
-type LOASkill = {
-  id: number;
-  name: string;
-  display?: string;
-  class: string;
-  level: number;
-  baseSkill?: number;
-  icon?: boolean;
-};
-function getSkillImage(id: number): string {
-  if (id > 99999) return getSkillImage(id / 10);
-  const s = getSkill(id);
-  if (s?.baseSkill) return getSkillImage(s.baseSkill);
-  if (id % 5 && !s?.icon) return getSkillImage(id - (id % 5));
-
-  if (s != null && skillHasIcon(s)) {
-    return new URL(
-      `../../assets/images/skills/${s.id}_${(s?.display ?? s.name).replace(
-        ":",
-        "-"
-      )}.png`,
-      import.meta.url
-    ).href;
-  }
-
-  return new URL("../../assets/images/skills/unknown.png", import.meta.url)
-    .href;
-}
-
-function getSkillName(skill: LOASkill) {
-  const s = getSkill(skill.id);
-
-  if (s != null) {
-    if ("display" in s) return s.display;
-  }
-  return skill.name;
-}
-
-function skillHasIcon(s: LOASkill) {
-  if (
-    s.name.startsWith("Basic Attack") ||
-    s?.display?.startsWith("Basic Attack") ||
-    !(s?.icon ?? true)
-  )
-    return false;
-  return true;
-}
-function getSkill(id: number) {
-  return skills.find((k) => k.id == id);
-}
 </script>
