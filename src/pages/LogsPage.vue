@@ -1,6 +1,6 @@
 <template>
   <q-scroll-area
-    ref="scrollArea"
+    ref="verticalScrollArea"
     style="height: calc(100vh - 4px - 32px - 66px)"
   >
     <div class="flex justify-start column">
@@ -184,6 +184,7 @@
               <q-scroll-area
                 style="width: calc(100vw - 96px - 12px)"
                 :style="{ height: encounter.image ? '272px' : '96px' }"
+                ref="horizontalScrollAreas"
               >
                 <div class="row no-wrap">
                   <q-card
@@ -222,7 +223,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from "vue";
+import { ref, reactive, onMounted, nextTick } from "vue";
 import dayjs from "dayjs";
 import {
   millisToMinutesAndSeconds,
@@ -245,10 +246,53 @@ const logViewerStore = useLogViewerStore();
 
 const loaderImg = new URL("../assets/images/loader.gif", import.meta.url).href;
 
-const scrollArea = ref(null);
-function changeLogViewerStoreState(newState) {
+const verticalScrollOffsets = {};
+const horizontalScrollOffsets = [];
+const verticalScrollArea = ref(null);
+const horizontalScrollAreas = ref(null);
+
+async function changeLogViewerStoreState(newState) {
+  verticalScrollOffsets[logViewerStore.viewerState] =
+    verticalScrollArea.value.getScroll().verticalPosition; //Save previous position
+
+  const oldState = logViewerStore.viewerState;
+  if (newState === "viewing-session") {
+    if (oldState === "none") {
+      verticalScrollOffsets[newState] = 0; //Reset scroll when we open a new session
+      horizontalScrollOffsets.length = 0;
+    } else if (oldState === "viewing-encounter") {
+    }
+  } else if (newState === "viewing-encounter") {
+    verticalScrollOffsets[newState] = 0; //Reset scroll when we enter encounter view
+    //Save horizontal scrolls
+    horizontalScrollOffsets.length = 0;
+    for (const hscroll of horizontalScrollAreas.value) {
+      horizontalScrollOffsets.push(hscroll.getScroll().horizontalPosition);
+    }
+  }
   logViewerStore.viewerState = newState;
-  if (scrollArea.value) scrollArea.value.setScrollPosition("vertical", 0);
+  if (verticalScrollArea.value || horizontalScrollAreas.value) {
+    await nextTick();
+    //apply vertical scroll
+    if (verticalScrollArea.value) {
+      verticalScrollArea.value.setScrollPosition(
+        "vertical",
+        verticalScrollOffsets[newState] ?? 0
+      );
+    }
+    //apply all horizontal scroll
+    console.log(
+      horizontalScrollAreas.value.length,
+      horizontalScrollOffsets.length
+    );
+    if (
+      horizontalScrollAreas.value &&
+      horizontalScrollAreas.value.length === horizontalScrollOffsets.length
+    )
+      horizontalScrollOffsets.forEach((val, index) => {
+        horizontalScrollAreas.value[index].setScrollPosition("horizontal", val);
+      });
+  }
 }
 
 /* Start session table */
