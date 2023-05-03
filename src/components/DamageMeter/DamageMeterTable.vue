@@ -878,10 +878,30 @@ function sortEntities() {
         return b.damagePreventedByShield - a.damagePreventedByShield;
       else return b.damageDealt - a.damageDealt;
     });
-
+  const totalDamageOverride = settingsStore.settings.damageMeter.functionality
+    .displayEsther
+    ? res.reduce((sum, e) => sum + e.damageDealt, 0)
+    : 0;
+  const topDamageOverride = settingsStore.settings.damageMeter.functionality
+    .displayEsther
+    ? res.reduce(
+        (prev, curr) => (prev > curr.damageDealt ? prev : curr.damageDealt),
+        0
+      )
+    : 0;
   for (const entity of res) {
-    entity.damagePercentageTotal = getPercentage(entity, "dmg", "total");
-    entity.damagePercentageTop = getPercentage(entity, "dmg", "top");
+    entity.damagePercentageTotal = getPercentage(
+      entity,
+      "dmg",
+      "total",
+      totalDamageOverride
+    );
+    entity.damagePercentageTop = getPercentage(
+      entity,
+      "dmg",
+      "top",
+      topDamageOverride
+    );
 
     entity.tankPercentageTotal = getPercentage(entity, "tank", "total");
     entity.tankPercentageTop = getPercentage(entity, "tank", "top");
@@ -938,6 +958,10 @@ function sortEntities() {
   sortedEntities.value = res;
 }
 
+function getEstherTotalDamage(entities: EntityExtended[]) {
+  return entities.reduce((sum, e) => sum + e.damageDealt, 0);
+}
+
 function calculateSkills() {
   sortedSkills = [];
   if (focusedPlayer.value === "#") return;
@@ -968,7 +992,8 @@ function calculateSkills() {
 function getPercentage(
   player: EntityState,
   dmgType: tabNames,
-  relativeTo: "total" | "top"
+  relativeTo: "total" | "top",
+  relativeOverride: number | undefined = undefined
 ) {
   if (!props.sessionState) return "0";
   let a = player.damageDealt;
@@ -983,32 +1008,59 @@ function getPercentage(
   let b = 0;
   if (dmgType === "dmg") {
     if (relativeTo === "top")
-      b = props.sessionState.damageStatistics.topDamageDealt;
-    else b = props.sessionState.damageStatistics.totalDamageDealt;
+      b =
+        relativeOverride ?? props.sessionState.damageStatistics.topDamageDealt;
+    else
+      b =
+        relativeOverride ??
+        props.sessionState.damageStatistics.totalDamageDealt;
   } else if (dmgType === "tank") {
     if (relativeTo === "top")
-      b = props.sessionState.damageStatistics.topDamageTaken;
-    else b = props.sessionState.damageStatistics.totalDamageTaken;
+      b =
+        relativeOverride ?? props.sessionState.damageStatistics.topDamageTaken;
+    else
+      b =
+        relativeOverride ??
+        props.sessionState.damageStatistics.totalDamageTaken;
   } else if (dmgType === "heal") {
     if (relativeTo === "top")
-      b = props.sessionState.damageStatistics.topHealingDone;
-    else b = props.sessionState.damageStatistics.totalHealingDone;
+      b =
+        relativeOverride ?? props.sessionState.damageStatistics.topHealingDone;
+    else
+      b =
+        relativeOverride ??
+        props.sessionState.damageStatistics.totalHealingDone;
   } else if (dmgType === "shield_given") {
     if (relativeTo === "top")
-      b = props.sessionState.damageStatistics.topShieldDone;
-    else b = props.sessionState.damageStatistics.totalShieldDone;
+      b = relativeOverride ?? props.sessionState.damageStatistics.topShieldDone;
+    else
+      b =
+        relativeOverride ?? props.sessionState.damageStatistics.totalShieldDone;
   } else if (dmgType == "shield_gotten") {
     if (relativeTo === "top")
-      b = props.sessionState.damageStatistics.topShieldGotten;
-    else b = props.sessionState.damageStatistics.totalShieldDone;
+      b =
+        relativeOverride ?? props.sessionState.damageStatistics.topShieldGotten;
+    else
+      b =
+        relativeOverride ?? props.sessionState.damageStatistics.totalShieldDone;
   } else if (dmgType == "eshield_gotten") {
     if (relativeTo === "top")
-      b = props.sessionState.damageStatistics.topEffectiveShieldingUsed;
-    else b = props.sessionState.damageStatistics.totalEffectiveShieldingDone;
+      b =
+        relativeOverride ??
+        props.sessionState.damageStatistics.topEffectiveShieldingUsed;
+    else
+      b =
+        relativeOverride ??
+        props.sessionState.damageStatistics.totalEffectiveShieldingDone;
   } else if (dmgType == "eshield_given") {
     if (relativeTo === "top")
-      b = props.sessionState.damageStatistics.topEffectiveShieldingDone;
-    else b = props.sessionState.damageStatistics.totalEffectiveShieldingDone;
+      b =
+        relativeOverride ??
+        props.sessionState.damageStatistics.topEffectiveShieldingDone;
+    else
+      b =
+        relativeOverride ??
+        props.sessionState.damageStatistics.totalEffectiveShieldingDone;
   }
 
   return ((a / b) * 100).toFixed(1);
