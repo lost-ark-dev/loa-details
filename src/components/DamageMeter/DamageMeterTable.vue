@@ -1305,11 +1305,6 @@ function addStatusEffectIfNeeded(
   } else if (damageType === "shield_given") {
     if (
       sortedEntities.value.find((entity) => {
-        console.log(
-          statusEffect.source.name,
-          entity.name,
-          entity.shieldDoneBy.get(buffId)
-        );
         return entity.shieldDoneBy.get(buffId) ?? 0 > 0;
       }) === undefined
     )
@@ -1332,11 +1327,6 @@ function addStatusEffectIfNeeded(
   } else if (damageType === "eshield_gotten") {
     if (
       sortedEntities.value.find((entity) => {
-        console.log(
-          statusEffect.source.name,
-          entity.name,
-          entity.damagePreventedByShieldBy.get(buffId)
-        );
         return entity.damagePreventedByShieldBy.get(buffId) ?? 0 > 0;
       }) === undefined
     )
