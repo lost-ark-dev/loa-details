@@ -68,7 +68,7 @@
             style="margin-right: 12px"
           >
             Total DMG
-            {{ numberFormat(sessionState.damageStatistics.totalDamageDealt) }}
+            {{ numberFormat(totalDamageDealt) }}
           </span>
           <span
             v-if="settingsStore.settings.damageMeter.header.dps.enabled"
@@ -396,6 +396,7 @@ const sessionState: ShallowRef<GameState | Record<string, never>> = shallowRef(
   {}
 );
 let sessionDPS = 0;
+let totalDamageDealt = 0;
 const windowWidth: Ref<number> = ref(0);
 
 onMounted(() => {
@@ -423,12 +424,22 @@ onMounted(() => {
   window.messageApi.send("window-to-main", { message: "get-settings" });
 
   window.messageApi.receive("pcap-on-state-change", (value: GameState) => {
-    if (value.damageStatistics?.totalDamageDealt && fightDuration.value > 0) {
+    totalDamageDealt = value.damageStatistics.totalDamageDealt;
+    if (
+      settingsStore.settings.damageMeter.functionality.displayEsther &&
+      settingsStore.settings.damageMeter.functionality.estherIncludeInTotal
+    ) {
+      value.entities.forEach((e) => {
+        if (e.isEsther) totalDamageDealt += e.damageDealt;
+      });
+    }
+    if (totalDamageDealt && fightDuration.value > 0) {
       sessionDPS = toFixedNumber(
-        value.damageStatistics.totalDamageDealt / (fightDuration.value / 1000),
+        totalDamageDealt / (fightDuration.value / 1000),
         0
       );
     }
+
     sessionState.value = value;
   });
 
@@ -436,6 +447,7 @@ onMounted(() => {
     fightPausedOn = 0;
     fightPausedForMs = 0;
     sessionDPS = 0;
+    totalDamageDealt = 0;
     damageType.value = "dmg";
     isFightPaused.value = false;
   });

@@ -60,6 +60,15 @@
       </p>
 
       <h5>Changelog</h5>
+      <h6 id="1-2-7">1.2.7</h6>
+      <ul>
+        <li>Fix previous commit that broke more than it fixed (yh i'm dumb)</li>
+        <li>
+          Esther is now counted in Total Damage and Total DPS (can be disabled
+          in settings->include esther in total damage (only show when display
+          esther is enabled))
+        </li>
+      </ul>
       <h6 id="1-2-6">1.2.6</h6>
       <ul>
         <li>Add basic wiki that includes how to read data</li>

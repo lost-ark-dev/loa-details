@@ -8,16 +8,13 @@
         </span>
         <span style="margin-right: 12px">
           Total DMG
-          {{ numberFormat(logData.damageStatistics.totalDamageDealt) }}
+          {{ numberFormat(totalDamageDealt) }}
         </span>
         <span style="margin-right: 12px">
           Total DPS
           {{
             numberFormat(
-              (
-                logData.damageStatistics.totalDamageDealt /
-                (logData.duration / 1000)
-              ).toFixed(0)
+              (totalDamageDealt / (logData.duration / 1000)).toFixed(0)
             )
           }}
         </span>
@@ -126,7 +123,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import {
   numberFormat,
   millisToMinutesAndSeconds,
@@ -154,6 +151,20 @@ const damageType = ref("dmg");
 
 const isTakingScreenshot = ref(false);
 const hideNamesOnScreenshot = ref(false);
+
+const totalDamageDealt = computed(() => {
+  let totalDamageDealt = props.logData.damageStatistics.totalDamageDealt;
+  if (
+    settingsStore.settings.damageMeter.functionality.displayEsther &&
+    settingsStore.settings.damageMeter.functionality.estherIncludeInTotal
+  ) {
+    props.logData.entities.forEach((e) => {
+      if (e.isEsther) totalDamageDealt += e.damageDealt;
+    });
+  }
+  return totalDamageDealt;
+});
+
 async function takeScreenshot(hideNames = true) {
   hideNamesOnScreenshot.value = hideNames;
   isTakingScreenshot.value = true;

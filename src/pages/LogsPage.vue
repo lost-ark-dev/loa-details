@@ -281,10 +281,6 @@ async function changeLogViewerStoreState(newState) {
       );
     }
     //apply all horizontal scroll
-    console.log(
-      horizontalScrollAreas.value.length,
-      horizontalScrollOffsets.length
-    );
     if (
       horizontalScrollAreas.value &&
       horizontalScrollAreas.value.length === horizontalScrollOffsets.length

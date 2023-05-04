@@ -134,6 +134,25 @@
       </q-item-section>
     </q-item>
 
+    <q-item
+      tag="label"
+      v-if="settingsStore.settings.damageMeter.functionality.displayEsther"
+    >
+      <q-item-section side top>
+        <q-checkbox
+          v-model="
+            settingsStore.settings.damageMeter.functionality
+              .estherIncludeInTotal
+          "
+        />
+      </q-item-section>
+      <q-item-section>
+        <q-item-label>Inlude Esther in Total damage</q-item-label>
+        <q-item-label caption>
+          Include Esther damage in total damage (table header)
+        </q-item-label>
+      </q-item-section>
+    </q-item>
     <q-item tag="label">
       <q-item-section>
         <q-item-label>

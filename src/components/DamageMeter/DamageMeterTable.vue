@@ -881,14 +881,14 @@ function sortEntities() {
   const totalDamageOverride = settingsStore.settings.damageMeter.functionality
     .displayEsther
     ? res.reduce((sum, e) => sum + e.damageDealt, 0)
-    : 0;
+    : undefined;
   const topDamageOverride = settingsStore.settings.damageMeter.functionality
     .displayEsther
     ? res.reduce(
         (prev, curr) => (prev > curr.damageDealt ? prev : curr.damageDealt),
         0
       )
-    : 0;
+    : undefined;
   for (const entity of res) {
     entity.damagePercentageTotal = getPercentage(
       entity,

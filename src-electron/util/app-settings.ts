@@ -93,6 +93,7 @@ export type Settings = {
       resetAfterPhaseTransition: boolean;
       displayEsther: boolean;
       estherColor: string;
+      estherIncludeInTotal: boolean;
       autoMinimize: boolean;
       autoMinimizeTimer: number;
       minimizeToTaskbar: boolean;
@@ -181,6 +182,7 @@ const defaultSettings: Settings = {
       resetAfterPhaseTransition: true,
       displayEsther: true,
       estherColor: "#c2fc03",
+      estherIncludeInTotal: true,
       autoMinimize: false,
       autoMinimizeTimer: 60,
       minimizeToTaskbar: false,
