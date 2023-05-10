@@ -60,6 +60,10 @@
       </p>
 
       <h5>Changelog</h5>
+      <h6 id="1-2-8">1.2.8</h6>
+      <ul>
+        <li>Support for game update 10/05/2023 - May (Slayer)</li>
+      </ul>
       <h6 id="1-2-7">1.2.7</h6>
       <ul>
         <li>Fix previous commit that broke more than it fixed (yh i'm dumb)</li>
