@@ -88,7 +88,15 @@
             v-if="settingsStore.settings.damageMeter.header.bossHP.enabled"
             style="margin-right: 12px"
           >
-            {{ sessionState.currentBoss ? "HP" : "No Boss" }}
+            {{
+              isTakingScreenshot
+                ? sessionState.currentBoss
+                  ? sessionState.currentBoss.name
+                  : "No Boss"
+                : sessionState.currentBoss
+                ? "HP"
+                : "No Boss"
+            }}
             {{
               sessionState.currentBoss &&
               sessionState.currentBoss.currentHp !== undefined &&
