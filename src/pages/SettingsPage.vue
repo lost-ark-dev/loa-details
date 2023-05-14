@@ -1,5 +1,5 @@
 <template>
-  <q-scroll-area style="height: calc(100vh - 4px - 32px - 66px)">
+  <q-scroll-area style="height: calc(100vh - 32px - 56px)">
     <q-tabs
       v-model="tab"
       inline-label

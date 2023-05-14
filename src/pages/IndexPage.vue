@@ -1,5 +1,5 @@
 <template>
-  <q-scroll-area style="height: calc(100vh - 4px - 32px - 66px)">
+  <q-scroll-area style="height: calc(100vh - 32px - 56px)">
     <div class="changelog-page">
       <h5>About</h5>
       <p>
@@ -60,6 +60,19 @@
       </p>
 
       <h5>Changelog</h5>
+      <h6 id="1-2-9">1.2.9</h6>
+      <ul>
+        <li>
+          You like our work? There is now a way to
+          <a
+            class="custom-link"
+            @click="openLinkInBrowser('https://patreon.com/Herysia')"
+            >support us</a
+          >
+          !
+        </li>
+        <li>Slightly changed main page</li>
+      </ul>
       <h6 id="1-2-8">1.2.8</h6>
       <ul>
         <li>Support for game update 10/05/2023 - May (Slayer)</li>

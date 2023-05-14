@@ -1,7 +1,7 @@
 <template>
   <q-scroll-area
     ref="verticalScrollArea"
-    style="height: calc(100vh - 4px - 32px - 66px)"
+    style="height: calc(100vh - 32px - 56px)"
   >
     <div class="flex justify-start column">
       <div

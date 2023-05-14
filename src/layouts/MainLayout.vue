@@ -1,58 +1,5 @@
 <template>
-  <q-layout view="lHh Lpr lFf" style="min-height: calc(100vh - 16px)">
-    <div v-if="drawerLeft" class="drawer-background"></div>
-    <q-drawer
-      v-model="drawerLeft"
-      overlay
-      bordered
-      :width="300"
-      class="text-white"
-      :no-swipe-backdrop="true"
-    >
-      <q-scroll-area class="fit">
-        <div class="drawer-container">
-          <q-btn
-            @click="drawerLeft = !drawerLeft"
-            class="close-button"
-            flat
-            round
-            dense
-            icon="close"
-            style="margin-bottom: 16px"
-          />
-
-          <router-link :to="{ path: '/' }" custom v-slot="{ href, navigate }">
-            <div class="drawer-item" :href="href" @click="navigate">
-              <q-icon name="home" />
-              Home
-            </div>
-          </router-link>
-
-          <router-link
-            :to="{ path: '/logs' }"
-            custom
-            v-slot="{ href, navigate }"
-          >
-            <div class="drawer-item" :href="href" @click="navigate">
-              <q-icon name="timeline" />
-              Logs
-            </div>
-          </router-link>
-
-          <router-link
-            :to="{ path: '/settings' }"
-            custom
-            v-slot="{ href, navigate }"
-          >
-            <div class="drawer-item" :href="href" @click="navigate">
-              <q-icon name="settings" />
-              Settings
-            </div>
-          </router-link>
-        </div>
-      </q-scroll-area>
-    </q-drawer>
-
+  <q-layout view="lHh Lpr lFf">
     <div class="q-electron-drag app-bar">
       <div>
         <span class="gilroy-extra-bold">LOA</span>
@@ -72,15 +19,6 @@
     </div>
 
     <div class="app-links q-pa-sm q-pl-md row items-center">
-      <q-btn
-        @click="drawerLeft = !drawerLeft"
-        class="link-item"
-        flat
-        round
-        dense
-        icon="menu"
-      />
-
       <router-link :to="{ path: '/' }" custom v-slot="{ href, navigate }">
         <div
           class="link-item q-ml-lg non-selectable"
@@ -88,6 +26,7 @@
           :href="href"
           @click="navigate"
         >
+          <q-icon name="home" />
           Home
         </div>
       </router-link>
@@ -99,6 +38,7 @@
           :href="href"
           @click="navigate"
         >
+          <q-icon name="query_stats" />
           Logs
         </div>
       </router-link>
@@ -114,6 +54,7 @@
           :href="href"
           @click="navigate"
         >
+          <q-icon name="settings" />
           Settings
         </div>
       </router-link>
@@ -129,11 +70,12 @@
       </div>
 
       <div
-        class="link-item non-selectable"
+        class="link-item q-ml-lg non-selectable"
+        @click="openPatreon"
         style="margin-left: auto"
-        @click="updateButton"
       >
-        {{ updateButtonText }}
+        <q-icon name="fa-brands fa-patreon" style="color: #f1465a" />
+        Support us on Patreon!
       </div>
     </div>
 
@@ -144,16 +86,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { onMounted } from "vue";
 import { useSettingsStore } from "src/stores/settings";
 import { useRoute } from "vue-router";
 import { Settings } from "app/src-electron/util/app-settings";
-import { ProgressInfo } from "electron-updater";
 
 const settingsStore = useSettingsStore();
 
 const route = useRoute();
-const drawerLeft = ref(false);
 
 function minimize() {
   if (process.env.MODE === "electron") {
@@ -178,6 +118,12 @@ function closeApp() {
   }
 }
 
+function openPatreon() {
+  window.messageApi.send("window-to-main", {
+    message: "open-link",
+    value: "https://patreon.com/Herysia",
+  });
+}
 function openDiscord() {
   window.messageApi.send("window-to-main", {
     message: "open-link",
@@ -191,59 +137,12 @@ function openWiki() {
   });
 }
 
-const isUpdateAvailable = ref(false);
-const updateButtonText = ref("Check for Updates");
-function updateButton() {
-  if (!isUpdateAvailable.value) {
-    window.messageApi.send("window-to-main", {
-      message: "check-for-updates",
-    });
-  } else {
-    window.messageApi.send("window-to-main", {
-      message: "quit-and-install",
-    });
-  }
-}
-
 onMounted(() => {
   settingsStore.initSettings();
 
   window.messageApi.receive("on-settings-change", (value: Settings) => {
     settingsStore.loadSettings(value);
   });
-
-  window.messageApi.receive("updater-message", (eventMessage) => {
-    if (eventMessage.message === "checking-for-update") {
-      updateButtonText.value = "Checking for updates...";
-    } else if (eventMessage.message === "update-available") {
-      updateButtonText.value = "Found a new update! Starting download...";
-    } else if (eventMessage.message === "update-not-available") {
-      updateButtonText.value = "No Update";
-      setTimeout(() => {
-        updateButtonText.value = "Check for Updates";
-      }, 3000);
-    } else if (eventMessage.message === "download-progress") {
-      updateButtonText.value = `Downloading update ${(
-        eventMessage.value as ProgressInfo
-      ).percent.toFixed(0)}%`;
-    } else if (eventMessage.message === "update-downloaded") {
-      updateButtonText.value = "Install New Update";
-      isUpdateAvailable.value = true;
-    } else if (eventMessage.message === "error") {
-      updateButtonText.value = "Error: " + eventMessage.value;
-    }
-  });
-
-  /*
-  setInterval(() => {
-    if (!isUpdateAvailable.value) {
-      window.messageApi.send("window-to-main", {
-        message: "check-for-updates",
-      });
-    }
-  }, 60000 * 60);
-  */
-
   window.messageApi.send("window-to-main", { message: "get-settings" });
 });
 </script>
@@ -258,8 +157,7 @@ onMounted(() => {
   height: 100%;
   background: #111519b3;
 }
-.q-page-container,
-.q-drawer {
+.q-page-container {
   background: #1c2127;
 }
 
@@ -268,25 +166,6 @@ onMounted(() => {
 }
 .drawer-container .close-button {
   margin-left: 32px;
-}
-.drawer-item .q-icon {
-  font-size: 18px;
-  color: #777a7d;
-  margin-right: 8px;
-}
-.drawer-item {
-  padding: 8px;
-  padding-left: 32px;
-  color: #fff;
-  font-size: 14px;
-  font-family: "questrial";
-  cursor: default;
-}
-.drawer-item:hover {
-  background-color: #8fa66d;
-}
-.drawer-item:hover .q-icon {
-  color: #fff;
 }
 
 .app-bar {
@@ -321,7 +200,7 @@ onMounted(() => {
 }
 .app-links {
   background: #161a1f;
-  padding: 16px 32px;
+  padding: 16px 32px 16px 16px;
   font-family: "gilroy light";
   font-size: 16px;
   letter-spacing: 1px;
@@ -330,8 +209,12 @@ onMounted(() => {
 }
 .app-links .link-item:hover {
   color: #edfcb1;
+  cursor: pointer;
 }
 .app-links .link-item.active {
   color: #fff;
+}
+.app-links .q-icon {
+  padding-bottom: 3px;
 }
 </style>
