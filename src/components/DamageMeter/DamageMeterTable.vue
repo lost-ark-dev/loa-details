@@ -1,5 +1,30 @@
 <template>
   <div class="damage-meter-table-wrapper" :style="wrapperStyle">
+    <div
+      class="damage-meter-warning row"
+      v-if="
+        !hideMeterWarning &&
+        sessionState.damageStatistics.totalDamageDealt > 0 &&
+        (sessionState.localPlayer === '' || sessionState.localPlayer === 'You')
+      "
+    >
+      <span class="col"
+        >Warning: Data may be invalid, please start the meter before entering
+        your raid</span
+      >
+      <q-btn
+        icon="close"
+        size="0.6em"
+        flat
+        dense
+        round
+        @click="
+          () => {
+            hideMeterWarning = true;
+          }
+        "
+      ></q-btn>
+    </div>
     <table class="damage-meter-table">
       <thead>
         <q-menu touch-position context-menu>
@@ -754,6 +779,7 @@ import {
 } from "../../util/helpers";
 
 const settingsStore = useSettingsStore();
+let hideMeterWarning = false;
 
 // TODO: move these to a pinia store
 const props = defineProps({
@@ -1403,6 +1429,13 @@ const sortedEffectiveShieldingBuffs: ComputedRef<
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.damage-meter-warning {
+  font-family: "Segoe UI", "Segoe UI", "sans-serif";
+  text-align: center;
+  width: 100%;
+  background-color: #fa5b55;
+  font-size: 11px;
 }
 .damage-meter-table-wrapper {
   overflow-y: scroll;
