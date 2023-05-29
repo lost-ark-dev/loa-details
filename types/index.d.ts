@@ -1,6 +1,11 @@
-import { Settings } from "app/src-electron/util/app-settings";
-import { ProgressInfo } from "electron-updater";
-import { GameState } from "meter-core/logger/data";
+import type { Settings } from "src-electron/util/app-settings";
+import type { ProgressInfo } from "electron-updater";
+import type { GameState } from "meter-core/logger/data";
+import {
+  GameStateFile,
+  LogParserStatus,
+  ParsedLogInfo,
+} from "src-electron/log-parser/file-parser";
 export type MessageEvent =
   | { message: "download-progress"; value: ProgressInfo }
   | {
@@ -24,6 +29,15 @@ export interface MessageApi {
   receive(
     channel: "uploader-message",
     func: (value: { failed: boolean; message: string }) => void
+  ): void;
+  receive(channel: "parsed-log", func: (value: GameStateFile) => void): void;
+  receive(
+    channel: "log-parser-status",
+    func: (value: LogParserStatus) => void
+  ): void;
+  receive(
+    channel: "parsed-logs-list",
+    func: (value: ParsedLogInfo[]) => void
   ): void;
   receive(channel: string, func: (...args: unknown[]) => void): void;
 }

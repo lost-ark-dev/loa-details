@@ -188,6 +188,7 @@
 </template>
 
 <script setup>
+/* eslint-disable */
 import { onMounted, ref, watch } from "vue";
 import { useSettingsStore } from "src/stores/settings";
 const settingsStore = useSettingsStore();
@@ -208,7 +209,6 @@ watch(uploadKey, (newVal, oldVal) => {
 onMounted(() => {
   uploadKey.value = settingsStore.settings.uploads.uploadKey;
 });
-
 /**
  * @param {'api' | 'site' | 'endpoint'} type
  */

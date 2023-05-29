@@ -7,7 +7,8 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { ProgressInfo } from "electron-builder";
 import { onMounted, ref } from "vue";
 
 const currentMessage = ref("Checking for updates...");
@@ -22,13 +23,13 @@ onMounted(() => {
     } else if (eventMessage.message === "update-not-available") {
       currentMessage.value = "Starting LOA Details...";
     } else if (eventMessage.message === "download-progress") {
-      currentMessage.value = `Downloading update ${eventMessage.value.percent.toFixed(
-        0
-      )}%`;
+      currentMessage.value = `Downloading update ${(
+        eventMessage.value as ProgressInfo
+      ).percent.toFixed(0)}%`;
     } else if (eventMessage.message === "update-downloaded") {
       currentMessage.value = "Starting updater...";
     } else if (eventMessage.message === "error") {
-      currentMessage.value = "Error: " + eventMessage.value;
+      currentMessage.value = "Error: " + (eventMessage.value as string);
     }
   });
 });

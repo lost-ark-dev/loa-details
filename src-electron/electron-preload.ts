@@ -1,4 +1,4 @@
-import { MessageApi } from "app/types";
+import { MessageApi } from "types";
 import { contextBridge, IgnoreMouseEventsOptions, ipcRenderer } from "electron";
 
 contextBridge.exposeInMainWorld("messageApi", {
@@ -27,6 +27,7 @@ contextBridge.exposeInMainWorld("messageApi", {
 
     if (validChannels.includes(channel)) {
       // Deliberately strip event as it includes `sender`
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       ipcRenderer.on(channel, (event, args) => func(args));
     }
   },
@@ -43,6 +44,6 @@ contextBridge.exposeInMainWorld("windowControlApi", {
 
 contextBridge.exposeInMainWorld("helperApi", {
   getMeterDataPath: () => {
-    return ipcRenderer.sendSync("get-meter-data-path");
+    return ipcRenderer.sendSync("get-meter-data-path") as string;
   },
 });

@@ -8,19 +8,27 @@
         </span>
         <span style="margin-right: 12px">
           Total DMG
-          {{ numberFormat(totalDamageDealt) }}
+          <span style="font-weight: bolder">
+            <AbbreviatedNumberTemplate :val="totalDamageDealt" :hover="true" />
+          </span>
         </span>
         <span style="margin-right: 12px">
           Total DPS
-          {{
-            numberFormat(
-              (totalDamageDealt / (logData.duration / 1000)).toFixed(0)
-            )
-          }}
+          <span style="font-weight: bolder">
+            <AbbreviatedNumberTemplate
+              :val="totalDamageDealt / (logData.duration / 1000)"
+              :hover="true"
+            />
+          </span>
         </span>
         <span style="margin-right: 12px">
           Total TNK
-          {{ numberFormat(logData.damageStatistics.totalDamageTaken) }}
+          <span style="font-weight: bolder">
+            <AbbreviatedNumberTemplate
+              :val="logData.damageStatistics.totalDamageTaken"
+              :hover="true"
+            />
+          </span>
         </span>
         <span v-if="isTakingScreenshot" class="watermark-box">
           <img class="watermark-logo" :src="logoImg" />
@@ -122,8 +130,8 @@
   </div>
 </template>
 
-<script setup>
-import { ref, computed } from "vue";
+<script setup lang="ts">
+import { ref, computed, PropType, type Ref } from "vue";
 import {
   numberFormat,
   millisToMinutesAndSeconds,
@@ -134,20 +142,26 @@ import html2canvas from "html2canvas";
 
 import DamageMeterTable from "src/components/DamageMeter/DamageMeterTable.vue";
 import { useSettingsStore } from "src/stores/settings";
+import { GameStateFile } from "src-electron/log-parser/file-parser";
+import { DamageType } from "src/util/helpers";
+import AbbreviatedNumberTemplate from "./DamageMeter/AbbreviatedNumberTemplate.vue";
 
 const logoImg = new URL("../assets/images/logo.png", import.meta.url).href;
 
 const settingsStore = useSettingsStore();
 
 const props = defineProps({
-  logData: Object,
+  logData: {
+    type: Object as PropType<GameStateFile>,
+    required: true,
+  },
 });
 
 defineExpose({
   takeScreenshot,
 });
 
-const damageType = ref("dmg");
+const damageType: Ref<DamageType> = ref("dmg");
 
 const isTakingScreenshot = ref(false);
 const hideNamesOnScreenshot = ref(false);
@@ -159,7 +173,7 @@ const totalDamageDealt = computed(() => {
     settingsStore.settings.damageMeter.functionality.estherIncludeInTotal
   ) {
     props.logData.entities.forEach((e) => {
-      if (e.isEsther) totalDamageDealt += e.damageDealt;
+      if (e.isEsther) totalDamageDealt += e.damageInfo.damageDealt;
     });
   }
   return totalDamageDealt;
@@ -170,18 +184,20 @@ async function takeScreenshot(hideNames = true) {
   isTakingScreenshot.value = true;
   await sleep(600);
 
-  const logViewRef = this.$refs.logView;
-  const screenshot = await html2canvas(logViewRef, {
+  /* eslint-disable */
+  // @ts-ignore
+  const screenshot = await html2canvas(this.$refs.logView, {
     backgroundColor: "#121212",
   });
-
+  /* eslint-enable */
   screenshot.toBlob(
     (blob) => {
-      navigator.clipboard.write([
-        new ClipboardItem({
-          [blob.type]: blob,
-        }),
-      ]);
+      if (blob)
+        void navigator.clipboard.write([
+          new ClipboardItem({
+            [blob.type]: blob,
+          }),
+        ]);
     },
     "image/png",
     1

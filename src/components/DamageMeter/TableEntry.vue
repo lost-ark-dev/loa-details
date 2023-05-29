@@ -153,7 +153,8 @@
       >
         {{
           (
-            (player.damageDealtBuffedBySupport / player.damageDealt) *
+            (player.damageInfo.damageDealtBuffedBySupport /
+              player.damageInfo.damageDealt) *
             100
           ).toFixed(1)
         }}
@@ -168,7 +169,8 @@
       >
         {{
           (
-            (player.damageDealtDebuffedBySupport / player.damageDealt) *
+            (player.damageInfo.damageDealtDebuffedBySupport /
+              player.damageInfo.damageDealt) *
             100
           ).toFixed(1)
         }}
@@ -441,7 +443,7 @@ const entryName = computed(() => {
       props.player.gearScore &&
       props.player.gearScore != 0
     ) {
-      res += props.player.gearScore;
+      res += Math.round(props.player.gearScore * 100) / 100;
       hasGearScore = true;
     }
 
@@ -461,7 +463,7 @@ const entryName = computed(() => {
 
 const DAMAGE = computed(() => {
   if (!props.player) return 0;
-  let damage = props.player.damageDealt;
+  let damage = props.player.damageInfo.damageDealt;
   if (props.damageType === "tank") damage = props.player.damageTaken;
   else if (props.damageType === "heal") damage = props.player.healingDone;
   else if (props.damageType === "shield_given")
@@ -478,7 +480,7 @@ const DAMAGE = computed(() => {
 
 const DPS = computed(() => {
   if (!props.player) return 0;
-  let a = props.player.damageDealt;
+  let a = props.player.damageInfo.damageDealt;
   if (props.damageType === "tank") a = props.player.damageTaken;
   else if (props.damageType === "heal") a = props.player.healingDone;
   else if (props.damageType === "shield_given") a = props.player.shieldDone;

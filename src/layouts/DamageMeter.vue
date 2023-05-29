@@ -371,7 +371,7 @@ async function takeScreenshot() {
   screenshot.toBlob(
     (blob) => {
       if (!blob) return;
-      navigator.clipboard.write([
+      void navigator.clipboard.write([
         new ClipboardItem({
           [blob.type]: blob,
         }),
@@ -438,7 +438,7 @@ onMounted(() => {
       settingsStore.settings.damageMeter.functionality.estherIncludeInTotal
     ) {
       value.entities.forEach((e) => {
-        if (e.isEsther) totalDamageDealt += e.damageDealt;
+        if (e.isEsther) totalDamageDealt += e.damageInfo.damageDealt;
       });
     }
     if (totalDamageDealt && fightDuration.value > 0) {
@@ -451,7 +451,7 @@ onMounted(() => {
     sessionState.value = value;
   });
 
-  window.messageApi.receive("pcap-on-reset-state", (value) => {
+  window.messageApi.receive("pcap-on-reset-state", () => {
     fightPausedOn = 0;
     fightPausedForMs = 0;
     sessionDPS = 0;
@@ -514,6 +514,15 @@ onMounted(() => {
             Notify.create({
               message: `Paused the session (${pauseReason}).`,
               color: "primary",
+              actions: [
+                {
+                  label: "Dismiss",
+                  color: "white",
+                  handler: () => {
+                    /* ... */
+                  },
+                },
+              ],
             });
           }
         }

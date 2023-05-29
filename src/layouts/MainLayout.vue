@@ -89,7 +89,7 @@
 import { onMounted } from "vue";
 import { useSettingsStore } from "src/stores/settings";
 import { useRoute } from "vue-router";
-import { Settings } from "app/src-electron/util/app-settings";
+import { Settings } from "src-electron/util/app-settings";
 
 const settingsStore = useSettingsStore();
 

@@ -1,4 +1,5 @@
 // this array is only used for github copilot auto array object generation :)
+/*
 const test = [
   "Argos",
   "ValtanG1",
@@ -32,6 +33,7 @@ const test = [
   "Kungelanium",
   // GUARDIANS END
 ];
+*/
 
 export const encounters = {
   Argos: {

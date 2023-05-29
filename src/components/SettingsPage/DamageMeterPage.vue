@@ -457,6 +457,7 @@
 </template>
 
 <script setup>
+/* eslint-disable */
 import { ref, watch, onMounted } from "vue";
 import { useSettingsStore } from "src/stores/settings";
 const settingsStore = useSettingsStore();

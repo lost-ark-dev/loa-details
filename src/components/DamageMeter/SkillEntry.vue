@@ -14,7 +14,10 @@
       v-if="settingsStore.settings.damageMeter.tabs.damage.enabled"
       class="text-center"
     >
-      <AbbreviatedNumberTemplate :val="skill.damageDealt" :hover="true" />
+      <AbbreviatedNumberTemplate
+        :val="skill.damageInfo.damageDealt"
+        :hover="true"
+      />
     </td>
     <template v-if="['dmg', 'tank', 'heal'].includes(damageType)">
       <td
@@ -103,7 +106,8 @@
         {{
           skill.hits.total > 0
             ? (
-                (skill.damageDealtBuffedBySupport / skill.damageDealt) *
+                (skill.damageInfo.damageDealtBuffedBySupport /
+                  skill.damageInfo.damageDealt) *
                 100
               ).toFixed(1)
             : (0).toFixed(1)
@@ -117,7 +121,8 @@
         {{
           skill.hits.total > 0
             ? (
-                (skill.damageDealtDebuffedBySupport / skill.damageDealt) *
+                (skill.damageInfo.damageDealtDebuffedBySupport /
+                  skill.damageInfo.damageDealt) *
                 100
               ).toFixed(1)
             : (0).toFixed(1)
@@ -364,7 +369,7 @@ const props = defineProps({
 });
 
 const DPS = computed(() => {
-  return props.skill.damageDealt / (props.fightDuration / 1000);
+  return props.skill.damageInfo.damageDealt / (props.fightDuration / 1000);
 });
 
 const HPM = computed(() => {
@@ -384,12 +389,16 @@ const maxDamage = computed(() => {
 
 const avgDamage = computed(() => {
   if (props.skill.hits.total === 0)
-    return abbreviateNumber(props.skill.damageDealt);
-  return abbreviateNumber(props.skill.damageDealt / props.skill.hits.total);
+    return abbreviateNumber(props.skill.damageInfo.damageDealt);
+  return abbreviateNumber(
+    props.skill.damageInfo.damageDealt / props.skill.hits.total
+  );
 });
 const avgCast = computed(() => {
   if (props.skill.hits.total === 0)
-    return abbreviateNumber(props.skill.damageDealt);
-  return abbreviateNumber(props.skill.damageDealt / props.skill.hits.casts);
+    return abbreviateNumber(props.skill.damageInfo.damageDealt);
+  return abbreviateNumber(
+    props.skill.damageInfo.damageDealt / props.skill.hits.casts
+  );
 });
 </script>

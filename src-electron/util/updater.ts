@@ -8,7 +8,7 @@ log.transports.file.level = "info";
 export const updaterEventEmitter = new EventEmitter();
 
 export function checkForUpdates() {
-  autoUpdater.checkForUpdates();
+  void autoUpdater.checkForUpdates();
 }
 
 export function quitAndInstall(isSilent?: boolean, isForceRunAfter?: boolean) {

@@ -12,7 +12,21 @@ import { GameState, PARSED_LOG_VERSION } from "meter-core/logger/data";
 import { randomUUID } from "crypto";
 
 dayjs.extend(customParseFormat);
-
+export type LogParserStatus = {
+  completedJobs: number;
+  totalJobs: number;
+};
+export type MasterLog = {
+  encounters: Encounter[];
+};
+export type GameStateFile = {
+  duration: number;
+  mostDamageTakenEntity: {
+    name: string;
+    damageTaken: number;
+    isPlayer: boolean;
+  };
+} & GameState;
 export async function parseLogs(
   event: IpcMainEvent,
   splitOnPhaseTransition: boolean,
@@ -36,7 +50,9 @@ export async function parseLogs(
       path.join(mainFolder, "main.json"),
       "utf-8"
     );
-    mainJson = JSON.parse(mainStr);
+    mainJson = JSON.parse(mainStr) as {
+      [key: string]: { mtime: Date; logParserVersion: number };
+    };
   }
 
   let completedJobs = 0,
@@ -141,7 +157,7 @@ function parseLog(
 ): "log parsed" | "no encounters found" | "log parser error" {
   try {
     if (encounters.length > 0) {
-      const masterLog: { encounters: Encounter[] } = { encounters: [] };
+      const masterLog: MasterLog = { encounters: [] };
 
       for (const encounter of encounters) {
         const duration = encounter.lastCombatPacket - encounter.fightStartedOn;
@@ -202,8 +218,12 @@ function parseLog(
     return "log parser error";
   }
 }
-
-export async function getParsedLogs() {
+export type ParsedLogInfo = {
+  filename: string;
+  parsedContents: MasterLog;
+  date: Date;
+};
+export async function getParsedLogs(): Promise<ParsedLogInfo[]> {
   const parsedLogs = await fsPromises.readdir(parsedLogFolder);
 
   const res = [];
@@ -217,7 +237,7 @@ export async function getParsedLogs() {
         "utf-8"
       );
 
-      const parsedContents = await JSON.parse(contents, reviver);
+      const parsedContents = (await JSON.parse(contents, reviver)) as MasterLog;
 
       res.push({
         filename,
@@ -235,13 +255,15 @@ export async function getParsedLogs() {
   return res;
 }
 
-export async function getLogData(filename: string) {
+export async function getLogData(
+  filename: string
+): Promise<GameStateFile | Record<string, never>> {
   try {
     const contents = await fsPromises.readFile(
       path.join(parsedLogFolder, filename),
       "utf-8"
     );
-    return await JSON.parse(contents, reviver);
+    return (await JSON.parse(contents, reviver)) as GameStateFile;
   } catch (e) {
     log.error(e);
     return {};
@@ -254,7 +276,7 @@ export async function wipeParsedLogs() {
     await fsPromises.unlink(path.join(parsedLogFolder, filename));
   }
 }
-
+/* eslint-disable */
 function reviver(_key: string, value: any) {
   if (typeof value === "object" && value !== null) {
     if (value.hasOwnProperty("dataType")) {
@@ -264,6 +286,7 @@ function reviver(_key: string, value: any) {
   }
   return value;
 }
+
 function replacer(_key: any, value: any) {
   if (value instanceof Map) {
     return {
@@ -279,6 +302,7 @@ function replacer(_key: any, value: any) {
     return value;
   }
 }
+/* eslint-enable */
 
 type Encounter = {
   encounterId: string;

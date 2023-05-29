@@ -30,7 +30,7 @@ export function initWindow(window: BrowserWindow, name: string) {
       window.setPosition(windowOptions.X, windowOptions.Y);
     }
 
-    window.webContents.setVisualZoomLevelLimits(1, 5);
+    void window.webContents.setVisualZoomLevelLimits(1, 5);
     if (windowOptions.zoomFactor) {
       window.webContents.setZoomFactor(windowOptions.zoomFactor);
     }

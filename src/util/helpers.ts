@@ -1,7 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-//@ts-ignore
+// @ts-ignore
 import PCData from "/meter-data/databases/PCData.json";
-
 import {
   EntityState,
   EntitySkills,
@@ -11,7 +10,9 @@ import {
 
 export type EntryData = {
   hits: Hits;
-  damageDealt: number;
+  damageInfo: {
+    damageDealt: number;
+  };
   damageDealtDebuffedBy: Map<number, number>;
   damageDealtBuffedBy: Map<number, number>;
 };
@@ -104,7 +105,10 @@ export function getBuffPercent(
     let val = 0;
     if (statusEffect.category === "buff" && damageType.includes("dmg")) {
       // Buff dmg
-      val = ((data.damageDealtBuffedBy.get(id) ?? 0) / data.damageDealt) * 100;
+      val =
+        ((data.damageDealtBuffedBy.get(id) ?? 0) /
+          data.damageInfo.damageDealt) *
+        100;
     } else if (statusEffect.category === "buff" && damageType.includes("hit")) {
       // Buff hits
 
@@ -116,7 +120,9 @@ export function getBuffPercent(
       // Debuff dmg
 
       val =
-        ((data.damageDealtDebuffedBy.get(id) ?? 0) / data.damageDealt) * 100;
+        ((data.damageDealtDebuffedBy.get(id) ?? 0) /
+          data.damageInfo.damageDealt) *
+        100;
     } else if (
       statusEffect.category === "debuff" &&
       damageType.includes("hit")
@@ -145,5 +151,5 @@ export function getIconPath(iconName: string | undefined): string {
 }
 
 export function getClassName(id: number | undefined): string {
-  return id ? PCData[id] ?? "" : "";
+  return id ? (PCData as Record<number, string>)[id] ?? "" : "";
 }

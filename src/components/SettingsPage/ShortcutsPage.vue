@@ -45,6 +45,7 @@
 </template>
 
 <script setup>
+/* eslint-disable */
 import { ref, watch, onMounted, reactive } from "vue";
 import {
   shortcutSuffixOptions,

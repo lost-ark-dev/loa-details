@@ -1,3 +1,4 @@
+const { resolve } = require("path");
 module.exports = {
   // https://eslint.org/docs/user-guide/configuring#configuration-cascading-and-hierarchy
   // This option interrupts the configuration hierarchy at this file
@@ -8,8 +9,10 @@ module.exports = {
   // Must use parserOptions instead of "parser" to allow vue-eslint-parser to keep working
   // `parser: 'vue-eslint-parser'` is already included with any 'plugin:vue/**' config and should be omitted
   parserOptions: {
-    parser: require.resolve("@typescript-eslint/parser"),
+    parser: "@typescript-eslint/parser",
     extraFileExtensions: [".vue"],
+    project: resolve(__dirname, "./tsconfig.json"),
+    tsconfigRootDir: __dirname,
   },
 
   env: {
@@ -26,7 +29,10 @@ module.exports = {
 
     // https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin#usage
     // ESLint typescript rules
+    "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
+    // consider disabling this class of rules if linting takes too long
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
 
     // Uncomment any of the lines below to choose desired strictness,
     // but leave only one uncommented!

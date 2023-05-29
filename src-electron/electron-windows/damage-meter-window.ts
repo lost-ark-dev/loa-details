@@ -33,19 +33,21 @@ export function createDamageMeterWindow(
     },
   });
 
-  damageMeterWindow.loadURL(process.env.APP_URL + "#/damage-meter").then(() => {
-    if (!damageMeterWindow) return;
-    if (process.env.DEBUGGING) {
-      damageMeterWindow.webContents.openDevTools();
-    } else {
-      damageMeterWindow.webContents.on("devtools-opened", () => {
-        damageMeterWindow?.webContents.closeDevTools();
-      });
-    }
-    damageMeterWindow.show();
+  void damageMeterWindow
+    .loadURL(process.env.APP_URL + "#/damage-meter")
+    .then(() => {
+      if (!damageMeterWindow) return;
+      if (process.env.DEBUGGING) {
+        damageMeterWindow.webContents.openDevTools();
+      } else {
+        damageMeterWindow.webContents.on("devtools-opened", () => {
+          damageMeterWindow?.webContents.closeDevTools();
+        });
+      }
+      damageMeterWindow.show();
 
-    initWindow(damageMeterWindow, "damage_meter");
-  });
+      initWindow(damageMeterWindow, "damage_meter");
+    });
 
   damageMeterWindow.setAlwaysOnTop(true, "normal");
 
@@ -60,7 +62,7 @@ export function createDamageMeterWindow(
         log.info("Starting an upload");
 
         const openInBrowser = appSettings.uploads.openOnUpload;
-
+        /* eslint-disable */
         upload(state, appSettings)
           .then((response) => {
             if (!response) return;
@@ -82,6 +84,7 @@ export function createDamageMeterWindow(
               message: e.message,
             });
           });
+        /* eslint-enable */
       }
     } catch (e) {
       log.error(e);

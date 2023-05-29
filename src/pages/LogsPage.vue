@@ -113,14 +113,14 @@
             icon="screenshot_monitor"
             color="primary"
             label="Screenshot Log"
-            @click="$refs.logView.takeScreenshot()"
+            @click="($refs.logView as any).takeScreenshot()"
             style="margin-left: auto"
           >
             <q-list>
               <q-item
                 clickable
                 v-close-popup
-                @click="$refs.logView.takeScreenshot((hideNames = false))"
+                @click="($refs.logView as any).takeScreenshot(false)"
               >
                 <q-item-section>
                   <q-item-label>Screenshot With Names</q-item-label>
@@ -212,7 +212,8 @@
       <div
         v-if="
           logViewerStore.viewerState === 'viewing-encounter' &&
-          logFile.viewingLogFile
+          logFile.viewingLogFile &&
+          logFile.data
         "
         class="logs-page"
       >
@@ -222,8 +223,8 @@
   </q-scroll-area>
 </template>
 
-<script setup>
-import { ref, reactive, onMounted, nextTick } from "vue";
+<script setup lang="ts">
+import { ref, reactive, onMounted, nextTick, Ref } from "vue";
 import dayjs from "dayjs";
 import {
   millisToMinutesAndSeconds,
@@ -233,27 +234,45 @@ import {
 import LogView from "src/components/LogView.vue";
 
 import { useSettingsStore } from "src/stores/settings";
-import { useLogViewerStore } from "src/stores/log-viewer";
+import {
+  type ViewerState,
+  type SessionInfo,
+  type SessionData,
+  useLogViewerStore,
+} from "src/stores/log-viewer";
+import type {
+  GameStateFile,
+  ParsedLogInfo,
+} from "src-electron/log-parser/file-parser";
 import { sleep } from "src/util/sleep";
 
 import { encounters } from "src/constants/encounters";
 
 import relativeTime from "dayjs/plugin/relativeTime";
+import { QScrollArea, QTableProps } from "quasar";
 dayjs.extend(relativeTime);
+type RowData = {
+  encounterName: string;
+  image: string;
+  startingMs: number;
+  duration: number;
+  attempts: SessionData[];
+};
 
 const settingsStore = useSettingsStore();
 const logViewerStore = useLogViewerStore();
 
 const loaderImg = new URL("../assets/images/loader.gif", import.meta.url).href;
 
-const verticalScrollOffsets = {};
-const horizontalScrollOffsets = [];
-const verticalScrollArea = ref(null);
-const horizontalScrollAreas = ref(null);
+const verticalScrollOffsets: Record<string, number> = {};
+const horizontalScrollOffsets: number[] = [];
+const verticalScrollArea: Ref<QScrollArea | undefined> = ref(undefined);
+const horizontalScrollAreas: Ref<QScrollArea[]> = ref([]);
 
-async function changeLogViewerStoreState(newState) {
-  verticalScrollOffsets[logViewerStore.viewerState] =
-    verticalScrollArea.value.getScroll().verticalPosition; //Save previous position
+async function changeLogViewerStoreState(newState: ViewerState) {
+  if (verticalScrollArea.value)
+    verticalScrollOffsets[logViewerStore.viewerState] =
+      verticalScrollArea.value.getScroll().verticalPosition; //Save previous position
 
   const oldState = logViewerStore.viewerState;
   if (newState === "viewing-session") {
@@ -274,25 +293,26 @@ async function changeLogViewerStoreState(newState) {
   if (verticalScrollArea.value || horizontalScrollAreas.value) {
     await nextTick();
     //apply vertical scroll
-    if (verticalScrollArea.value) {
-      verticalScrollArea.value.setScrollPosition(
-        "vertical",
-        verticalScrollOffsets[newState] ?? 0
-      );
-    }
+    verticalScrollArea.value?.setScrollPosition(
+      "vertical",
+      verticalScrollOffsets[newState] ?? 0
+    );
     //apply all horizontal scroll
     if (
       horizontalScrollAreas.value &&
       horizontalScrollAreas.value.length === horizontalScrollOffsets.length
     )
       horizontalScrollOffsets.forEach((val, index) => {
-        horizontalScrollAreas.value[index].setScrollPosition("horizontal", val);
+        horizontalScrollAreas.value[index]?.setScrollPosition(
+          "horizontal",
+          val
+        );
       });
   }
 }
 
 /* Start session table */
-const sessionColumns = [
+const sessionColumns: QTableProps["columns"] = [
   {
     name: "dateText",
     field: "dateText",
@@ -316,24 +336,23 @@ const sessionColumns = [
   },
 ];
 
-const sessionPagination = ref({
+const sessionPagination: Ref<QTableProps["pagination"]> = ref({
   sortBy: "desc",
   descending: false,
   page: 1,
   rowsPerPage: 5,
 });
 
-function onSessionPagination(newPagination) {
+function onSessionPagination(newPagination: QTableProps["pagination"]) {
   sessionPagination.value = newPagination;
 }
-
-function onSessionRowClick(event, row) {
-  changeLogViewerStoreState("viewing-session");
+function onSessionRowClick(event: Event, row: SessionInfo) {
+  void changeLogViewerStoreState("viewing-session");
 
   logViewerStore.currentSessionName = row.filename;
 
   logViewerStore.encounterOptions = [];
-  logViewerStore.encounterFilter = null;
+  logViewerStore.encounterFilter.length = 0;
 
   row.sessionEncounters.forEach((encounter) => {
     let encounterName = encounter.encounterName;
@@ -355,7 +374,7 @@ function onSessionRowClick(event, row) {
 }
 
 function calculateEncounterRows() {
-  const rows = [];
+  const rows: RowData[] = [];
 
   logViewerStore.sessions.forEach((session) => {
     if (session.filename === logViewerStore.currentSessionName) {
@@ -385,8 +404,7 @@ function calculateEncounterRows() {
         });
 
         if (
-          logViewerStore.encounterFilter &&
-          Object.keys(logViewerStore.encounterFilter).length > 0 &&
+          logViewerStore.encounterFilter.length > 0 &&
           !logViewerStore.encounterFilter.includes(encounterName) // not includes
         ) {
           return;
@@ -428,10 +446,10 @@ function calculateEncounterRows() {
 /* End session table */
 
 /* Start encounter table */
-const encounterRows = ref([]);
+const encounterRows: Ref<RowData[]> = ref([]);
 
-function onEncounterRowClick(row) {
-  changeLogViewerStoreState("viewing-encounter");
+function onEncounterRowClick(row: SessionData) {
+  void changeLogViewerStoreState("viewing-encounter");
 
   logViewerStore.currentEncounterName = row.filename;
 
@@ -442,19 +460,18 @@ function onEncounterRowClick(row) {
 }
 /* End session table */
 
-const logFile = reactive({
+const logFile: { viewingLogFile: boolean; data?: GameStateFile } = reactive({
   viewingLogFile: false,
-  data: {},
 });
 
-function calculateLogFileList(value) {
+function calculateLogFileList(value: ParsedLogInfo[]) {
   logViewerStore.resetState();
 
   logViewerStore.encounterOptions = [];
 
   value.forEach((val) => {
     let totalDuration = 0;
-    let sessionEncounters = [];
+    let sessionEncounters: SessionData[] = [];
 
     val.parsedContents.encounters.forEach((val_encounter) => {
       totalDuration += val_encounter.duration;
@@ -496,22 +513,19 @@ function calculateLogFileList(value) {
   logViewerStore.sessions.reverse();
   logViewerStore.computedSessions = JSON.parse(
     JSON.stringify(logViewerStore.sessions)
-  );
+  ) as SessionInfo[];
 
   logViewerStore.viewerState =
     logViewerStore.sessions.length > 0 ? "none" : "no-data";
 }
 
 function computedLogFileList() {
-  if (
-    !logViewerStore.logfileFilter ||
-    Object.keys(logViewerStore.logfileFilter).length === 0
-  ) {
+  if (logViewerStore.logfileFilter.length === 0) {
     logViewerStore.computedSessions = logViewerStore.sessions;
     return;
   }
 
-  const filteredSessions = [];
+  const filteredSessions: SessionInfo[] = [];
 
   logViewerStore.sessions.forEach((session) => {
     const filteredEncounters = [];
@@ -562,7 +576,7 @@ onMounted(() => {
     calculateLogFileList(value);
   });
 
-  window.messageApi.receive("parsed-log", (value) => {
+  window.messageApi.receive("parsed-log", (value: GameStateFile) => {
     logFile.data = value;
     logFile.viewingLogFile = true;
   });

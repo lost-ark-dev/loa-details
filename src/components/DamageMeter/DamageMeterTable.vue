@@ -750,7 +750,6 @@ import {
   ref,
   watch,
   PropType,
-  Ref,
   ShallowRef,
   shallowRef,
   ComputedRef,
@@ -759,8 +758,6 @@ import { useSettingsStore } from "src/stores/settings";
 import {
   GameState,
   EntityState,
-  EntitySkills,
-  Hits,
   StatusEffect,
   StatusEffectTarget,
   StatusEffectBuffTypeFlags,
@@ -832,7 +829,7 @@ function focusPlayer(player: EntityState) {
   focusedPlayerClass.value = getClassName(player.classId);
   calculateSkills();
 }
-watch(focusedPlayer, (val) => {
+watch(focusedPlayer, () => {
   //Prevent skill breakdown view for shield tabs
   if (
     [
@@ -876,7 +873,9 @@ function sortEntities() {
         return entity.damagePreventedWithShieldOnOthers > 0;
       else if (props.damageType === "eshield_gotten")
         return entity.damagePreventedByShield > 0;
-      else if (/*props.damageType === "dmg" &&*/ entity.damageDealt > 0)
+      else if (
+        /*props.damageType === "dmg" &&*/ entity.damageInfo.damageDealt > 0
+      )
         // default to dmg if not one of the above
         return true;
 
@@ -902,16 +901,19 @@ function sortEntities() {
         );
       else if (props.damageType === "eshield_gotten")
         return b.damagePreventedByShield - a.damagePreventedByShield;
-      else return b.damageDealt - a.damageDealt;
+      else return b.damageInfo.damageDealt - a.damageInfo.damageDealt;
     });
   const totalDamageOverride = settingsStore.settings.damageMeter.functionality
     .displayEsther
-    ? res.reduce((sum, e) => sum + e.damageDealt, 0)
+    ? res.reduce((sum, e) => sum + e.damageInfo.damageDealt, 0)
     : undefined;
   const topDamageOverride = settingsStore.settings.damageMeter.functionality
     .displayEsther
     ? res.reduce(
-        (prev, curr) => (prev > curr.damageDealt ? prev : curr.damageDealt),
+        (prev, curr) =>
+          prev > curr.damageInfo.damageDealt
+            ? prev
+            : curr.damageInfo.damageDealt,
         0
       )
     : undefined;
@@ -984,10 +986,6 @@ function sortEntities() {
   sortedEntities.value = res;
 }
 
-function getEstherTotalDamage(entities: EntityExtended[]) {
-  return entities.reduce((sum, e) => sum + e.damageDealt, 0);
-}
-
 function calculateSkills() {
   sortedSkills = [];
   if (focusedPlayer.value === "#") return;
@@ -998,16 +996,16 @@ function calculateSkills() {
   if (!entity) return;
 
   const res = Array.from(entity.skills.values()).sort(
-    (a, b) => b.damageDealt - a.damageDealt
+    (a, b) => b.damageInfo.damageDealt - a.damageInfo.damageDealt
   ) as EntitySkillsExtended[];
 
   for (const skill of res) {
     skill.damagePercent = (
-      (skill.damageDealt / entity.damageDealt) *
+      (skill.damageInfo.damageDealt / entity.damageInfo.damageDealt) *
       100
     ).toFixed(1);
     skill.relativePercent = (
-      (skill.damageDealt / res[0].damageDealt) *
+      (skill.damageInfo.damageDealt / res[0].damageInfo.damageDealt) *
       100
     ).toFixed(1);
   }
@@ -1022,7 +1020,7 @@ function getPercentage(
   relativeOverride: number | undefined = undefined
 ) {
   if (!props.sessionState) return "0";
-  let a = player.damageDealt;
+  let a = player.damageInfo.damageDealt;
   if (dmgType === "tank") a = player.damageTaken;
   else if (dmgType === "heal") a = player.healingDone;
   else if (dmgType === "shield_given") a = player.shieldDone;
@@ -1105,7 +1103,7 @@ const sortedBuffs: ComputedRef<Map<string, Map<number, StatusEffect>>> =
         "other_buff_hit",
       ].includes(props.damageType)
     ) {
-      return new Map();
+      return new Map() as Map<string, Map<number, StatusEffect>>;
     }
     //["party_buff_dmg", "party_buff_hit"].includes(damageType)
     //["self_buff_dmg", "self_buff_hit"].includes(damageType)
@@ -1150,7 +1148,7 @@ function filterStatusEffects(
     buff.target === StatusEffectTarget.PARTY
   ) {
     const key = `${getClassName(buff.source.skill?.classid)}_${
-      buff.uniquegroup ? buff.uniquegroup : buff.source.skill?.name
+      buff.uniquegroup ? buff.uniquegroup : buff.source.skill?.name ?? ""
     }`;
     if (
       [
@@ -1211,7 +1209,7 @@ function filterStatusEffects(
     ) {
       addStatusEffectIfNeeded(
         statusEffects,
-        `set_${buff.source.setname}`,
+        `set_${buff.source.setname ?? "unknown"}`,
         id,
         buff,
         focusedPlayer,
@@ -1242,7 +1240,7 @@ function filterStatusEffects(
         )
           return; // We hide other classes self buffs (classskill & identity)
         key = `${getClassName(buff.source.skill?.classid)}_${
-          buff.uniquegroup ? buff.uniquegroup : buff.source.skill?.name
+          buff.uniquegroup ? buff.uniquegroup : buff.source.skill?.name ?? ""
         }`;
       }
       addStatusEffectIfNeeded(
@@ -1380,7 +1378,7 @@ const sortedAppliedShieldingBuffs: ComputedRef<
   //TODO: this is used to update columns when new buffs are tracked, we should only do this every few frames
   // We could also track for difference only & not re-do everything
   if (!["shield_given", "shield_gotten"].includes(props.damageType)) {
-    return new Map();
+    return new Map() as Map<string, Map<number, StatusEffect>>;
   }
 
   const statusEffects: Map<string, Map<number, StatusEffect>> = new Map();
@@ -1404,7 +1402,7 @@ const sortedEffectiveShieldingBuffs: ComputedRef<
   //TODO: this is used to update columns when new buffs are tracked, we should only do this every few frames
   // We could also track for difference only & not re-do everything
   if (!["eshield_gotten", "eshield_given"].includes(props.damageType)) {
-    return new Map();
+    return new Map() as Map<string, Map<number, StatusEffect>>;
   }
 
   const statusEffects: Map<string, Map<number, StatusEffect>> = new Map();

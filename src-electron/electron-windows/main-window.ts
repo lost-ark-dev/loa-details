@@ -32,7 +32,7 @@ export function createMainWindow(appSettings: Settings) {
   let startMinimized = false;
   if (appSettings?.general?.startMainMinimized) startMinimized = true;
 
-  mainWindow.loadURL(process.env.APP_URL + "#/").then(() => {
+  void mainWindow.loadURL(process.env.APP_URL + "#/").then(() => {
     if (!mainWindow) return;
     if (process.env.DEBUGGING) {
       // if on DEV or Production with debug enabled

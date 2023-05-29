@@ -19,7 +19,7 @@ export function getSettings() {
 
     log.info("Found and applied settings.");
   } catch (e) {
-    log.info("Setting retrieval failed: " + e);
+    log.info("Setting retrieval failed: " + (e as string));
   }
 
   // Cleanup settings for unused data
@@ -38,6 +38,7 @@ export function saveSettings(settings: Settings | string) {
     store.set("settings", JSON.stringify(settings));
   else store.set("settings", settings);
 
+  // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
   log.info(`Saved settings: ${settings}`);
 }
 export type ClassSettings = { color: string; defaultColor: string };

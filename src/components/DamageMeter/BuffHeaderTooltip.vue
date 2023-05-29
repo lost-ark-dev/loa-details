@@ -31,7 +31,7 @@ import { QTooltip } from "quasar";
 import { StatusEffect } from "meter-core/logger/data";
 import { getIconPath, getClassName } from "../../util/helpers";
 
-const props = defineProps({
+defineProps({
   buffId: Number,
   buff: Object as PropType<StatusEffect>,
 });

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-misused-promises */
 import {
   app,
   BrowserWindow,
@@ -41,6 +42,7 @@ import {
 } from "./util/updater";
 import { adminRelauncher, PktCaptureMode } from "meter-core/pkt-capture";
 import { Parser } from "meter-core/logger/parser";
+import { Settings } from "./util/app-settings";
 
 if (app.commandLine.hasSwitch("disable-hardware-acceleration")) {
   log.info("Hardware acceleration disabled");
@@ -49,9 +51,9 @@ if (app.commandLine.hasSwitch("disable-hardware-acceleration")) {
 //Override console methods for use in dependencies (such as meter-core) instead of passing references to every single functions
 //Alternative: singleton custom logger in meter-core ?
 //I don't know how bad it is :shrugging:
-console.error = log.error;
-console.warn = log.warn;
-console.info = log.info;
+console.error = log.error.bind(log);
+console.warn = log.warn.bind(log);
+console.info = log.info.bind(log);
 // We keep log/debug for console only
 
 const store = new Store();
@@ -133,7 +135,7 @@ try {
   }
 } catch (_) {}
 
-app.whenReady().then(() => {
+void app.whenReady().then(() => {
   if (process.env.DEBUGGING) {
     import("electron-devtools-installer")
       .then(({ default: installExtension, VUEJS_DEVTOOLS }) => {
@@ -158,42 +160,45 @@ app.whenReady().then(() => {
 
 let prelauncherStatus = "open";
 
-updaterEventEmitter.on("event", (details) => {
-  if (
-    typeof prelauncherWindow !== "undefined" &&
-    prelauncherWindow &&
-    prelauncherWindow.webContents
-  ) {
-    prelauncherWindow.webContents.send("updater-message", details);
-  } else if (
-    typeof mainWindow !== "undefined" &&
-    mainWindow &&
-    mainWindow.webContents
-  ) {
-    mainWindow.webContents.send("updater-message", details);
-  }
+updaterEventEmitter.on(
+  "event",
+  (details: { message: string; value: unknown }) => {
+    if (
+      typeof prelauncherWindow !== "undefined" &&
+      prelauncherWindow &&
+      prelauncherWindow.webContents
+    ) {
+      prelauncherWindow.webContents.send("updater-message", details);
+    } else if (
+      typeof mainWindow !== "undefined" &&
+      mainWindow &&
+      mainWindow.webContents
+    ) {
+      mainWindow.webContents.send("updater-message", details);
+    }
 
-  if (
-    details.message === "update-not-available" &&
-    prelauncherStatus === "open"
-  ) {
-    startApplication();
-    if (typeof prelauncherWindow != "undefined") {
-      prelauncherStatus = "closed";
-      prelauncherWindow?.close();
-      prelauncherWindow = null;
+    if (
+      details.message === "update-not-available" &&
+      prelauncherStatus === "open"
+    ) {
+      startApplication();
+      if (typeof prelauncherWindow != "undefined") {
+        prelauncherStatus = "closed";
+        prelauncherWindow?.close();
+        prelauncherWindow = null;
+      }
+    }
+
+    // quitAndInstall only when prelauncher is visible (aka startup of application)
+    if (
+      details.message === "update-downloaded" &&
+      typeof prelauncherWindow != "undefined" &&
+      prelauncherWindow
+    ) {
+      quitAndInstall(false, true); // isSilent=false, forceRunAfter=true
     }
   }
-
-  // quitAndInstall only when prelauncher is visible (aka startup of application)
-  if (
-    details.message === "update-downloaded" &&
-    typeof prelauncherWindow != "undefined" &&
-    prelauncherWindow
-  ) {
-    quitAndInstall(false, true); // isSilent=false, forceRunAfter=true
-  }
-});
+);
 
 function startApplication() {
   tray = new Tray(
@@ -265,23 +270,26 @@ function startApplication() {
 
   initializeShortcuts(appSettings);
 
-  shortcutEventEmitter.on("shortcut", (shortcut) => {
-    log.debug(shortcut);
+  shortcutEventEmitter.on(
+    "shortcut",
+    (shortcut: { key: unknown; action: string }) => {
+      log.debug(shortcut);
 
-    if (shortcut.action === "minimizeDamageMeter") {
-      damageMeterWindow?.webContents.send(
-        "shortcut-action",
-        "toggle-minimized-state"
-      );
-    } else if (shortcut.action === "resetSession") {
-      damageMeterWindow?.webContents.send("shortcut-action", "reset-session");
-    } else if (shortcut.action === "pauseDamageMeter") {
-      damageMeterWindow?.webContents.send(
-        "shortcut-action",
-        "pause-damage-meter"
-      );
+      if (shortcut.action === "minimizeDamageMeter") {
+        damageMeterWindow?.webContents.send(
+          "shortcut-action",
+          "toggle-minimized-state"
+        );
+      } else if (shortcut.action === "resetSession") {
+        damageMeterWindow?.webContents.send("shortcut-action", "reset-session");
+      } else if (shortcut.action === "pauseDamageMeter") {
+        damageMeterWindow?.webContents.send(
+          "shortcut-action",
+          "pause-damage-meter"
+        );
+      }
     }
-  });
+  );
 }
 
 let damageMeterWindowOldSize: number[],
@@ -300,7 +308,7 @@ const ipcFunctions: {
     liveParser.cancelReset();
   },
   "save-settings": (event, arg: { value: string }) => {
-    appSettings = JSON.parse(arg.value);
+    appSettings = JSON.parse(arg.value) as Settings;
     saveSettings(arg.value);
 
     updateShortcuts(appSettings);
@@ -332,7 +340,7 @@ const ipcFunctions: {
     const parsedLogs = await getParsedLogs();
     await event.reply("parsed-logs-list", parsedLogs);
   },
-  "get-parsed-log": async (event, arg) => {
+  "get-parsed-log": async (event, arg: { message: string; value: string }) => {
     const logData = await getLogData(arg.value);
     await event.reply("parsed-log", logData);
   },
@@ -340,7 +348,7 @@ const ipcFunctions: {
     await wipeParsedLogs();
   },
   "open-log-directory": () => {
-    shell.openPath(mainFolder);
+    void shell.openPath(mainFolder);
   },
   "check-for-updates": () => {
     checkForUpdates();
@@ -348,10 +356,10 @@ const ipcFunctions: {
   "quit-and-install": () => {
     quitAndInstall();
   },
-  "open-link": (event, arg) => {
-    shell.openExternal(arg.value);
+  "open-link": (event, arg: { message: string; value: string }) => {
+    void shell.openExternal(arg.value);
   },
-  "save-screenshot": async (event, arg) => {
+  "save-screenshot": async (event, arg: { message: string; value: string }) => {
     await saveScreenshot(arg.value);
   },
   "select-log-path-folder": async (event) => {
@@ -359,12 +367,15 @@ const ipcFunctions: {
     if (res.canceled || !res.filePaths || !res.filePaths[0]) return;
     event.reply("selected-log-path-folder", res.filePaths[0]);
   },
-  "reset-damage-meter-position": async () => {
+  "reset-damage-meter-position": () => {
     damageMeterWindow?.setPosition(0, 0);
     store.set("windows.damage_meter.X", 0);
     store.set("windows.damage_meter.Y", 0);
   },
-  "toggle-damage-meter-minimized-state": (event, arg) => {
+  "toggle-damage-meter-minimized-state": (
+    event,
+    arg: { message: string; value: boolean }
+  ) => {
     if (appSettings.damageMeter.functionality.minimizeToTaskbar) {
       if (arg.value) damageMeterWindow?.minimize();
       else damageMeterWindow?.restore();
@@ -439,14 +450,17 @@ ipcMain.on(
   }
 );
 
-ipcMain.on("window-to-main", (event, arg) => {
-  const ipcFunction =
-    ipcFunctions[arg.message] ||
-    (() => {
-      log.error("Unknown window-to-main message: " + arg.message);
-    });
-  ipcFunction(event, arg);
-});
+ipcMain.on(
+  "window-to-main",
+  (event, arg: { message: string; value: unknown }) => {
+    const ipcFunction =
+      ipcFunctions[arg.message] ||
+      (() => {
+        log.error("Unknown window-to-main message: " + arg.message);
+      });
+    ipcFunction(event, arg);
+  }
+);
 
 app.on("window-all-closed", () => {
   if (platform !== "darwin") {
@@ -460,7 +474,7 @@ app.on("activate", () => {
   }
 });
 
-process.on("uncaughtException", (e) => {
+process.on("uncaughtException", () => {
   log.error(console.trace("stack"));
 });
 
