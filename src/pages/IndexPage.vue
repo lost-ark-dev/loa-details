@@ -60,6 +60,13 @@
       </p>
 
       <h5>Changelog</h5>
+      <h6 id="1-3-1">1.3.1</h6>
+      <ul>
+        <li>
+          Fix some "self" buffs applied on target that were processed for the
+          whole party (Ex: Sharshooter Death Strike of Mark of Death)
+        </li>
+      </ul>
       <h6 id="1-3-0">1.3.0</h6>
       <ul>
         <li>
