@@ -4,3 +4,5 @@
 /.quasar
 /node_modules
 .eslintrc.js
+quasar.config.js
+postcss.config.js

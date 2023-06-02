@@ -133,10 +133,7 @@
 
 <script setup lang="ts">
 import { ref, computed, PropType, type Ref } from "vue";
-import {
-  numberFormat,
-  millisToMinutesAndSeconds,
-} from "src/util/number-helpers";
+import { millisToMinutesAndSeconds } from "src/util/number-helpers";
 import { Notify } from "quasar";
 import { sleep } from "src/util/sleep";
 import html2canvas from "html2canvas";
