@@ -60,6 +60,86 @@
       </p>
 
       <h5>Changelog</h5>
+      <h6 id="1-3-0">1.3.0</h6>
+      <ul>
+        <li>
+          Support more casts for skills (focus was primarly to show arcana cards
+          casts, but it may include more unlogged casts)
+        </li>
+        <li>
+          Current boss name is included when talking a screenshot of live view
+        </li>
+        <li>
+          Added a warning message when localplayer data is missing (which means
+          most buff related feature will might show wrong data)
+        </li>
+        <li>Add button to dismiss "reset transition" notification</li>
+        <li>
+          rDPS - 1st step towards rdps (This is an experimental feature, don't
+          trust the values too much there - Aka limitations and potential
+          bugs/mistakes)
+          <ul>
+            Features
+            <li>
+              DMG tab: Added syn% column, which represent the % of synergies
+              applied to your base dmg
+            </li>
+            <li>
+              DMG tab: Visually display the dmg portion gained from synergies
+              (with a darker background)
+            </li>
+            <li>
+              rDps tab: show and rank players per rDps. rDps naming is inspired
+              from RPGLogs metric. It is
+              rDps=DamageDone-DamageRecvFromSynergies+DamageGivenWithSynergies,
+              and roughly means how much you contributed to the raid damage wise
+            </li>
+          </ul>
+          <ul>
+            Limitations
+            <li>
+              Spec scaling buff (Serenade of Courage) from bard uses base values
+              (5,10,15%) instead of scaling with spec. Because we don't have
+              spec stat yet
+            </li>
+            <li>
+              Support atk power buffs part that gives +15% of caster's base atk
+              power is ignored. Because we don't know base atk. power yet
+            </li>
+            <li>
+              Yearning "Dexterity" buff is ignored. Because we don't know weapon
+              quality yet (and therefore skill damage % that scales additively
+              with yearning)
+            </li>
+            <li>
+              Crit chance overcap isn't handled yet. Because we don't have crit
+              stat yet
+            </li>
+            <li>
+              Defense reduction is approximated to 50% of the value, because i
+              managed to reverse defense formula for players, but it doesn't
+              seem to work with npcs
+            </li>
+          </ul>
+          <ul>
+            Maths
+            <li>
+              The way those values are calculated will be explained further in
+              the next steps of rdps
+            </li>
+          </ul>
+          <ul></ul>
+        </li>
+        <li>
+          Fix slayer identity "Burst" buff not being displayed in self buff /
+          skill breakdown
+        </li>
+        <li>
+          Removed obsolete columns "HBuf%", "HDebuf%", "DBuf%", "DDebuf%" as
+          Syn% is more relevant. Might wanna split dps and support in 2 columns?
+          Lemme know what you think
+        </li>
+      </ul>
       <h6 id="1-2-9">1.2.9</h6>
       <ul>
         <li>
@@ -276,6 +356,9 @@ function openLinkInBrowser(link) {
   margin-left: 16px;
   margin-bottom: 0;
   margin-top: 16px;
+}
+.changelog-page h7 {
+  margin-left: 32px;
 }
 
 .changelog-page {

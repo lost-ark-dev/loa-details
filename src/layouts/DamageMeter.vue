@@ -648,6 +648,13 @@ const tabs: ComputedRef<{
       isVisible: true,
     },
     {
+      type: "rdps",
+      label: "rDPS",
+      tooltip: " Show raid contribution (WIP) ",
+      enabled: settingsStore.settings.damageMeter.tabs.rdpsTab.enabled,
+      isVisible: true,
+    },
+    {
       type: "tank",
       label: "TANK",
       tooltip: " Show damage taken ",

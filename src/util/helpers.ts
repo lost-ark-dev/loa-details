@@ -16,24 +16,15 @@ export type EntryData = {
   damageDealtDebuffedBy: Map<number, number>;
   damageDealtBuffedBy: Map<number, number>;
 };
-export type tabNames =
-  | "dmg"
-  | "tank"
-  | "heal"
-  | "shield_given"
-  | "shield_gotten"
-  | "eshield_gotten"
-  | "eshield_given"
-  | "party_buff_dmg"
-  | "self_buff_dmg"
-  | "other_buff_dmg"
-  | "party_buff_hit"
-  | "self_buff_hit"
-  | "other_buff_hit";
-
 export type EntityExtended = EntityState & {
   damagePercentageTotal?: string;
   damagePercentageTop?: string;
+  baseDamagePercentageTop?: string;
+  baseDamagePercentageTotal?: string;
+  recvDamagePercentageTop?: string;
+  recvDamagePercentageTotal?: string;
+  rDpsPercentageTotal?: string;
+  rDpsPercentageTop?: string;
   tankPercentageTotal?: string;
   tankPercentageTop?: string;
   healPercentageTotal?: string;
@@ -51,10 +42,13 @@ export type EntityExtended = EntityState & {
 export type EntitySkillsExtended = EntitySkills & {
   damagePercent?: string;
   relativePercent?: string;
+  recvDamagePercentageTop?: string;
+  baseDamagePercentageTop?: string;
 };
 
 export type DamageType =
   | "dmg"
+  | "rdps"
   | "tank"
   | "heal"
   | "party_buff_dmg"
@@ -152,4 +146,12 @@ export function getIconPath(iconName: string | undefined): string {
 
 export function getClassName(id: number | undefined): string {
   return id ? (PCData as Record<number, string>)[id] ?? "" : "";
+}
+
+export function getRdps(entity: EntityExtended) {
+  return (
+    entity.damageInfo.damageDealt -
+    entity.damageInfo.rdpsDamageReceived +
+    entity.damageInfo.rdpsDamageGiven
+  );
 }

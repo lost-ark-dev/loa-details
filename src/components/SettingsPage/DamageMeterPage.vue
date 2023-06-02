@@ -402,14 +402,17 @@
     >
       <q-item-section>
         <q-item-label>
-          <div
-            class="fake-player-bar"
-            :style="
-              'background:' +
-              settingsStore.settings.damageMeter.classes[className].color
-            "
-          >
-            You ({{ className }})
+          <div class="fake-player-bar container">
+            <div
+              class="fake-player-bar left"
+              :style="`background: ${settingsStore.settings.damageMeter.classes[className].color};width: 75%`"
+            >
+              You ({{ className }})
+            </div>
+            <div
+              class="fake-player-bar right"
+              :style="`background: ${settingsStore.settings.damageMeter.classes[className].color};opacity:0.5`"
+            ></div>
           </div>
           <span
             @click="
@@ -572,6 +575,17 @@ onMounted(() => {
 </script>
 
 <style>
+.fake-player-bar.container {
+  display: flex;
+}
+
+.fake-player-bar.left {
+  flex: 3;
+}
+
+.fake-player-bar.right {
+  flex: 1;
+}
 .fake-player-bar {
   width: 100%;
   height: 28px;
@@ -582,5 +596,7 @@ onMounted(() => {
   align-items: center;
   padding-left: 8px;
   margin-bottom: 8px;
+  top: 0px;
+  left: 0px;
 }
 </style>

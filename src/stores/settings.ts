@@ -110,24 +110,16 @@ export const useSettingsStore = defineStore("settings", {
             name: "Crit Rate",
             enabled: true,
           },
-          dBuffedBySup: {
-            name: "Dmg % dealt during Support buffs",
-            enabled: false,
-          },
-          dDebuffedBySup: {
-            name: "Dmg % dealt during Support debuffs",
-            enabled: false,
-          },
           dPartyBuff: {
-            name: "Dmg % dealt during party synergies",
+            name: "Tab: Dmg % dealt during party synergies",
             enabled: true,
           },
           dSelfBuff: {
-            name: "Dmg % dealt during self synergies (set, food, engravings, skills)",
+            name: "Tab: Dmg % dealt during self synergies (set, food, engravings, skills)",
             enabled: true,
           },
           dOtherBuff: {
-            name: "Dmg % dealt during other buffs",
+            name: "Tab: Dmg % dealt during other buffs",
             enabled: false,
           },
           faRate: {
@@ -138,28 +130,24 @@ export const useSettingsStore = defineStore("settings", {
             name: "Back Attack Rate",
             enabled: true,
           },
+          rdpsSynPercent: {
+            name: "Synergy %",
+            enabled: true,
+          },
           counterCount: {
             name: "Counter Count",
             enabled: true,
           },
-          hBuffedBySup: {
-            name: "Hit % dealt during Support buffs",
-            enabled: false,
-          },
-          hDebuffedBySup: {
-            name: "Hit % dealt during Support debuffs",
-            enabled: false,
-          },
           hPartyBuff: {
-            name: "Hit % dealt during party synergies",
+            name: "Tab: Hit % dealt during party synergies",
             enabled: false,
           },
           hSelfBuff: {
-            name: "Hit % dealt during self synergies (set, food, engravings, skills)",
+            name: "Tab: Hit % dealt during self synergies (set, food, engravings, skills)",
             enabled: false,
           },
           hOtherBuff: {
-            name: "Hit % dealt during other buffs",
+            name: "Tab: Hit % dealt during other buffs",
             enabled: false,
           },
           maxDmg: {
@@ -189,6 +177,10 @@ export const useSettingsStore = defineStore("settings", {
           cpm: {
             name: "Skill View / Casts per Minute",
             enabled: false,
+          },
+          rdpsTab: {
+            name: "Tab: Raid DPS/Contribution",
+            enabled: true,
           },
           shieldGiven: {
             name: "Tab: Shield applied to other players",

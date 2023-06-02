@@ -11,6 +11,7 @@
         settingsStore.settings.damageMeter.tabs.deathTime.enabled &&
         [
           'dmg',
+          'rdps',
           'tank',
           'heal',
           'shield_given',
@@ -33,6 +34,7 @@
       v-if="
         [
           'dmg',
+          'rdps',
           'tank',
           'heal',
           'shield_given',
@@ -49,6 +51,8 @@
         {{
           damageType === "dmg"
             ? player.damagePercentageTotal
+            : damageType === "rdps"
+            ? player.rDpsPercentageTotal
             : damageType === "tank"
             ? player.tankPercentageTotal
             : damageType === "heal"
@@ -115,62 +119,50 @@
           <span class="ex">%</span>
         </template>
       </td>
-      <td
-        v-if="
-          damageType === 'dmg' &&
-          settingsStore.settings.damageMeter.tabs.hBuffedBySup.enabled
-        "
-        class="text-center"
-      >
-        {{
-          ((player.hits.hitsBuffedBySupport / player.hits.total) * 100).toFixed(
-            1
-          )
-        }}
-        <span class="ex">%</span>
+      <td v-if="damageType === 'rdps'" class="text-center">
+        <!--Recv-->
+        <AbbreviatedNumberTemplate
+          :val="player.damageInfo.rdpsDamageReceived"
+          :hover="true"
+        />
+      </td>
+      <td v-if="damageType === 'rdps'" class="text-center">
+        <!--Givn-->
+        <AbbreviatedNumberTemplate
+          :val="player.damageInfo.rdpsDamageGiven"
+          :hover="true"
+        />
+      </td>
+      <td v-if="damageType === 'rdps'" class="text-center">
+        <!--Recv/s-->
+        <AbbreviatedNumberTemplate
+          :val="
+            player.damageInfo.rdpsDamageReceived / (props.fightDuration / 1000)
+          "
+          :hover="true"
+        />
+      </td>
+      <td v-if="damageType === 'rdps'" class="text-center">
+        <!--Givn/s-->
+        <AbbreviatedNumberTemplate
+          :val="
+            player.damageInfo.rdpsDamageGiven / (props.fightDuration / 1000)
+          "
+          :hover="true"
+        />
       </td>
       <td
         v-if="
-          damageType === 'dmg' &&
-          settingsStore.settings.damageMeter.tabs.hDebuffedBySup.enabled
+          ['dmg', 'rdps'].includes(damageType) &&
+          settingsStore.settings.damageMeter.tabs.rdpsSynPercent.enabled
         "
         class="text-center"
       >
         {{
           (
-            (player.hits.hitsDebuffedBySupport / player.hits.total) *
-            100
-          ).toFixed(1)
-        }}
-        <span class="ex">%</span>
-      </td>
-      <td
-        v-if="
-          damageType === 'dmg' &&
-          settingsStore.settings.damageMeter.tabs.dBuffedBySup.enabled
-        "
-        class="text-center"
-      >
-        {{
-          (
-            (player.damageInfo.damageDealtBuffedBySupport /
-              player.damageInfo.damageDealt) *
-            100
-          ).toFixed(1)
-        }}
-        <span class="ex">%</span>
-      </td>
-      <td
-        v-if="
-          damageType === 'dmg' &&
-          settingsStore.settings.damageMeter.tabs.dDebuffedBySup.enabled
-        "
-        class="text-center"
-      >
-        {{
-          (
-            (player.damageInfo.damageDealtDebuffedBySupport /
-              player.damageInfo.damageDealt) *
+            (player.damageInfo.rdpsDamageReceived /
+              (player.damageInfo.damageDealt -
+                player.damageInfo.rdpsDamageReceived)) *
             100
           ).toFixed(1)
         }}
@@ -185,7 +177,6 @@
       >
         {{ player.hits.counter }}
       </td>
-
       <template v-if="['shield_given', 'shield_gotten'].includes(damageType)">
         <td
           v-for="[columnKey, columnData] of sortedAppliedShieldingBuffs"
@@ -355,6 +346,27 @@
     </template>
     -->
     <div
+      v-if="damageType === 'dmg' && true /* rdps settings */"
+      class="player-bar"
+      :style="`width: ${player.baseDamagePercentageTop}%;background: ${
+        player.isEsther
+          ? settingsStore.settings.damageMeter.functionality.estherColor
+          : settingsStore.getClassColor(getClassName(player.classId))
+      };`"
+    ></div>
+    <div
+      v-if="damageType === 'dmg' && true /* rdps settings */"
+      class="player-bar"
+      :style="`margin-left: ${player.baseDamagePercentageTop}%; width: ${
+        player.recvDamagePercentageTop
+      }%;background: ${
+        player.isEsther
+          ? settingsStore.settings.damageMeter.functionality.estherColor
+          : settingsStore.getClassColor(getClassName(player.classId))
+      };opacity: 0.5;`"
+    ></div>
+    <div
+      v-else
       class="player-bar"
       :style="`
               width: ${
@@ -370,6 +382,8 @@
                   ? player.eshieldGivenPercentageTop
                   : damageType === 'eshield_gotten'
                   ? player.eshieldGottenPercentageTop
+                  : damageType === 'rdps'
+                  ? player.rDpsPercentageTop
                   : player.damagePercentageTop
               }%;
               background:${
@@ -395,6 +409,7 @@ import {
   getBuffPercent,
   getClassName,
   getIconPath,
+  getRdps,
 } from "../../util/helpers";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 //@ts-ignore
@@ -460,11 +475,12 @@ const entryName = computed(() => {
 
   return res;
 });
-
 const DAMAGE = computed(() => {
   if (!props.player) return 0;
   let damage = props.player.damageInfo.damageDealt;
-  if (props.damageType === "tank") damage = props.player.damageTaken;
+
+  if (props.damageType === "rdps") damage = getRdps(props.player);
+  else if (props.damageType === "tank") damage = props.player.damageTaken;
   else if (props.damageType === "heal") damage = props.player.healingDone;
   else if (props.damageType === "shield_given")
     damage = props.player.shieldDone;
@@ -481,7 +497,9 @@ const DAMAGE = computed(() => {
 const DPS = computed(() => {
   if (!props.player) return 0;
   let a = props.player.damageInfo.damageDealt;
-  if (props.damageType === "tank") a = props.player.damageTaken;
+
+  if (props.damageType === "rdps") a = getRdps(props.player);
+  else if (props.damageType === "tank") a = props.player.damageTaken;
   else if (props.damageType === "heal") a = props.player.healingDone;
   else if (props.damageType === "shield_given") a = props.player.shieldDone;
   else if (props.damageType === "shield_gotten")

@@ -59,6 +59,7 @@
             v-if="
               [
                 'dmg',
+                'rdps',
                 'tank',
                 'heal',
                 'shield_given',
@@ -81,6 +82,8 @@
               {{
                 damageType === "dmg"
                   ? "Damage"
+                  : damageType === "rdps"
+                  ? "RDamage"
                   : damageType === "tank"
                   ? "Tanked"
                   : damageType === "heal"
@@ -104,6 +107,8 @@
               {{
                 damageType === "dmg"
                   ? "D"
+                  : damageType === "rdps"
+                  ? "rD"
                   : damageType === "tank"
                   ? "T"
                   : damageType === "heal"
@@ -125,6 +130,8 @@
               {{
                 damageType === "dmg"
                   ? "DPS"
+                  : damageType === "rdps"
+                  ? "rDPS"
                   : damageType === "tank"
                   ? "TPS"
                   : damageType === "heal"
@@ -297,41 +304,28 @@
           >
             B.A.
           </th>
+          <template v-if="damageType === 'rdps'">
+            <th v-if="true /* TODO rdps settings */" style="width: 48px">
+              Recv
+            </th>
+            <th v-if="true /* TODO rdps settings */" style="width: 48px">
+              Givn
+            </th>
+            <th v-if="true /* TODO rdps settings */" style="width: 48px">
+              Recv/s
+            </th>
+            <th v-if="true /* TODO rdps settings */" style="width: 48px">
+              Givn/s
+            </th>
+          </template>
           <th
             v-if="
-              damageType === 'dmg' &&
-              settingsStore.settings.damageMeter.tabs.hBuffedBySup.enabled
+              ['dmg', 'rdps'].includes(damageType) &&
+              settingsStore.settings.damageMeter.tabs.rdpsSynPercent.enabled
             "
             style="width: 52px"
           >
-            HBuf%
-          </th>
-          <th
-            v-if="
-              damageType === 'dmg' &&
-              settingsStore.settings.damageMeter.tabs.hDebuffedBySup.enabled
-            "
-            style="width: 52px"
-          >
-            HDebuf%
-          </th>
-          <th
-            v-if="
-              damageType === 'dmg' &&
-              settingsStore.settings.damageMeter.tabs.dBuffedBySup.enabled
-            "
-            style="width: 52px"
-          >
-            DBuf%
-          </th>
-          <th
-            v-if="
-              damageType === 'dmg' &&
-              settingsStore.settings.damageMeter.tabs.dDebuffedBySup.enabled
-            "
-            style="width: 52px"
-          >
-            DDebuf%
+            Syn%
           </th>
           <th
             v-if="
@@ -466,35 +460,12 @@
             </th>
             <th
               v-if="
-                settingsStore.settings.damageMeter.tabs.hBuffedBySup.enabled
+                damageType === 'dmg' &&
+                settingsStore.settings.damageMeter.tabs.rdpsSynPercent.enabled
               "
               style="width: 52px"
             >
-              HBuf%
-            </th>
-            <th
-              v-if="
-                settingsStore.settings.damageMeter.tabs.hDebuffedBySup.enabled
-              "
-              style="width: 52px"
-            >
-              HDebuf%
-            </th>
-            <th
-              v-if="
-                settingsStore.settings.damageMeter.tabs.dBuffedBySup.enabled
-              "
-              style="width: 52px"
-            >
-              DBuf%
-            </th>
-            <th
-              v-if="
-                settingsStore.settings.damageMeter.tabs.dDebuffedBySup.enabled
-              "
-              style="width: 52px"
-            >
-              DDebuf%
+              Syn%
             </th>
             <th
               v-if="settingsStore.settings.damageMeter.tabs.maxDmg.enabled"
@@ -771,8 +742,8 @@ import {
   getClassName,
   EntityExtended,
   EntitySkillsExtended,
-  tabNames,
   DamageType,
+  getRdps,
 } from "../../util/helpers";
 
 const settingsStore = useSettingsStore();
@@ -833,6 +804,8 @@ watch(focusedPlayer, () => {
   //Prevent skill breakdown view for shield tabs
   if (
     [
+      "rdps",
+      "tank",
       "shield_given",
       "shield_gotten",
       "eshield_given",
@@ -845,7 +818,6 @@ watch(focusedPlayer, () => {
 let entitiesCopy: EntityExtended[] = [];
 const sortedEntities: ShallowRef<EntityExtended[]> = shallowRef([]);
 let sortedSkills: EntitySkillsExtended[] = [];
-
 function sortEntities() {
   if (!props.sessionState) return;
   if (Object.keys(props.sessionState).length <= 0) return;
@@ -856,7 +828,7 @@ function sortEntities() {
     .filter((entity) => {
       if (
         !entity.isPlayer &&
-        (props.damageType !== "dmg" ||
+        (!["dmg", "rdps"].includes(props.damageType) ||
           !entity.isEsther ||
           !settingsStore.settings.damageMeter.functionality.displayEsther)
       )
@@ -873,13 +845,8 @@ function sortEntities() {
         return entity.damagePreventedWithShieldOnOthers > 0;
       else if (props.damageType === "eshield_gotten")
         return entity.damagePreventedByShield > 0;
-      else if (
-        /*props.damageType === "dmg" &&*/ entity.damageInfo.damageDealt > 0
-      )
-        // default to dmg if not one of the above
-        return true;
-
-      return false;
+      else if (props.damageType === "rdps") return getRdps(entity) > 0;
+      else return entity.damageInfo.damageDealt > 0;
     })
     .sort((a, b) => {
       if (settingsStore.settings.damageMeter.design.pinUserToTop) {
@@ -901,22 +868,37 @@ function sortEntities() {
         );
       else if (props.damageType === "eshield_gotten")
         return b.damagePreventedByShield - a.damagePreventedByShield;
+      else if (props.damageType === "rdps") return getRdps(b) - getRdps(a);
       else return b.damageInfo.damageDealt - a.damageInfo.damageDealt;
     });
-  const totalDamageOverride = settingsStore.settings.damageMeter.functionality
-    .displayEsther
-    ? res.reduce((sum, e) => sum + e.damageInfo.damageDealt, 0)
-    : undefined;
-  const topDamageOverride = settingsStore.settings.damageMeter.functionality
-    .displayEsther
-    ? res.reduce(
-        (prev, curr) =>
-          prev > curr.damageInfo.damageDealt
-            ? prev
-            : curr.damageInfo.damageDealt,
-        0
-      )
-    : undefined;
+  const totalDamageOverride = res.reduce((sum, e) => {
+    if (
+      e.isEsther &&
+      !settingsStore.settings.damageMeter.functionality.displayEsther
+    )
+      return sum;
+    else
+      return (
+        sum +
+        (props.damageType === "rdps" ? getRdps(e) : e.damageInfo.damageDealt)
+      );
+  }, 0);
+
+  const topDamageOverride = res.reduce((prevVal, curr) => {
+    if (
+      curr.isEsther &&
+      !settingsStore.settings.damageMeter.functionality.displayEsther
+    )
+      return prevVal;
+    else {
+      const currVal =
+        props.damageType === "rdps"
+          ? getRdps(curr)
+          : curr.damageInfo.damageDealt;
+      return prevVal > currVal ? prevVal : currVal;
+    }
+  }, 0);
+
   for (const entity of res) {
     entity.damagePercentageTotal = getPercentage(
       entity,
@@ -927,6 +909,38 @@ function sortEntities() {
     entity.damagePercentageTop = getPercentage(
       entity,
       "dmg",
+      "top",
+      topDamageOverride
+    );
+
+    entity.baseDamagePercentageTop = (
+      ((entity.damageInfo.damageDealt - entity.damageInfo.rdpsDamageReceived) /
+        topDamageOverride) *
+      100
+    ).toFixed(1);
+    entity.baseDamagePercentageTotal = (
+      ((entity.damageInfo.damageDealt - entity.damageInfo.rdpsDamageReceived) /
+        totalDamageOverride) *
+      100
+    ).toFixed(1);
+    entity.recvDamagePercentageTop = (
+      (entity.damageInfo.rdpsDamageReceived / topDamageOverride) *
+      100
+    ).toFixed(1);
+    entity.recvDamagePercentageTotal = (
+      (entity.damageInfo.rdpsDamageReceived / totalDamageOverride) *
+      100
+    ).toFixed(1);
+
+    entity.rDpsPercentageTotal = getPercentage(
+      entity,
+      "rdps",
+      "total",
+      totalDamageOverride
+    );
+    entity.rDpsPercentageTop = getPercentage(
+      entity,
+      "rdps",
       "top",
       topDamageOverride
     );
@@ -1008,6 +1022,17 @@ function calculateSkills() {
       (skill.damageInfo.damageDealt / res[0].damageInfo.damageDealt) *
       100
     ).toFixed(1);
+
+    skill.baseDamagePercentageTop = (
+      ((skill.damageInfo.damageDealt - skill.damageInfo.rdpsDamageReceived) /
+        res[0].damageInfo.damageDealt) *
+      100
+    ).toFixed(1);
+
+    skill.recvDamagePercentageTop = (
+      (skill.damageInfo.rdpsDamageReceived / res[0].damageInfo.damageDealt) *
+      100
+    ).toFixed(1);
   }
 
   sortedSkills = res;
@@ -1015,13 +1040,14 @@ function calculateSkills() {
 
 function getPercentage(
   player: EntityState,
-  dmgType: tabNames,
+  dmgType: DamageType,
   relativeTo: "total" | "top",
   relativeOverride: number | undefined = undefined
 ) {
   if (!props.sessionState) return "0";
   let a = player.damageInfo.damageDealt;
-  if (dmgType === "tank") a = player.damageTaken;
+  if (dmgType === "rdps") a = getRdps(player);
+  else if (dmgType === "tank") a = player.damageTaken;
   else if (dmgType === "heal") a = player.healingDone;
   else if (dmgType === "shield_given") a = player.shieldDone;
   else if (dmgType === "shield_gotten") a = player.shieldReceived;
@@ -1031,6 +1057,14 @@ function getPercentage(
 
   let b = 0;
   if (dmgType === "dmg") {
+    if (relativeTo === "top")
+      b =
+        relativeOverride ?? props.sessionState.damageStatistics.topDamageDealt;
+    else
+      b =
+        relativeOverride ??
+        props.sessionState.damageStatistics.totalDamageDealt;
+  } else if (dmgType === "rdps") {
     if (relativeTo === "top")
       b =
         relativeOverride ?? props.sessionState.damageStatistics.topDamageDealt;

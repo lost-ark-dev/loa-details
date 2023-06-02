@@ -39,6 +39,7 @@
 
     <div v-if="!isTakingScreenshot">
       <q-btn flat size="sm" @click="damageType = 'dmg'"> DMG </q-btn>
+      <q-btn flat size="sm" @click="damageType = 'rdps'"> rDPS </q-btn>
       <q-btn flat size="sm" @click="damageType = 'tank'"> TANK </q-btn>
       <q-btn flat size="sm" @click="damageType = 'shield_given'">
         SHIELD D

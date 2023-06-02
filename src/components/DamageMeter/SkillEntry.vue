@@ -19,7 +19,7 @@
         :hover="true"
       />
     </td>
-    <template v-if="['dmg', 'tank', 'heal'].includes(damageType)">
+    <template v-if="['dmg', 'rdps', 'tank', 'heal'].includes(damageType)">
       <td
         v-if="settingsStore.settings.damageMeter.tabs.damagePercent.enabled"
         class="text-center"
@@ -33,7 +33,10 @@
         <AbbreviatedNumberTemplate :val="DPS" :hover="true" />
       </td>
       <td
-        v-if="settingsStore.settings.damageMeter.tabs.critRate.enabled"
+        v-if="
+          damageType === 'dmg' &&
+          settingsStore.settings.damageMeter.tabs.critRate.enabled
+        "
         class="text-center"
       >
         {{
@@ -44,7 +47,10 @@
         <span class="ex">%</span>
       </td>
       <td
-        v-if="settingsStore.settings.damageMeter.tabs.faRate.enabled"
+        v-if="
+          damageType === 'dmg' &&
+          settingsStore.settings.damageMeter.tabs.faRate.enabled
+        "
         class="text-center"
       >
         <template v-if="skill.hits.totalFrontAttack > 0">
@@ -58,7 +64,10 @@
         </template>
       </td>
       <td
-        v-if="settingsStore.settings.damageMeter.tabs.baRate.enabled"
+        v-if="
+          damageType === 'dmg' &&
+          settingsStore.settings.damageMeter.tabs.baRate.enabled
+        "
         class="text-center"
       >
         <template v-if="skill.hits.totalBackAttack > 0">
@@ -72,65 +81,27 @@
         </template>
       </td>
       <td
-        v-if="settingsStore.settings.damageMeter.tabs.hBuffedBySup.enabled"
+        v-if="
+          ['dmg', 'rdps'].includes(damageType) &&
+          settingsStore.settings.damageMeter.tabs.rdpsSynPercent.enabled
+        "
         class="text-center"
       >
         {{
-          skill.hits.total > 0
-            ? (
-                (skill.hits.hitsBuffedBySupport / skill.hits.total) *
-                100
-              ).toFixed(1)
-            : (0).toFixed(1)
+          (
+            (skill.damageInfo.rdpsDamageReceived /
+              (skill.damageInfo.damageDealt -
+                skill.damageInfo.rdpsDamageReceived)) *
+            100
+          ).toFixed(1)
         }}
         <span class="ex">%</span>
       </td>
       <td
-        v-if="settingsStore.settings.damageMeter.tabs.hDebuffedBySup.enabled"
-        class="text-center"
-      >
-        {{
-          skill.hits.total > 0
-            ? (
-                (skill.hits.hitsDebuffedBySupport / skill.hits.total) *
-                100
-              ).toFixed(1)
-            : (0).toFixed(1)
-        }}
-        <span class="ex">%</span>
-      </td>
-      <td
-        v-if="settingsStore.settings.damageMeter.tabs.dBuffedBySup.enabled"
-        class="text-center"
-      >
-        {{
-          skill.hits.total > 0
-            ? (
-                (skill.damageInfo.damageDealtBuffedBySupport /
-                  skill.damageInfo.damageDealt) *
-                100
-              ).toFixed(1)
-            : (0).toFixed(1)
-        }}
-        <span class="ex">%</span>
-      </td>
-      <td
-        v-if="settingsStore.settings.damageMeter.tabs.dDebuffedBySup.enabled"
-        class="text-center"
-      >
-        {{
-          skill.hits.total > 0
-            ? (
-                (skill.damageInfo.damageDealtDebuffedBySupport /
-                  skill.damageInfo.damageDealt) *
-                100
-              ).toFixed(1)
-            : (0).toFixed(1)
-        }}
-        <span class="ex">%</span>
-      </td>
-      <td
-        v-if="settingsStore.settings.damageMeter.tabs.maxDmg.enabled"
+        v-if="
+          damageType === 'dmg' &&
+          settingsStore.settings.damageMeter.tabs.maxDmg.enabled
+        "
         class="text-center"
       >
         {{ maxDamage[0] }}
@@ -139,7 +110,10 @@
         </span>
       </td>
       <td
-        v-if="settingsStore.settings.damageMeter.tabs.avgDmg.enabled"
+        v-if="
+          damageType === 'dmg' &&
+          settingsStore.settings.damageMeter.tabs.avgDmg.enabled
+        "
         class="text-center"
       >
         {{ avgDamage[0] }}
@@ -148,7 +122,10 @@
         </span>
       </td>
       <td
-        v-if="settingsStore.settings.damageMeter.tabs.avgCast.enabled"
+        v-if="
+          damageType === 'dmg' &&
+          settingsStore.settings.damageMeter.tabs.avgCast.enabled
+        "
         class="text-center"
       >
         {{ avgCast[0] }}
@@ -157,19 +134,28 @@
         </span>
       </td>
       <td
-        v-if="settingsStore.settings.damageMeter.tabs.totalHits.enabled"
+        v-if="
+          damageType === 'dmg' &&
+          settingsStore.settings.damageMeter.tabs.totalHits.enabled
+        "
         class="text-center"
       >
         {{ skill.hits.total }}
       </td>
       <td
-        v-if="settingsStore.settings.damageMeter.tabs.totalCasts.enabled"
+        v-if="
+          damageType === 'dmg' &&
+          settingsStore.settings.damageMeter.tabs.totalCasts.enabled
+        "
         class="text-center"
       >
         {{ skill.hits.casts }}
       </td>
       <td
-        v-if="settingsStore.settings.damageMeter.tabs.hpm.enabled"
+        v-if="
+          damageType === 'dmg' &&
+          settingsStore.settings.damageMeter.tabs.hpm.enabled
+        "
         class="text-center"
       >
         {{ HPM[0] }}
@@ -178,7 +164,10 @@
         </span>
       </td>
       <td
-        v-if="settingsStore.settings.damageMeter.tabs.cpm.enabled"
+        v-if="
+          damageType === 'dmg' &&
+          settingsStore.settings.damageMeter.tabs.cpm.enabled
+        "
         class="text-center"
       >
         {{ CPM[0] }}
@@ -334,6 +323,17 @@
     </template>
   -->
     <div
+      v-if="damageType === 'dmg' && true /* rdps settings */"
+      class="player-bar"
+      :style="`width: ${skill.baseDamagePercentageTop}%;background: ${color};`"
+    ></div>
+    <div
+      v-if="damageType === 'dmg' && true /* rdps settings */"
+      class="player-bar"
+      :style="`margin-left: ${skill.baseDamagePercentageTop}%; width: ${skill.recvDamagePercentageTop}%;background: ${color};opacity: 0.5;`"
+    ></div>
+    <div
+      v-else
       class="player-bar"
       :style="`
               width:${skill.relativePercent}%;
