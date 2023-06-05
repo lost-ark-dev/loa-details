@@ -1,24 +1,14 @@
 <template>
-  <template
-    v-if="['classskill', 'identity'].includes(buff?.buffcategory ?? '')"
-  >
-    <q-tooltip
-      class="buff-head-tooltip"
-      anchor="top middle"
-      self="bottom middle"
+  <template v-if="['classskill', 'identity'].includes(buff?.buffcategory ?? '')">
+    <q-tooltip class="buff-head-tooltip" anchor="top middle" self="bottom middle"
       >{{ getClassName(buff?.source.skill?.classid) }}:
       <img :src="getIconPath(buff?.source.skill?.icon)" />
-      {{ buff?.source.skill?.name }} (
-      <img :src="getIconPath(buff?.source.icon)" /> {{ buff?.source.name }}:
+      {{ buff?.source.skill?.name }} ( <img :src="getIconPath(buff?.source.icon)" /> {{ buff?.source.name }}:
       <span v-html="buff?.source.desc"></span>)
     </q-tooltip>
   </template>
   <template v-else>
-    <q-tooltip
-      class="buff-head-tooltip"
-      anchor="top middle"
-      self="bottom middle"
-    >
+    <q-tooltip class="buff-head-tooltip" anchor="top middle" self="bottom middle">
       <img :src="getIconPath(buff?.source.icon)" /> {{ buff?.source.name }}:
       <span v-html="buff?.source.desc"></span>
     </q-tooltip>
@@ -26,14 +16,14 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
-import { QTooltip } from "quasar";
 import { StatusEffect } from "meter-core/logger/data";
-import { getIconPath, getClassName } from "../../util/helpers";
+import { QTooltip } from "quasar";
+import { PropType } from "vue";
+import { getClassName, getIconPath } from "../../util/helpers";
 
 defineProps({
-  buffId: Number,
-  buff: Object as PropType<StatusEffect>,
+  buffId: { type: Number, required: true },
+  buff: { type: Object as PropType<StatusEffect>, required: true },
 });
 </script>
 

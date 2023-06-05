@@ -3,59 +3,27 @@
     <div class="changelog-page">
       <h5>About</h5>
       <p>
-        LOA Details allows you to track real-time stats of the game Lost Ark and
-        view and parse its logged data.
+        LOA Details allows you to track real-time stats of the game Lost Ark and view and parse its logged data.
         <br />
         <br />
         This app is a clone from the
-        <a
-          @click="openLinkInBrowser('https://github.com/karaeren/loa-details')"
-          class="custom-link"
-          >original interface</a
-        >
+        <a class="custom-link" @click="openExternal('https://github.com/karaeren/loa-details')">original interface</a>
         from
-        <a
-          @click="openLinkInBrowser('https://github.com/karaeren')"
-          class="custom-link"
-          >karaeren</a
-        >
-        It has been modified to work as a standalone program, without the need
-        of any 3rd party logger. The packet sniffing part has been made from
-        scratch by
-        <a
-          @click="openLinkInBrowser('https://github.com/Herysia')"
-          class="custom-link"
-          >Herysia</a
-        >
+        <a class="custom-link" @click="openExternal('https://github.com/karaeren')">karaeren</a>
+        It has been modified to work as a standalone program, without the need of any 3rd party logger. The packet
+        sniffing part has been made from scratch by
+        <a class="custom-link" @click="openExternal('https://github.com/Herysia')">Herysia</a>
         and
-        <a
-          @click="openLinkInBrowser('https://github.com/Mathicha')"
-          class="custom-link"
-          >Mathi</a
-        >, however, we can't help but thank
-        <a
-          @click="openLinkInBrowser('https://github.com/Shalzuth')"
-          class="custom-link"
-          >Shalzuth</a
-        >
+        <a class="custom-link" @click="openExternal('https://github.com/Mathicha')">Mathi</a>, however, we can't help
+        but thank
+        <a class="custom-link" @click="openExternal('https://github.com/Shalzuth')">Shalzuth</a>
         for his work on
-        <a
-          @click="
-            openLinkInBrowser('https://github.com//shalzuth/LostArkLogger')
-          "
-          class="custom-link"
-          >LostArkLogger</a
-        >.
+        <a class="custom-link" @click="openExternal('https://github.com//shalzuth/LostArkLogger')">LostArkLogger</a>.
       </p>
 
       <p>
         Refer to the
-        <a
-          class="custom-link"
-          @click="openLinkInBrowser('https://discord.gg/C3fr3EBXbS')"
-        >
-          Discord Server</a
-        >
+        <a class="custom-link" @click="openExternal('https://discord.gg/C3fr3EBXbS')"> Discord Server</a>
         for full change log.
       </p>
 
@@ -63,99 +31,72 @@
       <h6 id="1-3-1">1.3.1</h6>
       <ul>
         <li>
-          Fix some "self" buffs applied on target that were processed for the
-          whole party (Ex: Sharshooter Death Strike of Mark of Death)
+          Fix some "self" buffs applied on target that were processed for the whole party (Ex: Sharshooter Death Strike
+          of Mark of Death)
         </li>
       </ul>
       <h6 id="1-3-0">1.3.0</h6>
       <ul>
         <li>
-          Support more casts for skills (focus was primarly to show arcana cards
-          casts, but it may include more unlogged casts)
+          Support more casts for skills (focus was primarly to show arcana cards casts, but it may include more unlogged
+          casts)
         </li>
+        <li>Current boss name is included when talking a screenshot of live view</li>
         <li>
-          Current boss name is included when talking a screenshot of live view
-        </li>
-        <li>
-          Added a warning message when localplayer data is missing (which means
-          most buff related feature will might show wrong data)
+          Added a warning message when localplayer data is missing (which means most buff related feature will might
+          show wrong data)
         </li>
         <li>Add button to dismiss "reset transition" notification</li>
         <li>
-          rDPS - 1st step towards rdps (This is an experimental feature, don't
-          trust the values too much there - Aka limitations and potential
-          bugs/mistakes)
+          rDPS - 1st step towards rdps (This is an experimental feature, don't trust the values too much there - Aka
+          limitations and potential bugs/mistakes)
           <ul>
             Features
+            <li>DMG tab: Added syn% column, which represent the % of synergies applied to your base dmg</li>
+            <li>DMG tab: Visually display the dmg portion gained from synergies (with a darker background)</li>
             <li>
-              DMG tab: Added syn% column, which represent the % of synergies
-              applied to your base dmg
-            </li>
-            <li>
-              DMG tab: Visually display the dmg portion gained from synergies
-              (with a darker background)
-            </li>
-            <li>
-              rDps tab: show and rank players per rDps. rDps naming is inspired
-              from RPGLogs metric. It is
-              rDps=DamageDone-DamageRecvFromSynergies+DamageGivenWithSynergies,
-              and roughly means how much you contributed to the raid damage wise
+              rDps tab: show and rank players per rDps. rDps naming is inspired from RPGLogs metric. It is
+              rDps=DamageDone-DamageRecvFromSynergies+DamageGivenWithSynergies, and roughly means how much you
+              contributed to the raid damage wise
             </li>
           </ul>
           <ul>
             Limitations
             <li>
-              Spec scaling buff (Serenade of Courage) from bard uses base values
-              (5,10,15%) instead of scaling with spec. Because we don't have
-              spec stat yet
+              Spec scaling buff (Serenade of Courage) from bard uses base values (5,10,15%) instead of scaling with
+              spec. Because we don't have spec stat yet
             </li>
             <li>
-              Support atk power buffs part that gives +15% of caster's base atk
-              power is ignored. Because we don't know base atk. power yet
+              Support atk power buffs part that gives +15% of caster's base atk power is ignored. Because we don't know
+              base atk. power yet
             </li>
             <li>
-              Yearning "Dexterity" buff is ignored. Because we don't know weapon
-              quality yet (and therefore skill damage % that scales additively
-              with yearning)
+              Yearning "Dexterity" buff is ignored. Because we don't know weapon quality yet (and therefore skill damage
+              % that scales additively with yearning)
             </li>
+            <li>Crit chance overcap isn't handled yet. Because we don't have crit stat yet</li>
             <li>
-              Crit chance overcap isn't handled yet. Because we don't have crit
-              stat yet
-            </li>
-            <li>
-              Defense reduction is approximated to 50% of the value, because i
-              managed to reverse defense formula for players, but it doesn't
-              seem to work with npcs
+              Defense reduction is approximated to 50% of the value, because i managed to reverse defense formula for
+              players, but it doesn't seem to work with npcs
             </li>
           </ul>
           <ul>
             Maths
-            <li>
-              The way those values are calculated will be explained further in
-              the next steps of rdps
-            </li>
+            <li>The way those values are calculated will be explained further in the next steps of rdps</li>
           </ul>
           <ul></ul>
         </li>
+        <li>Fix slayer identity "Burst" buff not being displayed in self buff / skill breakdown</li>
         <li>
-          Fix slayer identity "Burst" buff not being displayed in self buff /
-          skill breakdown
-        </li>
-        <li>
-          Removed obsolete columns "HBuf%", "HDebuf%", "DBuf%", "DDebuf%" as
-          Syn% is more relevant. Might wanna split dps and support in 2 columns?
-          Lemme know what you think
+          Removed obsolete columns "HBuf%", "HDebuf%", "DBuf%", "DDebuf%" as Syn% is more relevant. Might wanna split
+          dps and support in 2 columns? Lemme know what you think
         </li>
       </ul>
       <h6 id="1-2-9">1.2.9</h6>
       <ul>
         <li>
           You like our work? There is now a way to
-          <a
-            class="custom-link"
-            @click="openLinkInBrowser('https://patreon.com/Herysia')"
-            >support us</a
-          >
+          <a class="custom-link" @click="openExternal('https://patreon.com/Herysia')">support us</a>
           !
         </li>
         <li>Slightly changed main page</li>
@@ -168,9 +109,8 @@
       <ul>
         <li>Fix previous commit that broke more than it fixed (yh i'm dumb)</li>
         <li>
-          Esther is now counted in Total Damage and Total DPS (can be disabled
-          in settings->include esther in total damage (only show when display
-          esther is enabled))
+          Esther is now counted in Total Damage and Total DPS (can be disabled in settings->include esther in total
+          damage (only show when display esther is enabled))
         </li>
       </ul>
       <h6 id="1-2-6">1.2.6</h6>
@@ -182,8 +122,8 @@
       <h6 id="1-2-5">1.2.5</h6>
       <ul>
         <li>
-          UI now saving horizontal/vertical scroll position when navigating
-          within a session (resets when going back to session list)
+          UI now saving horizontal/vertical scroll position when navigating within a session (resets when going back to
+          session list)
         </li>
       </ul>
       <h6 id="1-2-4">1.2.4</h6>
@@ -198,32 +138,23 @@
         <li>Esther will now be displayed in &quot;dmg&quot; tab</li>
         <li>
           Can be toggle on/off in
-          <code
-            >settings-&gt;damage meter-&gt;functionality-&gt;display
-            esther</code
-          >
+          <code>settings-&gt;damage meter-&gt;functionality-&gt;display esther</code>
         </li>
         <li>
           Color can be customized in
-          <code
-            >settings-&gt;damage meter-&gt;functionality-&gt;esther color</code
-          >
+          <code>settings-&gt;damage meter-&gt;functionality-&gt;esther color</code>
         </li>
       </ul>
       <p><strong>meter-core (mostly for devs)</strong></p>
       <ul>
         <li>
-          guess player is only called on skill start (it&#39;ll prevent some
-          unknown projectiles to be considered as player -&gt; happened while
-          you were inside shandi&#39;s world in g6 brel for ex)
+          guess player is only called on skill start (it&#39;ll prevent some unknown projectiles to be considered as
+          player -&gt; happened while you were inside shandi&#39;s world in g6 brel for ex)
         </li>
         <li>StatusEffect expiration fixes</li>
         <li>Esther support</li>
         <li>upgrade to typescript 5</li>
-        <li>
-          build config has been modified as i realized tsup bundle wasn&#39;t
-          only type checking called methods
-        </li>
+        <li>build config has been modified as i realized tsup bundle wasn&#39;t only type checking called methods</li>
       </ul>
       <p><strong>meter-data</strong></p>
       <ul>
@@ -239,43 +170,29 @@
           <ul>
             <li>SHIELD D: Shield done (to you and other players)</li>
             <li>SHIELD G: Shield gotten (from you and other players)</li>
-            <li>
-              ESHIELD D: Effective shield done - shield done that has been
-              consumed by damage
-            </li>
-            <li>
-              ESHIELD G: Effective shield gotten - shield gotten that has been
-              consumed by damage
-            </li>
+            <li>ESHIELD D: Effective shield done - shield done that has been consumed by damage</li>
+            <li>ESHIELD G: Effective shield gotten - shield gotten that has been consumed by damage</li>
           </ul>
         </li>
         <li>You can toggle those tabs on and off in the settings</li>
         <li>
           <p>
-            You can see overall value for each metric in the 1st column, and
-            details per skills/source in the others
+            You can see overall value for each metric in the 1st column, and details per skills/source in the others
           </p>
         </li>
         <li>
-          <p>
-            Those values will be available for all logs made after 1.2.0 after
-            reparse
-          </p>
+          <p>Those values will be available for all logs made after 1.2.0 after reparse</p>
         </li>
       </ul>
       <p><strong>Regarding the rising number of tabs &amp; columns</strong></p>
       <p>
-        We are aware that live version is starting to be overloaded, but that
-        this data is still interesting to see, and some of you might want to
-        only enable some features for parse. We are currently reworking the
-        settings format and will include a way to enable each settings
-        independently for live &amp; parse with that update
+        We are aware that live version is starting to be overloaded, but that this data is still interesting to see, and
+        some of you might want to only enable some features for parse. We are currently reworking the settings format
+        and will include a way to enable each settings independently for live &amp; parse with that update
       </p>
       <h6 id="1-2-1">1.2.1</h6>
       <ul>
-        <li>
-          Hotfixed meter live view not showing for some users (settings issue)
-        </li>
+        <li>Hotfixed meter live view not showing for some users (settings issue)</li>
       </ul>
       <h6 id="1-2-0">1.2.0</h6>
       <p>
@@ -286,65 +203,48 @@
         <li>No more intermediate format when live parsing</li>
         <li>No more loa-details-log-parser</li>
         <li>
-          The log file now contains content similar to raw packets, so it&#39;ll
-          allow more data to be extracted from older logs when we add new
-          features/fixes
+          The log file now contains content similar to raw packets, so it&#39;ll allow more data to be extracted from
+          older logs when we add new features/fixes
         </li>
       </ul>
       <p><strong>loa-details</strong></p>
       <ul>
+        <li>Removed option to allow overkill -&gt; now it&#39;ll always ignore overkill</li>
         <li>
-          Removed option to allow overkill -&gt; now it&#39;ll always ignore
-          overkill
-        </li>
-        <li>
-          Improved back/front attack display: now only show for hits that could
-          have been back/front attack (unless the target can&#39;t be back/front
-          attacked)
+          Improved back/front attack display: now only show for hits that could have been back/front attack (unless the
+          target can&#39;t be back/front attacked)
         </li>
         <li>Upgraded dependencies (especially electron to 24.1.2 (node 18))</li>
-        <li>
-          Removed now unused dependencies (loa-details-log-parser, uuid,
-          plateform-folders, worker-farm, lodash)
-        </li>
+        <li>Removed now unused dependencies (loa-details-log-parser, uuid, plateform-folders, worker-farm, lodash)</li>
         <li>Fixed Artist not being considered as a support</li>
       </ul>
       <p><strong>For devs</strong></p>
       <ul>
         <li>
-          You now can&#39;t look into log files by hand directly, you&#39;ll
-          have to use meter-core and ReplayLogger class to parse log file into
-          objects similar to packet objects. From that you can process it the
-          same way it was done in LegacyLogger.
+          You now can&#39;t look into log files by hand directly, you&#39;ll have to use meter-core and ReplayLogger
+          class to parse log file into objects similar to packet objects. From that you can process it the same way it
+          was done in LegacyLogger.
         </li>
         <li>
-          But you can review all (known) packets with all their mapped fields
-          using the log files, which may contain useful information that you
-          lost with the previous format
+          But you can review all (known) packets with all their mapped fields using the log files, which may contain
+          useful information that you lost with the previous format
         </li>
       </ul>
       <p>
-        <strong>About old logs</strong> Old logs will just be ignored by loa
-        details, you can delete them or save them in a folder if you want. Old
-        log format won&#39;t be officially supported anymore, but you still
-        could use the old version, if you edit it not to autoupdate.
+        <strong>About old logs</strong> Old logs will just be ignored by loa details, you can delete them or save them
+        in a folder if you want. Old log format won&#39;t be officially supported anymore, but you still could use the
+        old version, if you edit it not to autoupdate.
       </p>
       <p>
-        Parsed format hasn&#39;t changed yet, but it is planned to be reworked
-        soon. You&#39;ll just have to reparsed you raw logs when it&#39;s
-        released and won&#39;t lose your logs again.
+        Parsed format hasn&#39;t changed yet, but it is planned to be reworked soon. You&#39;ll just have to reparsed
+        you raw logs when it&#39;s released and won&#39;t lose your logs again.
       </p>
     </div>
   </q-scroll-area>
 </template>
 
-<script setup>
-function openLinkInBrowser(link) {
-  window.messageApi.send("window-to-main", {
-    message: "open-link",
-    value: link,
-  });
-}
+<script setup lang="ts">
+import { openExternal } from "src/util/ipc";
 </script>
 
 <style>

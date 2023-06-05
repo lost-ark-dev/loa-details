@@ -1,12 +1,6 @@
 <template>
   <q-scroll-area style="height: calc(100vh - 32px - 56px)">
-    <q-tabs
-      v-model="tab"
-      inline-label
-      outside-arrows
-      mobile-arrows
-      class="settings-tabs text-white shadow-2"
-    >
+    <q-tabs v-model="tab" inline-label outside-arrows mobile-arrows class="settings-tabs text-white shadow-2">
       <q-tab name="general" icon="display_settings" label="General" />
       <q-tab name="damage_meter" icon="speed" label="Damage Meter" />
       <q-tab name="log" icon="article" label="Log " />
@@ -24,22 +18,15 @@
   </q-scroll-area>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import DamageMeterPage from "components/SettingsPage/DamageMeterPage.vue";
+import GeneralPage from "components/SettingsPage/GeneralPage.vue";
+import LogPage from "components/SettingsPage/LogPage.vue";
+import ShortcutsPage from "components/SettingsPage/ShortcutsPage.vue";
+import UploadPage from "components/SettingsPage/UploadPage.vue";
 import { ref } from "vue";
-import GeneralPage from "src/components/SettingsPage/GeneralPage.vue";
-import DamageMeterPage from "src/components/SettingsPage/DamageMeterPage.vue";
-import UploadPage from "src/components/SettingsPage/UploadPage.vue";
-import LogPage from "src/components/SettingsPage/LogPage.vue";
-import ShortcutsPage from "src/components/SettingsPage/ShortcutsPage.vue";
-
-import { useSettingsStore } from "src/stores/settings";
-const settingsStore = useSettingsStore();
 
 let tab = ref("general");
-
-settingsStore.$subscribe(() => {
-  settingsStore.saveSettings();
-});
 </script>
 
 <style>

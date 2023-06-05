@@ -17,13 +17,8 @@ export type SessionInfo = {
   sessionEncounters: SessionData[];
 };
 
-export type ViewerState =
-  | "loading"
-  | "no-data"
-  | "none"
-  | "viewing-session"
-  | "viewing-encounter"
-  | "viewing-log";
+export type ViewerState = "loading" | "no-data" | "none" | "viewing-session" | "viewing-encounter" | "viewing-log";
+
 type State = {
   viewerState: ViewerState;
   currentSessionName: string;

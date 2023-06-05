@@ -1,28 +1,14 @@
 <template>
-  <q-scroll-area
-    ref="verticalScrollArea"
-    style="height: calc(100vh - 32px - 56px)"
-  >
+  <q-scroll-area ref="verticalScrollArea" style="height: calc(100vh - 32px - 56px)">
     <div class="flex justify-start column">
       <div
-        v-if="
-          logViewerStore.viewerState === 'loading' ||
-          logViewerStore.viewerState === 'no-data'
-        "
+        v-if="logViewerStore.viewerState === 'loading' || logViewerStore.viewerState === 'no-data'"
         class="flex column items-center justify-center spinner"
       >
-        <img
-          v-if="logViewerStore.viewerState === 'loading'"
-          class="loader-img"
-          :src="loaderImg"
-        />
+        <img v-if="logViewerStore.viewerState === 'loading'" class="loader-img" :src="loaderImg" />
 
         <span>
-          {{
-            logViewerStore.viewerState === "loading"
-              ? "Parsing logs"
-              : "No data found"
-          }}
+          {{ logViewerStore.viewerState === "loading" ? "Parsing logs" : "No data found" }}
         </span>
 
         <q-btn
@@ -40,9 +26,7 @@
             class="q-mt-md"
             style="width: 128px"
           />
-          <div style="margin-top: 8px">
-            {{ parserStatus.completedJobs }} / {{ parserStatus.totalJobs }}
-          </div>
+          <div style="margin-top: 8px">{{ parserStatus.completedJobs }} / {{ parserStatus.totalJobs }}</div>
         </div>
       </div>
 
@@ -59,37 +43,32 @@
 
           <q-select
             v-if="logViewerStore.viewerState === 'none'"
-            filled
             v-model="logViewerStore.logfileFilter"
-            @update:model-value="computedLogFileList()"
+            filled
             multiple
             clearable
             :options="logViewerStore.encounterOptions"
             label="Filter encounters"
             style="width: 256px"
+            @update:model-value="computedLogFileList()"
           />
 
           <q-select
             v-if="logViewerStore.viewerState === 'viewing-session'"
-            filled
             v-model="logViewerStore.encounterFilter"
-            @update:model-value="calculateEncounterRows()"
+            filled
             multiple
             clearable
             :options="logViewerStore.encounterOptions"
             label="Filter encounters"
             style="width: 256px"
+            @update:model-value="calculateEncounterRows()"
           />
 
           <q-space />
 
           <div v-if="logViewerStore.viewerState === 'none'">
-            <q-btn
-              unelevated
-              color="primary"
-              label="Open Folder"
-              @click="openLogDirectory"
-            />
+            <q-btn unelevated color="primary" label="Open Folder" @click="openLogDirectory" />
             <q-btn
               style="margin-left: 16px"
               unelevated
@@ -97,13 +76,7 @@
               label="Wipe Parsed Log Cache"
               @click="wipeParsedLogs"
             />
-            <q-btn
-              style="margin-left: 16px"
-              unelevated
-              color="primary"
-              label="Refresh"
-              @click="getLogfiles"
-            />
+            <q-btn style="margin-left: 16px" unelevated color="primary" label="Refresh" @click="getLogfiles" />
           </div>
 
           <q-btn-dropdown
@@ -113,15 +86,11 @@
             icon="screenshot_monitor"
             color="primary"
             label="Screenshot Log"
-            @click="($refs.logView as any).takeScreenshot()"
             style="margin-left: auto"
+            @click="($refs.logView as any).takeScreenshot()"
           >
             <q-list>
-              <q-item
-                clickable
-                v-close-popup
-                @click="($refs.logView as any).takeScreenshot(false)"
-              >
+              <q-item v-close-popup clickable @click="($refs.logView as any).takeScreenshot(false)">
                 <q-item-section>
                   <q-item-label>Screenshot With Names</q-item-label>
                 </q-item-section>
@@ -137,54 +106,35 @@
             :columns="sessionColumns"
             row-key="dateText"
             dark
-            @row-click="onSessionRowClick"
             :pagination="sessionPagination"
+            @row-click="onSessionRowClick"
             @update:pagination="onSessionPagination"
           />
         </div>
 
         <div v-else-if="logViewerStore.viewerState === 'viewing-session'">
-          <q-page-sticky
-            position="bottom-left"
-            :offset="[32, 32]"
-            style="z-index: 1000000"
-          >
-            <q-btn
-              fab
-              icon="arrow_back"
-              color="primary"
-              @click="changeLogViewerStoreState('none')"
-            />
+          <q-page-sticky position="bottom-left" :offset="[32, 32]" style="z-index: 1000000">
+            <q-btn fab icon="arrow_back" color="primary" @click="changeLogViewerStoreState('none')" />
           </q-page-sticky>
           <q-timeline dark color="secondary">
-            <q-timeline-entry
-              v-if="encounterRows.length === 0"
-              style="font-size: 24px; font-family: 'questrial'"
-            >
+            <q-timeline-entry v-if="encounterRows.length === 0" style="font-size: 24px; font-family: 'questrial'">
               No encounter found based on filter and options.
             </q-timeline-entry>
 
             <q-timeline-entry
               v-for="encounter in encounterRows"
               :key="encounter.encounterName"
-              :title="
-                encounter.encounterName +
-                ' | ' +
-                encounter.attempts.length +
-                ' attempt(s)'
-              "
+              :title="encounter.encounterName + ' | ' + encounter.attempts.length + ' attempt(s)'"
               :subtitle="
                 millisToHourMinuteSeconds(encounter.startingMs) +
                 ' - ' +
-                millisToHourMinuteSeconds(
-                  encounter.startingMs + encounter.duration
-                )
+                millisToHourMinuteSeconds(encounter.startingMs + encounter.duration)
               "
             >
               <q-scroll-area
+                ref="horizontalScrollAreas"
                 style="width: calc(100vw - 96px - 12px)"
                 :style="{ height: encounter.image ? '272px' : '96px' }"
-                ref="horizontalScrollAreas"
               >
                 <div class="row no-wrap">
                   <q-card
@@ -210,11 +160,7 @@
       </div>
 
       <div
-        v-if="
-          logViewerStore.viewerState === 'viewing-encounter' &&
-          logFile.viewingLogFile &&
-          logFile.data
-        "
+        v-if="logViewerStore.viewerState === 'viewing-encounter' && logFile.viewingLogFile && logFile.data"
         class="logs-page"
       >
         <LogView ref="logView" :log-data="logFile.data" />
@@ -224,32 +170,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, nextTick, Ref } from "vue";
+import LogView from "components/LogView.vue";
 import dayjs from "dayjs";
-import {
-  millisToMinutesAndSeconds,
-  millisToHourMinuteSeconds,
-} from "src/util/number-helpers";
-
-import LogView from "src/components/LogView.vue";
-
-import { useSettingsStore } from "src/stores/settings";
-import {
-  type ViewerState,
-  type SessionInfo,
-  type SessionData,
-  useLogViewerStore,
-} from "src/stores/log-viewer";
-import type {
-  GameStateFile,
-  ParsedLogInfo,
-} from "src-electron/log-parser/file-parser";
-import { sleep } from "src/util/sleep";
-
-import { encounters } from "src/constants/encounters";
-
 import relativeTime from "dayjs/plugin/relativeTime";
 import { QScrollArea, QTableProps } from "quasar";
+import type { GameStateFile, ParsedLogInfo } from "src-electron/log-parser/file-parser";
+import { encounters } from "src/constants/encounters";
+import { millisToHourMinuteSeconds, millisToMinutesAndSeconds } from "src/util/number-helpers";
+import { sleep } from "src/util/sleep";
+import { useLogViewerStore, type SessionData, type SessionInfo, type ViewerState } from "stores/log-viewer";
+import { settings } from "stores/settings";
+import { Ref, nextTick, onMounted, reactive, ref } from "vue";
+
 dayjs.extend(relativeTime);
 type RowData = {
   encounterName: string;
@@ -259,7 +191,6 @@ type RowData = {
   attempts: SessionData[];
 };
 
-const settingsStore = useSettingsStore();
 const logViewerStore = useLogViewerStore();
 
 const loaderImg = new URL("../assets/images/loader.gif", import.meta.url).href;
@@ -271,8 +202,7 @@ const horizontalScrollAreas: Ref<QScrollArea[]> = ref([]);
 
 async function changeLogViewerStoreState(newState: ViewerState) {
   if (verticalScrollArea.value)
-    verticalScrollOffsets[logViewerStore.viewerState] =
-      verticalScrollArea.value.getScroll().verticalPosition; //Save previous position
+    verticalScrollOffsets[logViewerStore.viewerState] = verticalScrollArea.value.getScroll().verticalPosition; //Save previous position
 
   const oldState = logViewerStore.viewerState;
   if (newState === "viewing-session") {
@@ -293,20 +223,11 @@ async function changeLogViewerStoreState(newState: ViewerState) {
   if (verticalScrollArea.value || horizontalScrollAreas.value) {
     await nextTick();
     //apply vertical scroll
-    verticalScrollArea.value?.setScrollPosition(
-      "vertical",
-      verticalScrollOffsets[newState] ?? 0
-    );
+    verticalScrollArea.value?.setScrollPosition("vertical", verticalScrollOffsets[newState] ?? 0);
     //apply all horizontal scroll
-    if (
-      horizontalScrollAreas.value &&
-      horizontalScrollAreas.value.length === horizontalScrollOffsets.length
-    )
+    if (horizontalScrollAreas.value && horizontalScrollAreas.value.length === horizontalScrollOffsets.length)
       horizontalScrollOffsets.forEach((val, index) => {
-        horizontalScrollAreas.value[index]?.setScrollPosition(
-          "horizontal",
-          val
-        );
+        horizontalScrollAreas.value[index]?.setScrollPosition("horizontal", val);
       });
   }
 }
@@ -383,12 +304,7 @@ function calculateEncounterRows() {
       session.sessionEncounters.forEach((encounter) => {
         startingMs += encounter.durationTs;
 
-        if (
-          encounter.durationTs <=
-          settingsStore.settings.logs.minimumEncounterDurationInMinutes *
-            60 *
-            1000
-        ) {
+        if (encounter.durationTs <= settings.value.logs.minimumEncounterDurationInMinutes * 60 * 1000) {
           return;
         }
 
@@ -410,10 +326,7 @@ function calculateEncounterRows() {
           return;
         }
 
-        if (
-          rows.length > 0 &&
-          rows[rows.length - 1].encounterName === encounterName
-        ) {
+        if (rows.length > 0 && rows[rows.length - 1].encounterName === encounterName) {
           rows[rows.length - 1].duration += encounter.durationTs;
           rows[rows.length - 1].attempts.push(encounter);
         } else {
@@ -494,10 +407,7 @@ function calculateLogFileList(value: ParsedLogInfo[]) {
 
     logViewerStore.encounterOptions.sort();
 
-    if (
-      totalDuration >=
-      settingsStore.settings.logs.minimumSessionDurationInMinutes * 60 * 1000
-    ) {
+    if (totalDuration >= settings.value.logs.minimumSessionDurationInMinutes * 60 * 1000) {
       logViewerStore.sessions.push({
         filename: val.filename,
         date: val.date,
@@ -511,12 +421,9 @@ function calculateLogFileList(value: ParsedLogInfo[]) {
   });
 
   logViewerStore.sessions.reverse();
-  logViewerStore.computedSessions = JSON.parse(
-    JSON.stringify(logViewerStore.sessions)
-  ) as SessionInfo[];
+  logViewerStore.computedSessions = JSON.parse(JSON.stringify(logViewerStore.sessions)) as SessionInfo[];
 
-  logViewerStore.viewerState =
-    logViewerStore.sessions.length > 0 ? "none" : "no-data";
+  logViewerStore.viewerState = logViewerStore.sessions.length > 0 ? "none" : "no-data";
 }
 
 function computedLogFileList() {

@@ -1,12 +1,5 @@
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
+import { EntitySkills, EntityState, Hits, StatusEffect } from "meter-core/logger/data";
 import PCData from "/meter-data/databases/PCData.json";
-import {
-  EntityState,
-  EntitySkills,
-  Hits,
-  StatusEffect,
-} from "meter-core/logger/data";
 
 export type EntryData = {
   hits: Hits;
@@ -16,6 +9,7 @@ export type EntryData = {
   damageDealtDebuffedBy: Map<number, number>;
   damageDealtBuffedBy: Map<number, number>;
 };
+
 export type EntityExtended = EntityState & {
   damagePercentageTotal?: string;
   damagePercentageTop?: string;
@@ -39,6 +33,7 @@ export type EntityExtended = EntityState & {
   eshieldGottenPercentageTotal?: string;
   eshieldGottenPercentageTop?: string;
 };
+
 export type EntitySkillsExtended = EntitySkills & {
   damagePercent?: string;
   relativePercent?: string;
@@ -88,39 +83,23 @@ export function getShieldTableEntry(
   return ret;
 }
 
-export function getBuffPercent(
-  data: EntryData,
-  damageType: DamageType,
-  columnData: Map<number, StatusEffect>
-) {
+export function getBuffPercent(data: EntryData, damageType: DamageType, columnData: Map<number, StatusEffect>) {
   const ret = new Map<number, number>();
   let totalPercent = 0;
   columnData.forEach((statusEffect, id) => {
     let val = 0;
     if (statusEffect.category === "buff" && damageType.includes("dmg")) {
       // Buff dmg
-      val =
-        ((data.damageDealtBuffedBy.get(id) ?? 0) /
-          data.damageInfo.damageDealt) *
-        100;
+      val = ((data.damageDealtBuffedBy.get(id) ?? 0) / data.damageInfo.damageDealt) * 100;
     } else if (statusEffect.category === "buff" && damageType.includes("hit")) {
       // Buff hits
 
       val = ((data.hits.hitsBuffedBy.get(id) ?? 0) / data.hits.total) * 100;
-    } else if (
-      statusEffect.category === "debuff" &&
-      damageType.includes("dmg")
-    ) {
+    } else if (statusEffect.category === "debuff" && damageType.includes("dmg")) {
       // Debuff dmg
 
-      val =
-        ((data.damageDealtDebuffedBy.get(id) ?? 0) /
-          data.damageInfo.damageDealt) *
-        100;
-    } else if (
-      statusEffect.category === "debuff" &&
-      damageType.includes("hit")
-    ) {
+      val = ((data.damageDealtDebuffedBy.get(id) ?? 0) / data.damageInfo.damageDealt) * 100;
+    } else if (statusEffect.category === "debuff" && damageType.includes("hit")) {
       // Debuff hits
 
       val = ((data.hits.hitsDebuffedBy.get(id) ?? 0) / data.hits.total) * 100;
@@ -134,6 +113,7 @@ export function getBuffPercent(
   ret.set(-1, totalPercent);
   return ret;
 }
+
 export function getIconPath(iconName: string | undefined): string {
   if (iconName) {
     const meterDataPath = window.helperApi.getMeterDataPath();
@@ -149,9 +129,5 @@ export function getClassName(id: number | undefined): string {
 }
 
 export function getRdps(entity: EntityExtended) {
-  return (
-    entity.damageInfo.damageDealt -
-    entity.damageInfo.rdpsDamageReceived +
-    entity.damageInfo.rdpsDamageGiven
-  );
+  return entity.damageInfo.damageDealt - entity.damageInfo.rdpsDamageReceived + entity.damageInfo.rdpsDamageGiven;
 }

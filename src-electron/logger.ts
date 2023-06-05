@@ -2,13 +2,13 @@ import log from "electron-log";
 import { readFileSync } from "fs";
 import { MeterData } from "meter-core/data";
 import { Decompressor } from "meter-core/decompressor";
-import { PktCaptureAll, PktCaptureMode } from "meter-core/pkt-capture";
 import type { GameTrackerOptions } from "meter-core/logger/data";
+import { LiveLogger } from "meter-core/logger/logger";
+import { Parser } from "meter-core/logger/parser";
+import { PktCaptureAll, PktCaptureMode } from "meter-core/pkt-capture";
 import { PKTStream } from "meter-core/pkt-stream";
 import { join } from "path";
 import { mainFolder } from "./util/directories.js";
-import { LiveLogger } from "meter-core/logger/logger";
-import { Parser } from "meter-core/logger/parser";
 
 export function InitMeterData() {
   // create MeterData and read data
@@ -40,11 +40,7 @@ export function InitLogger(
     useRawSocket ? PktCaptureMode.MODE_RAW_SOCKET : PktCaptureMode.MODE_PCAP,
     listenPort
   );
-  log.info(
-    `Listening on ${capture.captures.size} devices(s): ${Array.from(
-      capture.captures.keys()
-    ).join(", ")}`
-  );
+  log.info(`Listening on ${capture.captures.size} devices(s): ${Array.from(capture.captures.keys()).join(", ")}`);
   capture.on("packet", (buf) => {
     try {
       const badPkt = stream.read(buf);

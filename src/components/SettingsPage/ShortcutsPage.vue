@@ -3,7 +3,7 @@
     <q-item-label header>Damage Meter</q-item-label>
 
     <q-item
-      v-for="shortcut in Object.keys(settingsStore.settings.shortcuts)"
+      v-for="shortcut in (Object.keys(settings.shortcuts) as Array<keyof typeof shortcutsId>)"
       :key="shortcut"
       tag="label"
     >
@@ -16,43 +16,28 @@
           <q-select
             filled
             :options="shortcutSuffixOptions"
-            :model-value="
-              settingsStore.settings.shortcuts[shortcut].value.split('+')[0]
-            "
+            :model-value="settings.shortcuts[shortcut].split('+')[0]"
             @update:model-value="updateModelValue(shortcut, true, $event)"
           />
           <span style="margin: 0 8px">+</span>
           <q-select
             filled
             :options="shortcutOptions"
-            :model-value="
-              settingsStore.settings.shortcuts[shortcut].value.split('+')[1]
-            "
+            :model-value="settings.shortcuts[shortcut].split('+')[1]"
             @update:model-value="updateModelValue(shortcut, false, $event)"
           />
-          <q-btn
-            flat
-            label="Reset"
-            @click="
-              settingsStore.settings.shortcuts[shortcut].value =
-                settingsStore.settings.shortcuts[shortcut].defaultValue
-            "
-          />
+          <q-btn flat label="Reset" @click="settings.shortcuts[shortcut] = shortcutsId[shortcut]" />
         </div>
       </q-item-section>
     </q-item>
   </q-list>
 </template>
 
-<script setup>
-/* eslint-disable */
-import { ref, watch, onMounted, reactive } from "vue";
-import {
-  shortcutSuffixOptions,
-  shortcutOptions,
-} from "src/constants/shortcut-options";
-import { useSettingsStore } from "src/stores/settings";
-const settingsStore = useSettingsStore();
+<script setup lang="ts">
+import { shortcutsId } from "app/shared";
+import { shortcutOptions, shortcutSuffixOptions } from "src/constants/shortcut-options";
+import { settings } from "src/stores/settings";
+import { reactive } from "vue";
 
 const shortcutDescriptions = reactive({
   minimizeDamageMeter: "Minimize Damage Meter window",
@@ -60,15 +45,13 @@ const shortcutDescriptions = reactive({
   pauseDamageMeter: "Pause the damage meter",
 });
 
-function getShortcutDescription(shortcut) {
+function getShortcutDescription(shortcut: keyof typeof settings.value.shortcuts) {
   return shortcutDescriptions[shortcut] || shortcut;
 }
 
-function updateModelValue(sender, isSuffix, value) {
-  const oldVal = settingsStore.settings.shortcuts[sender].value;
-  const newVal = isSuffix
-    ? `${value.value}+${oldVal.split("+")[1]}`
-    : `${oldVal.split("+")[0]}+${value.value}`;
-  settingsStore.settings.shortcuts[sender].value = newVal;
+function updateModelValue(sender: keyof typeof settings.value.shortcuts, isSuffix: boolean, value: string) {
+  const oldVal = settings.value.shortcuts[sender];
+  const newVal = isSuffix ? `${value}+${oldVal.split("+")[1]}` : `${oldVal.split("+")[0]}+${value}`;
+  settings.value.shortcuts[sender] = newVal;
 }
 </script>

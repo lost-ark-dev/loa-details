@@ -1,15 +1,15 @@
+import { randomUUID } from "crypto";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { IpcMainEvent } from "electron";
 import log from "electron-log";
 import { promises as fsPromises, unlinkSync, writeFileSync } from "fs";
-import path from "path";
-import { mainFolder, parsedLogFolder } from "../util/directories";
-import { ReplayLogger } from "meter-core/logger/logger";
-import { Parser } from "meter-core/logger/parser";
 import { MeterData } from "meter-core/data";
 import { GameState, PARSED_LOG_VERSION } from "meter-core/logger/data";
-import { randomUUID } from "crypto";
+import { ReplayLogger } from "meter-core/logger/logger";
+import { Parser } from "meter-core/logger/parser";
+import path from "path";
+import { mainFolder, parsedLogFolder } from "../util/directories";
 
 dayjs.extend(customParseFormat);
 export type LogParserStatus = {
@@ -46,10 +46,7 @@ export async function parseLogs(
   };
 
   if (unparsedLogs.includes("main.json")) {
-    const mainStr = await fsPromises.readFile(
-      path.join(mainFolder, "main.json"),
-      "utf-8"
-    );
+    const mainStr = await fsPromises.readFile(path.join(mainFolder, "main.json"), "utf-8");
     mainJson = JSON.parse(mainStr) as {
       [key: string]: { mtime: Date; logParserVersion: number };
     };
@@ -66,8 +63,7 @@ export async function parseLogs(
 
   for (const filename of unparsedLogs) {
     // Check if filename fits the format "LostArk_2020-01-01-00-00-00.log"
-    if (!filename.match(/^LostArk_\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}.raw$/))
-      continue;
+    if (!filename.match(/^LostArk_\d{4}-\d{2}-\d{2}-\d{2}-\d{2}-\d{2}.raw$/)) continue;
 
     const filenameSlice = filename.slice(0, -4);
     const jsonName = filenameSlice + ".json";
@@ -78,8 +74,7 @@ export async function parseLogs(
       let shouldUnlink = false;
       if (Object.keys(mainJson).includes(filename)) {
         if (
-          new Date(mainJson[filename].mtime).getTime() <
-            new Date(logStats.mtime).getTime() ||
+          new Date(mainJson[filename].mtime).getTime() < new Date(logStats.mtime).getTime() ||
           mainJson[filename].logParserVersion < PARSED_LOG_VERSION
         ) {
           shouldUnlink = true;
@@ -133,10 +128,7 @@ export async function parseLogs(
       }
 
       if (completedJobs === totalJobs) {
-        writeFileSync(
-          path.join(mainFolder, "main.json"),
-          JSON.stringify(mainJson)
-        );
+        writeFileSync(path.join(mainFolder, "main.json"), JSON.stringify(mainJson));
       }
     });
 
@@ -205,10 +197,7 @@ function parseLog(
         );
       }
 
-      writeFileSync(
-        path.join(parsedLogFolder, filenameSlice + ".json"),
-        JSON.stringify(masterLog)
-      );
+      writeFileSync(path.join(parsedLogFolder, filenameSlice + ".json"), JSON.stringify(masterLog));
 
       return "log parsed";
     }
@@ -232,19 +221,14 @@ export async function getParsedLogs(): Promise<ParsedLogInfo[]> {
     try {
       if (filename.slice(0, -5).endsWith("encounter")) continue;
 
-      const contents = await fsPromises.readFile(
-        path.join(parsedLogFolder, filename),
-        "utf-8"
-      );
+      const contents = await fsPromises.readFile(path.join(parsedLogFolder, filename), "utf-8");
 
       const parsedContents = (await JSON.parse(contents, reviver)) as MasterLog;
 
       res.push({
         filename,
         parsedContents,
-        date: new Date(
-          dayjs(filename.slice(8, -5), "YYYY-MM-DD-HH-mm-ss").toDate()
-        ),
+        date: new Date(dayjs(filename.slice(8, -5), "YYYY-MM-DD-HH-mm-ss").toDate()),
       });
     } catch (e) {
       log.error(e);
@@ -255,14 +239,9 @@ export async function getParsedLogs(): Promise<ParsedLogInfo[]> {
   return res;
 }
 
-export async function getLogData(
-  filename: string
-): Promise<GameStateFile | Record<string, never>> {
+export async function getLogData(filename: string): Promise<GameStateFile | Record<string, never>> {
   try {
-    const contents = await fsPromises.readFile(
-      path.join(parsedLogFolder, filename),
-      "utf-8"
-    );
+    const contents = await fsPromises.readFile(path.join(parsedLogFolder, filename), "utf-8");
     return (await JSON.parse(contents, reviver)) as GameStateFile;
   } catch (e) {
     log.error(e);
@@ -276,7 +255,7 @@ export async function wipeParsedLogs() {
     await fsPromises.unlink(path.join(parsedLogFolder, filename));
   }
 }
-/* eslint-disable */
+
 function reviver(_key: string, value: any) {
   if (typeof value === "object" && value !== null) {
     if (value.hasOwnProperty("dataType")) {
@@ -302,7 +281,6 @@ function replacer(_key: any, value: any) {
     return value;
   }
 }
-/* eslint-enable */
 
 type Encounter = {
   encounterId: string;

@@ -19,20 +19,18 @@ export function createPrelauncherWindow() {
   });
 
   prelauncherWindow.center();
-  void prelauncherWindow
-    .loadURL(process.env.APP_URL + "#/prelauncher")
-    .then(() => {
-      if (process.env.DEBUGGING) {
-        // if on DEV or Production with debug enabled
-        prelauncherWindow.webContents.openDevTools();
-      } else {
-        // we're on production; no access to devtools pls
-        prelauncherWindow.webContents.on("devtools-opened", () => {
-          prelauncherWindow.webContents.closeDevTools();
-        });
-      }
-      prelauncherWindow.show();
-    });
+  void prelauncherWindow.loadURL(process.env.APP_URL + "#/prelauncher").then(() => {
+    if (process.env.DEBUGGING) {
+      // if on DEV or Production with debug enabled
+      prelauncherWindow.webContents.openDevTools();
+    } else {
+      // we're on production; no access to devtools pls
+      prelauncherWindow.webContents.on("devtools-opened", () => {
+        prelauncherWindow.webContents.closeDevTools();
+      });
+    }
+    prelauncherWindow.show();
+  });
 
   return prelauncherWindow;
 }

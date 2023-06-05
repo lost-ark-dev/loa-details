@@ -4,24 +4,14 @@
     <span class="ex">% </span>
   </template>
   <template v-if="buffEntry.size > 1">
-    <q-tooltip
-      class="buff-body-tooltip"
-      anchor="top middle"
-      self="bottom middle"
-    >
+    <q-tooltip class="buff-body-tooltip" anchor="top middle" self="bottom middle">
       <template v-for="[buffId, buffValue] of buffEntry" :key="buffId">
         <template v-if="buffId !== -1 && buffValue">
           <div>
-            <img
-              class="header_img"
-              :src="getIconPath(buffData.get(buffId)?.source.icon)"
-            />
+            <img class="header_img" :src="getIconPath(buffData.get(buffId)?.source.icon)" />
             <template v-if="buffData.get(buffId)?.source.skill"
               >(
-              <img
-                class="header_img"
-                :src="getIconPath(buffData.get(buffId)?.source.skill?.icon)"
-              />
+              <img class="header_img" :src="getIconPath(buffData.get(buffId)?.source.skill?.icon)" />
               )
             </template>
             {{ buffValue?.toFixed(1) }}
@@ -34,10 +24,10 @@
 </template>
 
 <script setup lang="ts">
-import { PropType } from "vue";
-import { QTooltip } from "quasar";
 import { StatusEffect } from "meter-core/logger/data";
-import { getIconPath, EntryData } from "../../util/helpers";
+import { QTooltip } from "quasar";
+import { PropType } from "vue";
+import { EntryData, getIconPath } from "../../util/helpers";
 
 defineProps({
   buffEntry: { type: Map<number, number>, required: true },

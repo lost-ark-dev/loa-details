@@ -1,4 +1,3 @@
-const { resolve } = require("path");
 module.exports = {
   // https://eslint.org/docs/user-guide/configuring#configuration-cascading-and-hierarchy
   // This option interrupts the configuration hierarchy at this file
@@ -9,10 +8,8 @@ module.exports = {
   // Must use parserOptions instead of "parser" to allow vue-eslint-parser to keep working
   // `parser: 'vue-eslint-parser'` is already included with any 'plugin:vue/**' config and should be omitted
   parserOptions: {
-    parser: "@typescript-eslint/parser",
+    parser: require.resolve("@typescript-eslint/parser"),
     extraFileExtensions: [".vue"],
-    project: resolve(__dirname, "./tsconfig.json"),
-    tsconfigRootDir: __dirname,
   },
 
   env: {
@@ -29,17 +26,14 @@ module.exports = {
 
     // https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin#usage
     // ESLint typescript rules
-    "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
-    // consider disabling this class of rules if linting takes too long
-    "plugin:@typescript-eslint/recommended-requiring-type-checking",
 
     // Uncomment any of the lines below to choose desired strictness,
     // but leave only one uncommented!
     // See https://eslint.vuejs.org/rules/#available-rules
-    "plugin:vue/vue3-essential", // Priority A: Essential (Error Prevention)
+    // 'plugin:vue/vue3-essential', // Priority A: Essential (Error Prevention)
     // 'plugin:vue/vue3-strongly-recommended', // Priority B: Strongly Recommended (Improving Readability)
-    // 'plugin:vue/vue3-recommended', // Priority C: Recommended (Minimizing Arbitrary Choices and Cognitive Overhead)
+    "plugin:vue/vue3-recommended", // Priority C: Recommended (Minimizing Arbitrary Choices and Cognitive Overhead)
 
     // https://github.com/prettier/eslint-config-prettier#installation
     // usage with Prettier, provided by 'eslint-config-prettier'.
@@ -76,7 +70,7 @@ module.exports = {
   rules: {
     "prefer-promise-reject-errors": "off",
 
-    quotes: ["warn", "double", { avoidEscape: true }],
+    // quotes: ['warn', 'single', { avoidEscape: true }],
 
     // this rule, if on, would require explicit return type on the `render` function
     "@typescript-eslint/explicit-function-return-type": "off",

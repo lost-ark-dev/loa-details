@@ -1,5 +1,5 @@
-import { MessageApi } from "types";
 import { contextBridge, IgnoreMouseEventsOptions, ipcRenderer } from "electron";
+import { ipc, MessageApi, Settings } from "shared/index";
 
 contextBridge.exposeInMainWorld("messageApi", {
   send: (channel, data) => {
@@ -15,7 +15,6 @@ contextBridge.exposeInMainWorld("messageApi", {
       "pcap-on-message",
       "pcap-on-state-change",
       "pcap-on-reset-state",
-      "on-settings-change",
       "parsed-logs-list",
       "parsed-log",
       "log-parser-status",
@@ -27,7 +26,6 @@ contextBridge.exposeInMainWorld("messageApi", {
 
     if (validChannels.includes(channel)) {
       // Deliberately strip event as it includes `sender`
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       ipcRenderer.on(channel, (event, args) => func(args));
     }
   },
@@ -47,3 +45,13 @@ contextBridge.exposeInMainWorld("helperApi", {
     return ipcRenderer.sendSync("get-meter-data-path") as string;
   },
 });
+
+const ipc: ipc = {
+  getSettings: () => ipcRenderer.sendSync("ipc:getSettings") as Settings,
+  onSettingsChanged: (fn) => ipcRenderer.on("ipc:settingsChanged", (event, arg: Settings) => fn(arg)),
+  saveSettings: (settings: Settings) => ipcRenderer.send("ipc:saveSettings", settings),
+  appVersion: () => ipcRenderer.sendSync("ipc:appVersion") as string,
+  openExternal: (url: string) => ipcRenderer.send("ipc:openExternal", url),
+};
+
+contextBridge.exposeInMainWorld("ipc", ipc);

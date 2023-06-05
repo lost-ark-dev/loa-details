@@ -5,15 +5,12 @@
     <span class="ex">
       {{ NumTxtHover[1] }}
     </span>
-    <q-tooltip
-      class="dmg_full_value"
-      anchor="top middle"
-      self="bottom middle"
-      v-if="hover"
-      >{{ NumTxtHover[2] }}</q-tooltip
-    >
+    <q-tooltip v-if="hover" class="dmg_full_value" anchor="top middle" self="bottom middle">{{
+      NumTxtHover[2]
+    }}</q-tooltip>
   </template>
 </template>
+
 <script setup lang="ts">
 import { abbreviateNumber } from "src/util/number-helpers";
 import { computed } from "vue";

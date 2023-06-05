@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
 import {
   app,
   BrowserWindow,
@@ -13,36 +12,18 @@ import {
 import log from "electron-log";
 import Store from "electron-store";
 import { unlinkSync } from "fs";
+import { Parser } from "meter-core/logger/parser";
+import { adminRelauncher, PktCaptureMode } from "meter-core/pkt-capture";
 import os from "os";
 import path from "path";
-import {
-  createDamageMeterWindow,
-  createMainWindow,
-  createPrelauncherWindow,
-} from "./electron-windows";
-import {
-  getLogData,
-  getParsedLogs,
-  parseLogs,
-  wipeParsedLogs,
-} from "./log-parser/file-parser";
+import { createDamageMeterWindow, createMainWindow, createPrelauncherWindow } from "./electron-windows";
+import { getLogData, getParsedLogs, parseLogs, wipeParsedLogs } from "./log-parser/file-parser";
 import { InitLogger, InitMeterData } from "./logger";
-import { getSettings, saveSettings } from "./util/app-settings";
 import { mainFolder } from "./util/directories";
 import { saveScreenshot } from "./util/screenshot";
-import {
-  initializeShortcuts,
-  shortcutEventEmitter,
-  updateShortcuts,
-} from "./util/shortcuts-manager";
-import {
-  checkForUpdates,
-  quitAndInstall,
-  updaterEventEmitter,
-} from "./util/updater";
-import { adminRelauncher, PktCaptureMode } from "meter-core/pkt-capture";
-import { Parser } from "meter-core/logger/parser";
-import { Settings } from "./util/app-settings";
+import { settings, Settings } from "./util/settings";
+import { initializeShortcuts, shortcutEventEmitter, updateShortcuts } from "./util/shortcuts-manager";
+import { checkForUpdates, quitAndInstall, updaterEventEmitter } from "./util/updater";
 
 if (app.commandLine.hasSwitch("disable-hardware-acceleration")) {
   log.info("Hardware acceleration disabled");
@@ -58,9 +39,7 @@ console.info = log.info.bind(log);
 
 const store = new Store();
 
-let prelauncherWindow: BrowserWindow | null,
-  mainWindow: BrowserWindow | null,
-  damageMeterWindow: BrowserWindow | null;
+let prelauncherWindow: BrowserWindow | null, mainWindow: BrowserWindow | null, damageMeterWindow: BrowserWindow | null;
 let tray = null;
 
 const appLockKey = { myKey: "loa-details" };
@@ -78,8 +57,6 @@ if (!gotTheLock) {
     }
   });
 }
-
-let appSettings = getSettings();
 
 // log file stuff
 const padTo2Digits = (num: number) => num.toString().padStart(2, "0");
@@ -100,30 +77,49 @@ let liveParser: Parser;
 try {
   liveParser = InitLogger(
     meterData,
-    appSettings?.general?.useRawSocket,
-    appSettings?.general?.listenPort ?? 6040,
+    settings.store.general.useRawSocket,
+    settings.store.general.listenPort ?? 6040,
     filename,
     {
       isLive: true,
-      dontResetOnZoneChange:
-        appSettings.damageMeter.functionality.dontResetOnZoneChange,
-      resetAfterPhaseTransition:
-        appSettings.damageMeter.functionality.resetAfterPhaseTransition,
-      splitOnPhaseTransition: appSettings.logs.splitOnPhaseTransition,
+      dontResetOnZoneChange: settings.store.damageMeter.functionality.dontResetOnZoneChange,
+      resetAfterPhaseTransition: settings.store.damageMeter.functionality.resetAfterPhaseTransition,
+      splitOnPhaseTransition: settings.store.logs.splitOnPhaseTransition,
     }
   );
 } catch (e) {
   log.error(e);
 }
 
-appSettings.appVersion = app.getVersion();
+ipcMain.on("ipc:appVersion", (event) => {
+  event.returnValue = app.getVersion();
+});
+
+ipcMain.on("ipc:getSettings", (event) => {
+  event.returnValue = settings.store;
+});
+
+ipcMain.on("ipc:saveSettings", (event, newSettings: Settings) => {
+  settings.store = newSettings;
+  updateShortcuts();
+
+  mainWindow?.webContents.send("ipc:settingsChanged", settings.store);
+  damageMeterWindow?.webContents.send("ipc:settingsChanged", settings.store);
+  liveParser.updateOptions({
+    dontResetOnZoneChange: settings.store.damageMeter.functionality.dontResetOnZoneChange,
+    resetAfterPhaseTransition: settings.store.damageMeter.functionality.resetAfterPhaseTransition,
+    splitOnPhaseTransition: settings.store.logs.splitOnPhaseTransition,
+  });
+
+  damageMeterWindow?.setOpacity(settings.store.damageMeter.design.opacity);
+});
+
+ipcMain.on("ipc:openExternal", (event, url: string) => {
+  void shell.openExternal(url);
+});
 
 //We relaunch admin as early as possible to be smoother, as -relaunch parameter is set, admin won't be checked again later on
-adminRelauncher(
-  appSettings.general.useRawSocket
-    ? PktCaptureMode.MODE_RAW_SOCKET
-    : PktCaptureMode.MODE_PCAP
-);
+adminRelauncher(settings.store.general.useRawSocket ? PktCaptureMode.MODE_RAW_SOCKET : PktCaptureMode.MODE_PCAP);
 //Note: relauncher doesn't work in dev mode, consider starting as admin
 //TODO: disable when in dev ?
 
@@ -160,45 +156,27 @@ void app.whenReady().then(() => {
 
 let prelauncherStatus = "open";
 
-updaterEventEmitter.on(
-  "event",
-  (details: { message: string; value: unknown }) => {
-    if (
-      typeof prelauncherWindow !== "undefined" &&
-      prelauncherWindow &&
-      prelauncherWindow.webContents
-    ) {
-      prelauncherWindow.webContents.send("updater-message", details);
-    } else if (
-      typeof mainWindow !== "undefined" &&
-      mainWindow &&
-      mainWindow.webContents
-    ) {
-      mainWindow.webContents.send("updater-message", details);
-    }
+updaterEventEmitter.on("event", (details: { message: string; value: unknown }) => {
+  if (typeof prelauncherWindow !== "undefined" && prelauncherWindow && prelauncherWindow.webContents) {
+    prelauncherWindow.webContents.send("updater-message", details);
+  } else if (typeof mainWindow !== "undefined" && mainWindow && mainWindow.webContents) {
+    mainWindow.webContents.send("updater-message", details);
+  }
 
-    if (
-      details.message === "update-not-available" &&
-      prelauncherStatus === "open"
-    ) {
-      startApplication();
-      if (typeof prelauncherWindow != "undefined") {
-        prelauncherStatus = "closed";
-        prelauncherWindow?.close();
-        prelauncherWindow = null;
-      }
-    }
-
-    // quitAndInstall only when prelauncher is visible (aka startup of application)
-    if (
-      details.message === "update-downloaded" &&
-      typeof prelauncherWindow != "undefined" &&
-      prelauncherWindow
-    ) {
-      quitAndInstall(false, true); // isSilent=false, forceRunAfter=true
+  if (details.message === "update-not-available" && prelauncherStatus === "open") {
+    startApplication();
+    if (typeof prelauncherWindow != "undefined") {
+      prelauncherStatus = "closed";
+      prelauncherWindow?.close();
+      prelauncherWindow = null;
     }
   }
-);
+
+  // quitAndInstall only when prelauncher is visible (aka startup of application)
+  if (details.message === "update-downloaded" && typeof prelauncherWindow != "undefined" && prelauncherWindow) {
+    quitAndInstall(false, true); // isSilent=false, forceRunAfter=true
+  }
+});
 
 function startApplication() {
   tray = new Tray(
@@ -265,31 +243,22 @@ function startApplication() {
     mainWindow?.focus();
   });
 
-  mainWindow = createMainWindow(appSettings);
-  damageMeterWindow = createDamageMeterWindow(liveParser, appSettings);
+  mainWindow = createMainWindow();
+  damageMeterWindow = createDamageMeterWindow(liveParser);
 
-  initializeShortcuts(appSettings);
+  initializeShortcuts();
 
-  shortcutEventEmitter.on(
-    "shortcut",
-    (shortcut: { key: unknown; action: string }) => {
-      log.debug(shortcut);
+  shortcutEventEmitter.on("shortcut", (shortcut: { key: unknown; action: string }) => {
+    log.debug(shortcut);
 
-      if (shortcut.action === "minimizeDamageMeter") {
-        damageMeterWindow?.webContents.send(
-          "shortcut-action",
-          "toggle-minimized-state"
-        );
-      } else if (shortcut.action === "resetSession") {
-        damageMeterWindow?.webContents.send("shortcut-action", "reset-session");
-      } else if (shortcut.action === "pauseDamageMeter") {
-        damageMeterWindow?.webContents.send(
-          "shortcut-action",
-          "pause-damage-meter"
-        );
-      }
+    if (shortcut.action === "minimizeDamageMeter") {
+      damageMeterWindow?.webContents.send("shortcut-action", "toggle-minimized-state");
+    } else if (shortcut.action === "resetSession") {
+      damageMeterWindow?.webContents.send("shortcut-action", "reset-session");
+    } else if (shortcut.action === "pauseDamageMeter") {
+      damageMeterWindow?.webContents.send("shortcut-action", "pause-damage-meter");
     }
-  );
+  });
 }
 
 let damageMeterWindowOldSize: number[],
@@ -298,7 +267,6 @@ let damageMeterWindowOldSize: number[],
   damageMeterPositionDifference: number[];
 
 const ipcFunctions: {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: (event: Electron.IpcMainEvent, arg: any) => void;
 } = {
   "reset-session": () => {
@@ -307,34 +275,8 @@ const ipcFunctions: {
   "cancel-reset-session": () => {
     liveParser.cancelReset();
   },
-  "save-settings": (event, arg: { value: string }) => {
-    appSettings = JSON.parse(arg.value) as Settings;
-    saveSettings(arg.value);
-
-    updateShortcuts(appSettings);
-
-    mainWindow?.webContents.send("on-settings-change", appSettings);
-    damageMeterWindow?.webContents.send("on-settings-change", appSettings);
-    liveParser.updateOptions({
-      dontResetOnZoneChange:
-        appSettings.damageMeter.functionality.dontResetOnZoneChange,
-      resetAfterPhaseTransition:
-        appSettings.damageMeter.functionality.resetAfterPhaseTransition,
-      splitOnPhaseTransition: appSettings.logs.splitOnPhaseTransition,
-    });
-
-    damageMeterWindow?.setOpacity(appSettings.damageMeter.design.opacity);
-  },
-  "get-settings": (event) => {
-    event.reply("on-settings-change", appSettings);
-  },
   "parse-logs": async (event) => {
-    await parseLogs(
-      event,
-      appSettings.logs.splitOnPhaseTransition,
-      meterData,
-      filename
-    );
+    await parseLogs(event, settings.store.logs.splitOnPhaseTransition, meterData, filename);
   },
   "get-parsed-logs": async (event) => {
     const parsedLogs = await getParsedLogs();
@@ -356,9 +298,6 @@ const ipcFunctions: {
   "quit-and-install": () => {
     quitAndInstall();
   },
-  "open-link": (event, arg: { message: string; value: string }) => {
-    void shell.openExternal(arg.value);
-  },
   "save-screenshot": async (event, arg: { message: string; value: string }) => {
     await saveScreenshot(arg.value);
   },
@@ -372,11 +311,8 @@ const ipcFunctions: {
     store.set("windows.damage_meter.X", 0);
     store.set("windows.damage_meter.Y", 0);
   },
-  "toggle-damage-meter-minimized-state": (
-    event,
-    arg: { message: string; value: boolean }
-  ) => {
-    if (appSettings.damageMeter.functionality.minimizeToTaskbar) {
+  "toggle-damage-meter-minimized-state": (event, arg: { message: string; value: boolean }) => {
+    if (settings.store.damageMeter.functionality.minimizeToTaskbar) {
       if (arg.value) damageMeterWindow?.minimize();
       else damageMeterWindow?.restore();
     } else {
@@ -385,11 +321,8 @@ const ipcFunctions: {
           newH = 64;
 
         damageMeterWindowOldSize = damageMeterWindow?.getSize() || [0, 0];
-        damageMeterWindowOldMinimumSize =
-          damageMeterWindow?.getMinimumSize() || [0, 0];
-        damageMeterWindowOldPosition = damageMeterWindow?.getPosition() || [
-          0, 0,
-        ];
+        damageMeterWindowOldMinimumSize = damageMeterWindow?.getMinimumSize() || [0, 0];
+        damageMeterWindowOldPosition = damageMeterWindow?.getPosition() || [0, 0];
 
         damageMeterPositionDifference = [
           damageMeterWindowOldPosition[0] + damageMeterWindowOldSize[0] - newW,
@@ -399,24 +332,12 @@ const ipcFunctions: {
         damageMeterWindow?.setResizable(false);
         damageMeterWindow?.setMinimumSize(newW, newH);
         damageMeterWindow?.setSize(newW, newH);
-        damageMeterWindow?.setPosition(
-          damageMeterPositionDifference[0],
-          damageMeterPositionDifference[1]
-        );
+        damageMeterWindow?.setPosition(damageMeterPositionDifference[0], damageMeterPositionDifference[1]);
       } else {
         damageMeterWindow?.setResizable(true);
-        damageMeterWindow?.setMinimumSize(
-          damageMeterWindowOldMinimumSize[0],
-          damageMeterWindowOldMinimumSize[1]
-        );
-        damageMeterWindow?.setSize(
-          damageMeterWindowOldSize[0],
-          damageMeterWindowOldSize[1]
-        );
-        damageMeterWindow?.setPosition(
-          damageMeterWindowOldPosition[0],
-          damageMeterWindowOldPosition[1]
-        );
+        damageMeterWindow?.setMinimumSize(damageMeterWindowOldMinimumSize[0], damageMeterWindowOldMinimumSize[1]);
+        damageMeterWindow?.setSize(damageMeterWindowOldSize[0], damageMeterWindowOldSize[1]);
+        damageMeterWindow?.setPosition(damageMeterWindowOldPosition[0], damageMeterWindowOldPosition[1]);
       }
     }
   },
@@ -443,24 +364,18 @@ ipcMain.on("hide", () => {
   mainWindow?.hide();
 });
 
-ipcMain.on(
-  "setIgnoreMouseEvents",
-  (event, ignore: boolean, options?: IgnoreMouseEventsOptions) => {
-    damageMeterWindow?.setIgnoreMouseEvents(ignore, options);
-  }
-);
+ipcMain.on("setIgnoreMouseEvents", (event, ignore: boolean, options?: IgnoreMouseEventsOptions) => {
+  damageMeterWindow?.setIgnoreMouseEvents(ignore, options);
+});
 
-ipcMain.on(
-  "window-to-main",
-  (event, arg: { message: string; value: unknown }) => {
-    const ipcFunction =
-      ipcFunctions[arg.message] ||
-      (() => {
-        log.error("Unknown window-to-main message: " + arg.message);
-      });
-    ipcFunction(event, arg);
-  }
-);
+ipcMain.on("window-to-main", (event, arg: { message: string; value: unknown }) => {
+  const ipcFunction =
+    ipcFunctions[arg.message] ||
+    (() => {
+      log.error("Unknown window-to-main message: " + arg.message);
+    });
+  ipcFunction(event, arg);
+});
 
 app.on("window-all-closed", () => {
   if (platform !== "darwin") {
@@ -470,7 +385,7 @@ app.on("window-all-closed", () => {
 
 app.on("activate", () => {
   if (mainWindow === null) {
-    mainWindow = createMainWindow(appSettings);
+    mainWindow = createMainWindow();
   }
 });
 

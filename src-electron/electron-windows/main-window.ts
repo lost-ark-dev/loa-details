@@ -1,9 +1,9 @@
 import { app, BrowserWindow } from "electron";
 import path from "path";
-import { Settings } from "../util/app-settings";
+import { settings } from "../util/settings";
 import { initWindow } from "../util/window-init";
 
-export function createMainWindow(appSettings: Settings) {
+export function createMainWindow() {
   let mainWindow: BrowserWindow | null = new BrowserWindow({
     icon: path.resolve(__dirname, "icons/icon.png"), // tray icon
     show: false,
@@ -27,10 +27,10 @@ export function createMainWindow(appSettings: Settings) {
   });
 
   let startHidden = false;
-  if (appSettings?.general?.startMainHidden) startHidden = true;
+  if (settings.store.general.startMainHidden) startHidden = true;
 
   let startMinimized = false;
-  if (appSettings?.general?.startMainMinimized) startMinimized = true;
+  if (settings.store.general.startMainMinimized) startMinimized = true;
 
   void mainWindow.loadURL(process.env.APP_URL + "#/").then(() => {
     if (!mainWindow) return;

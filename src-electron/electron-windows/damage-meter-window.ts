@@ -1,16 +1,13 @@
 import { app, BrowserWindow, shell } from "electron";
 import log from "electron-log";
 import type { GameState } from "meter-core/logger/data";
+import { Parser } from "meter-core/logger/parser";
 import path from "path";
-import { Settings } from "../util/app-settings";
+import { settings } from "../util/settings";
 import { upload } from "../util/uploads";
 import { initWindow } from "../util/window-init";
-import { Parser } from "meter-core/logger/parser";
 
-export function createDamageMeterWindow(
-  liveParser: Parser,
-  appSettings: Settings
-) {
+export function createDamageMeterWindow(liveParser: Parser) {
   let damageMeterWindow: BrowserWindow | null = new BrowserWindow({
     icon: path.resolve(__dirname, "icons/icon.png"),
     show: false,
@@ -19,13 +16,14 @@ export function createDamageMeterWindow(
     minWidth: 360,
     minHeight: 124,
     frame: false,
-    transparent: appSettings?.damageMeter?.design?.transparency ?? true,
-    opacity: appSettings?.damageMeter?.design?.opacity || 0.9,
+    transparent: settings.store.damageMeter.design.transparency ?? true,
+    opacity: settings.store.damageMeter.design.opacity || 0.9,
     resizable: true,
     autoHideMenuBar: true,
     fullscreenable: false,
     alwaysOnTop: true,
     useContentSize: true,
+    // TODO: backgroundMaterial: "acrylic",
     webPreferences: {
       devTools: process.env.DEBUGGING,
       contextIsolation: true,
@@ -33,21 +31,19 @@ export function createDamageMeterWindow(
     },
   });
 
-  void damageMeterWindow
-    .loadURL(process.env.APP_URL + "#/damage-meter")
-    .then(() => {
-      if (!damageMeterWindow) return;
-      if (process.env.DEBUGGING) {
-        damageMeterWindow.webContents.openDevTools();
-      } else {
-        damageMeterWindow.webContents.on("devtools-opened", () => {
-          damageMeterWindow?.webContents.closeDevTools();
-        });
-      }
-      damageMeterWindow.show();
+  void damageMeterWindow.loadURL(process.env.APP_URL + "#/damage-meter").then(() => {
+    if (!damageMeterWindow) return;
+    if (process.env.DEBUGGING) {
+      damageMeterWindow.webContents.openDevTools();
+    } else {
+      damageMeterWindow.webContents.on("devtools-opened", () => {
+        damageMeterWindow?.webContents.closeDevTools();
+      });
+    }
+    damageMeterWindow.show();
 
-      initWindow(damageMeterWindow, "damage_meter");
-    });
+    initWindow(damageMeterWindow, "damage_meter");
+  });
 
   damageMeterWindow.setAlwaysOnTop(true, "normal");
 
@@ -56,14 +52,13 @@ export function createDamageMeterWindow(
     try {
       damageMeterWindow?.webContents.send("pcap-on-reset-state", "1");
 
-      const uploadsEnabled = appSettings.uploads.uploadLogs;
+      const uploadsEnabled = settings.store.uploads.uploadLogs;
       log.debug("uploadsEnabled", uploadsEnabled);
       if (uploadsEnabled) {
         log.info("Starting an upload");
 
-        const openInBrowser = appSettings.uploads.openOnUpload;
-        /* eslint-disable */
-        upload(state, appSettings)
+        const openInBrowser = settings.store.uploads.openOnUpload;
+        upload(state)
           .then((response) => {
             if (!response) return;
 
@@ -73,7 +68,7 @@ export function createDamageMeterWindow(
             });
 
             if (openInBrowser) {
-              const url = `${appSettings.uploads.site.value}/logs/${response.id}`;
+              const url = `${settings.store.uploads.site}/logs/${response.id}`;
               shell.openExternal(url);
             }
           })
@@ -84,7 +79,6 @@ export function createDamageMeterWindow(
               message: e.message,
             });
           });
-        /* eslint-enable */
       }
     } catch (e) {
       log.error(e);

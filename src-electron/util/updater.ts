@@ -1,6 +1,6 @@
+import log from "electron-log";
 import { autoUpdater } from "electron-updater";
 import { EventEmitter } from "events";
-import log from "electron-log";
 
 autoUpdater.logger = log;
 log.transports.file.level = "info";

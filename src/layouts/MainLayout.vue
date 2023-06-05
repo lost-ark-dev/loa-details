@@ -4,9 +4,7 @@
       <div>
         <span class="gilroy-extra-bold">LOA</span>
         <span class="gilroy-light"> DETAILS </span>
-        <span style="font-size: 10px; margin-left: 4px">
-          v{{ settingsStore.settings.appVersion }}
-        </span>
+        <span style="font-size: 10px; margin-left: 4px"> v{{ appVersion }} </span>
       </div>
 
       <q-space />
@@ -19,7 +17,7 @@
     </div>
 
     <div class="app-links q-pa-sm q-pl-md row items-center">
-      <router-link :to="{ path: '/' }" custom v-slot="{ href, navigate }">
+      <router-link v-slot="{ href, navigate }" :to="{ path: '/' }" custom>
         <div
           class="link-item q-ml-lg non-selectable"
           :class="{ active: route.path === '/' }"
@@ -31,7 +29,7 @@
         </div>
       </router-link>
 
-      <router-link :to="{ path: '/logs' }" custom v-slot="{ href, navigate }">
+      <router-link v-slot="{ href, navigate }" :to="{ path: '/logs' }" custom>
         <div
           class="link-item q-ml-lg non-selectable"
           :class="{ active: route.path === '/logs' }"
@@ -43,11 +41,7 @@
         </div>
       </router-link>
 
-      <router-link
-        :to="{ path: '/settings' }"
-        custom
-        v-slot="{ href, navigate }"
-      >
+      <router-link v-slot="{ href, navigate }" :to="{ path: '/settings' }" custom>
         <div
           class="link-item q-ml-lg non-selectable"
           :class="{ active: route.path === '/settings' }"
@@ -59,20 +53,23 @@
         </div>
       </router-link>
 
-      <div class="link-item q-ml-lg non-selectable" @click="openWiki">
+      <div
+        class="link-item q-ml-lg non-selectable"
+        @click="openExternal('https://github.com/lost-ark-dev/loa-details/wiki')"
+      >
         <q-icon name="fa-brands fa-github" />
         Wiki
       </div>
 
-      <div class="link-item q-ml-lg non-selectable" @click="openDiscord">
+      <div class="link-item q-ml-lg non-selectable" @click="openExternal('https://discord.gg/C3fr3EBXbS')">
         <q-icon name="fa-brands fa-discord" />
         Discord
       </div>
 
       <div
         class="link-item q-ml-lg non-selectable"
-        @click="openPatreon"
         style="margin-left: auto"
+        @click="openExternal('https://patreon.com/Herysia')"
       >
         <q-icon name="fa-brands fa-patreon" style="color: #f1465a" />
         Support us on Patreon!
@@ -86,12 +83,9 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
-import { useSettingsStore } from "src/stores/settings";
+import { appVersion, openExternal } from "src/util/ipc";
+import { settings } from "stores/settings";
 import { useRoute } from "vue-router";
-import { Settings } from "src-electron/util/app-settings";
-
-const settingsStore = useSettingsStore();
 
 const route = useRoute();
 
@@ -110,41 +104,12 @@ function toggleMaximize() {
 function closeApp() {
   if (process.env.MODE === "electron") {
     let hideToTray = true; // On by default
-    if (settingsStore?.settings?.general?.closeToSystemTray === false)
-      hideToTray = false;
+    if (settings.value.general.closeToSystemTray === false) hideToTray = false;
 
     if (hideToTray) window.windowControlApi.hide();
     else window.windowControlApi.close();
   }
 }
-
-function openPatreon() {
-  window.messageApi.send("window-to-main", {
-    message: "open-link",
-    value: "https://patreon.com/Herysia",
-  });
-}
-function openDiscord() {
-  window.messageApi.send("window-to-main", {
-    message: "open-link",
-    value: "https://discord.gg/C3fr3EBXbS",
-  });
-}
-function openWiki() {
-  window.messageApi.send("window-to-main", {
-    message: "open-link",
-    value: "https://github.com/lost-ark-dev/loa-details/wiki",
-  });
-}
-
-onMounted(() => {
-  settingsStore.initSettings();
-
-  window.messageApi.receive("on-settings-change", (value: Settings) => {
-    settingsStore.loadSettings(value);
-  });
-  window.messageApi.send("window-to-main", { message: "get-settings" });
-});
 </script>
 
 <style>

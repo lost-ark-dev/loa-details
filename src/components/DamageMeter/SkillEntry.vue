@@ -2,174 +2,76 @@
   <tr>
     <td class="td-skill-img">
       <img :src="getIconPath(skill.icon)" />
-      <q-tooltip
-        class="dmg_full_value"
-        anchor="top middle"
-        self="bottom middle"
-        >{{ skill.id }}</q-tooltip
-      >
+      <q-tooltip class="dmg_full_value" anchor="top middle" self="bottom middle">{{ skill.id }}</q-tooltip>
     </td>
     <td class="ellipsis">{{ skill.name }}</td>
-    <td
-      v-if="settingsStore.settings.damageMeter.tabs.damage.enabled"
-      class="text-center"
-    >
-      <AbbreviatedNumberTemplate
-        :val="skill.damageInfo.damageDealt"
-        :hover="true"
-      />
+    <td v-if="tabsIncludes('damage')" class="text-center">
+      <AbbreviatedNumberTemplate :val="skill.damageInfo.damageDealt" :hover="true" />
     </td>
     <template v-if="['dmg', 'rdps', 'tank', 'heal'].includes(damageType)">
-      <td
-        v-if="settingsStore.settings.damageMeter.tabs.damagePercent.enabled"
-        class="text-center"
-      >
+      <td v-if="tabsIncludes('damagePercent')" class="text-center">
         {{ skill.damagePercent }}<span class="ex">%</span>
       </td>
-      <td
-        v-if="settingsStore.settings.damageMeter.tabs.dps.enabled"
-        class="text-center"
-      >
+      <td v-if="tabsIncludes('dps')" class="text-center">
         <AbbreviatedNumberTemplate :val="DPS" :hover="true" />
       </td>
-      <td
-        v-if="
-          damageType === 'dmg' &&
-          settingsStore.settings.damageMeter.tabs.critRate.enabled
-        "
-        class="text-center"
-      >
-        {{
-          skill.hits.total > 0
-            ? ((skill.hits.crit / skill.hits.total) * 100).toFixed(1)
-            : (0).toFixed(1)
-        }}
+      <td v-if="damageType === 'dmg' && tabsIncludes('critRate')" class="text-center">
+        {{ skill.hits.total > 0 ? ((skill.hits.crit / skill.hits.total) * 100).toFixed(1) : (0).toFixed(1) }}
         <span class="ex">%</span>
       </td>
-      <td
-        v-if="
-          damageType === 'dmg' &&
-          settingsStore.settings.damageMeter.tabs.faRate.enabled
-        "
-        class="text-center"
-      >
+      <td v-if="damageType === 'dmg' && tabsIncludes('faRate')" class="text-center">
         <template v-if="skill.hits.totalFrontAttack > 0">
-          {{
-            (
-              (skill.hits.frontAttack / skill.hits.totalFrontAttack) *
-              100
-            ).toFixed(1)
-          }}
+          {{ ((skill.hits.frontAttack / skill.hits.totalFrontAttack) * 100).toFixed(1) }}
           <span class="ex">%</span>
         </template>
       </td>
-      <td
-        v-if="
-          damageType === 'dmg' &&
-          settingsStore.settings.damageMeter.tabs.baRate.enabled
-        "
-        class="text-center"
-      >
+      <td v-if="damageType === 'dmg' && tabsIncludes('baRate')" class="text-center">
         <template v-if="skill.hits.totalBackAttack > 0">
-          {{
-            (
-              (skill.hits.backAttack / skill.hits.totalBackAttack) *
-              100
-            ).toFixed(1)
-          }}
+          {{ ((skill.hits.backAttack / skill.hits.totalBackAttack) * 100).toFixed(1) }}
           <span class="ex">%</span>
         </template>
       </td>
-      <td
-        v-if="
-          ['dmg', 'rdps'].includes(damageType) &&
-          settingsStore.settings.damageMeter.tabs.rdpsSynPercent.enabled
-        "
-        class="text-center"
-      >
+      <td v-if="['dmg', 'rdps'].includes(damageType) && tabsIncludes('rdpsSynPercent')" class="text-center">
         {{
           (
             (skill.damageInfo.rdpsDamageReceived /
-              (skill.damageInfo.damageDealt -
-                skill.damageInfo.rdpsDamageReceived)) *
+              (skill.damageInfo.damageDealt - skill.damageInfo.rdpsDamageReceived)) *
             100
           ).toFixed(1)
         }}
         <span class="ex">%</span>
       </td>
-      <td
-        v-if="
-          damageType === 'dmg' &&
-          settingsStore.settings.damageMeter.tabs.maxDmg.enabled
-        "
-        class="text-center"
-      >
+      <td v-if="damageType === 'dmg' && tabsIncludes('maxDmg')" class="text-center">
         {{ maxDamage[0] }}
         <span class="ex">
           {{ maxDamage[1] }}
         </span>
       </td>
-      <td
-        v-if="
-          damageType === 'dmg' &&
-          settingsStore.settings.damageMeter.tabs.avgDmg.enabled
-        "
-        class="text-center"
-      >
+      <td v-if="damageType === 'dmg' && tabsIncludes('avgDmg')" class="text-center">
         {{ avgDamage[0] }}
         <span class="ex">
           {{ avgDamage[1] }}
         </span>
       </td>
-      <td
-        v-if="
-          damageType === 'dmg' &&
-          settingsStore.settings.damageMeter.tabs.avgCast.enabled
-        "
-        class="text-center"
-      >
+      <td v-if="damageType === 'dmg' && tabsIncludes('avgCast')" class="text-center">
         {{ avgCast[0] }}
         <span class="ex">
           {{ avgCast[1] }}
         </span>
       </td>
-      <td
-        v-if="
-          damageType === 'dmg' &&
-          settingsStore.settings.damageMeter.tabs.totalHits.enabled
-        "
-        class="text-center"
-      >
+      <td v-if="damageType === 'dmg' && tabsIncludes('totalHits')" class="text-center">
         {{ skill.hits.total }}
       </td>
-      <td
-        v-if="
-          damageType === 'dmg' &&
-          settingsStore.settings.damageMeter.tabs.totalCasts.enabled
-        "
-        class="text-center"
-      >
+      <td v-if="damageType === 'dmg' && tabsIncludes('totalCasts')" class="text-center">
         {{ skill.hits.casts }}
       </td>
-      <td
-        v-if="
-          damageType === 'dmg' &&
-          settingsStore.settings.damageMeter.tabs.hpm.enabled
-        "
-        class="text-center"
-      >
+      <td v-if="damageType === 'dmg' && tabsIncludes('hpm')" class="text-center">
         {{ HPM[0] }}
         <span class="ex">
           {{ HPM[1] }}
         </span>
       </td>
-      <td
-        v-if="
-          damageType === 'dmg' &&
-          settingsStore.settings.damageMeter.tabs.cpm.enabled
-        "
-        class="text-center"
-      >
+      <td v-if="damageType === 'dmg' && tabsIncludes('cpm')" class="text-center">
         {{ CPM[0] }}
         <span class="ex">
           {{ CPM[1] }}
@@ -191,30 +93,19 @@
     >
       <template
         v-if="
-          (damageType === 'party_buff_dmg' &&
-            settingsStore.settings.damageMeter.tabs.dPartyBuff.enabled) ||
-          (damageType === 'party_buff_hit' &&
-            settingsStore.settings.damageMeter.tabs.hPartyBuff.enabled) ||
-          (damageType === 'self_buff_dmg' &&
-            settingsStore.settings.damageMeter.tabs.dSelfBuff.enabled) ||
-          (damageType === 'self_buff_hit' &&
-            settingsStore.settings.damageMeter.tabs.hSelfBuff.enabled) ||
-          (damageType === 'other_buff_dmg' &&
-            settingsStore.settings.damageMeter.tabs.dOtherBuff.enabled) ||
-          (damageType === 'other_buff_hit' &&
-            settingsStore.settings.damageMeter.tabs.dParhOtherBufftyBuff
-              .enabled)
+          (damageType === 'party_buff_dmg' && tabsIncludes('dPartyBuff')) ||
+          (damageType === 'party_buff_hit' && tabsIncludes('hPartyBuff')) ||
+          (damageType === 'self_buff_dmg' && tabsIncludes('dSelfBuff')) ||
+          (damageType === 'self_buff_hit' && tabsIncludes('hSelfBuff')) ||
+          (damageType === 'other_buff_dmg' && tabsIncludes('dOtherBuff')) ||
+          (damageType === 'other_buff_hit' && tabsIncludes('dOtherBuff'))
         "
       >
-        <td
-          v-for="[columnKey, columnData] of sortedBuffs"
-          :key="columnKey"
-          style="width: 90px; text-align: center"
-        >
+        <td v-for="[columnKey, columnData] of sortedBuffs" :key="columnKey" style="width: 90px; text-align: center">
           <BuffTableBodyEntry
-            :buffEntry="getBuffPercent(skill, damageType, columnData)"
+            :buff-entry="getBuffPercent(skill, damageType, columnData)"
             :entry-data="skill"
-            :buffData="columnData"
+            :buff-data="columnData"
           />
         </td>
       </template>
@@ -224,8 +115,8 @@
       <template
         v-if="
           sessionState.damageStatistics &&
-          (settingsStore.settings.damageMeter.tabs.dDebuffed.enabled ||
-            settingsStore.settings.damageMeter.tabs.hDebuffed.enabled)
+          (tabsIncludes('dDebuffed') ||
+            tabsIncludes('hDebuffed'))
         "
       >
         <td
@@ -235,7 +126,7 @@
         >
           <template
             v-if="
-              settingsStore.settings.damageMeter.tabs.dDebuffed.enabled &&
+              tabsIncludes('dDebuffed') &&
               damageType === 'buff_dmg'
             "
           >
@@ -253,7 +144,7 @@
           </template>
           <template
             v-if="
-              settingsStore.settings.damageMeter.tabs.hDebuffed.enabled &&
+              tabsIncludes('hDebuffed') &&
               damageType === 'buff_hit'
             "
           >
@@ -274,8 +165,8 @@
       <template
         v-if="
           sessionState.damageStatistics &&
-          (settingsStore.settings.damageMeter.tabs.dBuffed.enabled ||
-            settingsStore.settings.damageMeter.tabs.hBuffed.enabled)
+          (tabsIncludes('dBuffed') ||
+            tabsIncludes('hBuffed'))
         "
       >
         <td
@@ -285,7 +176,7 @@
         >
           <template
             v-if="
-              settingsStore.settings.damageMeter.tabs.dBuffed.enabled &&
+              tabsIncludes('dBuffed') &&
               damageType === 'buff_dmg'
             "
           >
@@ -302,7 +193,7 @@
           </template>
           <template
             v-if="
-              settingsStore.settings.damageMeter.tabs.hBuffed.enabled &&
+              tabsIncludes('hBuffed') &&
               damageType === 'buff_hit'
             "
           >
@@ -344,26 +235,19 @@
 </template>
 
 <script setup lang="ts">
-import { computed, PropType } from "vue";
-import { abbreviateNumber } from "src/util/number-helpers";
-import { useSettingsStore } from "src/stores/settings";
 import { GameState, StatusEffect } from "meter-core/logger/data";
-import BuffTableBodyEntry from "./BuffTableBodyEntry.vue";
-import {
-  getIconPath,
-  getBuffPercent,
-  EntitySkillsExtended,
-  DamageType,
-} from "../../util/helpers";
+import { abbreviateNumber } from "src/util/number-helpers";
+import { tabsIncludes } from "stores/settings";
+import { computed, PropType } from "vue";
+import { DamageType, EntitySkillsExtended, getBuffPercent, getIconPath } from "../../util/helpers";
 import AbbreviatedNumberTemplate from "./AbbreviatedNumberTemplate.vue";
-
-const settingsStore = useSettingsStore();
+import BuffTableBodyEntry from "./BuffTableBodyEntry.vue";
 
 const props = defineProps({
   sortedBuffs: { type: Map<string, Map<number, StatusEffect>>, required: true },
   sessionState: { type: Object as PropType<GameState>, required: true },
   skill: { type: Object as PropType<EntitySkillsExtended>, required: true },
-  damageType: { type: String as PropType<DamageType>, default: "dmg" },
+  damageType: { type: String as PropType<DamageType>, required: true },
   color: { type: String, required: true },
   fightDuration: { type: Number, required: true },
 });
@@ -373,14 +257,10 @@ const DPS = computed(() => {
 });
 
 const HPM = computed(() => {
-  return abbreviateNumber(
-    props.skill.hits.total / (props.fightDuration / 1000 / 60)
-  );
+  return abbreviateNumber(props.skill.hits.total / (props.fightDuration / 1000 / 60));
 });
 const CPM = computed(() => {
-  return abbreviateNumber(
-    props.skill.hits.casts / (props.fightDuration / 1000 / 60)
-  );
+  return abbreviateNumber(props.skill.hits.casts / (props.fightDuration / 1000 / 60));
 });
 
 const maxDamage = computed(() => {
@@ -388,17 +268,11 @@ const maxDamage = computed(() => {
 });
 
 const avgDamage = computed(() => {
-  if (props.skill.hits.total === 0)
-    return abbreviateNumber(props.skill.damageInfo.damageDealt);
-  return abbreviateNumber(
-    props.skill.damageInfo.damageDealt / props.skill.hits.total
-  );
+  if (props.skill.hits.total === 0) return abbreviateNumber(props.skill.damageInfo.damageDealt);
+  return abbreviateNumber(props.skill.damageInfo.damageDealt / props.skill.hits.total);
 });
 const avgCast = computed(() => {
-  if (props.skill.hits.total === 0)
-    return abbreviateNumber(props.skill.damageInfo.damageDealt);
-  return abbreviateNumber(
-    props.skill.damageInfo.damageDealt / props.skill.hits.casts
-  );
+  if (props.skill.hits.total === 0) return abbreviateNumber(props.skill.damageInfo.damageDealt);
+  return abbreviateNumber(props.skill.damageInfo.damageDealt / props.skill.hits.casts);
 });
 </script>

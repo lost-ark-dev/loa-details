@@ -1,9 +1,9 @@
-import { screenshotsFolder } from "./directories";
 import dayjs from "dayjs";
-
 import fs from "fs";
-const fsPromises = fs.promises;
 import path from "path";
+import { screenshotsFolder } from "./directories";
+
+const fsPromises = fs.promises;
 
 const dataRegex = /^data:.+\/(.+);base64,(.*)$/;
 
