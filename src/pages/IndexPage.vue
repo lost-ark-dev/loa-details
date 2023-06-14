@@ -60,6 +60,10 @@
       </p>
 
       <h5>Changelog</h5>
+      <h6 id="1-3-1">1.3.2</h6>
+      <ul>
+        <li>Support for game update 14/06/2023 - June (Elgacia)</li>
+      </ul>
       <h6 id="1-3-1">1.3.1</h6>
       <ul>
         <li>
