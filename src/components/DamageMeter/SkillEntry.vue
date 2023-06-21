@@ -99,6 +99,41 @@
       </td>
       <td
         v-if="
+          ['dmg', 'rdps'].includes(damageType) &&
+          settingsStore.settings.damageMeter.tabs.rdpsSupSynPercent.enabled
+        "
+        class="text-center"
+      >
+        {{
+          (
+            (skill.damageInfo.rdpsDamageReceivedSupp /
+              (skill.damageInfo.damageDealt -
+                skill.damageInfo.rdpsDamageReceived)) *
+            100
+          ).toFixed(1)
+        }}
+        <span class="ex">%</span>
+      </td>
+      <td
+        v-if="
+          ['dmg', 'rdps'].includes(damageType) &&
+          settingsStore.settings.damageMeter.tabs.rdpsDpsSynPercent.enabled
+        "
+        class="text-center"
+      >
+        {{
+          (
+            ((skill.damageInfo.rdpsDamageReceived -
+              skill.damageInfo.rdpsDamageReceivedSupp) /
+              (skill.damageInfo.damageDealt -
+                skill.damageInfo.rdpsDamageReceived)) *
+            100
+          ).toFixed(1)
+        }}
+        <span class="ex">%</span>
+      </td>
+      <td
+        v-if="
           damageType === 'dmg' &&
           settingsStore.settings.damageMeter.tabs.maxDmg.enabled
         "

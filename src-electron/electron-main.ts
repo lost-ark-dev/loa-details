@@ -103,6 +103,7 @@ try {
     appSettings?.general?.useRawSocket,
     appSettings?.general?.listenPort ?? 6040,
     filename,
+    appSettings.clientId,
     {
       isLive: true,
       dontResetOnZoneChange:
@@ -178,15 +179,21 @@ updaterEventEmitter.on(
     }
 
     if (
-      details.message === "update-not-available" &&
+      (details.message === "update-not-available" ||
+        details.message === "error") && // Still start meter if autoupdate fails
       prelauncherStatus === "open"
     ) {
-      startApplication();
-      if (typeof prelauncherWindow != "undefined") {
-        prelauncherStatus = "closed";
-        prelauncherWindow?.close();
-        prelauncherWindow = null;
-      }
+      setTimeout(
+        () => {
+          startApplication();
+          if (typeof prelauncherWindow != "undefined") {
+            prelauncherStatus = "closed";
+            prelauncherWindow?.close();
+            prelauncherWindow = null;
+          }
+        },
+        details.message === "error" ? 10000 : 0 //If we got an error, starting 10s after
+      );
     }
 
     // quitAndInstall only when prelauncher is visible (aka startup of application)
@@ -331,6 +338,7 @@ const ipcFunctions: {
   "parse-logs": async (event) => {
     await parseLogs(
       event,
+      appSettings.clientId,
       appSettings.logs.splitOnPhaseTransition,
       meterData,
       filename

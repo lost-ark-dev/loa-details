@@ -136,6 +136,35 @@ export const encounters = {
       .href,
     encounterNames: ["Phantom Legion Commander Brelshaza"],
   },
+  KayangelG1: {
+    name: "Kayangel Gate 1",
+    image: new URL("../assets/images/encounters/kayangel.png", import.meta.url)
+      .href,
+    encounterNames: ["Celestial Sentinel"],
+  },
+  KayangelG2: {
+    name: "Kayangel Gate 2",
+    image: new URL("../assets/images/encounters/kayangel.png", import.meta.url)
+      .href,
+    encounterNames: ["Tienis"],
+  },
+  KayangelG3: {
+    name: "Kayangel Gate 3",
+    image: new URL("../assets/images/encounters/kayangel.png", import.meta.url)
+      .href,
+    encounterNames: [
+      "Prunya",
+      "Frost Guardian",
+      "Flame Guardian",
+      "Nature Guardian",
+    ],
+  },
+  KayangelG4: {
+    name: "Kayangel Gate 4",
+    image: new URL("../assets/images/encounters/kayangel.png", import.meta.url)
+      .href,
+    encounterNames: ["Lauriel"],
+  },
   /* GUARDIANS BELOW */
   Achates: {
     name: "Achates",

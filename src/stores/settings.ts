@@ -8,6 +8,7 @@ export const useSettingsStore = defineStore("settings", {
   state: () => ({
     settings: {
       appVersion: "",
+      clientId: "",
       general: {
         startMainHidden: false,
         startMainMinimized: false,
@@ -132,6 +133,14 @@ export const useSettingsStore = defineStore("settings", {
           },
           rdpsSynPercent: {
             name: "Synergy %",
+            enabled: true,
+          },
+          rdpsSupSynPercent: {
+            name: "Synergy % from supports",
+            enabled: true,
+          },
+          rdpsDpsSynPercent: {
+            name: "Synergy % from dps",
             enabled: true,
           },
           counterCount: {

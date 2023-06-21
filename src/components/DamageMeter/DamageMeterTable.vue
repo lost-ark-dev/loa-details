@@ -329,6 +329,24 @@
           </th>
           <th
             v-if="
+              ['dmg', 'rdps'].includes(damageType) &&
+              settingsStore.settings.damageMeter.tabs.rdpsSupSynPercent.enabled
+            "
+            style="width: 52px"
+          >
+            sSyn%
+          </th>
+          <th
+            v-if="
+              ['dmg', 'rdps'].includes(damageType) &&
+              settingsStore.settings.damageMeter.tabs.rdpsDpsSynPercent.enabled
+            "
+            style="width: 52px"
+          >
+            dSyn%
+          </th>
+          <th
+            v-if="
               damageType === 'dmg' &&
               settingsStore.settings.damageMeter.tabs.counterCount.enabled
             "
@@ -466,6 +484,26 @@
               style="width: 52px"
             >
               Syn%
+            </th>
+            <th
+              v-if="
+                ['dmg', 'rdps'].includes(damageType) &&
+                settingsStore.settings.damageMeter.tabs.rdpsSupSynPercent
+                  .enabled
+              "
+              style="width: 52px"
+            >
+              sSyn%
+            </th>
+            <th
+              v-if="
+                ['dmg', 'rdps'].includes(damageType) &&
+                settingsStore.settings.damageMeter.tabs.rdpsDpsSynPercent
+                  .enabled
+              "
+              style="width: 52px"
+            >
+              dSyn%
             </th>
             <th
               v-if="settingsStore.settings.damageMeter.tabs.maxDmg.enabled"

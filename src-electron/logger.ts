@@ -22,6 +22,7 @@ export function InitLogger(
   useRawSocket: boolean,
   listenPort: number,
   filename: string,
+  clientId: string,
   options: Partial<GameTrackerOptions>
 ): Parser {
   // create Decompressor
@@ -33,7 +34,7 @@ export function InitLogger(
   const stream = new PKTStream(compressor);
 
   const logger = new LiveLogger(stream, compressor, join(mainFolder, filename));
-  const parser = new Parser(logger, meterData, options);
+  const parser = new Parser(logger, meterData, clientId, options);
 
   // finaly create packet capture
   const capture = new PktCaptureAll(
@@ -52,6 +53,9 @@ export function InitLogger(
     } catch (e) {
       log.error(e);
     }
+  });
+  capture.on("connect", (ip) => {
+    parser.onConnect(ip);
   });
   return parser;
 }

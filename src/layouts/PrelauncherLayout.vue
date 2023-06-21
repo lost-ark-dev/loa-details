@@ -29,7 +29,8 @@ onMounted(() => {
     } else if (eventMessage.message === "update-downloaded") {
       currentMessage.value = "Starting updater...";
     } else if (eventMessage.message === "error") {
-      currentMessage.value = "Error: " + (eventMessage.value as string);
+      currentMessage.value =
+        (eventMessage.value as string) + ", Starting after 10s";
     }
   });
 });

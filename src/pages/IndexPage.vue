@@ -60,7 +60,45 @@
       </p>
 
       <h5>Changelog</h5>
-      <h6 id="1-3-1">1.3.2</h6>
+      <h6 id="1-4-0">1.4.0</h6>
+      <ul>
+        <li>Support for game update 21/06/2023 - Ark Pass Season 4</li>
+        <li>rDPS part 2 (see below)</li>
+        <li>
+          Added stats query for rdps: If the query failed, it'll display a
+          warning message near the player (requires network connection) Rdps now
+          takes into account:
+          <ul>
+            Additions
+            <li>Crit rate overcap for crit synergies</li>
+            <li>Spec scaling on supports identities</li>
+            <li>Atk power scaling for support atk power</li>
+            <li>
+              Few math fixes (still working on the doc explaining the maths)
+            </li>
+          </ul>
+          <ul>
+            Still not working
+            <li>Flash orbs</li>
+            <li>Defense reduction bracelet (the crit one should work)</li>
+          </ul>
+        </li>
+        <li>
+          Added columns with their respective settings:
+          <ul>
+            <li>sSyn%: Synergy applied to player from the support(s)</li>
+            <li>dSyn%: Synergy applied to player from the dps(s)</li>
+            <li>Syn%: Is the sum of the 2</li>
+          </ul>
+        </li>
+        <li>Added Kayangel icon & names in encounter list (log view)</li>
+        <li>
+          Allow for an offline way to start the meter, it'll just display the
+          error for 10s and skip: this allow ppl without internet to start it,
+          or do disable updates by blocking with a firewall for ex
+        </li>
+      </ul>
+      <h6 id="1-3-2">1.3.2</h6>
       <ul>
         <li>Support for game update 14/06/2023 - June (Elgacia)</li>
       </ul>

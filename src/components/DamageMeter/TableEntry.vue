@@ -4,7 +4,15 @@
       <img :src="getClassImage(player.classId, player.icon)" />
     </td>
     <td class="ellipsis">
-      <span>{{ entryName }}</span>
+      <span
+        >{{ entryName }}
+        <template v-if="player.isPlayer && !player.statApiValid">
+          {{ " " }}<q-icon name="warning_amber" />
+          <q-tooltip>
+            Player stats couldn't sync with backend
+          </q-tooltip></template
+        >
+      </span>
     </td>
     <td
       v-if="
@@ -161,6 +169,41 @@
         {{
           (
             (player.damageInfo.rdpsDamageReceived /
+              (player.damageInfo.damageDealt -
+                player.damageInfo.rdpsDamageReceived)) *
+            100
+          ).toFixed(1)
+        }}
+        <span class="ex">%</span>
+      </td>
+      <td
+        v-if="
+          ['dmg', 'rdps'].includes(damageType) &&
+          settingsStore.settings.damageMeter.tabs.rdpsSupSynPercent.enabled
+        "
+        class="text-center"
+      >
+        {{
+          (
+            (player.damageInfo.rdpsDamageReceivedSupp /
+              (player.damageInfo.damageDealt -
+                player.damageInfo.rdpsDamageReceived)) *
+            100
+          ).toFixed(1)
+        }}
+        <span class="ex">%</span>
+      </td>
+      <td
+        v-if="
+          ['dmg', 'rdps'].includes(damageType) &&
+          settingsStore.settings.damageMeter.tabs.rdpsDpsSynPercent.enabled
+        "
+        class="text-center"
+      >
+        {{
+          (
+            ((player.damageInfo.rdpsDamageReceived -
+              player.damageInfo.rdpsDamageReceivedSupp) /
               (player.damageInfo.damageDealt -
                 player.damageInfo.rdpsDamageReceived)) *
             100

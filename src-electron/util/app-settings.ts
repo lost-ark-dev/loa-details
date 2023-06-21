@@ -3,6 +3,7 @@ import log from "electron-log";
 import { StatusEffectBuffTypeFlags } from "meter-core/logger/data";
 import { classes } from "src/constants/classes";
 import { merge } from "lodash"; //TODO: when we rework, remove lodash (required for merge)
+import { randomUUID } from "crypto";
 
 const store = new Store();
 
@@ -30,6 +31,12 @@ export function getSettings() {
     if (!(k in defaultSettings.damageMeter.tabs))
       delete appSettings.damageMeter.tabs[k];
   }
+
+  // Create clientId
+  if (appSettings.clientId === "") {
+    appSettings.clientId = randomUUID();
+    saveSettings(appSettings);
+  }
   return appSettings;
 }
 
@@ -44,6 +51,7 @@ export function saveSettings(settings: Settings | string) {
 export type ClassSettings = { color: string; defaultColor: string };
 export type Settings = {
   appVersion: string;
+  clientId: string;
   general: {
     startMainHidden: boolean;
     startMainMinimized: boolean;
@@ -133,6 +141,7 @@ export type Settings = {
 // TODO: find a better way to handle this
 const defaultSettings: Settings = {
   appVersion: "",
+  clientId: "",
   general: {
     startMainHidden: false,
     startMainMinimized: false,
@@ -257,6 +266,14 @@ const defaultSettings: Settings = {
       },
       rdpsSynPercent: {
         name: "Synergy %",
+        enabled: true,
+      },
+      rdpsSupSynPercent: {
+        name: "Synergy % from supports",
+        enabled: true,
+      },
+      rdpsDpsSynPercent: {
+        name: "Synergy % from dps",
         enabled: true,
       },
       counterCount: {

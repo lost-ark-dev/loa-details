@@ -29,6 +29,7 @@ export type GameStateFile = {
 } & GameState;
 export async function parseLogs(
   event: IpcMainEvent,
+  clientId: string,
   splitOnPhaseTransition: boolean,
   meterData: MeterData,
   liveLogName: string
@@ -101,7 +102,7 @@ export async function parseLogs(
 
     const logger = new ReplayLogger();
 
-    const parser = new Parser(logger, meterData, {
+    const parser = new Parser(logger, meterData, clientId, {
       isLive: false,
       splitOnPhaseTransition,
     });
