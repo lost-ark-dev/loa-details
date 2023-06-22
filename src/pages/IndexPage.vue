@@ -60,6 +60,15 @@
       </p>
 
       <h5>Changelog</h5>
+      <h6 id="1-4-1">1.4.1</h6>
+      <ul>
+        <li>
+          Fix for settings "Include Esther in Total damage": when it is turned
+          off, player damage % will ignore esther damage (while still showing
+          esther in the list)
+        </li>
+        <li>Backend integration improvements</li>
+      </ul>
       <h6 id="1-4-0">1.4.0</h6>
       <ul>
         <li>Support for game update 21/06/2023 - Ark Pass Season 4</li>

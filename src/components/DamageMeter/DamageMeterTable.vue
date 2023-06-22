@@ -912,7 +912,8 @@ function sortEntities() {
   const totalDamageOverride = res.reduce((sum, e) => {
     if (
       e.isEsther &&
-      !settingsStore.settings.damageMeter.functionality.displayEsther
+      (!settingsStore.settings.damageMeter.functionality.displayEsther ||
+        !settingsStore.settings.damageMeter.functionality.estherIncludeInTotal)
     )
       return sum;
     else
@@ -925,7 +926,7 @@ function sortEntities() {
   const topDamageOverride = res.reduce((prevVal, curr) => {
     if (
       curr.isEsther &&
-      !settingsStore.settings.damageMeter.functionality.displayEsther
+      !settingsStore.settings.damageMeter.functionality.displayEsther // we intentionally don't check for !settingsStore.settings.damageMeter.functionality.estherIncludeInTotal here, so that we don't get an esther overcap 100% if it's 1st dps
     )
       return prevVal;
     else {
