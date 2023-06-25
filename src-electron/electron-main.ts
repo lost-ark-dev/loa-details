@@ -331,7 +331,7 @@ const ipcFunctions: {
     });
 
     damageMeterWindow?.setOpacity(appSettings.damageMeter.design.opacity);
-    damageMeterWindow?.setAlwaysOnTop(appSettings.damageMeter.design.alwaysOnTop);
+    damageMeterWindow?.setAlwaysOnTop(appSettings.damageMeter.design.alwaysOnTop, "normal");
   },
   "get-settings": (event) => {
     event.reply("on-settings-change", appSettings);
