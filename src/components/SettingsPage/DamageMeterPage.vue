@@ -147,7 +147,7 @@
         />
       </q-item-section>
       <q-item-section>
-        <q-item-label>Inlude Esther in Total damage</q-item-label>
+        <q-item-label>Include Esther in Total damage</q-item-label>
         <q-item-label caption>
           Include Esther damage in total damage (table header)
         </q-item-label>
