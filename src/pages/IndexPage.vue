@@ -60,6 +60,12 @@
       </p>
 
       <h5>Changelog</h5>
+      <h6 id="1-4-2">1.4.2</h6>
+      <ul>
+        <li>Support for game update 12/07/2023 - Kakul hell</li>
+        <li>syn%/rdps math fixes on directional buffs (blade & gl)</li>
+        <li>Add new option to toggle always on top (by @raphlau)</li>
+      </ul>
       <h6 id="1-4-1">1.4.1</h6>
       <ul>
         <li>
