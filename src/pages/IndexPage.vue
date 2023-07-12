@@ -60,6 +60,10 @@
       </p>
 
       <h5>Changelog</h5>
+      <h6 id="1-4-4">1.4.4</h6>
+      <ul>
+        <li>Fix issue with summons</li>
+      </ul>
       <h6 id="1-4-3">1.4.3</h6>
       <ul>
         <li>Update missing data for 12/07/2023 (icons & names)</li>
