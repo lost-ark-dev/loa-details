@@ -60,6 +60,10 @@
       </p>
 
       <h5>Changelog</h5>
+      <h6 id="1-4-3">1.4.3</h6>
+      <ul>
+        <li>Update missing data for 12/07/2023 (icons & names)</li>
+      </ul>
       <h6 id="1-4-2">1.4.2</h6>
       <ul>
         <li>Support for game update 12/07/2023 - Kakul hell</li>
