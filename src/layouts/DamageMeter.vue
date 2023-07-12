@@ -174,7 +174,12 @@
         github.com/lost-ark-dev/loa-details
       </span>
     </nav>
-
+    <q-linear-progress size="25px" :value="getBossStatus().percent" color="red"
+      v-if="settingsStore.settings.damageMeter.header.bossHP.enabled && getActiveBoss() != null">
+      <div class="absolute-full flex flex-center">
+        <q-badge color="transparent" text-color="white" :label="getBossStatus().status" />
+      </div>
+    </q-linear-progress>
     <DamageMeterTable
       v-if="
         !isMinimized && sessionState && sessionState.startedOn !== undefined
@@ -778,6 +783,33 @@ const tabs: ComputedRef<{
     widthLeft: width,
   };
 });
+
+function getActiveBoss() {
+  if (sessionState.value.currentBoss && sessionState.value.currentBoss.name) {
+    return sessionState.value.currentBoss
+  }
+  return null
+}
+
+const getBossStatus = () => {
+  const boss = getActiveBoss()
+  if (!boss) return {
+    percent: 0,
+    status: "No Active Boss"
+  }
+
+  let percent = (boss.currentHp / boss.maxHp)
+  let status = `${boss.name} ${boss.currentHp}/${boss.maxHp} (${(percent*100).toFixed(2)}%)`
+  if (boss.currentHp < 0) {
+    percent = 0
+    status = `${boss.name} 0 (${boss.currentHp})/${boss.maxHp} (0%)`
+  }
+
+  return {
+    percent: percent,
+    status
+  }
+}
 </script>
 
 <style>
