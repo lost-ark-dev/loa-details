@@ -267,6 +267,21 @@
     <q-item tag="label">
       <q-item-section side top>
         <q-checkbox
+          v-model="settingsStore.settings.damageMeter.design.alwaysOnTop"
+        />
+      </q-item-section>
+
+      <q-item-section>
+        <q-item-label>Always on top</q-item-label>
+        <q-item-label caption>
+          Keeps the damage meter above other windows.
+        </q-item-label>
+      </q-item-section>
+    </q-item>
+
+    <q-item tag="label">
+      <q-item-section side top>
+        <q-checkbox
           v-model="settingsStore.settings.damageMeter.design.pinUserToTop"
         />
       </q-item-section>

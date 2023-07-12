@@ -114,6 +114,7 @@ export type Settings = {
       pinUserToTop: boolean;
       transparency: boolean;
       opacity: number;
+      alwaysOnTop: boolean;
     };
     header: {
       [key: string]: {
@@ -204,6 +205,7 @@ const defaultSettings: Settings = {
       pinUserToTop: false,
       transparency: true,
       opacity: 0.9,
+      alwaysOnTop: true,
     },
     header: {
       damage: {

@@ -24,7 +24,7 @@ export function createDamageMeterWindow(
     resizable: true,
     autoHideMenuBar: true,
     fullscreenable: false,
-    alwaysOnTop: true,
+    alwaysOnTop: appSettings?.damageMeter?.design?.alwaysOnTop ?? true,
     useContentSize: true,
     webPreferences: {
       devTools: process.env.DEBUGGING,
@@ -49,7 +49,7 @@ export function createDamageMeterWindow(
       initWindow(damageMeterWindow, "damage_meter");
     });
 
-  damageMeterWindow.setAlwaysOnTop(true, "normal");
+  damageMeterWindow.setAlwaysOnTop(appSettings?.damageMeter?.design?.alwaysOnTop ?? true, "normal");
 
   // Event listeners
   liveParser.on("reset-state", (state: GameState) => {
