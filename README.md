@@ -5,15 +5,15 @@
   <br />
 
   <a href="https://github.com/lost-ark-dev/loa-details/releases/latest">
-    <img src="https://img.shields.io/github/downloads/lost-ark-dev/loa-details/total?style=for-the-badge" />
+    <img src="https://img.shields.io/github/package-json/v/lost-ark-dev/loa-details/main?style=for-the-badge&label=Download" />
   </a>
+  <img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fla.herysia.com%2Fbadge&style=for-the-badge">
   <a href="https://discord.gg/C3fr3EBXbS">
     <img src="https://img.shields.io/discord/1039210817314377779?color=%235865F2&label=Discord&style=for-the-badge" />
   </a>
 
   <br />
 
-  <img src="https://img.shields.io/github/package-json/v/lost-ark-dev/loa-details?style=flat-square" />
   <img src="https://img.shields.io/github/license/lost-ark-dev/loa-details?style=flat-square" />
 </p>
 
