@@ -16,41 +16,43 @@ export function tryParseInt(intString: string | number, defaultValue = 0) {
   return intNum;
 }
 //TODO: use PCData from meter-data
-export const getClassIdFromName = (name: string) => {
-  if (name === "Warrior") return 101;
-  if (name === "Mage") return 201;
-  if (name === "MartialArtist") return 301;
-  if (name === "MaleMartialArtist") return 311;
-  if (name === "Assassin") return 401;
-  if (name === "Gunner") return 501;
-  if (name === "Female Gunner") return 511;
-  if (name === "Specialist") return 601;
-  if (name === "Berserker") return 102;
-  if (name === "Destroyer") return 103;
-  if (name === "Gunlancer") return 104;
-  if (name === "Paladin") return 105;
-  if (name === "Arcana") return 202;
-  if (name === "Summoner") return 203;
-  if (name === "Bard") return 204;
-  if (name === "Sorceress") return 205;
-  if (name === "Wardancer") return 302;
-  if (name === "Scrapper") return 303;
-  if (name === "Soulfist") return 304;
-  if (name === "Glaivier") return 305;
-  if (name === "Glavier") return 305;
-  if (name === "Striker") return 312;
-  if (name === "Deathblade") return 402;
-  if (name === "Shadowhunter") return 403;
-  if (name === "Reaper") return 404;
-  if (name === "Sharpshooter") return 502;
-  if (name === "Deadeye") return 503;
-  if (name === "Artillerist") return 504;
-  if (name === "Scouter") return 505;
-  if (name === "Gunslinger") return 512;
-  if (name === "Artist") return 602;
-  if (name === "Aeromancer") return 603;
+export const getClassIdFromName = (name: string): number => {
+  const classes: { [index: string]: number } = {
+    Warrior: 101,
+    Mage: 201,
+    MartialArtist: 301,
+    MaleMartialArtist: 311,
+    Assassin: 401,
+    Gunner: 501,
+    "Female Gunner": 511,
+    Specialist: 601,
+    Berserker: 102,
+    Destroyer: 103,
+    Gunlancer: 104,
+    Paladin: 105,
+    Arcana: 202,
+    Summoner: 203,
+    Bard: 204,
+    Sorceress: 205,
+    Wardancer: 302,
+    Scrapper: 303,
+    Soulfist: 304,
+    Glaivier: 305,
+    Glavier: 305,
+    Striker: 312,
+    Deathblade: 402,
+    Shadowhunter: 403,
+    Reaper: 404,
+    Sharpshooter: 502,
+    Deadeye: 503,
+    Artillerist: 504,
+    Scouter: 505,
+    Gunslinger: 512,
+    Artist: 602,
+    Aeromancer: 603,
+  };
 
-  return 0;
+  return classes[name] || 0;
 };
 
 export const guardians = [
