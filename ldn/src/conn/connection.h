@@ -7,7 +7,7 @@
 #include <windows.h>
 #endif
 #include <thread>
-#include "../../third-party/json/json.hpp"
+#include <nlohmann/json.hpp>
 #include <mutex>
 
 class SocketConnection {

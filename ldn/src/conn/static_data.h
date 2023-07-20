@@ -1,7 +1,7 @@
 #ifndef LDN_STATIC_DATA_H
 #define LDN_STATIC_DATA_H
 
-#include "../../third-party/json/json.hpp"
+#include <nlohmann/json.hpp>
 #include <map>
 #include <string>
 #include "../rendering/la.h"

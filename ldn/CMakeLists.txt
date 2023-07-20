@@ -5,13 +5,36 @@ set(DISABLE_PACKAGE_CONFIG_AND_INSTALL ON)
 set(SKIP_INSTALL_ALL ON)
 set(IXWEBSOCKET_INSTALL OFF)
 
-set(LDN_SOURCES third-party/png/lodepng.cpp src/main.cc src/rendering/font_atlas.cc src/rendering/glad.c src/rendering/la.cc src/rendering/opengl_state.cc src/rendering/shader.cc src/ldn.cc src/components/text.cc src/components/box.cc src/components/row.cc src/components/meter_header_row.cc src/components/meter_row.cc src/components/row_list.cc src/components/button.cc src/components/image.cc src/components/header.cc src/components/lower_row.cc src/conn/connection.cc src/conn/data_manager.cc src/conn/static_data.cc src/utils/image_cache.cc)
+set(LDN_SOURCES
+    third-party/png/lodepng.cpp 
+    src/main.cc 
+    src/rendering/font_atlas.cc 
+    src/rendering/glad.c 
+    src/rendering/la.cc 
+    src/rendering/opengl_state.cc 
+    src/rendering/shader.cc 
+    src/ldn.cc 
+    src/components/text.cc 
+    src/components/box.cc 
+    src/components/row.cc 
+    src/components/meter_header_row.cc 
+    src/components/meter_row.cc 
+    src/components/row_list.cc 
+    src/components/button.cc 
+    src/components/image.cc 
+    src/components/header.cc 
+    src/components/lower_row.cc 
+    src/conn/connection.cc 
+    src/conn/data_manager.cc 
+    src/conn/static_data.cc 
+    src/utils/image_cache.cc
+    )
 
 
 add_executable(ldn ${LDN_SOURCES})
 
 
-target_include_directories(ldn PRIVATE third-party/json)
+target_include_directories(ldn PRIVATE third-party/json/single_include)
 target_include_directories(ldn PRIVATE third-party/zlib ${CMAKE_CURRENT_BINARY_DIR}/third-party/zlib)
 
 add_subdirectory(third-party/zlib)
