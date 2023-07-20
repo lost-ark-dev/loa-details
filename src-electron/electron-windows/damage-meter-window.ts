@@ -99,6 +99,7 @@ export function createDamageMeterWindow(
       log.error(e);
     }
   });
+
   liveParser.on("message", (msg: string) => {
     try {
       damageMeterWindow?.webContents.send("pcap-on-message", msg);
@@ -113,7 +114,7 @@ export function createDamageMeterWindow(
 
   damageMeterWindow.on("closed", () => {
     damageMeterWindow = null;
-    app.quit();
+
   });
 
   damageMeterWindow.on("restore", () => {

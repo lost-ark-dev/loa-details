@@ -199,7 +199,7 @@ module.exports = configure(function (/* ctx */) {
         win: {
           target: "nsis",
         },
-        extraFiles: ["meter-data/**"],
+        extraFiles: ["meter-data/**", "ldn/assets/**", "ldn/build_release/Release/ldn.exe"],
         publish: [
           {
             provider: "github",

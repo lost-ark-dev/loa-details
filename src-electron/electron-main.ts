@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-misused-promises */
 import {
   app,
   BrowserWindow,
@@ -43,6 +42,8 @@ import {
 import { adminRelauncher, PktCaptureMode } from "meter-core/pkt-capture";
 import { Parser } from "meter-core/logger/parser";
 import { Settings } from "./util/app-settings";
+import Ldn from "./ldn"
+
 
 if (app.commandLine.hasSwitch("disable-hardware-acceleration")) {
   log.info("Hardware acceleration disabled");
@@ -57,6 +58,7 @@ console.info = log.info.bind(log);
 // We keep log/debug for console only
 
 const store = new Store();
+const ldn:Ldn = new Ldn();
 
 let prelauncherWindow: BrowserWindow | null,
   mainWindow: BrowserWindow | null,
@@ -381,6 +383,21 @@ const ipcFunctions: {
     store.set("windows.damage_meter.X", 0);
     store.set("windows.damage_meter.Y", 0);
   },
+  "enable-ldn": (   event,
+    arg: { message: string; value: boolean }) => {
+    if(damageMeterWindow){
+      damageMeterWindow.close();
+      damageMeterWindow = null;
+    }
+    if(mainWindow)
+      mainWindow.hide();
+    ldn.start(liveParser, appSettings, () => {
+      damageMeterWindow = createDamageMeterWindow(liveParser, appSettings);
+      if(mainWindow)
+        mainWindow.show();
+    })
+
+  },
   "toggle-damage-meter-minimized-state": (
     event,
     arg: { message: string; value: boolean }
@@ -483,7 +500,8 @@ app.on("activate", () => {
   }
 });
 
-process.on("uncaughtException", () => {
+process.on("uncaughtException", (error) => {
+  console.log(error)
   log.error(console.trace("stack"));
 });
 
