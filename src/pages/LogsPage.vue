@@ -63,11 +63,24 @@
             v-model="logViewerStore.logfileFilter"
             @update:model-value="computedLogFileList()"
             multiple
-            clearable
             :options="logViewerStore.encounterOptions"
             label="Filter encounters"
             style="width: 256px"
-          />
+          >
+            <template
+              v-if="logViewerStore.logfileFilter.length > 0"
+              v-slot:append
+            >
+              <q-icon
+                name="cancel"
+                @click.stop.prevent="
+                  logViewerStore.logfileFilter = [];
+                  computedLogFileList();
+                "
+                class="cursor-pointer q-field__focusable-action"
+              />
+            </template>
+          </q-select>
 
           <q-select
             v-if="logViewerStore.viewerState === 'viewing-session'"
@@ -75,11 +88,24 @@
             v-model="logViewerStore.encounterFilter"
             @update:model-value="calculateEncounterRows()"
             multiple
-            clearable
             :options="logViewerStore.encounterOptions"
             label="Filter encounters"
             style="width: 256px"
-          />
+          >
+            <template
+              v-if="logViewerStore.encounterFilter.length > 0"
+              v-slot:append
+            >
+              <q-icon
+                name="cancel"
+                @click.stop.prevent="
+                  logViewerStore.encounterFilter = [];
+                  calculateEncounterRows();
+                "
+                class="cursor-pointer q-field__focusable-action"
+              />
+            </template>
+          </q-select>
 
           <q-select
             v-if="logViewerStore.viewerState === 'viewing-session'"
