@@ -9,6 +9,7 @@
 #include <thread>
 #include <nlohmann/json.hpp>
 #include <mutex>
+#include <deque>
 
 class SocketConnection {
 public:
@@ -24,6 +25,7 @@ private:
     bool running = false;
     bool blocked = false;
     bool partial = false;
+    std::deque<std::string> messages;
     std::string last_data;
     std::string buffer_data;
     std::thread socket_thread;

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <mutex>
 #include <thread>
+#include <vector>
 using json = nlohmann::json;
 int SocketConnection::connect_socket(std::string port) {
 
@@ -47,6 +48,11 @@ int SocketConnection::connect_socket(std::string port) {
 }
 json SocketConnection::getLatestData() {
   std::lock_guard<std::mutex> lk(mtx);
+  if (messages.size()) {
+    std::string first = messages.front();
+    messages.pop_front();
+    return json::parse(first);
+  }
   if (!last_data.length())
     return json::object();
   json j = json::parse(last_data);
@@ -85,16 +91,23 @@ void SocketConnection::loop() {
       // std::cout << "received: " << amount_read << "\n";
       std::lock_guard<std::mutex> lk(mtx);
       buffer_data += std::string(recv_buffer, recv_buffer + amount_read);
+      std::vector<std::string> msgs;
       auto index = buffer_data.find("\n");
-      if (index != std::string::npos) {
+      size_t count = 0;
+      while (index != std::string::npos) {
         std::string msg = buffer_data.substr(0, index);
-        buffer_data = index == buffer_data.length() - 1
-                          ? ""
-                          : buffer_data.substr(index + 1);
-        if (!blocked) {
+        count++;
+        if (msg[0] == 'm')
+          messages.push_back(msg.substr(2));
+        else
           last_data = msg.substr(2);
-          blocked = msg[0] == 'm';
+        if (index == buffer_data.length() - 1) {
+          buffer_data = "";
+          break;
+        } else {
+          buffer_data = buffer_data.substr(index + 1);
         }
+        index = buffer_data.find("\n");
       }
     } else {
       break;
