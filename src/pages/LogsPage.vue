@@ -81,6 +81,19 @@
             style="width: 256px"
           />
 
+          <q-select
+            v-if="logViewerStore.viewerState === 'viewing-session'"
+            filled
+            v-model="logViewerStore.sessionsOrder"
+            @update:model-value="reOrderSessions()"
+            :options="[
+              { label: 'Newest', value: 'desc' },
+              { label: 'Oldest', value: 'asc' },
+            ]"
+            label="Sessions Order"
+            style="width: 256px; margin-left: 10px"
+          />
+
           <q-space />
 
           <div v-if="logViewerStore.viewerState === 'none'">
@@ -165,8 +178,8 @@
             </q-timeline-entry>
 
             <q-timeline-entry
-              v-for="encounter in encounterRows"
-              :key="encounter.encounterName"
+              v-for="(encounter, index) in encounterRows"
+              :key="`${index}-${encounter}`"
               :title="
                 encounter.encounterName +
                 ' | ' +
@@ -442,8 +455,26 @@ function calculateEncounterRows() {
       return;
     }
   });
+
+  reOrderSessions();
 }
 /* End session table */
+
+function reOrderSessions() {
+  if (encounterRows.value.length === 1) return;
+
+  const firstEncounter = encounterRows.value.at(0);
+  const lastEncounter = encounterRows.value.at(-1);
+
+  if (!firstEncounter || !lastEncounter) return;
+
+  const currentOrientation =
+    firstEncounter.startingMs < lastEncounter.startingMs ? "asc" : "desc";
+
+  if (currentOrientation === logViewerStore.sessionsOrder.value) return;
+
+  encounterRows.value.reverse();
+}
 
 /* Start encounter table */
 const encounterRows: Ref<RowData[]> = ref([]);

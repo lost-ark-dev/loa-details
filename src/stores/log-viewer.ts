@@ -33,6 +33,7 @@ type State = {
   encounterOptions: string[];
   encounterFilter: string[];
   logfileFilter: string[];
+  sessionsOrder: { label: "Newest" | "Oldest"; value: "desc" | "asc" };
 };
 
 export const useLogViewerStore = defineStore("log-viewer", {
@@ -45,6 +46,7 @@ export const useLogViewerStore = defineStore("log-viewer", {
     encounterOptions: [],
     encounterFilter: [],
     logfileFilter: [],
+    sessionsOrder: { label: "Newest", value: "desc" },
   }),
   actions: {
     resetState() {
@@ -56,6 +58,7 @@ export const useLogViewerStore = defineStore("log-viewer", {
       this.encounterOptions = [];
       this.encounterFilter = [];
       this.logfileFilter = [];
+      this.sessionsOrder = { label: "Newest", value: "desc" };
     },
   },
 });
