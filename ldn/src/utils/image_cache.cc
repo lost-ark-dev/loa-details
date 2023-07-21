@@ -8,7 +8,7 @@ Image* ImageCache::getImage(const std::string& path){
 
     if(images.count(path))
         return images[path];
-    std::filesystem::path base = "Z:/Projects/loa-details/meter-data/images";
+    std::filesystem::path base = "./meter-data/images";
     std::filesystem::path t = base / path;
     std::vector<uint8_t> data = FileUtils::read_bin(t.generic_string());
     Image* img = new Image();

@@ -7,12 +7,7 @@ import type { Settings } from "./util/app-settings";
 import { Parser } from "meter-core/logger/parser";
 
 const executablePath = () => {
-  if (process.env.DEBUGGING) return "./Release/ldn.exe";
-  return "./build_release/Release/ldn.exe";
-};
-const procPath = () => {
-  if (process.env.DEBUGGING) return "./ldn/build_release";
-  return path.resolve("./ldn");
+  return "./ldn/build_release/release/ldn.exe";
 };
 function replacer(key: unknown, value: unknown) {
   if (value instanceof Map) {
@@ -81,9 +76,7 @@ class Ldn {
       this.process = child_process.execFile(
         executablePath(),
         ["port", `${(this.socket?.address() as net.AddressInfo).port}`],
-        {
-          cwd: procPath(),
-        },
+        {},
         (
           error: child_process.ExecFileException | null,
           stdout: string | Buffer,

@@ -88,10 +88,8 @@ void SocketConnection::loop() {
   while (running) {
     auto amount_read = recv(sockfd, (char *)recv_buffer, 1024 * 1024, 0);
     if (amount_read > 0) {
-      // std::cout << "received: " << amount_read << "\n";
       std::lock_guard<std::mutex> lk(mtx);
       buffer_data += std::string(recv_buffer, recv_buffer + amount_read);
-      std::vector<std::string> msgs;
       auto index = buffer_data.find("\n");
       size_t count = 0;
       while (index != std::string::npos) {

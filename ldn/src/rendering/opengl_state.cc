@@ -75,8 +75,8 @@ ShaderInstance::ShaderInstance(std::string vert_path,
 
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
-  std::filesystem::path vert_final_path = cwd / "assets" / vert_path;
-  std::filesystem::path frag_final_path = cwd / "assets" / frag_path;
+  std::filesystem::path vert_final_path = cwd / "ldn" / "assets" / vert_path;
+  std::filesystem::path frag_final_path = cwd / "ldn" / "assets" / frag_path;
   std::string vert_content =
       FileUtils::file_to_string(vert_final_path.generic_string());
   std::string frag_content =

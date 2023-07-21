@@ -39,7 +39,7 @@ void Ldn::run(bool should_connect, std::string path_or_port) {
 
   std::vector<std::string> fontPaths;
   for (const auto &r : {"Roboto-Regular.ttf", "Roboto-Bold.ttf"}) {
-    std::filesystem::path p = cwd / "assets" / "fonts" / r;
+    std::filesystem::path p = cwd / "ldn" / "assets" / "fonts" / r;
     fontPaths.push_back(p.generic_string());
   }
   font_atlas = FontAtlas(30, fontPaths);
