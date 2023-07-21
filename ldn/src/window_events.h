@@ -92,5 +92,12 @@ void cursor_position_callback(GLFWwindow *window, double xpos, double ypos) {
     }
   }
 }
-
+void window_focus_callback(GLFWwindow* window, int focused)
+{
+  Ldn::g_ldn->focused = focused;
+  if(focused && Ldn::g_ldn->pass_through_enabled) {
+      glfwSetWindowAttrib(window, GLFW_MOUSE_PASSTHROUGH, false);
+      Ldn::g_ldn->pass_through_enabled = false;
+  }
+}
 #endif

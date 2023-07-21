@@ -33,6 +33,7 @@ void Ldn::run(bool should_connect, std::string path_or_port) {
   glfwMakeContextCurrent(window);
   glfwSwapInterval(1);
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+  glfwSetWindowFocusCallback(window, window_focus_callback);
   glfwSetMouseButtonCallback(window, mouse_button_callback);
   glfwSetCursorPosCallback(window, cursor_position_callback);
   opengl_state = OpenGLState(window, cwd);
@@ -254,4 +255,9 @@ void Ldn::takeScreenshot() {
   }
 
   GlobalUnlock(hDIB);
+}
+void Ldn::enablePassthrough() {
+  glfwSetWindowAttrib(window, GLFW_MOUSE_PASSTHROUGH, true);
+  pass_through_enabled = true;
+  focused = false;
 }

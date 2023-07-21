@@ -22,6 +22,10 @@ Header::Header() {
   screenshotButton.text = "S";
   screenshotButton.size.x = 32 * 1.5;
   Ldn::g_ldn->button_list.push_back(&screenshotButton);
+
+  passThroughButton.setOnClick([this]() { Ldn::g_ldn->enablePassthrough(); });
+  passThroughButton.text = "P";
+  passThroughButton.size.x = 32 * 1.5;
 }
 bool Header::canFocus() { return false; }
 void Header::onPress(RenderContext *ctx) {}
@@ -79,6 +83,17 @@ void Header::render(RenderContext *ctx) {
         size.x - closeOpenButton.size.x - 10 - screenshotButton.size.x;
     screenshotButton.position.y = 5;
     screenshotButton.render(ctx);
+
+    passThroughButton.size.y = ctx->atlas->effective_atlas_height;
+    passThroughButton.position.x = size.x - closeOpenButton.size.x - 15 -
+                                   screenshotButton.size.x -
+                                   passThroughButton.size.x;
+    passThroughButton.position.y = 5;
+    if (Ldn::g_ldn->pass_through_enabled)
+      passThroughButton.text_color = vec4f(0.3, 0.85, 0.1, 1);
+    else
+      passThroughButton.text_color = vec4fs(1);
+    passThroughButton.render(ctx);
   }
 
   closeOpenButton.size.y = ctx->atlas->effective_atlas_height;

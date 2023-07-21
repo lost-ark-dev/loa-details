@@ -35,6 +35,9 @@ public:
     GLFWcursor* active_cursor = nullptr;
     ImageCache image_cache;
     void takeScreenshot();
+    void enablePassthrough();
+    bool focused = true;
+    bool pass_through_enabled = false;
 private:
     void run_loop();
     SocketConnection connection;
@@ -47,7 +50,6 @@ private:
     uint32_t old_width = 720;
     uint32_t old_height = 1280;
 
-    bool focused = true;
     bool minimised = false;
 };
 #endif
