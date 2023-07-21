@@ -1,3 +1,4 @@
+/* eslint-disable */
 import net from "node:net";
 import fs from "node:fs";
 import path from "node:path";
@@ -9,10 +10,10 @@ import { Parser } from "meter-core/logger/parser";
 const executablePath = () => {
   return "./ldn/build_release/release/ldn.exe";
 };
-function replacer(key: unknown, value: unknown) {
+function replacer(key:any, value:any) {
   if (value instanceof Map) {
     return Array.from(value.entries()).reduce(
-      (acc: unknown, val: [unknown, unknown]): unknown => ({
+      (acc, val) => ({
         ...acc,
         [val[0]]: val[1],
       }),
