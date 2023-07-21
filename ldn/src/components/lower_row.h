@@ -14,7 +14,9 @@ public:
    void render(RenderContext* ctx) override;
 private:
     Row row;
-    Button damage_tab_btn, party_syn_btn;
+    Button damage_tab_btn, party_syn_btn, rdps_button, tank_button;
+    Button* active_tab = nullptr;
+    void set_active(Button* btn, const std::string& name);
 
 };
 #endif

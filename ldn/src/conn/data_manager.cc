@@ -5,6 +5,7 @@
 #include <chrono>
 #include <iostream>
 #include <string>
+#include <vcruntime.h>
 #include <vector>
 
 using json = nlohmann::json;
@@ -44,13 +45,15 @@ bool DataManager::poll() {
     std::cout << "unpausing\n";
     return false;
   }
-  if (paused && !from_path && dataPoint.fight_start_time < raw["fightStartedOn"]) {
+  if (paused && !from_path &&
+      dataPoint.fight_start_time < raw["fightStartedOn"]) {
     std::cout << "unpausing new fight\n";
     paused = false;
   }
 
   size_t total_dmg = 0;
   size_t top_damage = 0;
+  size_t top_damage_rdps = 0;
 
   DataPoint point;
   point.fight_start_time = raw["fightStartedOn"];
@@ -69,6 +72,8 @@ bool DataManager::poll() {
   }
   json damageStatistics = raw["damageStatistics"];
   point.damageInfo.damageDealt = damageStatistics["totalDamageDealt"];
+  point.tankInfo.damageTaken = damageStatistics["totalDamageTaken"];
+  point.tankInfo.topDamageTaken = damageStatistics["topDamageTaken"];
   for (json &entity : raw["entities"]) {
     if (entity["isPlayer"] ||
         (entity.contains("isEsther") && entity["isEsther"])) {
@@ -81,7 +86,8 @@ bool DataManager::poll() {
       total_dmg += p.damageInfo.damageDealt;
       if (p.damageInfo.damageDealt > top_damage)
         top_damage = p.damageInfo.damageDealt;
-
+      if (p.rDps() > top_damage_rdps)
+        top_damage_rdps = p.rDps();
       point.players[p.id] = p;
     }
   }
@@ -94,6 +100,14 @@ bool DataManager::poll() {
           p.second.damageInfo.damageDealt / (t == 0 ? 1 : t);
       p.second.damagePercentTop =
           (float)p.second.damageInfo.damageDealt / top_damage;
+      p.second.rDamagePercent = (float)p.second.rDps() / total_dmg;
+      p.second.rDamagePercentTop = (float)p.second.rDps() / top_damage_rdps;
+      p.second.damageInfo.rDps = p.second.rDps() / (t == 0 ? 1 : t);
+
+      p.second.tankPercent =
+          (float)p.second.tankinfo.damageTaken / point.tankInfo.damageTaken;
+      p.second.tankPercentTop =
+          (float)p.second.tankinfo.damageTaken / point.tankInfo.topDamageTaken;
     }
   dataPoint = point;
   last_poll = now;
@@ -115,6 +129,8 @@ Player::Player(json &j) {
   damageInfo.damageDealt = damageEntry["damageDealt"];
   damageInfo.rdpsDamageReceived = damageEntry["rdpsDamageReceived"];
   damageInfo.rdpsDamageReceivedSupp = damageEntry["rdpsDamageReceivedSupp"];
+  damageInfo.rdpsDamageGiven = damageEntry["rdpsDamageGiven"];
+  tankinfo.damageTaken = j["damageTaken"];
   debuffed_dmg = j["damageDealtDebuffedBy"];
   buffed_dmg = j["damageDealtBuffedBy"];
   for (json &skill : j["skills"]) {
@@ -127,7 +143,41 @@ Player::Player(json &j) {
     skills[entry.id] = entry;
   }
 }
-std::vector<std::string> Player::getDataPoints(const std::string type) {
+std::vector<std::string> Player::getDataPoints(uint64_t time,
+                                               const std::string &type) {
+  size_t t = time / 1000;
+  if (type == "tank") {
+    return {FormatUtils::formatNumber(tankinfo.damageTaken),
+            FormatUtils::format(tankPercent * 100) + "%",
+            FormatUtils::formatNumber(tankinfo.damageTaken / (t == 0 ? 1 : t))};
+  }
+  if (type == "rdps") {
+    return {FormatUtils::formatNumber(rDps()),
+            FormatUtils::format(rDamagePercent * 100) + "%",
+            FormatUtils::formatNumber(damageInfo.rDps),
+            FormatUtils::formatNumber(damageInfo.rdpsDamageReceived),
+            FormatUtils::formatNumber(damageInfo.rdpsDamageGiven),
+            FormatUtils::formatNumber(damageInfo.rdpsDamageReceived /
+                                      (t == 0 ? 1 : t)),
+            FormatUtils::formatNumber(damageInfo.rdpsDamageGiven /
+                                      (t == 0 ? 1 : t)),
+            FormatUtils::format(
+                ((float)damageInfo.rdpsDamageReceived /
+                 (damageInfo.damageDealt - damageInfo.rdpsDamageReceived)) *
+                100) +
+                "%",
+            FormatUtils::format(
+                ((float)damageInfo.rdpsDamageReceivedSupp /
+                 (damageInfo.damageDealt - damageInfo.rdpsDamageReceived)) *
+                100) +
+                "%",
+            FormatUtils::format(
+                ((float)(damageInfo.rdpsDamageReceived -
+                         damageInfo.rdpsDamageReceivedSupp) /
+                 (damageInfo.damageDealt - damageInfo.rdpsDamageReceived)) *
+                100) +
+                "%"};
+  }
 
   return {
       FormatUtils::formatNumber(damageInfo.damageDealt),
@@ -151,7 +201,7 @@ std::vector<std::string> Player::getDataPoints(const std::string type) {
           "%",
       FormatUtils::format(
           ((float)damageInfo.rdpsDamageReceivedSupp /
-           (damageInfo.damageDealt - damageInfo.rdpsDamageReceivedSupp)) *
+           (damageInfo.damageDealt - damageInfo.rdpsDamageReceived)) *
           100) +
           "%",
       FormatUtils::format(
@@ -231,9 +281,9 @@ std::vector<std::string> DataPoint::getBuffHeaders(int what) {
       if (what == 0) {
         name = buff.class_name;
       } else {
-       name = buff.icon;
+        name = buff.icon;
       }
-     break;
+      break;
     }
     if (name.find("Party: ") == 0)
       name = name.substr(7);
@@ -280,4 +330,15 @@ Player::getBuffRow(std::map<std::string, BuffGroup> &groups) {
   }
 
   return entries;
+}
+size_t Player::rDps() {
+  return damageInfo.damageDealt - damageInfo.rdpsDamageReceived +
+         damageInfo.rdpsDamageGiven;
+}
+float Player::getOrderValue(const std::string &tab) {
+  if (tab == "rdps")
+    return rDamagePercentTop;
+  if (tab == "tank")
+    return tankPercentTop;
+  return damagePercentTop;
 }

@@ -34,9 +34,15 @@ struct Hits {
 struct DamageInfo {
   size_t damageDealt = 0;
   size_t totalDamageDealt = 0;
-  size_t rdpsDamageReceived = 0;
-  size_t rdpsDamageReceivedSupp = 0;
+  double rdpsDamageReceived = 0;
+  double rdpsDamageReceivedSupp = 0;
+  double rdpsDamageGiven = 0;
   size_t dps;
+  size_t rDps;
+};
+struct TankInfo {
+  size_t damageTaken = 0;
+  size_t topDamageTaken = 0;
 };
 struct Skill {
   std::string name;
@@ -83,18 +89,26 @@ public:
   bool isEster = false;
   Hits hits;
   DamageInfo damageInfo;
+  TankInfo tankinfo;
   std::map<size_t, Skill> skills;
   float damagePercent = 0;
   float damagePercentTop = 0;
-  std::vector<std::string> getDataPoints(const std::string type = "damage");
+  float rDamagePercent = 0;
+  float rDamagePercentTop = 0;
+  float tankPercent = 0;
+  float tankPercentTop = 0;
+  std::vector<std::string> getDataPoints(uint64_t time, const std::string& type = "damage");
+  float getOrderValue(const std::string& tab);
   std::vector<std::string> getBuffRow(std::map<std::string, BuffGroup>& groups);
   std::string getName(StaticData* data);
   nlohmann::json debuffed_dmg, buffed_dmg;
+  size_t rDps();
 };
 class DataPoint {
 public:
   std::map<std::string, Player> players;
   DamageInfo damageInfo;
+  TankInfo tankInfo;
   Boss boss;
   std::map<std::string, BuffGroup> buffs;
   uint64_t fight_start_time = 0;

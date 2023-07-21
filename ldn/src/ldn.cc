@@ -103,7 +103,14 @@ void Ldn::run_loop() {
       } else {
         list.position.y = 64 + (font_atlas.effective_atlas_height * 0.7);
         header_row_fill.size.y = font_atlas.effective_atlas_height * 0.7;
-        header_row.reset();
+        if (active_tab == "damage") {
+          header_row.reset();
+        } else if (active_tab == "rdps") {
+          header_row.setRows({"RDamage", "rD%", "rDPS", "Recv", "Given",
+                              "Recv/s", "Given/s", "Syn%", "sSyn%", "dSyn%"});
+        }else if (active_tab == "tank") {
+          header_row.setRows({"Tanked", "T%", "TPS"});
+        }
       }
       last_tab = active_tab;
     }
@@ -131,11 +138,13 @@ void Ldn::run_loop() {
       } else {
         for (auto &entry : manager.dataPoint.players) {
           Player &p = entry.second;
+          if((active_tab == "tank") && p.isEster)
+            continue;
           list.addRow(
-              p.id, p.getName(&static_data), p.damagePercentTop,
+              p.id, p.getName(&static_data), p.getOrderValue(active_tab),
               static_data
                   .colors[static_data.classes[std::to_string(p.classId)]],
-              p.getDataPoints(active_tab));
+              p.getDataPoints(manager.dataPoint.fight_duration, active_tab));
         }
       }
       if (manager.dataPoint.boss.name.length())
@@ -197,7 +206,8 @@ void Ldn::setMinimised(bool val) {
   glfwSetWindowAttrib(window, GLFW_RESIZABLE, !minimised);
 }
 
-// this function probably took the longest to write out of all, holy fuck windows sucks
+// this function probably took the longest to write out of all, holy fuck
+// windows sucks
 void Ldn::takeScreenshot() {
   std::vector<unsigned char> pixels(window_width * window_height * 4);
   glReadPixels(0, 0, window_width, window_height, GL_RGBA, GL_UNSIGNED_BYTE,
@@ -214,10 +224,10 @@ void Ldn::takeScreenshot() {
   }
   BITMAPINFO bmi = {0};
   bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-  bmi.bmiHeader.biWidth = window_width;   
+  bmi.bmiHeader.biWidth = window_width;
   bmi.bmiHeader.biHeight = window_height;
   bmi.bmiHeader.biPlanes = 1;
-  bmi.bmiHeader.biBitCount = 32;       
+  bmi.bmiHeader.biBitCount = 32;
   bmi.bmiHeader.biCompression = BI_RGB;
   bmi.bmiHeader.biSizeImage = 0;
   bmi.bmiHeader.biXPelsPerMeter = 0;
@@ -244,5 +254,4 @@ void Ldn::takeScreenshot() {
   }
 
   GlobalUnlock(hDIB);
-
 }
