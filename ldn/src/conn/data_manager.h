@@ -111,7 +111,7 @@ public:
   std::vector<std::string> getDataPoints(uint64_t time, const std::string& type = "damage");
   float getOrderValue(const std::string& tab);
   std::vector<std::string> getBuffRow(std::map<std::string, BuffGroup>& groups);
-  std::string getName(StaticData* data);
+  std::string getName(StaticData* data, bool render_name = true);
   nlohmann::json debuffed_dmg, buffed_dmg;
   size_t rDps();
 };

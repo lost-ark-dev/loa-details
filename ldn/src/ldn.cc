@@ -160,7 +160,7 @@ void Ldn::run_loop() {
           if (p.isEster)
             continue;
           list.addRow(
-              p.id, p.getName(&static_data), p.damagePercentTop,
+              p.id, p.getName(&static_data, render_names), p.damagePercentTop,
               static_data
                   .colors[static_data.classes[std::to_string(p.classId)]],
               p.getBuffRow(active_tab == "self_buff_dmg" ? dp.self_buffs
@@ -174,7 +174,8 @@ void Ldn::run_loop() {
               p.isEster)
             continue;
           list.addRow(
-              p.id, p.getName(&static_data), p.getOrderValue(active_tab),
+              p.id, p.getName(&static_data, render_names),
+              p.getOrderValue(active_tab),
               static_data
                   .colors[static_data.classes[std::to_string(p.classId)]],
               p.getDataPoints(dp.fight_duration, active_tab));
@@ -214,6 +215,10 @@ void Ldn::run_loop() {
     if (custom_header)
       second_header_row.render(&ctx);
     glfwSwapBuffers(window);
+    if (should_take_screenshot)
+      takeScreenshot();
+    else if (screenshot_flag && !should_take_screenshot)
+      should_take_screenshot = true;
     glfwWaitEventsTimeout(1);
   }
 }
@@ -283,9 +288,18 @@ void Ldn::takeScreenshot() {
   }
 
   GlobalUnlock(hDIB);
+  render_names = true;
+  screenshot_flag = false;
+  should_take_screenshot = false;
 }
 void Ldn::enablePassthrough() {
   glfwSetWindowAttrib(window, GLFW_MOUSE_PASSTHROUGH, true);
   pass_through_enabled = true;
   focused = false;
+}
+void Ldn::initScreenshot() {
+  if (screenshot_flag)
+    return;
+  render_names = false;
+  screenshot_flag = true;
 }

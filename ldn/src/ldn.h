@@ -35,9 +35,13 @@ public:
     GLFWcursor* active_cursor = nullptr;
     ImageCache image_cache;
     void takeScreenshot();
+    void initScreenshot();
     void enablePassthrough();
     bool focused = true;
     bool pass_through_enabled = false;
+    bool render_names = true;
+    bool screenshot_flag = false;
+    bool should_take_screenshot = false;
 private:
     void run_loop();
     SocketConnection connection;

@@ -249,10 +249,12 @@ void DataManager::initFromPath(std::string path) {
   size_t b = loaded_json["lastCombatPacket"];
   data_point.fight_duration = b - a;
 }
-std::string Player::getName(StaticData *data) {
+std::string Player::getName(StaticData *data, bool render_name) {
   if (isEster)
     return name;
   std::string class_name = data->classes[std::to_string(classId)];
+  if(!render_name)
+    return class_name;
   return name + " (" + class_name + ")";
 }
 void DataManager::calculateBuffs(json &j) {

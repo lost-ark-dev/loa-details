@@ -18,7 +18,7 @@ Header::Header() {
   closeOpenButton.size.x = 32 * 1.5;
   Ldn::g_ldn->button_list.push_back(&closeOpenButton);
 
-  screenshotButton.setOnClick([this]() { Ldn::g_ldn->takeScreenshot(); });
+  screenshotButton.setOnClick([this]() { Ldn::g_ldn->initScreenshot(); });
   screenshotButton.text = "S";
   screenshotButton.size.x = 32 * 1.5;
   Ldn::g_ldn->button_list.push_back(&screenshotButton);
