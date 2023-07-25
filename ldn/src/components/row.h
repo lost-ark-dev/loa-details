@@ -18,7 +18,8 @@ public:
    std::vector<Component*> components;
    float cell_size = 0;
    Align align = Left;
-private:
+   bool set_y_size = false;
+   bool push_center = false;
 
 };
 #endif

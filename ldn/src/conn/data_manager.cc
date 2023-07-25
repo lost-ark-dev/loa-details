@@ -29,7 +29,7 @@ bool DataManager::poll() {
       std::cout << "received data: " << d << "\n";
       if (d == "new-zone") {
         DataPoint p;
-        dataPoint = p;
+        data_point = p;
         paused = false;
         std::cout << "unpausing zone\n";
 
@@ -46,7 +46,7 @@ bool DataManager::poll() {
     return false;
   }
   if (paused && !from_path &&
-      dataPoint.fight_start_time < raw["fightStartedOn"]) {
+      data_point.fight_start_time < raw["fightStartedOn"]) {
     std::cout << "unpausing new fight\n";
     paused = false;
   }
@@ -61,7 +61,7 @@ bool DataManager::poll() {
 
     point.fight_duration = now - point.fight_start_time;
   } else if (paused) {
-    point.fight_duration = dataPoint.fight_duration;
+    point.fight_duration = data_point.fight_duration;
   }
   if (raw.contains("currentBoss")) {
     json boss_entry = raw["currentBoss"];
@@ -72,8 +72,14 @@ bool DataManager::poll() {
   }
   json damageStatistics = raw["damageStatistics"];
   point.damageInfo.damageDealt = damageStatistics["totalDamageDealt"];
-  point.tankInfo.damageTaken = damageStatistics["totalDamageTaken"];
-  point.tankInfo.topDamageTaken = damageStatistics["topDamageTaken"];
+  point.tankInfo.damage_taken = damageStatistics["totalDamageTaken"];
+  point.tankInfo.top_damage_taken = damageStatistics["topDamageTaken"];
+  point.tankInfo.shield_done = damageStatistics["totalShieldDone"];
+  point.tankInfo.top_shield_done = damageStatistics["topShieldDone"];
+  point.tankInfo.e_shield_done =
+      damageStatistics["totalEffectiveShieldingDone"];
+  point.tankInfo.top_e_shield_done =
+      damageStatistics["topEffectiveShieldingDone"];
   for (json &entity : raw["entities"]) {
     if (entity["isPlayer"] ||
         (entity.contains("isEsther") && entity["isEsther"])) {
@@ -93,23 +99,31 @@ bool DataManager::poll() {
   }
   if (total_dmg)
     for (auto &p : point.players) {
-      p.second.damagePercent =
-          (float)p.second.damageInfo.damageDealt / total_dmg;
+      Player &player = p.second;
+      player.damagePercent = (float)player.damageInfo.damageDealt / total_dmg;
       auto t = point.fight_duration / 1000;
-      p.second.damageInfo.dps =
-          p.second.damageInfo.damageDealt / (t == 0 ? 1 : t);
-      p.second.damagePercentTop =
-          (float)p.second.damageInfo.damageDealt / top_damage;
-      p.second.rDamagePercent = (float)p.second.rDps() / total_dmg;
-      p.second.rDamagePercentTop = (float)p.second.rDps() / top_damage_rdps;
-      p.second.damageInfo.rDps = p.second.rDps() / (t == 0 ? 1 : t);
+      player.damageInfo.dps = player.damageInfo.damageDealt / (t == 0 ? 1 : t);
+      player.damagePercentTop =
+          (float)player.damageInfo.damageDealt / top_damage;
+      player.rDamagePercent = (float)player.rDps() / total_dmg;
+      player.rDamagePercentTop = (float)player.rDps() / top_damage_rdps;
+      player.damageInfo.rDps = player.rDps() / (t == 0 ? 1 : t);
 
-      p.second.tankPercent =
-          (float)p.second.tankinfo.damageTaken / point.tankInfo.damageTaken;
-      p.second.tankPercentTop =
-          (float)p.second.tankinfo.damageTaken / point.tankInfo.topDamageTaken;
+      player.tankPercent =
+          (float)player.tankinfo.damage_taken / point.tankInfo.damage_taken;
+      player.tankPercentTop =
+          (float)player.tankinfo.damage_taken / point.tankInfo.top_damage_taken;
+
+      player.shieldGivenPercent =
+          (float)player.tankinfo.shield_done / point.tankInfo.shield_done;
+      player.shieldGivenPercentTop =
+          (float)player.tankinfo.shield_done / point.tankInfo.top_shield_done;
+      player.eShieldGivenPercent =
+          (float)player.tankinfo.e_shield_done / point.tankInfo.e_shield_done;
+      player.eShieldGivenPercentTop = (float)player.tankinfo.e_shield_done /
+                                      point.tankInfo.top_e_shield_done;
     }
-  dataPoint = point;
+  data_point = point;
   last_poll = now;
   calculateBuffs(raw);
   return true;
@@ -130,7 +144,9 @@ Player::Player(json &j) {
   damageInfo.rdpsDamageReceived = damageEntry["rdpsDamageReceived"];
   damageInfo.rdpsDamageReceivedSupp = damageEntry["rdpsDamageReceivedSupp"];
   damageInfo.rdpsDamageGiven = damageEntry["rdpsDamageGiven"];
-  tankinfo.damageTaken = j["damageTaken"];
+  tankinfo.damage_taken = j["damageTaken"];
+  tankinfo.shield_done = j["shieldDone"];
+  tankinfo.e_shield_done = j["damagePreventedWithShieldOnOthers"];
   debuffed_dmg = j["damageDealtDebuffedBy"];
   buffed_dmg = j["damageDealtBuffedBy"];
   for (json &skill : j["skills"]) {
@@ -139,17 +155,29 @@ Player::Player(json &j) {
     entry.icon = skill["icon"];
     entry.id = skill["id"];
     entry.hits = Hits::parseHits(skill["hits"]);
-    entry.damageInfo.damageDealt = skill["damageInfo"]["damageDealt"];
+    entry.damage_info.damageDealt = skill["damageInfo"]["damageDealt"];
     skills[entry.id] = entry;
   }
 }
 std::vector<std::string> Player::getDataPoints(uint64_t time,
                                                const std::string &type) {
   size_t t = time / 1000;
+  size_t secs_passed = (t == 0 ? 1 : t);
   if (type == "tank") {
-    return {FormatUtils::formatNumber(tankinfo.damageTaken),
+    return {FormatUtils::formatNumber(tankinfo.damage_taken),
             FormatUtils::format(tankPercent * 100) + "%",
-            FormatUtils::formatNumber(tankinfo.damageTaken / (t == 0 ? 1 : t))};
+            FormatUtils::formatNumber(tankinfo.damage_taken / secs_passed)};
+  }
+  if (type == "shield_given") {
+    return {FormatUtils::formatNumber(tankinfo.shield_done),
+            FormatUtils::format(shieldGivenPercent * 100) + "%",
+            FormatUtils::formatNumber(tankinfo.shield_done / secs_passed)};
+  }
+  if (type == "eshield_given") {
+    return {
+        FormatUtils::formatNumber(tankinfo.e_shield_done),
+        FormatUtils::format(eShieldGivenPercent * 100) + "%",
+        FormatUtils::formatNumber(tankinfo.e_shield_done / secs_passed)};
   }
   if (type == "rdps") {
     return {FormatUtils::formatNumber(rDps()),
@@ -158,9 +186,9 @@ std::vector<std::string> Player::getDataPoints(uint64_t time,
             FormatUtils::formatNumber(damageInfo.rdpsDamageReceived),
             FormatUtils::formatNumber(damageInfo.rdpsDamageGiven),
             FormatUtils::formatNumber(damageInfo.rdpsDamageReceived /
-                                      (t == 0 ? 1 : t)),
+                                      secs_passed),
             FormatUtils::formatNumber(damageInfo.rdpsDamageGiven /
-                                      (t == 0 ? 1 : t)),
+                                      secs_passed),
             FormatUtils::format(
                 ((float)damageInfo.rdpsDamageReceived /
                  (damageInfo.damageDealt - damageInfo.rdpsDamageReceived)) *
@@ -219,7 +247,7 @@ void DataManager::initFromPath(std::string path) {
   paused = true;
   size_t a = loaded_json["fightStartedOn"];
   size_t b = loaded_json["lastCombatPacket"];
-  dataPoint.fight_duration = b - a;
+  data_point.fight_duration = b - a;
 }
 std::string Player::getName(StaticData *data) {
   if (isEster)
@@ -230,24 +258,39 @@ std::string Player::getName(StaticData *data) {
 void DataManager::calculateBuffs(json &j) {
   json &buffs = j["damageStatistics"]["buffs"];
   json &debuffs = j["damageStatistics"]["debuffs"];
-  std::map<std::string, BuffGroup> &targets = dataPoint.buffs;
+  std::map<std::string, BuffGroup> &targets = data_point.buffs;
+  std::map<std::string, BuffGroup> &self_targets = data_point.self_buffs;
   for (auto &ee : buffs.items()) {
     json &e = ee.value();
     std::string category = e["buffcategory"];
     size_t target_type = e["target"];
     int buff_type = e["bufftype"];
-    if (target_type == 1 && e["category"] == "buff" && (135 & buff_type) != 0 &&
+    if ((target_type == 1 || target_type == 0) && e["category"] == "buff" && (135 & buff_type) != 0 &&
         (category == "classskill" || category == "identity" ||
-         category == "ability")) {
+         category == "ability" || category == "pet" || category == "cook" ||
+         category == "battleitem" || category == "dropsofether" ||
+         category == "bracelet" || category == "set")) {
+
+      bool isParty = (category == "classskill" || category == "identity" ||
+                           category == "ability") && target_type == 1;
       Buff buff(e);
-      size_t group_id = e["uniquegroup"];
-      std::string class_name =
-          static_data->classes[std::to_string(buff.class_id)];
-      buff.class_name = class_name;
-      std::string key =
-          class_name + "_" +
-          (group_id == 0 ? buff.skill_name : std::to_string(group_id));
-      targets[key].buffs[ee.key()] = buff;
+      std::string key;
+      if (isParty) {
+        size_t group_id = e["uniquegroup"];
+        std::string class_name =
+            static_data->classes[std::to_string(buff.class_id)];
+        buff.class_name = class_name;
+        key = class_name + "_" +
+              (group_id == 0 ? buff.skill_name : std::to_string(group_id));
+      } else {
+        key = buff.category_type;
+        if (category == "set")
+          key = "set_" + buff.setname;
+      }
+      if (isParty)
+        targets[key].buffs[ee.key()] = buff;
+      else if(category != "ability")
+        self_targets[key].buffs[ee.key()] = buff;
     }
   }
   for (auto &ee : debuffs.items()) {
@@ -255,33 +298,49 @@ void DataManager::calculateBuffs(json &j) {
     std::string category = e["buffcategory"];
     size_t target_type = e["target"];
     int buff_type = e["bufftype"];
-    if (target_type == 1 && e["category"] == "debuff" &&
+    if ((target_type == 1 || target_type == 0) && e["category"] == "debuff" &&
         (135 & buff_type) != 0 &&
         (category == "classskill" || category == "identity" ||
-         category == "ability")) {
+         category == "ability" || category == "pet" || category == "cook" ||
+         category == "battleitem" || category == "dropsofether" ||
+         category == "bracelet" || category == "set")) {
+      bool isParty = (category == "classskill" || category == "identity" ||
+                           category == "ability") && target_type == 1;
       Buff buff(e);
-      size_t group_id = e["uniquegroup"];
-      std::string class_name =
-          static_data->classes[std::to_string(buff.class_id)];
-      buff.class_name = class_name;
-      std::string key =
-          class_name + "_" +
-          (group_id == 0 ? buff.skill_name : std::to_string(group_id));
-      targets[key].buffs[ee.key()] = buff;
+      std::string key;
+      if (isParty) {
+        size_t group_id = e["uniquegroup"];
+        std::string class_name =
+            static_data->classes[std::to_string(buff.class_id)];
+        buff.class_name = class_name;
+        key = class_name + "_" +
+              (group_id == 0 ? buff.skill_name : std::to_string(group_id));
+      } else {
+        key = buff.category_type;
+        if (category == "set")
+          key = "set_" + buff.setname;
+      }
+      if (isParty)
+        targets[key].buffs[ee.key()] = buff;
+      else if(category != "ability")
+        self_targets[key].buffs[ee.key()] = buff;
     }
   }
   return;
 }
 std::vector<std::string> DataPoint::getBuffHeaders(int what) {
   std::vector<std::string> entries;
-  for (auto &entry : buffs) {
+  for (auto &entry : (what >= 2 ? self_buffs : buffs)) {
     std::string name = "";
     for (auto &buff_entry : entry.second.buffs) {
       auto &buff = buff_entry.second;
       if (what == 0) {
         name = buff.class_name;
-      } else {
-        name = buff.icon;
+      } else if (what == 2) {
+        if (buff.category_type == "set")
+          name = buff.setname;
+        else
+          name = buff.category_type;
       }
       break;
     }
@@ -291,11 +350,26 @@ std::vector<std::string> DataPoint::getBuffHeaders(int what) {
   }
   return entries;
 }
+std::vector<std::vector<std::string>> DataPoint::getHeaderImages(int what) {
+  std::vector<std::vector<std::string>> entries;
+  for (auto &entry : (what ==1 ? self_buffs : buffs)) {
+    std::vector<std::string> images;
+    for (auto &buff_entry : entry.second.buffs) {
+        images.push_back(buff_entry.second.icon);
+    }
+    entries.push_back(images);
+  }
+  return entries;
+}
 Buff::Buff(json &j) {
-  class_id = j["source"]["skill"]["classid"];
-  skill_id = j["source"]["skill"]["id"];
-  skill_name = j["source"]["skill"]["name"];
+  category_type = j["buffcategory"];
+  if (j["source"].contains("skill")) {
+    class_id = j["source"]["skill"]["classid"];
+    skill_id = j["source"]["skill"]["id"];
+    skill_name = j["source"]["skill"]["name"];
+  }
   type = j["category"] == "debuff" ? BuffType::Debuff : BuffType::Buff;
+  setname = category_type == "set" ? j["source"]["setname"] : "";
   name = j["source"]["name"];
   description = j["source"]["desc"];
   icon = j["source"]["icon"];
@@ -340,5 +414,9 @@ float Player::getOrderValue(const std::string &tab) {
     return rDamagePercentTop;
   if (tab == "tank")
     return tankPercentTop;
+  if (tab == "shield_given")
+    return shieldGivenPercentTop;
+  if (tab == "eshield_given")
+    return eShieldGivenPercentTop;
   return damagePercentTop;
 }

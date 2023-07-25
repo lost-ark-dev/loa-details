@@ -3,7 +3,21 @@ project("ldn")
 set(CMAKE_CXX_STANDARD 17)
 set(DISABLE_PACKAGE_CONFIG_AND_INSTALL ON)
 set(SKIP_INSTALL_ALL ON)
-set(IXWEBSOCKET_INSTALL OFF)
+set(WEBP_BUILD_ANIM_UTILS OFF)
+set(WEBP_BUILD_CWEBP OFF)
+set(WEBP_BUILD_DWEBP OFF)
+set(WEBP_BUILD_GIF2WEBP OFF)
+set(WEBP_BUILD_IMG2WEBP OFF)
+set(WEBP_BUILD_VWEBP OFF)
+set(WEBP_BUILD_WEBPINFO OFF)
+set(WEBP_BUILD_LIBWEBPMUX OFF)
+set(WEBP_BUILD_WEBPMUX OFF)
+set(WEBP_BUILD_EXTRAS OFF)
+set(WEBP_BUILD_WEBP_JS OFF)
+set(WEBP_USE_THREAD OFF)
+set(WEBP_NEAR_LOSSLESS "Enable near-lossless encoding" ON)
+set(WEBP_ENABLE_SWAP_16BIT_CSP "Enable byte swap for 16 bit colorspaces."
+       OFF)
 
 set(LDN_SOURCES
     third-party/png/lodepng.cpp 
@@ -45,9 +59,10 @@ set(ZLIB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third-party/zlib ${CMAKE_CURREN
 
 add_subdirectory(third-party/glfw)
 add_subdirectory(third-party/freetype2)
+add_subdirectory(third-party/libwebp)
 
 if(WIN32)
     add_definitions(-DGLFW_EXPOSE_NATIVE_WIN32)
-    target_link_libraries(ldn PUBLIC glfw freetype wsock32 ws2_32)
+    target_link_libraries(ldn PUBLIC glfw freetype wsock32 ws2_32 webp)
 endif()
 file(COPY assets DESTINATION .)

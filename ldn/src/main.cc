@@ -2,6 +2,9 @@
 #include <stdint.h>
 #include <vector>
 #include "ldn.h"
+#include "../third-party/png/lodepng.h"
+#include "utils/file_util.h"
+
 
 int main(int argc, char** argv) {
     Ldn ldn;

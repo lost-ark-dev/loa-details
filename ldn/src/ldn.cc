@@ -76,6 +76,7 @@ void Ldn::run_loop() {
   lower_row.position.x = 0;
   glViewport(0, 0, window_width, window_height);
   std::string last_tab = active_tab;
+  std::vector<Row *> image_rows;
   while (!glfwWindowShouldClose(window)) {
     glClearColor(0, 0, 0, 0.6);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -87,7 +88,7 @@ void Ldn::run_loop() {
     if (minimised || dragging_window || resizing) {
       if (!dragging_window && !resizing) {
         if (manager.poll()) {
-          header.time_passed = manager.dataPoint.fight_duration;
+          header.time_passed = manager.data_point.fight_duration;
         }
         header.size = vec2f(window_width, window_height);
         header.render(&ctx);
@@ -96,12 +97,19 @@ void Ldn::run_loop() {
       glfwWaitEventsTimeout(1);
       continue;
     }
+    bool custom_header =
+        active_tab == "pdbuff" || active_tab == "self_buff_dmg";
 
     if (active_tab != last_tab) {
-      if (active_tab == "pdbuff") {
+      if (custom_header) {
         list.position.y = 64 + (font_atlas.effective_atlas_height * 1.4);
         header_row_fill.size.y = font_atlas.effective_atlas_height * 1.4;
       } else {
+        if (image_rows.size()) {
+          for (auto *e : image_rows)
+            delete e;
+          image_rows.clear();
+        }
         list.position.y = 64 + (font_atlas.effective_atlas_height * 0.7);
         header_row_fill.size.y = font_atlas.effective_atlas_height * 0.7;
         if (active_tab == "damage") {
@@ -109,24 +117,45 @@ void Ldn::run_loop() {
         } else if (active_tab == "rdps") {
           header_row.setRows({"RDamage", "rD%", "rDPS", "Recv", "Given",
                               "Recv/s", "Given/s", "Syn%", "sSyn%", "dSyn%"});
-        }else if (active_tab == "tank") {
+        } else if (active_tab == "tank") {
           header_row.setRows({"Tanked", "T%", "TPS"});
+        } else if (active_tab == "shield_given") {
+          header_row.setRows({"Shielded", "S%", "SPS"});
+        } else if (active_tab == "eshield_given") {
+          header_row.setRows({"Prevented", "S%", "SPS"});
         }
       }
       last_tab = active_tab;
     }
     if (manager.poll()) {
-      header.time_passed = manager.dataPoint.fight_duration;
+      DataPoint &dp = manager.data_point;
+      header.time_passed = dp.fight_duration;
       list.clear();
-      if (active_tab == "pdbuff") {
-        header_row.setRows(manager.dataPoint.getBuffHeaders());
+      if (custom_header) {
+        header_row.setRows(
+            dp.getBuffHeaders(active_tab == "self_buff_dmg" ? 2 : 0));
         std::vector<Component *> images;
-        auto strings = manager.dataPoint.getBuffHeaders(1);
+        auto strings =
+            dp.getHeaderImages(active_tab == "self_buff_dmg" ? 1 : 0);
+        if (image_rows.size()) {
+          for (auto *e : image_rows)
+            delete e;
+          image_rows.clear();
+        }
         for (auto &entry : strings) {
-          images.push_back(image_cache.getImage(entry));
+          Row *row = new Row();
+          row->size.y = second_header_row.size.y;
+          row->cell_size = row->size.y;
+          row->set_y_size = true;
+          row->push_center = true;
+          for (auto &e : entry) {
+            row->components.push_back(image_cache.getImage(e));
+          }
+          image_rows.push_back(row);
+          images.push_back(row);
         }
         second_header_row.setRows(images);
-        for (auto &entry : manager.dataPoint.players) {
+        for (auto &entry : dp.players) {
           Player &p = entry.second;
           if (p.isEster)
             continue;
@@ -134,41 +163,42 @@ void Ldn::run_loop() {
               p.id, p.getName(&static_data), p.damagePercentTop,
               static_data
                   .colors[static_data.classes[std::to_string(p.classId)]],
-              p.getBuffRow(manager.dataPoint.buffs));
+              p.getBuffRow(active_tab == "self_buff_dmg" ? dp.self_buffs
+                                                         : dp.buffs));
         }
       } else {
-        for (auto &entry : manager.dataPoint.players) {
+        for (auto &entry : dp.players) {
           Player &p = entry.second;
-          if((active_tab == "tank") && p.isEster)
+          if ((active_tab == "tank" || active_tab == "shield_given" ||
+               active_tab == "eshield_given") &&
+              p.isEster)
             continue;
           list.addRow(
               p.id, p.getName(&static_data), p.getOrderValue(active_tab),
               static_data
                   .colors[static_data.classes[std::to_string(p.classId)]],
-              p.getDataPoints(manager.dataPoint.fight_duration, active_tab));
+              p.getDataPoints(dp.fight_duration, active_tab));
         }
       }
-      if (manager.dataPoint.boss.name.length())
-        header.boss_name.setData(manager.dataPoint.boss.name);
-      header.total_dmg = manager.dataPoint.damageInfo.damageDealt;
-      auto fight_time = manager.dataPoint.fight_duration / 1000;
+      if (dp.boss.name.length())
+        header.boss_name.setData(dp.boss.name);
+      header.total_dmg = dp.damageInfo.damageDealt;
+      auto fight_time = dp.fight_duration / 1000;
       if (fight_time > 0)
-        header.total_dps =
-            manager.dataPoint.damageInfo.damageDealt / fight_time;
+        header.total_dps = dp.damageInfo.damageDealt / fight_time;
       else
         header.total_dps = 0;
     }
     header.size = vec2f(window_width, 64);
     header.render(&ctx);
     list.size.x = window_width;
-    if (active_tab == "pdbuff") {
-
+    if (custom_header)
       list.size.y =
           window_height - (64 + font_atlas.effective_atlas_height * 1.4) - 36;
-    } else {
+    else
       list.size.y =
           window_height - (64 + font_atlas.effective_atlas_height * 0.7) - 36;
-    }
+
     header_row_fill.size.x = window_width * 0.3;
     header_row.position.x = window_width * 0.3;
     second_header_row.position.x = window_width * 0.3;
@@ -181,10 +211,8 @@ void Ldn::run_loop() {
     header_row.render(&ctx);
     list.render(&ctx);
     lower_row.render(&ctx);
-    if (active_tab == "pdbuff")
+    if (custom_header)
       second_header_row.render(&ctx);
-    // box.render(&ctx);
-    // text.render(&ctx);
     glfwSwapBuffers(window);
     glfwWaitEventsTimeout(1);
   }

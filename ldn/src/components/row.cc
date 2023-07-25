@@ -16,13 +16,17 @@ void Row::render(RenderContext *ctx) {
   Vec2f size_remaining = size;
   float c_size = cell_size;
   if (c_size == 0)
-    c_size = size.x / components.size();
+    c_size = size.x / components.size() ;
   float offset = 0;
+  if(push_center && (c_size * components.size()) < size.x)
+    offset = (size.x - (c_size * components.size())) / 2;
   if (align == Left) {
     for (auto *child : components) {
       child->position.y = position.y;
       child->position.x = position.x + offset;
       child->size.x = c_size;
+      if (set_y_size)
+        child->size.y = size.y;
       child->render(ctx);
       size_remaining.x -= child->size.x;
 

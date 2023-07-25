@@ -41,15 +41,19 @@ struct DamageInfo {
   size_t rDps;
 };
 struct TankInfo {
-  size_t damageTaken = 0;
-  size_t topDamageTaken = 0;
+  size_t damage_taken = 0;
+  size_t top_damage_taken = 0;
+  size_t shield_done = 0;
+  size_t top_shield_done = 0;
+  size_t e_shield_done = 0;
+  size_t top_e_shield_done= 0;
 };
 struct Skill {
   std::string name;
   std::string icon;
   size_t id;
   Hits hits;
-  DamageInfo damageInfo;
+  DamageInfo damage_info;
 };
 
 struct Boss {
@@ -61,7 +65,8 @@ class Buff {
 public:
     enum class BuffType {
         Buff,
-        Debuff
+        Debuff,
+        Other,
     };
     Buff(){};
     Buff(nlohmann::json& j);
@@ -71,7 +76,9 @@ public:
     std::string icon;
     std::string class_name;
     BuffType type;
+    std::string category_type;
     std::string name;
+    std::string setname;
     std::string skill_name;
     std::string description;
 };
@@ -97,6 +104,10 @@ public:
   float rDamagePercentTop = 0;
   float tankPercent = 0;
   float tankPercentTop = 0;
+  float shieldGivenPercent = 0;
+  float shieldGivenPercentTop = 0;
+  float eShieldGivenPercent = 0;
+  float eShieldGivenPercentTop = 0;
   std::vector<std::string> getDataPoints(uint64_t time, const std::string& type = "damage");
   float getOrderValue(const std::string& tab);
   std::vector<std::string> getBuffRow(std::map<std::string, BuffGroup>& groups);
@@ -111,9 +122,11 @@ public:
   TankInfo tankInfo;
   Boss boss;
   std::map<std::string, BuffGroup> buffs;
+  std::map<std::string, BuffGroup> self_buffs;
   uint64_t fight_start_time = 0;
   uint64_t fight_duration = 0;
   std::vector<std::string> getBuffHeaders(int what = 0);
+  std::vector<std::vector<std::string>> getHeaderImages(int what = 0);
 };
 class DataManager {
   uint64_t last_poll = 0;
@@ -124,7 +137,7 @@ class DataManager {
 public:
   SocketConnection *connection = nullptr;
   StaticData* static_data = nullptr;
-  DataPoint dataPoint;
+  DataPoint data_point;
   bool poll();
   bool isValid();
   void initFromPath(std::string path);
