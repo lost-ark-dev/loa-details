@@ -52,6 +52,12 @@ class Ldn {
           "m:" + JSON.stringify({ type: "message", data }) + "\n"
         );
     });
+    liveParser.on("reset-state", (data: GameState) => {
+      if (this.client)
+        this.client.write(
+          "m:" + JSON.stringify({ type: "message", data: "reset-state" }) + "\n"
+        );
+    });
     this.socket = net.createServer((connection) => {
       if (this.client !== null) {
         connection.destroy();
@@ -64,9 +70,17 @@ class Ldn {
         console.log("error");
         this.client = null;
       });
+      connection.on("data", d => {
+        try{
+            const {action} = JSON.parse(d.toString());
+            if(action === "reset-session")
+              liveParser.reset();
+        }catch(err) {
+            console.error(err)
+        }
+      })
       connection.on("close", () => {
         console.log("close");
-        this.client = null;
       });
     });
     this.socket.listen({ port: 0, host: "127.0.0.1" }, () => {

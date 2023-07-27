@@ -17,6 +17,7 @@ public:
     void loop();
     nlohmann::json getLatestData();
     ~SocketConnection();
+    void sendReset();
 private:
     int connect_socket(std::string port);
     uint8_t* recv_buffer = nullptr;

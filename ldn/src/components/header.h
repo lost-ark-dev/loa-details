@@ -18,7 +18,7 @@ public:
    size_t time_passed = 0;
    size_t total_dmg = 0, total_dps = 0;
    Text time_passed_text, total_dps_text, total_dmg_text, version_text, boss_name;
-   Button closeOpenButton, screenshotButton, passThroughButton;
+   Button closeOpenButton, screenshotButton, passThroughButton, pauseButton;
    bool minimsed = false;
 };
 #endif

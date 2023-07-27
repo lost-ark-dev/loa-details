@@ -130,6 +130,8 @@ public:
 };
 class DataManager {
   uint64_t last_poll = 0;
+  size_t paused_for = 0;
+  size_t paused_at = 0;
   bool valid = false;
   bool paused = false;
   bool from_path = false;
@@ -142,5 +144,6 @@ public:
   bool isValid();
   void initFromPath(std::string path);
   void calculateBuffs(nlohmann::json& j);
+  bool togglePause();
 };
 #endif

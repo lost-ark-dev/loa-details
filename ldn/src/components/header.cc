@@ -26,6 +26,15 @@ Header::Header() {
   passThroughButton.setOnClick([this]() { Ldn::g_ldn->enablePassthrough(); });
   passThroughButton.text = "P";
   passThroughButton.size.x = 32 * 1.5;
+
+  pauseButton.setOnClick([this]() { if(Ldn::g_ldn->manager.togglePause())
+                                      pauseButton.text = ">";
+                                    else
+                                      pauseButton.text = "||";
+                                  });
+  pauseButton.text = "||";
+  pauseButton.scale = 0.8;
+  pauseButton.size.x = 32 * 1.5;
 }
 bool Header::canFocus() { return false; }
 void Header::onPress(RenderContext *ctx) {}
@@ -80,20 +89,24 @@ void Header::render(RenderContext *ctx) {
 
     screenshotButton.size.y = ctx->atlas->effective_atlas_height;
     screenshotButton.position.x =
-        size.x - closeOpenButton.size.x - 10 - screenshotButton.size.x;
+        size.x - closeOpenButton.size.x - 10 - screenshotButton.size.x - pauseButton.size.x;
     screenshotButton.position.y = 5;
     screenshotButton.render(ctx);
 
     passThroughButton.size.y = ctx->atlas->effective_atlas_height;
     passThroughButton.position.x = size.x - closeOpenButton.size.x - 15 -
                                    screenshotButton.size.x -
-                                   passThroughButton.size.x;
+                                   passThroughButton.size.x - pauseButton.size.x;
+    pauseButton.position.x = size.x - closeOpenButton.size.x - 5 - pauseButton.size.x;
+    pauseButton.size.y = ctx->atlas->effective_atlas_height;
     passThroughButton.position.y = 5;
+    pauseButton.position.y = 9;
     if (Ldn::g_ldn->pass_through_enabled)
       passThroughButton.text_color = vec4f(0.3, 0.85, 0.1, 1);
     else
       passThroughButton.text_color = vec4fs(1);
     passThroughButton.render(ctx);
+    pauseButton.render(ctx);
   }
 
   closeOpenButton.size.y = ctx->atlas->effective_atlas_height;

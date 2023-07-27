@@ -34,6 +34,8 @@ public:
     uint32_t window_width = 1280;
     GLFWcursor* active_cursor = nullptr;
     ImageCache image_cache;
+    SocketConnection connection;
+    DataManager manager;
     void takeScreenshot();
     void initScreenshot();
     void enablePassthrough();
@@ -44,10 +46,8 @@ public:
     bool should_take_screenshot = false;
 private:
     void run_loop();
-    SocketConnection connection;
     FontAtlas font_atlas;
     OpenGLState opengl_state;
-    DataManager manager;
     StaticData static_data;
     GLFWwindow* window = nullptr;
 

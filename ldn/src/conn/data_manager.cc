@@ -8,10 +8,10 @@
 #include <vcruntime.h>
 #include <vector>
 
+using namespace std::chrono;
 using json = nlohmann::json;
 bool DataManager::poll() {
 
-  using namespace std::chrono;
   uint64_t now =
       duration_cast<milliseconds>(system_clock::now().time_since_epoch())
           .count();
@@ -27,10 +27,12 @@ bool DataManager::poll() {
     if (root["type"] != "data") {
       std::string d = root["data"];
       std::cout << "received data: " << d << "\n";
-      if (d == "new-zone") {
+      if (d == "new-zone" || d == "reset-state") {
         DataPoint p;
         data_point = p;
         paused = false;
+        paused_at = 0;
+        paused_for = 0;
         std::cout << "unpausing zone\n";
 
       } else {
@@ -63,6 +65,8 @@ bool DataManager::poll() {
   } else if (paused) {
     point.fight_duration = data_point.fight_duration;
   }
+  if(paused_for && point.fight_duration > 0 && !paused)
+    point.fight_duration -= paused_for;
   if (raw.contains("currentBoss")) {
     json boss_entry = raw["currentBoss"];
     point.boss.current_hp = boss_entry["currentHp"];
@@ -421,4 +425,17 @@ float Player::getOrderValue(const std::string &tab) {
   if (tab == "eshield_given")
     return eShieldGivenPercentTop;
   return damagePercentTop;
+}
+bool DataManager::togglePause() {
+  paused = !paused;
+  uint64_t now =
+      duration_cast<milliseconds>(system_clock::now().time_since_epoch())
+          .count();
+  if(paused) {
+    paused_at = now;
+  } else {
+    paused_for += (now - paused_at);
+    paused_at = 0;
+  }
+  return paused;
 }

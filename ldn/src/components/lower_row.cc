@@ -9,6 +9,9 @@ LowerRow::LowerRow() {
   self_damage_buff_btn.text = "SBDMG";
   shield_given_btn.text = "SHIELD D";
   e_shield_gotten_btn.text = "ESHIELD D";
+  reset_session.text = "Reset Session";
+  reset_session.scale = 0.5;
+  reset_session.active = true;
   self_damage_buff_btn.scale = 0.5;
   damage_tab_btn.scale = 0.5;
   e_shield_gotten_btn.scale = 0.5;
@@ -36,6 +39,9 @@ LowerRow::LowerRow() {
       [this]() { set_active(&e_shield_gotten_btn, "eshield_given"); });
   self_damage_buff_btn.setOnClick(
       [this]() { set_active(&self_damage_buff_btn, "self_buff_dmg"); });
+  reset_session.setOnClick([this]() {
+      Ldn::g_ldn->connection.sendReset();
+  });
   set_active(&damage_tab_btn, "damage");
 }
 
@@ -50,11 +56,18 @@ void LowerRow::render(RenderContext *ctx) {
   shield_given_btn.size.y = size.y;
   e_shield_gotten_btn.size.y = size.y;
   self_damage_buff_btn.size.y = size.y;
+  reset_session.size.y = size.y;
 
   row.position = position;
   row.background = vec4f(0, 0, 0, 1);
   row.size = size;
+  row.size.x -= 95;
+  reset_session.position = position;
+  reset_session.size.x = 95;
+  reset_session.position.x += (size.x - 105);
+
   row.render(ctx);
+  reset_session.render(ctx);
 }
 void LowerRow::set_active(Button *btn, const std::string &name) {
   if (active_tab)

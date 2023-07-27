@@ -59,6 +59,15 @@ json SocketConnection::getLatestData() {
   blocked = false;
   return j;
 }
+void SocketConnection::sendReset(){
+  std::lock_guard<std::mutex> lk(mtx);
+  if(!connected)
+    return;
+  json j;
+  j["action"] = "reset-session";
+  std::string d = j.dump();
+  send(sockfd, d.c_str(), d.length(), 0);
+}
 void SocketConnection::connect(std::string port) {
   running = true;
   socket_thread = std::thread([this, port]() {
