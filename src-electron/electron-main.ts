@@ -386,18 +386,22 @@ const ipcFunctions: {
   },
   "enable-ldn": (   event,
     arg: { message: string; value: boolean }) => {
+    ldn.start(liveParser, appSettings, () => {
+      damageMeterWindow = createDamageMeterWindow(liveParser, appSettings);
+        if(!mainWindow)
+          mainWindow = createMainWindow(appSettings);
+        else
+          mainWindow.show()
+    })
+
     if(damageMeterWindow){
       damageMeterWindow.close();
       damageMeterWindow = null;
     }
-    if(mainWindow)
-      mainWindow.hide();
-    ldn.start(liveParser, appSettings, () => {
-      damageMeterWindow = createDamageMeterWindow(liveParser, appSettings);
-      if(mainWindow)
-        mainWindow.show();
-    })
-
+    if(mainWindow){
+      mainWindow.close();
+      mainWindow = null;
+    }
   },
   "toggle-damage-meter-minimized-state": (
     event,
@@ -490,7 +494,7 @@ ipcMain.on(
 );
 
 app.on("window-all-closed", () => {
-  if (platform !== "darwin") {
+  if (platform !== "darwin" && !ldn.started) {
     app.quit();
   }
 });

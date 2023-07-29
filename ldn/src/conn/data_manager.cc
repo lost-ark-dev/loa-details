@@ -42,7 +42,7 @@ bool DataManager::poll() {
       return true;
     }
   }
-  json raw = from_path ? loaded_json : root["data"];
+  json& raw = from_path ? loaded_json : root["data"];
   if (!raw.contains("startedOn")) {
     std::cout << "unpausing\n";
     return false;
@@ -68,13 +68,13 @@ bool DataManager::poll() {
   if(paused_for && point.fight_duration > 0 && !paused)
     point.fight_duration -= paused_for;
   if (raw.contains("currentBoss")) {
-    json boss_entry = raw["currentBoss"];
+    json& boss_entry = raw["currentBoss"];
     point.boss.current_hp = boss_entry["currentHp"];
     point.boss.max_hp = boss_entry["maxHp"];
     point.boss.id = boss_entry["id"];
     point.boss.name = boss_entry["name"];
   }
-  json damageStatistics = raw["damageStatistics"];
+  json& damageStatistics = raw["damageStatistics"];
   point.damageInfo.damageDealt = damageStatistics["totalDamageDealt"];
   point.tankInfo.damage_taken = damageStatistics["totalDamageTaken"];
   point.tankInfo.top_damage_taken = damageStatistics["topDamageTaken"];
@@ -141,9 +141,9 @@ Player::Player(json &j) {
   isEster = j.contains("isEsther") && j["isEsther"];
   if (j["isPlayer"])
     classId = j["classId"];
-  json hits_entry = j["hits"];
+  json& hits_entry = j["hits"];
   hits = Hits::parseHits(hits_entry);
-  json damageEntry = j["damageInfo"];
+  json& damageEntry = j["damageInfo"];
   damageInfo.damageDealt = damageEntry["damageDealt"];
   damageInfo.rdpsDamageReceived = damageEntry["rdpsDamageReceived"];
   damageInfo.rdpsDamageReceivedSupp = damageEntry["rdpsDamageReceivedSupp"];
