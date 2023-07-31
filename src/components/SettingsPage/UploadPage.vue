@@ -133,25 +133,19 @@
       <q-item-section left>
         <q-item-label>Discord Webhook</q-item-label>
         <q-item-label caption>
-          A Discord webhook to upload screenshots to.<br />
-          Go to your Discord channel to get one.
+          A Discord webhook URL to upload screenshots to.<br/>
+          Go to a Discord Channel's settings, then "Integrations", then
+          "Webhooks", then "New Webhook".
         </q-item-label>
       </q-item-section>
       <q-item-section right>
         <q-input
           v-model="discordWebhook"
-          :type="isPwd ? 'password' : 'text'"
+          type=text
           label="Discord Webhook URL"
           clearable
           @clear="discordWebhook = ''"
         >
-          <template v-slot:append>
-            <q-icon
-              :name="isPwd ? 'visibility_off' : 'visibility'"
-              class="cursor-pointer"
-              @click="isPwd = !isPwd"
-            />
-          </template>
         </q-input>
       </q-item-section>
     </q-item>
