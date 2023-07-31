@@ -572,7 +572,7 @@ onMounted(() => {
             pauseReason = "Wipe/Phase Clear";
           }
 
-          if (!isMinimized.value && value === "phase-transition-1") {
+          if (!isMinimized.value) {
             if (settingsStore.settings.uploads.uploadDiscord) {
               void uploadDiscordScreenshot()
             }
