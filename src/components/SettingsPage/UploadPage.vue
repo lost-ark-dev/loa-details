@@ -107,6 +107,55 @@
       </q-item-section>
     </q-item>
 
+    <q-item
+      :disable="settingsStore.settings.uploads.discordWebhook.length == 0"
+      tag="label"
+    >
+      <q-item-section side top>
+        <q-checkbox
+          v-model="settingsStore.settings.uploads.uploadDiscord"
+          :disable="settingsStore.settings.uploads.discordWebhook.length == 0"
+        />
+      </q-item-section>
+
+      <q-item-section>
+        <q-item-label>
+          Upload Screenshot to Discord
+        </q-item-label>
+        <q-item-label caption>
+          Automatically upload a screenshot of the meter to a Discord webhook
+          after each encounter.
+        </q-item-label>
+      </q-item-section>
+    </q-item>
+
+    <q-item tag="label">
+      <q-item-section left>
+        <q-item-label>Discord Webhook</q-item-label>
+        <q-item-label caption>
+          A Discord webhook to upload screenshots to.<br />
+          Go to your Discord channel to get one.
+        </q-item-label>
+      </q-item-section>
+      <q-item-section right>
+        <q-input
+          v-model="discordWebhook"
+          :type="isPwd ? 'password' : 'text'"
+          label="Discord Webhook URL"
+          clearable
+          @clear="discordWebhook = ''"
+        >
+          <template v-slot:append>
+            <q-icon
+              :name="isPwd ? 'visibility_off' : 'visibility'"
+              class="cursor-pointer"
+              @click="isPwd = !isPwd"
+            />
+          </template>
+        </q-input>
+      </q-item-section>
+    </q-item>
+
     <q-separator spaced />
 
     <q-item tag="label">
@@ -195,6 +244,7 @@ const settingsStore = useSettingsStore();
 
 const isPwd = ref(true);
 const uploadKey = ref("");
+const discordWebhook = ref("");
 const showAdvanced = ref(false);
 
 window.messageApi.receive("settings-changed", (value) => {
@@ -206,8 +256,14 @@ watch(uploadKey, (newVal, oldVal) => {
   settingsStore.settings.uploads.uploadKey = newVal;
 });
 
+watch(discordWebhook, (newVal, oldVal) => {
+  if (newVal.length == 0) settingsStore.settings.uploads.uploadDiscord = false;
+  settingsStore.settings.uploads.discordWebhook = newVal;
+});
+
 onMounted(() => {
   uploadKey.value = settingsStore.settings.uploads.uploadKey;
+  discordWebhook.value = settingsStore.settings.uploads.discordWebhook;
 });
 /**
  * @param {'api' | 'site' | 'endpoint'} type
