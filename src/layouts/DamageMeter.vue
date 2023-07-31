@@ -128,6 +128,19 @@
       </div>
       <div v-if="!isTakingScreenshot" style="margin-left: auto">
         <q-btn
+          v-if="!isMinimized && settingsStore.settings.uploads.discordWebhook.length !== 0"
+          round
+          :icon="settingsStore.settings.uploads.uploadDiscord ? 'discord' : 'discord'"
+          @click="toggleDiscordScreenshot"
+          flat
+          :glossy=settingsStore.settings.uploads.uploadDiscord
+          size="sm"
+        >
+          <q-tooltip ref="discordScreenshotTooltip">
+            Toggle Discord screenshot upload
+          </q-tooltip>
+        </q-btn>
+        <q-btn
           v-if="!isMinimized"
           round
           icon="screenshot_monitor"
@@ -299,6 +312,8 @@ import { useSettingsStore } from "src/stores/settings";
 import DamageMeterTable from "src/components/DamageMeter/DamageMeterTable.vue";
 import { DamageType } from "src/util/helpers";
 
+import axios from "axios";
+
 const logoImg = new URL("../assets/images/logo.png", import.meta.url).href;
 
 const settingsStore = useSettingsStore();
@@ -394,6 +409,53 @@ async function takeScreenshot() {
     color: "primary",
     html: true,
   });
+}
+
+function toggleDiscordScreenshot() {
+  settingsStore.settings.uploads.uploadDiscord =
+    !settingsStore.settings.uploads.uploadDiscord;
+  settingsStore.saveSettings();
+}
+
+async function uploadDiscordScreenshot() {
+  isTakingScreenshot.value = true;
+  await sleep(600);
+  if (damageMeterRef.value === null) return;
+  const screenshot = await html2canvas(damageMeterRef.value, {
+    backgroundColor: "#121212",
+  });
+
+  screenshot.toBlob(
+    (blob) => {
+      if (!blob) return;
+
+      void axios.postForm(
+        settingsStore.settings.uploads.discordWebhook,
+        {
+          "payload_json": JSON.stringify({
+            attachments: [{
+              id: 0,
+              filename: "screenshot.png",
+              content_type: "image/png",
+            }]
+          }),
+          "files[0]": blob,
+        }
+      );
+
+    },
+    "image/png",
+    1
+  );
+
+  isTakingScreenshot.value = false;
+  Notify.create({
+    message: "<center>Screenshot sent to Discord.</center>",
+    color: "primary",
+    html: true,
+  });
+
+  return "Screenshot sent to Discord."
 }
 
 function requestSessionRestart() {
@@ -510,7 +572,11 @@ onMounted(() => {
             pauseReason = "Wipe/Phase Clear";
           }
 
-          if (!isMinimized.value) {
+          if (!isMinimized.value && value === "phase-transition-1") {
+            if (settingsStore.settings.uploads.uploadDiscord) {
+              void uploadDiscordScreenshot()
+            }
+
             Notify.create({
               message: `Paused the session (${pauseReason}).`,
               color: "primary",
