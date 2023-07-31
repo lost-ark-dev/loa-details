@@ -5,7 +5,6 @@
 #include <chrono>
 #include <iostream>
 #include <string>
-#include <vcruntime.h>
 #include <vector>
 
 using namespace std::chrono;
