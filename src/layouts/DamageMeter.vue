@@ -592,7 +592,11 @@ onMounted(() => {
             pauseReason = "Wipe/Phase Clear";
           }
 
-          if (!isMinimized.value) {
+          if (!isMinimized.value && value === "phase-transition-1") {
+            if (settingsStore.settings.uploads.uploadDiscord) {
+              void uploadDiscordScreenshot()
+            }
+
             Notify.create({
               message: `Paused the session (${pauseReason}).`,
               color: "primary",
