@@ -3,7 +3,7 @@
 
 LowerRow::LowerRow() {
   damage_tab_btn.text = "Damage";
-  party_syn_btn.text = "PDBuff";
+  party_syn_btn.text = "PBDMG";
   rdps_button.text = "RDPS";
   tank_button.text = "Tank";
   self_damage_buff_btn.text = "SBDMG";
