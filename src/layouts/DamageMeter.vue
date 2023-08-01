@@ -573,7 +573,7 @@ onMounted(() => {
           }
 
           if (!isMinimized.value) {
-            if (settingsStore.settings.uploads.uploadDiscord) {
+            if (settingsStore.settings.uploads.uploadDiscord && sessionState.value.currentBoss) {
               void uploadDiscordScreenshot()
             }
 
