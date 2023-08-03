@@ -441,7 +441,8 @@ async function uploadDiscordScreenshot() {
         settingsStore.settings.uploads.discordWebhook,
         {
           "payload_json": JSON.stringify({
-            content: msg,
+            username: sessionState.value.localPlayer,
+            content: sessionState.value.currentBoss?.name || "No Boss",
             attachments: [{
               id: 0,
               filename: "screenshot.png",
@@ -593,10 +594,6 @@ onMounted(() => {
           }
 
           if (!isMinimized.value) {
-            if (settingsStore.settings.uploads.uploadDiscord && sessionState.value.currentBoss) {
-              void uploadDiscordScreenshot()
-            }
-
             Notify.create({
               message: `Paused the session (${pauseReason}).`,
               color: "primary",
