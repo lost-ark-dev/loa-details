@@ -419,7 +419,8 @@ function toggleDiscordScreenshot() {
 
 let lastScreenshotPacket = 0;
 async function uploadDiscordScreenshot() {
-  console.log(sessionState.value)
+  const oldDamageType = damageType.value;
+  damageType.value = "dmg";
   isTakingScreenshot.value = true;
   await sleep(600);
   if (damageMeterRef.value === null) return;
@@ -431,12 +432,16 @@ async function uploadDiscordScreenshot() {
     (blob) => {
       if (!blob) return;
 
+      let msg = sessionState.value.currentBoss?.name || "No Boss";
+      msg += "\n";
+      msg += "Uploaded by ";
+      msg += sessionState.value.localPlayer || "Unknown";
+
       void axios.postForm(
         settingsStore.settings.uploads.discordWebhook,
         {
           "payload_json": JSON.stringify({
-            username: sessionState.value.localPlayer,
-            content: sessionState.value.currentBoss?.name || "No Boss",
+            content: msg,
             attachments: [{
               id: 0,
               filename: "screenshot.png",
@@ -452,11 +457,22 @@ async function uploadDiscordScreenshot() {
     1
   );
 
+  damageType.value = oldDamageType;
+
   isTakingScreenshot.value = false;
   Notify.create({
     message: "<center>Screenshot sent to Discord.</center>",
     color: "primary",
     html: true,
+    actions: [
+      {
+        label: "Dismiss",
+        color: "white",
+        handler: () => {
+          /* ... */
+        },
+      },
+    ],
   });
 
   return "Screenshot sent to Discord."
