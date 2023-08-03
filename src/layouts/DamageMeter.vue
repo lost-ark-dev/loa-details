@@ -441,8 +441,7 @@ async function uploadDiscordScreenshot() {
         settingsStore.settings.uploads.discordWebhook,
         {
           "payload_json": JSON.stringify({
-            username: sessionState.value.localPlayer,
-            content: sessionState.value.currentBoss?.name || "No Boss",
+            content: msg,
             attachments: [{
               id: 0,
               filename: "screenshot.png",
