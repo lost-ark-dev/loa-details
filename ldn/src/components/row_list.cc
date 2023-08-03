@@ -15,7 +15,7 @@ void RowList::render(RenderContext *ctx) {
         row->position = position;
         row->position.y += offset;
         row->size.x = size.x;
-        row->size.y = rowHeight;
+        row->size.y = rowHeight * ctx->yscale;
         row->render(ctx);
         offset+= rowHeight;
         if(offset > size.y)

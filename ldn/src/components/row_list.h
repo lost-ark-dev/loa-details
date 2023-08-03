@@ -19,7 +19,7 @@ public:
    void updateRows(std::string identifier, std::vector<std::string> rows);
    void setOrder(std::vector<std::string> values);
    void clear();
-   float rowHeight = 35;
+   float rowHeight = 25;
 private:
     std::map<std::string, MeterRow*> rows;
     std::vector<MeterRow*> ordered;

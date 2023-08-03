@@ -2,44 +2,53 @@
 
 #include "../ldn.h"
 #include "../utils/format_utils.h"
+#include "../utils/color_util.h"
+#include "../utils/unicode_utils.h"
 #include "box.h"
 #include "text.h"
 #include <format>
 #include <iomanip>
 #include <sstream>
+#include <vector>
 
 Header::Header() {
+  background.color = ColorUtils::fromRGBA(22, 22, 22, 0.75);
   closeOpenButton.setOnClick([this]() {
     minimsed = !minimsed;
-    closeOpenButton.text = minimsed ? "+" : "-";
+    closeOpenButton.text = minimsed ? UnicodeUtils::fa_to_str(0xe145) : UnicodeUtils::fa_to_str(0xe15b);
     Ldn::g_ldn->setMinimised(minimsed);
   });
-  closeOpenButton.text = "-";
-  closeOpenButton.size.x = 32 * 1.5;
+  closeOpenButton.text = UnicodeUtils::fa_to_str(0xe15b);
   Ldn::g_ldn->button_list.push_back(&closeOpenButton);
 
   screenshotButton.setOnClick([this]() { Ldn::g_ldn->initScreenshot(); });
-  screenshotButton.text = "S";
-  screenshotButton.size.x = 32 * 1.5;
+  screenshotButton.text = UnicodeUtils::fa_to_str(0xec08);
   Ldn::g_ldn->button_list.push_back(&screenshotButton);
 
   passThroughButton.setOnClick([this]() { Ldn::g_ldn->enablePassthrough(); });
-  passThroughButton.text = "P";
-  passThroughButton.size.x = 32 * 1.5;
+  passThroughButton.text = UnicodeUtils::fa_to_str(0xf6e2);
 
   pauseButton.setOnClick([this]() { if(Ldn::g_ldn->manager.togglePause())
-                                      pauseButton.text = ">";
+                                      pauseButton.text = UnicodeUtils::fa_to_str(0xe037);
                                     else
-                                      pauseButton.text = "||";
+                                      pauseButton.text = UnicodeUtils::fa_to_str(0xe034);
                                   });
-  pauseButton.text = "||";
-  pauseButton.scale = 0.8;
-  pauseButton.size.x = 32 * 1.5;
+  pauseButton.text =  UnicodeUtils::fa_to_str(0xe034);
 }
 bool Header::canFocus() { return false; }
 void Header::onPress(RenderContext *ctx) {}
 void Header::onFocus(bool focus) {}
 void Header::render(RenderContext *ctx) {
+  for(auto* btn : (std::vector<Button*>({&closeOpenButton, &screenshotButton, &passThroughButton, &pauseButton}))) {
+    btn->size.x = 30 * ctx->xscale;
+  }
+  closeOpenButton.position.y = 7 * ctx->yscale;
+  screenshotButton.position.y = 7 * ctx->yscale;
+  pauseButton.position.y = 7 * ctx->yscale;
+  passThroughButton.position.y = 4 * ctx->yscale;
+  background.size = size;
+  background.position = position;
+  background.render(ctx);
   Vec2f render_position = position;
   render_position.x += 10;
   time_passed_text.type = "bold";
@@ -89,18 +98,16 @@ void Header::render(RenderContext *ctx) {
 
     screenshotButton.size.y = ctx->atlas->effective_atlas_height;
     screenshotButton.position.x =
-        size.x - closeOpenButton.size.x - 10 - screenshotButton.size.x - pauseButton.size.x;
-    screenshotButton.position.y = 5;
+        size.x - closeOpenButton.size.x - (1 * ctx->xscale) - screenshotButton.size.x - pauseButton.size.x;
     screenshotButton.render(ctx);
 
     passThroughButton.size.y = ctx->atlas->effective_atlas_height;
-    passThroughButton.position.x = size.x - closeOpenButton.size.x - 15 -
+    passThroughButton.position.x = size.x - closeOpenButton.size.x - (4 * ctx->xscale) -
                                    screenshotButton.size.x -
                                    passThroughButton.size.x - pauseButton.size.x;
-    pauseButton.position.x = size.x - closeOpenButton.size.x - 5 - pauseButton.size.x;
+    pauseButton.position.x = size.x - closeOpenButton.size.x - pauseButton.size.x;
     pauseButton.size.y = ctx->atlas->effective_atlas_height;
-    passThroughButton.position.y = 5;
-    pauseButton.position.y = 9;
+    pauseButton.text = (Ldn::g_ldn->manager.isPaused() ? UnicodeUtils::fa_to_str(0xe037) : UnicodeUtils::fa_to_str(0xe034));
     if (Ldn::g_ldn->pass_through_enabled)
       passThroughButton.text_color = vec4f(0.3, 0.85, 0.1, 1);
     else
@@ -110,7 +117,6 @@ void Header::render(RenderContext *ctx) {
   }
 
   closeOpenButton.size.y = ctx->atlas->effective_atlas_height;
-  closeOpenButton.position.x = size.x - closeOpenButton.size.x - 5;
-  closeOpenButton.position.y = 5;
+  closeOpenButton.position.x = size.x - closeOpenButton.size.x ;
   closeOpenButton.render(ctx);
 }

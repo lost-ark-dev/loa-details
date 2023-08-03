@@ -48,6 +48,10 @@ class UnicodeUtils {
     }
     return points;
   }
+  static std::string fa_to_str(int32_t value) {
+    std::vector<int32_t> vals = {value};
+    return unicode_to_utf8(vals);
+  }
   static std::string unicode_to_utf8(std::vector<int32_t>& in) {
     std::string out = "";
     for (int32_t cp : in) {

@@ -9,12 +9,12 @@
 
 using namespace std::chrono;
 using json = nlohmann::json;
-bool DataManager::poll() {
+bool DataManager::poll(bool force) {
 
   uint64_t now =
       duration_cast<milliseconds>(system_clock::now().time_since_epoch())
           .count();
-  if (last_poll > 0 && now - last_poll < 500 && !from_path)
+  if (last_poll > 0 && now - last_poll < 500 && !from_path && !force)
     return false;
 
   json root = connection->getLatestData();
@@ -41,14 +41,18 @@ bool DataManager::poll() {
       return true;
     }
   }
-  json& raw = from_path ? loaded_json : root["data"];
+  json &raw = from_path ? loaded_json : root["data"];
   if (!raw.contains("startedOn")) {
     std::cout << "unpausing\n";
     return false;
   }
   if (paused && !from_path &&
       data_point.fight_start_time < raw["fightStartedOn"]) {
-    std::cout << "unpausing new fight\n";
+    DataPoint p;
+    data_point = p;
+    paused = false;
+    paused_at = 0;
+    paused_for = 0;
     paused = false;
   }
 
@@ -64,16 +68,16 @@ bool DataManager::poll() {
   } else if (paused) {
     point.fight_duration = data_point.fight_duration;
   }
-  if(paused_for && point.fight_duration > 0 && !paused)
+  if (paused_for && point.fight_duration > 0 && !paused)
     point.fight_duration -= paused_for;
   if (raw.contains("currentBoss")) {
-    json& boss_entry = raw["currentBoss"];
+    json &boss_entry = raw["currentBoss"];
     point.boss.current_hp = boss_entry["currentHp"];
     point.boss.max_hp = boss_entry["maxHp"];
     point.boss.id = boss_entry["id"];
     point.boss.name = boss_entry["name"];
   }
-  json& damageStatistics = raw["damageStatistics"];
+  json &damageStatistics = raw["damageStatistics"];
   point.damageInfo.damageDealt = damageStatistics["totalDamageDealt"];
   point.tankInfo.damage_taken = damageStatistics["totalDamageTaken"];
   point.tankInfo.top_damage_taken = damageStatistics["topDamageTaken"];
@@ -140,9 +144,9 @@ Player::Player(json &j) {
   isEster = j.contains("isEsther") && j["isEsther"];
   if (j["isPlayer"])
     classId = j["classId"];
-  json& hits_entry = j["hits"];
+  json &hits_entry = j["hits"];
   hits = Hits::parseHits(hits_entry);
-  json& damageEntry = j["damageInfo"];
+  json &damageEntry = j["damageInfo"];
   damageInfo.damageDealt = damageEntry["damageDealt"];
   damageInfo.rdpsDamageReceived = damageEntry["rdpsDamageReceived"];
   damageInfo.rdpsDamageReceivedSupp = damageEntry["rdpsDamageReceivedSupp"];
@@ -177,37 +181,35 @@ std::vector<std::string> Player::getDataPoints(uint64_t time,
             FormatUtils::formatNumber(tankinfo.shield_done / secs_passed)};
   }
   if (type == "eshield_given") {
-    return {
-        FormatUtils::formatNumber(tankinfo.e_shield_done),
-        FormatUtils::format(eShieldGivenPercent * 100) + "%",
-        FormatUtils::formatNumber(tankinfo.e_shield_done / secs_passed)};
+    return {FormatUtils::formatNumber(tankinfo.e_shield_done),
+            FormatUtils::format(eShieldGivenPercent * 100) + "%",
+            FormatUtils::formatNumber(tankinfo.e_shield_done / secs_passed)};
   }
   if (type == "rdps") {
-    return {FormatUtils::formatNumber(rDps()),
-            FormatUtils::format(rDamagePercent * 100) + "%",
-            FormatUtils::formatNumber(damageInfo.rDps),
-            FormatUtils::formatNumber(damageInfo.rdpsDamageReceived),
-            FormatUtils::formatNumber(damageInfo.rdpsDamageGiven),
-            FormatUtils::formatNumber(damageInfo.rdpsDamageReceived /
-                                      secs_passed),
-            FormatUtils::formatNumber(damageInfo.rdpsDamageGiven /
-                                      secs_passed),
-            FormatUtils::format(
-                ((float)damageInfo.rdpsDamageReceived /
-                 (damageInfo.damageDealt - damageInfo.rdpsDamageReceived)) *
-                100) +
-                "%",
-            FormatUtils::format(
-                ((float)damageInfo.rdpsDamageReceivedSupp /
-                 (damageInfo.damageDealt - damageInfo.rdpsDamageReceived)) *
-                100) +
-                "%",
-            FormatUtils::format(
-                ((float)(damageInfo.rdpsDamageReceived -
-                         damageInfo.rdpsDamageReceivedSupp) /
-                 (damageInfo.damageDealt - damageInfo.rdpsDamageReceived)) *
-                100) +
-                "%"};
+    return {
+        FormatUtils::formatNumber(rDps()),
+        FormatUtils::format(rDamagePercent * 100) + "%",
+        FormatUtils::formatNumber(damageInfo.rDps),
+        FormatUtils::formatNumber(damageInfo.rdpsDamageReceived),
+        FormatUtils::formatNumber(damageInfo.rdpsDamageGiven),
+        FormatUtils::formatNumber(damageInfo.rdpsDamageReceived / secs_passed),
+        FormatUtils::formatNumber(damageInfo.rdpsDamageGiven / secs_passed),
+        FormatUtils::format(
+            ((float)damageInfo.rdpsDamageReceived /
+             (damageInfo.damageDealt - damageInfo.rdpsDamageReceived)) *
+            100) +
+            "%",
+        FormatUtils::format(
+            ((float)damageInfo.rdpsDamageReceivedSupp /
+             (damageInfo.damageDealt - damageInfo.rdpsDamageReceived)) *
+            100) +
+            "%",
+        FormatUtils::format(
+            ((float)(damageInfo.rdpsDamageReceived -
+                     damageInfo.rdpsDamageReceivedSupp) /
+             (damageInfo.damageDealt - damageInfo.rdpsDamageReceived)) *
+            100) +
+            "%"};
   }
 
   return {
@@ -256,7 +258,7 @@ std::string Player::getName(StaticData *data, bool render_name) {
   if (isEster)
     return name;
   std::string class_name = data->classes[std::to_string(classId)];
-  if(!render_name)
+  if (!render_name)
     return class_name;
   return name + " (" + class_name + ")";
 }
@@ -270,14 +272,16 @@ void DataManager::calculateBuffs(json &j) {
     std::string category = e["buffcategory"];
     size_t target_type = e["target"];
     int buff_type = e["bufftype"];
-    if ((target_type == 1 || target_type == 0) && e["category"] == "buff" && (135 & buff_type) != 0 &&
+    if ((target_type == 1 || target_type == 0) && e["category"] == "buff" &&
+        (135 & buff_type) != 0 &&
         (category == "classskill" || category == "identity" ||
          category == "ability" || category == "pet" || category == "cook" ||
          category == "battleitem" || category == "dropsofether" ||
          category == "bracelet" || category == "set")) {
 
       bool isParty = (category == "classskill" || category == "identity" ||
-                           category == "ability") && target_type == 1;
+                      category == "ability") &&
+                     target_type == 1;
       Buff buff(e);
       std::string key;
       if (isParty) {
@@ -294,7 +298,7 @@ void DataManager::calculateBuffs(json &j) {
       }
       if (isParty)
         targets[key].buffs[ee.key()] = buff;
-      else if(category != "ability")
+      else if (category != "ability")
         self_targets[key].buffs[ee.key()] = buff;
     }
   }
@@ -310,7 +314,8 @@ void DataManager::calculateBuffs(json &j) {
          category == "battleitem" || category == "dropsofether" ||
          category == "bracelet" || category == "set")) {
       bool isParty = (category == "classskill" || category == "identity" ||
-                           category == "ability") && target_type == 1;
+                      category == "ability") &&
+                     target_type == 1;
       Buff buff(e);
       std::string key;
       if (isParty) {
@@ -327,7 +332,7 @@ void DataManager::calculateBuffs(json &j) {
       }
       if (isParty)
         targets[key].buffs[ee.key()] = buff;
-      else if(category != "ability")
+      else if (category != "ability")
         self_targets[key].buffs[ee.key()] = buff;
     }
   }
@@ -357,10 +362,10 @@ std::vector<std::string> DataPoint::getBuffHeaders(int what) {
 }
 std::vector<std::vector<std::string>> DataPoint::getHeaderImages(int what) {
   std::vector<std::vector<std::string>> entries;
-  for (auto &entry : (what ==1 ? self_buffs : buffs)) {
+  for (auto &entry : (what == 1 ? self_buffs : buffs)) {
     std::vector<std::string> images;
     for (auto &buff_entry : entry.second.buffs) {
-        images.push_back(buff_entry.second.icon);
+      images.push_back(buff_entry.second.icon);
     }
     entries.push_back(images);
   }
@@ -430,11 +435,14 @@ bool DataManager::togglePause() {
   uint64_t now =
       duration_cast<milliseconds>(system_clock::now().time_since_epoch())
           .count();
-  if(paused) {
+  if (paused) {
     paused_at = now;
   } else {
     paused_for += (now - paused_at);
     paused_at = 0;
   }
+  return paused;
+}
+bool DataManager::isPaused() {
   return paused;
 }

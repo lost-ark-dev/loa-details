@@ -5,14 +5,21 @@ FontAtlas::FontAtlas() {
   valid = false;
 }
 
-FontAtlas::FontAtlas(uint32_t fontSize, std::vector<std::string> m_fonts) {
+FontAtlas::FontAtlas(uint32_t fontSize, std::vector<std::string> m_fonts, float xscale, float yscale) {
   font_size = fontSize;
+  this->xscale = xscale;
+  this->yscale = yscale;
   init();
   for (int i = 0; i < m_fonts.size(); ++i) {
     std::string type;
     if (i == 1)
       type = "bold";
-
+    else if (i >= 2){
+      if(i > 2)
+         type = "emoji_" + std::to_string(e_count++);
+      else
+         type = "emoji";
+    }
     else {
       if (i != 0) {
         type = "normal_" + std::to_string(n_count++);
@@ -66,6 +73,11 @@ RenderChar FontAtlas::render(int32_t cp,
       if (n_count > 0) {
         for (int i = 0; i < n_count; ++i) {
           order.push_back("normal_" + std::to_string(i));
+        }
+      }
+      if (e_count > 0) {
+        for (int i = 0; i < e_count; ++i) {
+          order.push_back("emoji_" + std::to_string(i));
         }
       }
       for (auto& s : order) {
@@ -134,7 +146,7 @@ FontEntry* FontAtlas::init_font(std::string path,
   }
   entry->hasColor = isColorEmojiFont(face);
   if (!entry->hasColor)
-    FT_Set_Pixel_Sizes(face, 0, font_size);
+    FT_Set_Pixel_Sizes(face, 0, font_size * this->yscale);
   else
     FT_Select_Size(face, 0);
 
@@ -336,6 +348,11 @@ float FontAtlas::getAdvance(int32_t cp, std::string type, float scale) {
       if (n_count > 0) {
         for (int i = 0; i < n_count; ++i) {
           order.push_back("normal_" + std::to_string(i));
+        }
+      }
+        if (e_count > 0) {
+        for (int i = 0; i < e_count; ++i) {
+          order.push_back("emoji_" + std::to_string(i));
         }
       }
       for (auto& s : order) {

@@ -38,12 +38,18 @@ void Ldn::run(bool should_connect, std::string path_or_port) {
   glfwSetCursorPosCallback(window, cursor_position_callback);
   opengl_state = OpenGLState(window, cwd);
 
+  float xscale, yscale;
+  glfwGetWindowContentScale(window, &xscale, &yscale);
+  window_scale_x = xscale;
+  window_scale_y = yscale;
+
+
   std::vector<std::string> fontPaths;
-  for (const auto &r : {"Roboto-Regular.ttf", "Roboto-Bold.ttf"}) {
+  for (const auto &r : {"Roboto-Regular.ttf", "Roboto-Bold.ttf", "fa-solid-900.ttf", "MaterialIcons-Regular.ttf"}) {
     std::filesystem::path p = cwd / "ldn" / "assets" / "fonts" / r;
     fontPaths.push_back(p.generic_string());
   }
-  font_atlas = FontAtlas(30, fontPaths);
+  font_atlas = FontAtlas(22, fontPaths, xscale, yscale);
 
   manager.connection = &connection;
   manager.static_data = &static_data;
@@ -64,26 +70,30 @@ void Ldn::run_loop() {
   Box header_row_fill;
   LowerRow lower_row;
   header_row_fill.color = vec4f(0, 0, 0, 1);
-  header_row_fill.size.y = font_atlas.effective_atlas_height * 0.7;
-  header_row.size.y = font_atlas.effective_atlas_height * 0.7;
-  second_header_row.size.y = font_atlas.effective_atlas_height * 0.7;
+  const float small_header = font_atlas.effective_atlas_height * 0.7;
+  const float big_header = font_atlas.effective_atlas_height * 1.4;
+  header_row_fill.size.y = small_header;
+  header_row.size.y = small_header;
+  second_header_row.size.y = small_header;
   header_row.position.y = 64;
-  second_header_row.position.y = 64 + font_atlas.effective_atlas_height * 0.7;
+  second_header_row.position.y = 64 + small_header;
   header_row_fill.position.y = 64;
   second_header_row.scale = 0.45;
-  list.position.y = 64 + font_atlas.effective_atlas_height * 0.7;
-  lower_row.size.y = 36;
+  list.position.y = 64 + small_header;
+  lower_row.size.y = font_atlas.effective_atlas_height;
   lower_row.position.x = 0;
   glViewport(0, 0, window_width, window_height);
   std::string last_tab = active_tab;
   std::vector<Row *> image_rows;
   while (!glfwWindowShouldClose(window)) {
-    glClearColor(0, 0, 0, 0.6);
+    glClearColor(80 / 255, 80 / 255, 80 /255, 0.6);
     glClear(GL_COLOR_BUFFER_BIT);
 
     opengl_state.setResolution(window_width, window_height);
     ctx.w = window_width;
     ctx.h = window_height;
+    ctx.xscale = window_scale_x;
+    ctx.yscale = window_scale_y;
 
     if (minimised || dragging_window || resizing) {
       if (!dragging_window && !resizing) {
@@ -99,19 +109,19 @@ void Ldn::run_loop() {
     }
     bool custom_header =
         active_tab == "pdbuff" || active_tab == "self_buff_dmg";
-
-    if (active_tab != last_tab) {
+    bool new_header = active_tab != last_tab;
+    if (new_header) {
       if (custom_header) {
-        list.position.y = 64 + (font_atlas.effective_atlas_height * 1.4);
-        header_row_fill.size.y = font_atlas.effective_atlas_height * 1.4;
+        list.position.y = 64 + big_header;
+        header_row_fill.size.y = big_header;
       } else {
         if (image_rows.size()) {
           for (auto *e : image_rows)
             delete e;
           image_rows.clear();
         }
-        list.position.y = 64 + (font_atlas.effective_atlas_height * 0.7);
-        header_row_fill.size.y = font_atlas.effective_atlas_height * 0.7;
+        list.position.y = 64 + small_header;
+        header_row_fill.size.y = small_header;
         if (active_tab == "damage") {
           header_row.reset();
         } else if (active_tab == "rdps") {
@@ -127,7 +137,7 @@ void Ldn::run_loop() {
       }
       last_tab = active_tab;
     }
-    if (manager.poll()) {
+    if (manager.poll(new_header)) {
       DataPoint &dp = manager.data_point;
       header.time_passed = dp.fight_duration;
       list.clear();
@@ -195,10 +205,10 @@ void Ldn::run_loop() {
     list.size.x = window_width;
     if (custom_header)
       list.size.y =
-          window_height - (64 + font_atlas.effective_atlas_height * 1.4) - 36;
+          window_height - (64 + big_header) - 36;
     else
       list.size.y =
-          window_height - (64 + font_atlas.effective_atlas_height * 0.7) - 36;
+          window_height - (64 + small_header) - 36;
 
     header_row_fill.size.x = window_width * 0.3;
     header_row.position.x = window_width * 0.3;
@@ -206,7 +216,7 @@ void Ldn::run_loop() {
     header_row.size.x = window_width * 0.7;
     second_header_row.size.x = window_width * 0.7;
     lower_row.size.x = window_width;
-    lower_row.position.y = window_height - 36;
+    lower_row.position.y = window_height - font_atlas.effective_atlas_height;
     header_row_fill.render(&ctx);
 
     header_row.render(&ctx);

@@ -8,6 +8,7 @@ struct RenderContext {
     FontAtlas* atlas;
     OpenGLState* gl_state;
     uint32_t w, h;
+    float xscale, yscale;
     Vec2f normalize(Vec2f in) {
         Vec2f a = in;
         a.x -= (float)w /2;

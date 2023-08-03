@@ -32,6 +32,7 @@ public:
     double last_mouse_x, last_mouse_y;
     uint32_t window_height = 720;
     uint32_t window_width = 1280;
+    float window_scale_x, window_scale_y = 1;
     GLFWcursor* active_cursor = nullptr;
     ImageCache image_cache;
     SocketConnection connection;

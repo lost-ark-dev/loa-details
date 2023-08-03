@@ -48,14 +48,14 @@ class FontAtlas {
   void genTexture();
   bool isColorEmojiFont(FT_Face face);
   void lazyLoadCharacter(FontEntry* entry, int32_t cp, std::string type);
-
+  float xscale, yscale;
  public:
   bool valid = false;
   int n_count = 0;
-
+  int e_count = 0;
   uint32_t font_size = 25;
   FT_UInt atlas_width, atlas_height, smallest_top, effective_atlas_height;
-  FontAtlas(uint32_t fontSize, std::vector<std::string> fonts);
+  FontAtlas(uint32_t fontSize, std::vector<std::string> fonts, float xscale, float yscale);
   FontAtlas();
   ~FontAtlas() {
     if (!valid)

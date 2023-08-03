@@ -140,10 +140,11 @@ public:
   SocketConnection *connection = nullptr;
   StaticData* static_data = nullptr;
   DataPoint data_point;
-  bool poll();
+  bool poll(bool force = false);
   bool isValid();
   void initFromPath(std::string path);
   void calculateBuffs(nlohmann::json& j);
   bool togglePause();
+  bool isPaused();
 };
 #endif

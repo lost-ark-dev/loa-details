@@ -23,9 +23,9 @@ LowerRow::LowerRow() {
   row.components.push_back(&damage_tab_btn);
   row.components.push_back(&rdps_button);
   row.components.push_back(&tank_button);
-  row.components.push_back(&party_syn_btn);
   row.components.push_back(&shield_given_btn);
   row.components.push_back(&e_shield_gotten_btn);
+  row.components.push_back(&party_syn_btn);
   row.components.push_back(&self_damage_buff_btn);
 
   damage_tab_btn.setOnClick(
@@ -61,7 +61,6 @@ void LowerRow::render(RenderContext *ctx) {
   row.position = position;
   row.background = vec4f(0, 0, 0, 1);
   row.size = size;
-  row.size.x -= 95;
   reset_session.position = position;
   reset_session.size.x = 95;
   reset_session.position.x += (size.x - 105);
