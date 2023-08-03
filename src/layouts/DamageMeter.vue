@@ -130,7 +130,7 @@
         <q-btn
           v-if="!isMinimized && settingsStore.settings.uploads.discordWebhook.length !== 0"
           round
-          :icon="settingsStore.settings.uploads.uploadDiscord ? 'discord' : 'discord'"
+          icon="discord"
           @click="toggleDiscordScreenshot"
           flat
           :glossy=settingsStore.settings.uploads.uploadDiscord
@@ -417,7 +417,9 @@ function toggleDiscordScreenshot() {
   settingsStore.saveSettings();
 }
 
+let lastScreenshotPacket = 0;
 async function uploadDiscordScreenshot() {
+  console.log(sessionState.value)
   isTakingScreenshot.value = true;
   await sleep(600);
   if (damageMeterRef.value === null) return;
@@ -433,6 +435,8 @@ async function uploadDiscordScreenshot() {
         settingsStore.settings.uploads.discordWebhook,
         {
           "payload_json": JSON.stringify({
+            username: sessionState.value.localPlayer,
+            content: sessionState.value.currentBoss?.name || "No Boss",
             attachments: [{
               id: 0,
               filename: "screenshot.png",
@@ -573,10 +577,6 @@ onMounted(() => {
           }
 
           if (!isMinimized.value) {
-            if (settingsStore.settings.uploads.uploadDiscord && sessionState.value.currentBoss) {
-              void uploadDiscordScreenshot()
-            }
-
             Notify.create({
               message: `Paused the session (${pauseReason}).`,
               color: "primary",
@@ -591,6 +591,18 @@ onMounted(() => {
               ],
             });
           }
+        }
+
+        if (
+          !isMinimized.value &&
+          settingsStore.settings.uploads.uploadDiscord &&
+          sessionState.value.currentBoss && // Only upload bosses
+          sessionState.value.lastCombatPacket !== lastScreenshotPacket && // No repeat uploads
+          sessionState.value.lastCombatPacket -
+            sessionState.value.currentBoss.lastUpdate < 3000 // Avoids uploading trash mobs
+          ) {
+            lastScreenshotPacket = sessionState.value.lastCombatPacket;
+            void uploadDiscordScreenshot()
         }
       }
     } else {
