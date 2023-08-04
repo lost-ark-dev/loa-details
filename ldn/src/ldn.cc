@@ -193,6 +193,8 @@ void Ldn::run_loop() {
       }
       if (dp.boss.name.length())
         header.boss_name.setData(dp.boss.name);
+      else
+        header.boss_name.setData("");
       header.total_dmg = dp.damageInfo.damageDealt;
       auto fight_time = dp.fight_duration / 1000;
       if (fight_time > 0)
