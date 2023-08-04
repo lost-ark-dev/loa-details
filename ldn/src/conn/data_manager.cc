@@ -379,7 +379,7 @@ Buff::Buff(json &j) {
     skill_name = j["source"]["skill"]["name"];
   }
   type = j["category"] == "debuff" ? BuffType::Debuff : BuffType::Buff;
-  setname = category_type == "set" ? j["source"]["setname"] : "";
+  setname = category_type == "set" && j["source"].contains("setname") ? j["source"]["setname"] : "Unknown";
   name = j["source"]["name"];
   description = j["source"]["desc"];
   icon = j["source"]["icon"];
