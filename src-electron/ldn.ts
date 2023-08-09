@@ -8,6 +8,8 @@ import type { Settings } from "./util/app-settings";
 import { Parser } from "meter-core/logger/parser";
 
 const executablePath = () => {
+  if(process.env.DEBUGGING)
+    return "./ldn/build_release/debug/ldn.exe";
   return "./ldn/build_release/release/ldn.exe";
 };
 function replacer(key:any, value:any) {
@@ -43,7 +45,6 @@ class Ldn {
   }
   start(liveParser: Parser, appSettings: Settings, cb: () => void): void {
     if (this.started) return;
-
     this.started = true;
     liveParser.on("state-change", (data) => this.handler(data));
     liveParser.on("message", (data: string) => {

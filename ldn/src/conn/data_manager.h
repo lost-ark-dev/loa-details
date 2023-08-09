@@ -94,6 +94,8 @@ public:
   std::string id;
   int classId;
   bool isEster = false;
+  bool isDead = false;
+  size_t gearScore = 0;
   Hits hits;
   DamageInfo damageInfo;
   TankInfo tankinfo;

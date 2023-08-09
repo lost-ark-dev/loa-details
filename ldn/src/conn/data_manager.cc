@@ -141,6 +141,8 @@ Player::Player() {}
 Player::Player(json &j) {
   name = j["name"];
   id = j["id"];
+  isDead = j["isDead"];
+  gearScore = j["gearScore"];
   isEster = j.contains("isEsther") && j["isEsther"];
   if (j["isPlayer"])
     classId = j["classId"];
@@ -260,6 +262,8 @@ std::string Player::getName(StaticData *data, bool render_name) {
   std::string class_name = data->classes[std::to_string(classId)];
   if (!render_name)
     return class_name;
+  if(gearScore)
+    return name + " (" + std::to_string(gearScore) + " " + class_name + ")";
   return name + " (" + class_name + ")";
 }
 void DataManager::calculateBuffs(json &j) {
@@ -444,5 +448,5 @@ bool DataManager::togglePause() {
   return paused;
 }
 bool DataManager::isPaused() {
-  return paused;
+return paused;
 }
