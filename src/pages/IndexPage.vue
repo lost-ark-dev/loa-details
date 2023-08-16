@@ -60,6 +60,10 @@
       </p>
 
       <h5>Changelog</h5>
+      <h6 id="1-4-7">1.4.7</h6>
+      <ul>
+        <li>Support for Game update - 16/08/2023 - Aeromancer</li>
+      </ul>
       <h6 id="1-4-6">1.4.6</h6>
       <ul>
         <li>Fix issue with summons</li>
