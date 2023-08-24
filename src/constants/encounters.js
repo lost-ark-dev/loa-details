@@ -348,4 +348,10 @@ export const encounters = {
     ).href,
     encounterNames: ["Kungelanium", "Kungelanium+"],
   },
+  Sonavel: {
+    name: "Sonavel",
+    image: new URL("../assets/images/encounters/sonavel.png", import.meta.url)
+      .href,
+    encounterNames: ["Sonavel", "Sonavel+"],
+  },
 };
