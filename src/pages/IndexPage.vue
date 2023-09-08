@@ -60,6 +60,13 @@
       </p>
 
       <h5>Changelog</h5>
+      <h6 id="1-4-8">1.4.8</h6>
+      <ul>
+        <li>
+          Fix some skills not tracked properly (traps), including Sorceress
+          Frost Call with Rule enhancement
+        </li>
+      </ul>
       <h6 id="1-4-7">1.4.7</h6>
       <ul>
         <li>Support for Game update - 16/08/2023 - Aeromancer</li>
