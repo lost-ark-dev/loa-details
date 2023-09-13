@@ -60,6 +60,10 @@
       </p>
 
       <h5>Changelog</h5>
+      <h6 id="1-4-9">1.4.9</h6>
+      <ul>
+        <li>Support for Game update - 13/09/2023 - Jump for the endgame</li>
+      </ul>
       <h6 id="1-4-8">1.4.8</h6>
       <ul>
         <li>
