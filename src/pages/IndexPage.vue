@@ -62,6 +62,10 @@
       <h5>Changelog</h5>
       <h6 id="1-4-11">1.4.11</h6>
       <ul>
+        <li>Fix invalid projectileId</li>
+      </ul>
+      <h6 id="1-4-11">1.4.11</h6>
+      <ul>
         <li>Game update - 13/09/2023 - Round 2</li>
       </ul>
       <h6 id="1-4-10">1.4.10</h6>
