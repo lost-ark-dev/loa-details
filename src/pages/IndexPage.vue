@@ -60,7 +60,19 @@
       </p>
 
       <h5>Changelog</h5>
-      <h6 id="1-4-11">1.4.11</h6>
+      <h6 id="1-4-15">1.4.15</h6>
+      <ul>
+        <li>Fix counter tracking not working correctly</li>
+      </ul>
+      <h6 id="1-4-14">1.4.14</h6>
+      <ul>
+        <li>Support for game update - 11/10/2023 (Monster Bash)</li>
+      </ul>
+      <h6 id="1-4-13">1.4.13</h6>
+      <ul>
+        <li>Support for game update - 20/09/2023 (Weekly maintenance)</li>
+      </ul>
+      <h6 id="1-4-12">1.4.12</h6>
       <ul>
         <li>Fix invalid projectileId</li>
       </ul>
