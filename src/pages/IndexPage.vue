@@ -60,6 +60,10 @@
       </p>
 
       <h5>Changelog</h5>
+      <h6 id="1-4-16">1.4.16</h6>
+      <ul>
+        <li>Support for game update - 25/10/2023 (Chaos Gate)</li>
+      </ul>
       <h6 id="1-4-15">1.4.15</h6>
       <ul>
         <li>Fix counter tracking not working correctly</li>
