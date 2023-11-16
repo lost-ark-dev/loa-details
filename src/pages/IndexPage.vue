@@ -60,6 +60,14 @@
       </p>
 
       <h5>Changelog</h5>
+      <h6 id="1-4-18">1.4.18</h6>
+      <ul>
+        <li>Fix slayer icon</li>
+        <li>
+          Fix missing self buff for Souleater (may result in some other buffs
+          showing, lemme know if you see buffs that shouldn't be there)
+        </li>
+      </ul>
       <h6 id="1-4-17">1.4.17</h6>
       <ul>
         <li>Support for game update - 15/11/2023 (Soul Eater)</li>
