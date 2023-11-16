@@ -43,6 +43,7 @@ export const getClassIdFromName = (name: string): number => {
     Deathblade: 402,
     Shadowhunter: 403,
     Reaper: 404,
+    Souleater: 405,
     Sharpshooter: 502,
     Deadeye: 503,
     Artillerist: 504,

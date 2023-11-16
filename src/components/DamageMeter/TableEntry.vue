@@ -569,10 +569,10 @@ function getClassImage(classId: number, override: string | undefined) {
   }
   if (classId in PCData)
     return new URL(
-      `../../assets/images/classes/${classId}.png`,
+      `../../assets/images/classes/${classId}.svg`,
       import.meta.url
     ).href;
 
-  return new URL("../../assets/images/classes/101.png", import.meta.url).href;
+  return new URL("../../assets/images/classes/101.svg", import.meta.url).href;
 }
 </script>
