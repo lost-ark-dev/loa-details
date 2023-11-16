@@ -97,33 +97,22 @@ export function getBuffPercent(
   let totalPercent = 0;
   columnData.forEach((statusEffect, id) => {
     let val = 0;
-    if (statusEffect.category === "buff" && damageType.includes("dmg")) {
-      // Buff dmg
+    if (damageType.includes("dmg")) {
+      // (de)Buff dmg
       val =
-        ((data.damageDealtBuffedBy.get(id) ?? 0) /
+        ((data.damageDealtBuffedBy.get(id) ??
+          data.damageDealtDebuffedBy.get(id) ??
+          0) /
           data.damageInfo.damageDealt) *
         100;
-    } else if (statusEffect.category === "buff" && damageType.includes("hit")) {
-      // Buff hits
-
-      val = ((data.hits.hitsBuffedBy.get(id) ?? 0) / data.hits.total) * 100;
-    } else if (
-      statusEffect.category === "debuff" &&
-      damageType.includes("dmg")
-    ) {
-      // Debuff dmg
-
+    } else if (damageType.includes("hit")) {
+      // (de)Buff hits
       val =
-        ((data.damageDealtDebuffedBy.get(id) ?? 0) /
-          data.damageInfo.damageDealt) *
+        ((data.hits.hitsBuffedBy.get(id) ??
+          data.hits.hitsDebuffedBy.get(id) ??
+          0) /
+          data.hits.total) *
         100;
-    } else if (
-      statusEffect.category === "debuff" &&
-      damageType.includes("hit")
-    ) {
-      // Debuff hits
-
-      val = ((data.hits.hitsDebuffedBy.get(id) ?? 0) / data.hits.total) * 100;
     }
     totalPercent += val;
     ret.set(id, val);

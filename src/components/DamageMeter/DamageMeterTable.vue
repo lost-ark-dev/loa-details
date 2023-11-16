@@ -1183,7 +1183,7 @@ const sortedBuffs: ComputedRef<Map<string, Map<number, StatusEffect>>> =
     //["other_buff_dmg", "other_buff_hit"].includes(damageType)
     const statusEffects: Map<string, Map<number, StatusEffect>> = new Map();
     props.sessionState.damageStatistics.debuffs.forEach((debuff, id) => {
-      if (debuff.category === "debuff") {
+      /*if (debuff.category === "debuff")*/ {
         filterStatusEffects(
           debuff,
           id,
@@ -1194,7 +1194,7 @@ const sortedBuffs: ComputedRef<Map<string, Map<number, StatusEffect>>> =
       }
     });
     props.sessionState.damageStatistics.buffs.forEach((buff, id) => {
-      if (buff.category === "buff") {
+      /*if (buff.category === "buff")*/ {
         filterStatusEffects(
           buff,
           id,
