@@ -60,6 +60,10 @@
       </p>
 
       <h5>Changelog</h5>
+      <h6 id="1-4-19">1.4.19</h6>
+      <ul>
+        <li>Support for game update - 13/12/2023 (Voldis)</li>
+      </ul>
       <h6 id="1-4-18">1.4.18</h6>
       <ul>
         <li>Fix slayer icon</li>
