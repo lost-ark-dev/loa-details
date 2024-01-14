@@ -60,6 +60,13 @@
       </p>
 
       <h5>Changelog</h5>
+      <h6 id="1-4-21">1.4.21</h6>
+      <ul>
+        <li>
+          Fix shared damage not being excluded from live view (g1 valtan, g3
+          kyangel, ?)
+        </li>
+      </ul>
       <h6 id="1-4-20">1.4.20</h6>
       <ul>
         <li>Support for game update - 10/01/2024 (Brel Hell)</li>
