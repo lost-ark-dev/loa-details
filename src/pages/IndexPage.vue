@@ -60,6 +60,20 @@
       </p>
 
       <h5>Changelog</h5>
+      <h6 id="1-4-23">1.4.23</h6>
+      <ul>
+        <li>
+          Modified the buff tracking behaviour for player outside a party (or
+          unknown party status) by @Henjuro
+        </li>
+        <li>Fixed OBHit to allow skill breakdown view</li>
+        <li>Add clear status & dificulty to the log view</li>
+        <li>Fix html parsing for buff names (ex: pets)</li>
+      </ul>
+      <h6 id="1-4-22">1.4.22</h6>
+      <ul>
+        <li>Add (new) glaivier synergy to rdps</li>
+      </ul>
       <h6 id="1-4-21">1.4.21</h6>
       <ul>
         <li>

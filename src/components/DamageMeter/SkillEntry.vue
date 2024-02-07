@@ -237,8 +237,7 @@
           (damageType === 'other_buff_dmg' &&
             settingsStore.settings.damageMeter.tabs.dOtherBuff.enabled) ||
           (damageType === 'other_buff_hit' &&
-            settingsStore.settings.damageMeter.tabs.dParhOtherBufftyBuff
-              .enabled)
+            settingsStore.settings.damageMeter.tabs.hOtherBuff.enabled)
         "
       >
         <td
