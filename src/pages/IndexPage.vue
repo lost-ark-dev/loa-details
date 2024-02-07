@@ -62,6 +62,7 @@
       <h5>Changelog</h5>
       <h6 id="1-4-23">1.4.23</h6>
       <ul>
+        <li>Support for game update - 07/02/2024 (Valtan Extreme)</li>
         <li>
           Modified the buff tracking behaviour for player outside a party (or
           unknown party status) by @Henjuro
