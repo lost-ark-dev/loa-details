@@ -3,8 +3,15 @@
     <div class="info-box">
       <div class="flex" v-if="logData">
         <span style="margin-right: 12px">
+          [
+          {{
+            logData.zoneLevel.charAt(0).toUpperCase() +
+            logData.zoneLevel.slice(1)
+          }}
+          ] -
           {{ logData.mostDamageTakenEntity.name }}
-          ({{ millisToMinutesAndSeconds(logData.duration) }})
+          ({{ millisToMinutesAndSeconds(logData.duration) }} -
+          {{ logData.killState ? "Kill" : "Wipe" }})
         </span>
         <span style="margin-right: 12px">
           Total DMG

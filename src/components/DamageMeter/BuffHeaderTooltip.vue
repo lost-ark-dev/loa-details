@@ -9,7 +9,8 @@
       >{{ getClassName(buff?.source.skill?.classid) }}:
       <img :src="getIconPath(buff?.source.skill?.icon)" />
       {{ buff?.source.skill?.name }} (
-      <img :src="getIconPath(buff?.source.icon)" /> {{ buff?.source.name }}:
+      <img :src="getIconPath(buff?.source.icon)" />
+      <span v-html="buff?.source.name"></span>:
       <span v-html="buff?.source.desc"></span>)
     </q-tooltip>
   </template>
@@ -19,7 +20,8 @@
       anchor="top middle"
       self="bottom middle"
     >
-      <img :src="getIconPath(buff?.source.icon)" /> {{ buff?.source.name }}:
+      <img :src="getIconPath(buff?.source.icon)" />
+      <span v-html="buff?.source.name"></span>:
       <span v-html="buff?.source.desc"></span>
     </q-tooltip>
   </template>
