@@ -60,6 +60,10 @@
       </p>
 
       <h5>Changelog</h5>
+      <h6 id="1-4-24">1.4.24</h6>
+      <ul>
+        <li>Fixed old logs not opening because of ZoneLevel</li>
+      </ul>
       <h6 id="1-4-23">1.4.23</h6>
       <ul>
         <li>Support for game update - 07/02/2024 (Valtan Extreme)</li>
