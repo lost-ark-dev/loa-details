@@ -4,10 +4,9 @@
       <div class="flex" v-if="logData">
         <span style="margin-right: 12px">
           [
-          {{
-            logData.zoneLevel.charAt(0).toUpperCase() +
-            logData.zoneLevel.slice(1)
-          }}
+          <span style="text-transform: capitalize">
+            {{ logData.zoneLevel }}
+          </span>
           ] -
           {{ logData.mostDamageTakenEntity.name }}
           ({{ millisToMinutesAndSeconds(logData.duration) }} -

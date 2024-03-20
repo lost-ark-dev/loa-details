@@ -18,6 +18,7 @@ export const classes = {
   Glaivier: { color: "#f6da6a", defaultColor: "#f6da6a" }, // 305
   "Martial Artist (Male)": { color: "#000000", defaultColor: "#000000" }, // 311
   Striker: { color: "#994499", defaultColor: "#994499" }, // 312
+  Breaker: { color: "#f0e2b7", defaultColor: "#f0e2b7" }, // 312
   Assassin: { color: "#000000", defaultColor: "#000000" }, // 401
   Deathblade: { color: "#a91a16", defaultColor: "#a91a16" }, // 402
   Shadowhunter: { color: "#0099c6", defaultColor: "#0099c6" }, // 403
