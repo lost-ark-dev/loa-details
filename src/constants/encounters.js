@@ -110,28 +110,16 @@ export const encounters = {
     name: "Brelshaza Gate 2",
     image: new URL("../assets/images/encounters/Brelshaza.png", import.meta.url)
       .href,
-    encounterNames: ["Prokel's Spiritual Echo", "Prokel"],
+    encounterNames: ["Ashtarot"],
   },
   BrelshazaG3: {
     name: "Brelshaza Gate 3",
     image: new URL("../assets/images/encounters/Brelshaza.png", import.meta.url)
       .href,
-    encounterNames: ["Ashtarot"],
+    encounterNames: ["Primordial Nightmare"],
   },
   BrelshazaG4: {
     name: "Brelshaza Gate 4",
-    image: new URL("../assets/images/encounters/Brelshaza.png", import.meta.url)
-      .href,
-    encounterNames: ["Primordial Nightmare"],
-  },
-  BrelshazaG5: {
-    name: "Brelshaza Gate 5",
-    image: new URL("../assets/images/encounters/Brelshaza.png", import.meta.url)
-      .href,
-    encounterNames: ["Brelshaza, Monarch of Nightmares"],
-  },
-  BrelshazaG6: {
-    name: "Brelshaza Gate 6",
     image: new URL("../assets/images/encounters/Brelshaza.png", import.meta.url)
       .href,
     encounterNames: ["Phantom Legion Commander Brelshaza"],
