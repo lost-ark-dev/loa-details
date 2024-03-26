@@ -43,6 +43,8 @@ import {
 import { adminRelauncher, PktCaptureMode } from "meter-core/pkt-capture";
 import { Parser } from "meter-core/logger/parser";
 import { Settings } from "./util/app-settings";
+import Ldn from "./ldn"
+
 
 if (app.commandLine.hasSwitch("disable-hardware-acceleration")) {
   log.info("Hardware acceleration disabled");
@@ -57,6 +59,7 @@ console.info = log.info.bind(log);
 // We keep log/debug for console only
 
 const store = new Store();
+const ldn:Ldn = new Ldn();
 
 let prelauncherWindow: BrowserWindow | null,
   mainWindow: BrowserWindow | null,
@@ -381,6 +384,25 @@ const ipcFunctions: {
     store.set("windows.damage_meter.X", 0);
     store.set("windows.damage_meter.Y", 0);
   },
+  "enable-ldn": (   event,
+    arg: { message: string; value: boolean }) => {
+    ldn.start(liveParser, appSettings, () => {
+      damageMeterWindow = createDamageMeterWindow(liveParser, appSettings);
+        if(!mainWindow)
+          mainWindow = createMainWindow(appSettings);
+        else
+          mainWindow.show()
+    })
+
+    if(damageMeterWindow){
+      damageMeterWindow.close();
+      damageMeterWindow = null;
+    }
+    if(mainWindow){
+      mainWindow.close();
+      mainWindow = null;
+    }
+  },
   "toggle-damage-meter-minimized-state": (
     event,
     arg: { message: string; value: boolean }
@@ -472,7 +494,7 @@ ipcMain.on(
 );
 
 app.on("window-all-closed", () => {
-  if (platform !== "darwin") {
+  if (platform !== "darwin" && !ldn.started) {
     app.quit();
   }
 });
@@ -483,7 +505,8 @@ app.on("activate", () => {
   }
 });
 
-process.on("uncaughtException", () => {
+process.on("uncaughtException", (error) => {
+  console.log(error)
   log.error(console.trace("stack"));
 });
 

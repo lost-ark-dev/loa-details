@@ -1,3 +1,21 @@
 [submodule "meter-data"]
 	path = meter-data
 	url = https://github.com/lost-ark-dev/meter-data
+[submodule "ldn/third-party/glfw"]
+	path = ldn/third-party/glfw
+	url = https://github.com/glfw/glfw
+[submodule "ldn/third-party/png"]
+	path = ldn/third-party/png
+	url = https://github.com/lvandeve/lodepng
+[submodule "ldn/third-party/freetype2"]
+	path = ldn/third-party/freetype2
+	url = https://gitlab.freedesktop.org/freetype/freetype.git
+[submodule "ldn/third-party/zlib"]
+	path = ldn/third-party/zlib
+	url = https://github.com/madler/zlib.git
+[submodule "ldn/third-party/json"]
+	path = ldn/third-party/json
+	url = https://github.com/nlohmann/json
+[submodule "ldn/third-party/libwebp"]
+	path = ldn/third-party/libwebp
+	url = https://chromium.googlesource.com/webm/libwebp.git

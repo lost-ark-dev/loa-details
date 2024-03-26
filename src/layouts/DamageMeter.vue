@@ -152,6 +152,18 @@
         <q-btn
           v-if="!isMinimized"
           round
+          icon="fa-solid fa-gauge"
+          @click="enableLdn"
+          flat
+          size="sm"
+        >
+          <q-tooltip ref="clickthroughTooltip">
+            Enable LDN
+          </q-tooltip>
+        </q-btn>
+        <q-btn
+          v-if="!isMinimized"
+          round
           :icon="isFightPaused ? 'play_arrow' : 'pause'"
           @click="toggleFightPause"
           flat
@@ -317,6 +329,12 @@ function toggleMinimizedState() {
 }
 
 const clickthroughTooltip = ref(null);
+function enableLdn() {
+    window.messageApi.send("window-to-main", {
+    message: "enable-ldn",
+    value: true,
+  });
+}
 function enableClickthrough() {
   window.windowControlApi.setIgnoreMouseEvents(true, {});
 

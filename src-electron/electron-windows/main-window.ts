@@ -51,7 +51,6 @@ export function createMainWindow(appSettings: Settings) {
 
   mainWindow.on("closed", () => {
     mainWindow = null;
-    app.quit();
   });
 
   return mainWindow;
