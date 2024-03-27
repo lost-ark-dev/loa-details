@@ -102,7 +102,7 @@ let rawSocket = appSettings?.general?.useRawSocket;
 let port = appSettings?.general?.listenPort ?? 6040;
 if (appSettings?.general?.exitlagAutoport) {
   const commandRet = execSync(
-    "powershell -Command \"& {$exitlagProcess = Get-Process | Where-Object { $_.ProcessName -eq 'exitlag' }; if ($exitlagProcess) { $netstatResult = Get-NetTCPConnection | Where-Object { $_.OwningProcess -eq $exitlagProcess.Id -and $_.LocalAddress -eq '127.0.0.1' -and $_.State -eq 'Listen' }; if ($netstatResult) { $port = $netstatResult.LocalPort; Write-Output ^\"$port^\" } else { Write-Output 'Port not found' } } else { Write-Output 'Process not found' }}",
+    "powershell -Command \"& {$exitlagProcess = Get-Process | Where-Object { $_.ProcessName -eq 'exitlag' }; if ($exitlagProcess) { $netstatResult = Get-NetTCPConnection | Where-Object { $_.OwningProcess -eq $exitlagProcess.Id -and $_.LocalAddress -eq '127.0.0.1' -and $_.State -eq 'Listen' }; if ($netstatResult) { $port = $netstatResult.LocalPort; Write-Output \"$port\" } else { Write-Output 'Port not found' } } else { Write-Output 'Process not found' }}\"",
     { encoding: "utf-8" }
   );
   console.info(
