@@ -61,6 +61,7 @@ export type Settings = {
     customLogPath: string | null;
     useRawSocket: boolean;
     listenPort: number;
+    exitlagAutoport: boolean;
   };
   shortcuts: {
     minimizeDamageMeter: {
@@ -154,6 +155,7 @@ const defaultSettings: Settings = {
     customLogPath: null,
     useRawSocket: false,
     listenPort: 6040,
+    exitlagAutoport: false,
   },
   shortcuts: {
     minimizeDamageMeter: {

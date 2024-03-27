@@ -60,6 +60,19 @@
       </p>
 
       <h5>Changelog</h5>
+      <h6 id="1-4-26">1.4.26</h6>
+      <ul>
+        <li>Support for game update - 27/03/2024 (Weekly maintenance)</li>
+        <li>
+          New setting for ExitLag users: "Exitlag auto port" -> Use this along
+          with WFP, (raw socket will be turned ignored). This is the prefered
+          mode for exitlag
+        </li>
+      </ul>
+      <h6 id="1-4-25">1.4.25</h6>
+      <ul>
+        <li>Support for game update - 20/03/2024 (Breaker class)</li>
+      </ul>
       <h6 id="1-4-24">1.4.24</h6>
       <ul>
         <li>Fixed old logs not opening because of ZoneLevel</li>
