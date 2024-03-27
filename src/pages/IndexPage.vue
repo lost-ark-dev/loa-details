@@ -60,6 +60,10 @@
       </p>
 
       <h5>Changelog</h5>
+      <h6 id="1-4-27">1.4.27</h6>
+      <ul>
+        <li>Exitlag autoport fix</li>
+      </ul>
       <h6 id="1-4-26">1.4.26</h6>
       <ul>
         <li>Support for game update - 27/03/2024 (Weekly maintenance)</li>
