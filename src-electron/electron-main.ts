@@ -43,6 +43,7 @@ import {
 import { adminRelauncher, PktCaptureMode } from "meter-core/pkt-capture";
 import { Parser } from "meter-core/logger/parser";
 import { Settings } from "./util/app-settings";
+import { execSync } from "child_process";
 
 if (app.commandLine.hasSwitch("disable-hardware-acceleration")) {
   log.info("Hardware acceleration disabled");
@@ -97,11 +98,28 @@ const filename =
   ".raw";
 const meterData = InitMeterData();
 let liveParser: Parser;
+let rawSocket = appSettings?.general?.useRawSocket;
+let port = appSettings?.general?.listenPort ?? 6040;
+if (appSettings?.general?.exitlagAutoport) {
+  const commandRet = execSync(
+    "powershell -Command \"& {$exitlagProcess = Get-Process | Where-Object { $_.ProcessName -eq 'exitlag' }; if ($exitlagProcess) { $netstatResult = Get-NetTCPConnection | Where-Object { $_.OwningProcess -eq $exitlagProcess.Id -and $_.LocalAddress -eq '127.0.0.1' -and $_.State -eq 'Listen' }; if ($netstatResult) { $port = $netstatResult.LocalPort; Write-Output ^\"$port^\" } else { Write-Output 'Port not found' } } else { Write-Output 'Process not found' }}",
+    { encoding: "utf-8" }
+  );
+  console.info(
+    `[electron-main] - Tried to find exitlag port with result: ${commandRet}`
+  );
+  if (!isNaN(Number(commandRet))) {
+    rawSocket = false;
+    port = Number(commandRet);
+    console.info(`[electron-main] - Force listening to port=${port}`);
+  }
+}
+
 try {
   liveParser = InitLogger(
     meterData,
-    appSettings?.general?.useRawSocket,
-    appSettings?.general?.listenPort ?? 6040,
+    rawSocket,
+    port,
     filename,
     appSettings.clientId,
     {
@@ -121,9 +139,7 @@ appSettings.appVersion = app.getVersion();
 
 //We relaunch admin as early as possible to be smoother, as -relaunch parameter is set, admin won't be checked again later on
 adminRelauncher(
-  appSettings.general.useRawSocket
-    ? PktCaptureMode.MODE_RAW_SOCKET
-    : PktCaptureMode.MODE_PCAP
+  rawSocket ? PktCaptureMode.MODE_RAW_SOCKET : PktCaptureMode.MODE_PCAP
 );
 //Note: relauncher doesn't work in dev mode, consider starting as admin
 //TODO: disable when in dev ?
@@ -331,7 +347,10 @@ const ipcFunctions: {
     });
 
     damageMeterWindow?.setOpacity(appSettings.damageMeter.design.opacity);
-    damageMeterWindow?.setAlwaysOnTop(appSettings.damageMeter.design.alwaysOnTop, "normal");
+    damageMeterWindow?.setAlwaysOnTop(
+      appSettings.damageMeter.design.alwaysOnTop,
+      "normal"
+    );
   },
   "get-settings": (event) => {
     event.reply("on-settings-change", appSettings);

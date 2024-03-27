@@ -18,6 +18,7 @@ export const useSettingsStore = defineStore("settings", {
         customLogPath: null,
         useRawSocket: false,
         listenPort: 6040,
+        exitlagAutoport: false,
       },
       shortcuts: {
         minimizeDamageMeter: {

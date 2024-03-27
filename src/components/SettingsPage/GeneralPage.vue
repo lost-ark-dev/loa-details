@@ -94,6 +94,19 @@
         </q-item-label>
       </q-item-section>
     </q-item>
+    <q-item tag="label">
+      <q-item-section side top>
+        <q-checkbox v-model="settingsStore.settings.general.exitlagAutoport" />
+      </q-item-section>
+
+      <q-item-section>
+        <q-item-label>Exitlag auto port</q-item-label>
+        <q-item-label caption>
+          When turned on, will allow exitlag WFP to be captured. Exitlag has to
+          be connected before meter start, settings change require restart.
+        </q-item-label>
+      </q-item-section>
+    </q-item>
     <!--
     <q-item tag="label">
       <q-item-section side top>
