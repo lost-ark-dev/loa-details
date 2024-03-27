@@ -365,7 +365,7 @@ const ipcFunctions: {
     );
   },
   "get-parsed-logs": async (event) => {
-    const parsedLogs = await getParsedLogs();
+    const parsedLogs = await getParsedLogs(event);
     await event.reply("parsed-logs-list", parsedLogs);
   },
   "get-parsed-log": async (event, arg: { message: string; value: string }) => {

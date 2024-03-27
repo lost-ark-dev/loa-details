@@ -20,7 +20,7 @@
         <span>
           {{
             logViewerStore.viewerState === "loading"
-              ? "Parsing logs"
+              ? logViewerStore.loadingMessage
               : "No data found"
           }}
         </span>
@@ -60,23 +60,27 @@
           <q-select
             v-if="logViewerStore.viewerState === 'none'"
             filled
+            use-input
             v-model="logViewerStore.logfileFilter"
             @update:model-value="computedLogFileList()"
             multiple
             clearable
-            :options="logViewerStore.encounterOptions"
+            :options="logViewerStore.encounterOptionsFiltered"
             label="Filter encounters"
+            @filter="filterEncounterOptions"
             style="width: 256px"
           />
 
           <q-select
             v-if="logViewerStore.viewerState === 'viewing-session'"
             filled
+            use-input
             v-model="logViewerStore.encounterFilter"
             @update:model-value="calculateEncounterRows()"
             multiple
             clearable
-            :options="logViewerStore.encounterOptions"
+            :options="logViewerStore.encounterOptionsFiltered"
+            @filter="filterEncounterOptions"
             label="Filter encounters"
             style="width: 256px"
           />
@@ -166,7 +170,7 @@
 
             <q-timeline-entry
               v-for="encounter in encounterRows"
-              :key="encounter.encounterName"
+              :key="encounter.startingMs"
               :title="
                 encounter.encounterName +
                 ' | ' +
@@ -239,6 +243,7 @@ import {
   type SessionInfo,
   type SessionData,
   useLogViewerStore,
+  SessionPlayerInfo,
 } from "src/stores/log-viewer";
 import type {
   GameStateFile,
@@ -250,6 +255,7 @@ import { encounters } from "src/constants/encounters";
 
 import relativeTime from "dayjs/plugin/relativeTime";
 import { QScrollArea, QTableProps } from "quasar";
+import { getClassName } from "src/util/helpers";
 dayjs.extend(relativeTime);
 type RowData = {
   encounterName: string;
@@ -270,6 +276,11 @@ const verticalScrollArea: Ref<QScrollArea | undefined> = ref(undefined);
 const horizontalScrollAreas: Ref<QScrollArea[]> = ref([]);
 
 async function changeLogViewerStoreState(newState: ViewerState) {
+  // set encounter options if we are going to session view
+  if (newState === "none") {
+    logViewerStore.encounterOptions =
+      logViewerStore.encounterOptionsSessionView;
+  }
   if (verticalScrollArea.value)
     verticalScrollOffsets[logViewerStore.viewerState] =
       verticalScrollArea.value.getScroll().verticalPosition; //Save previous position
@@ -346,15 +357,26 @@ const sessionPagination: Ref<QTableProps["pagination"]> = ref({
 function onSessionPagination(newPagination: QTableProps["pagination"]) {
   sessionPagination.value = newPagination;
 }
-function onSessionRowClick(event: Event, row: SessionInfo) {
+function onSessionRowClick(_event: Event, row: SessionInfo) {
   void changeLogViewerStoreState("viewing-session");
 
   logViewerStore.currentSessionName = row.filename;
 
-  logViewerStore.encounterOptions = [];
-  logViewerStore.encounterFilter.length = 0;
-
+  const encounterOptions: Set<string> = new Set();
   row.sessionEncounters.forEach((encounter) => {
+    for (const keyword of encounter.searchWords.keys()) {
+      encounterOptions.add(keyword);
+    }
+  });
+  logViewerStore.encounterOptions = Array.from(encounterOptions);
+  logViewerStore.encounterFilter = [...logViewerStore.logfileFilter];
+
+  // TODO: this should use a HashSet probably
+  /*
+  // we do not need this anymore
+  row.sessionEncounters.forEach((encounter) => {
+
+
     let encounterName = encounter.encounterName;
     Object.values(encounters).forEach((encounter) => {
       if (encounter.encounterNames.includes(encounterName)) {
@@ -367,7 +389,14 @@ function onSessionRowClick(event: Event, row: SessionInfo) {
     if (!logViewerStore.encounterOptions.includes(encounterName)) {
       logViewerStore.encounterOptions.push(encounterName);
     }
+
+    for (const playerInfo of encounter.playerInfos) {
+      if (!logViewerStore.encounterOptions.includes(playerInfo.name)) {
+        logViewerStore.encounterOptions.push(playerInfo.name);
+      }
+    }
   });
+  */
 
   logViewerStore.encounterOptions.sort();
   calculateEncounterRows();
@@ -375,6 +404,11 @@ function onSessionRowClick(event: Event, row: SessionInfo) {
 
 function calculateEncounterRows() {
   const rows: RowData[] = [];
+  // this happens when someone presses the clear button
+  // we can not use clear event because it happens after model-value update
+  if (logViewerStore.encounterFilter === null) {
+    logViewerStore.encounterFilter = [];
+  }
 
   logViewerStore.sessions.forEach((session) => {
     if (session.filename === logViewerStore.currentSessionName) {
@@ -393,20 +427,18 @@ function calculateEncounterRows() {
         }
 
         let encounterName = encounter.encounterName;
-        let image = "";
 
-        Object.values(encounters).forEach((encounter) => {
-          if (encounter.encounterNames.includes(encounterName)) {
-            encounterName = encounter.name;
-            image = encounter.image;
-            return;
+        let hasAllKeywords = true;
+        if (logViewerStore.encounterFilter.length > 0) {
+          for (const keyword of logViewerStore.encounterFilter) {
+            if (!encounter.searchWords.has(keyword)) {
+              hasAllKeywords = false;
+              break;
+            }
           }
-        });
+        }
 
-        if (
-          logViewerStore.encounterFilter.length > 0 &&
-          !logViewerStore.encounterFilter.includes(encounterName) // not includes
-        ) {
+        if (!hasAllKeywords) {
           return;
         }
 
@@ -419,7 +451,7 @@ function calculateEncounterRows() {
         } else {
           rows.push({
             encounterName,
-            image,
+            image: encounter.image,
             startingMs,
             duration: encounter.durationTs,
             attempts: [encounter],
@@ -464,6 +496,7 @@ const logFile: { viewingLogFile: boolean; data?: GameStateFile } = reactive({
   viewingLogFile: false,
 });
 
+const logFileSearchMap: Map<string, Set<SessionInfo>> = new Map();
 function calculateLogFileList(value: ParsedLogInfo[]) {
   logViewerStore.resetState();
 
@@ -471,34 +504,55 @@ function calculateLogFileList(value: ParsedLogInfo[]) {
 
   value.forEach((val) => {
     let totalDuration = 0;
-    let sessionEncounters: SessionData[] = [];
+    const sessionEncounters: SessionData[] = [];
 
     val.parsedContents.encounters.forEach((val_encounter) => {
+      const encounterSearchWords: Set<string> = new Set();
+      // normalize entity names to a better recognizable name
+      let encounterName = val_encounter.mostDamageTakenEntity.name;
+      let image = "";
+      for (const encounter of Object.values(encounters)) {
+        if (encounter.encounterNames.includes(encounterName)) {
+          encounterName = encounter.name;
+          image = encounter.image;
+          break;
+        }
+      }
+      // add normalized name to the keywords
+      // only add encounter if it is not a parsable hex string
+      // sometimes encounter names are entityIds, we try to filter these out here
+      if (isNaN(parseInt(encounterName, 16)))
+        encounterSearchWords.add(encounterName);
       totalDuration += val_encounter.duration;
-
+      const sessionPlayerInfo: SessionPlayerInfo[] = [];
+      if (val_encounter.playerInfos) {
+        val_encounter.playerInfos.forEach((p) => {
+          sessionPlayerInfo.push({
+            classid: p.classid,
+            gearscore: p.gearscore,
+            name: p.name,
+          });
+          if (p.name.length > 0) encounterSearchWords.add(p.name);
+          const className = getClassName(p.classid);
+          if (className.length > 0) encounterSearchWords.add(className);
+        });
+      }
       sessionEncounters.push({
         filename: val_encounter.encounterFile,
-        encounterName: val_encounter.mostDamageTakenEntity.name,
+        encounterName: encounterName,
         durationTs: val_encounter.duration,
         duration: millisToMinutesAndSeconds(val_encounter.duration),
+        playerInfos: sessionPlayerInfo,
+        searchWords: encounterSearchWords,
+        image,
       });
     });
-
-    sessionEncounters.forEach((encounter) => {
-      let encounterName = encounter.encounterName;
-
-      if (!logViewerStore.encounterOptions.includes(encounterName)) {
-        logViewerStore.encounterOptions.push(encounterName);
-      }
-    });
-
-    logViewerStore.encounterOptions.sort();
 
     if (
       totalDuration >=
       settingsStore.settings.logs.minimumSessionDurationInMinutes * 60 * 1000
     ) {
-      logViewerStore.sessions.push({
+      const sessionInfo: SessionInfo = {
         filename: val.filename,
         date: val.date,
         dateText: dayjs(val.date).format("DD/MM/YYYY HH:mm:ss"),
@@ -506,42 +560,128 @@ function calculateLogFileList(value: ParsedLogInfo[]) {
         totalDurationTs: totalDuration,
         totalDuration: millisToHourMinuteSeconds(totalDuration),
         sessionEncounters,
+      };
+      logViewerStore.sessions.push(sessionInfo);
+
+      // add to search map
+      sessionInfo.sessionEncounters.forEach((sessionData) => {
+        sessionData.searchWords.forEach((v) => {
+          const sessionSet = logFileSearchMap.get(v) ?? new Set<SessionInfo>();
+          sessionSet.add(sessionInfo);
+          if (!logFileSearchMap.has(v)) {
+            logFileSearchMap.set(v, sessionSet);
+          }
+        });
       });
     }
   });
 
+  /**
+   * Use our search map to create a list of possible filter options
+   */
+  logViewerStore.encounterOptionsSessionView = Array.from(
+    logFileSearchMap.keys()
+  );
+  logViewerStore.encounterOptionsSessionView.sort();
+  logViewerStore.encounterOptions = logViewerStore.encounterOptionsSessionView;
+
   logViewerStore.sessions.reverse();
-  logViewerStore.computedSessions = JSON.parse(
-    JSON.stringify(logViewerStore.sessions)
-  ) as SessionInfo[];
+  logViewerStore.computedSessions = logViewerStore.sessions;
 
   logViewerStore.viewerState =
     logViewerStore.sessions.length > 0 ? "none" : "no-data";
 }
 
 function computedLogFileList() {
+  // this happens when someone presses the clear button
+  // we can not use clear event because it happens after model-value update
+  if (logViewerStore.logfileFilter === null) {
+    logViewerStore.logfileFilter = [];
+  }
   if (logViewerStore.logfileFilter.length === 0) {
     logViewerStore.computedSessions = logViewerStore.sessions;
     return;
   }
 
-  const filteredSessions: SessionInfo[] = [];
-
-  logViewerStore.sessions.forEach((session) => {
-    const filteredEncounters = [];
-
-    session.sessionEncounters.forEach((encounter) => {
-      if (logViewerStore.logfileFilter.includes(encounter.encounterName)) {
-        filteredEncounters.push(encounter);
+  const logFilesForKeywords: Set<SessionInfo>[] = [];
+  logViewerStore.logfileFilter.forEach((filterWord) => {
+    const sessionForWord: Set<SessionInfo> | undefined =
+      logFileSearchMap.get(filterWord);
+    if (sessionForWord !== undefined) {
+      logFilesForKeywords.push(sessionForWord);
+    }
+  });
+  // we want to make filter AND so get intersection between all the sets
+  let finalSessionSet: Set<SessionInfo> = new Set();
+  if (logFilesForKeywords.length > 0) {
+    finalSessionSet = new Set(logFilesForKeywords[0]);
+    // if we have more then 1 we need to intersect
+    if (logFilesForKeywords.length > 1) {
+      for (let idx = 1; idx < logFilesForKeywords.length; idx++) {
+        const compSet = logFilesForKeywords[idx];
+        for (const a of finalSessionSet) {
+          if (!compSet.has(a)) {
+            finalSessionSet.delete(a);
+          }
+        }
       }
-    });
+    }
+  }
 
-    if (filteredEncounters.length > 0) {
-      filteredSessions.push(session);
+  // now we have all our sessions in finalSessionSet that contain all of the keywords
+  // but we want all of the keywords in a single encounter so filter further from here
+  finalSessionSet.forEach((session) => {
+    // one encounter that has all keywords is enough to keep the session
+    let atLeastOneEncounterHasAllKeywords = false;
+    if (logViewerStore.logfileFilter.length === 0) {
+      atLeastOneEncounterHasAllKeywords = true;
+    } else {
+      for (const encounter of session.sessionEncounters) {
+        let encounterHasAllKeywords = true;
+        for (const keyword of logViewerStore.logfileFilter) {
+          if (!encounter.searchWords.has(keyword)) {
+            encounterHasAllKeywords = false;
+            break;
+          }
+        }
+        if (encounterHasAllKeywords) {
+          atLeastOneEncounterHasAllKeywords = true;
+          // we just need to find one, so exist loop early
+          break;
+        }
+      }
+    }
+    if (!atLeastOneEncounterHasAllKeywords) {
+      finalSessionSet.delete(session);
     }
   });
 
-  logViewerStore.computedSessions = filteredSessions;
+  logViewerStore.computedSessions = Array.from(finalSessionSet);
+}
+
+function filterEncounterOptions(
+  inputValue: string,
+  // first function gets called to do filter update
+  // 2nd function gets called after filter update was done
+  setCallbacks: (
+    updateFilterCallback: { (): void },
+    afterUpdateCallback?: { (): void }
+  ) => void
+) {
+  if (inputValue === "") {
+    setCallbacks(() => {
+      logViewerStore.encounterOptionsFiltered = logViewerStore.encounterOptions;
+    });
+    return;
+  }
+
+  setCallbacks(() => {
+    const needle = inputValue.toLowerCase();
+    logViewerStore.encounterOptionsFiltered =
+      logViewerStore.encounterOptions.filter(
+        (v: string) => v.toLowerCase().indexOf(needle) > -1
+      );
+  });
 }
 
 function getLogfiles() {
@@ -583,6 +723,7 @@ onMounted(() => {
 
   window.messageApi.receive("log-parser-status", (value) => {
     if (value.completedJobs && value.totalJobs) {
+      logViewerStore.loadingMessage = value.msg;
       isReceivingParserStatus.value = true;
       parserStatus.value = value;
 
