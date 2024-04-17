@@ -887,8 +887,10 @@ function sortEntities() {
     })
     .sort((a, b) => {
       if (settingsStore.settings.damageMeter.design.pinUserToTop) {
-        if (a.name === "You") return -1e69;
-        else if (b.name === "You") return 1e69; // nice
+        if (a.name === props.sessionState.localPlayer)
+          return Number.MIN_SAFE_INTEGER;
+        else if (b.name === props.sessionState.localPlayer)
+          return Number.MAX_SAFE_INTEGER;
       }
 
       if (props.damageType === "tank") return b.damageTaken - a.damageTaken;
