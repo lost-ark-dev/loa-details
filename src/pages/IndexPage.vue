@@ -60,6 +60,10 @@
       </p>
 
       <h5>Changelog</h5>
+      <h6 id="1-4-28">1.4.28</h6>
+      <ul>
+        <li>Support for game update - 17/04/2024 (Theamine)</li>
+      </ul>
       <h6 id="1-4-27">1.4.27</h6>
       <ul>
         <li>Exitlag autoport fix</li>
