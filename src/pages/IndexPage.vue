@@ -60,6 +60,16 @@
       </p>
 
       <h5>Changelog</h5>
+      <h6 id="1-4-29">1.4.29</h6>
+      <ul>
+        <li>Fixed a packett that sometimes couldn't get written to log file</li>
+        <li>
+          Fixed "nice names" for esthers. (Note: the special attack in Thaemine
+          isn't displayed as it is not from an Esther, but from the boss itself.
+          I'll see if I should display it or not)
+        </li>
+        <li>Fixed non-player being logged as players with KR names in Akkan</li>
+      </ul>
       <h6 id="1-4-28">1.4.28</h6>
       <ul>
         <li>Support for game update - 17/04/2024 (Theamine)</li>
