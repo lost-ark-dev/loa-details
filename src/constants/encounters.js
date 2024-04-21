@@ -183,6 +183,30 @@ export const encounters = {
       .href,
     encounterNames: ["Plague Legion Commander Akkan", "Lord of Kartheon Akkan"],
   },
+  IvorytowerG1: {
+    name: "Ivory Tower Gate 1",
+    image: new URL("../assets/images/encounters/ivory_tower.png", import.meta.url)
+      .href,
+    encounterNames: ["Kaltaya, the Blooming Chaos"],
+  },
+  IvorytowerG2: {
+    name: "Ivory Tower Gate 2",
+    image: new URL("../assets/images/encounters/ivory_tower.png", import.meta.url)
+      .href,
+    encounterNames: ["Rakathus, the Lurking Arrogance"],
+  },
+  IvorytowerG3: {
+    name: "Ivory Tower Gate 3",
+    image: new URL("../assets/images/encounters/ivory_tower.png", import.meta.url)
+      .href,
+    encounterNames: ["Firehorn, Trampler of Earth"],
+  },
+  IvorytowerG4: {
+    name: "Ivory Tower Gate 4",
+    image: new URL("../assets/images/encounters/ivory_tower.png", import.meta.url)
+      .href,
+    encounterNames: ["Lazaram, the Trailblazer"],
+  },
   /* GUARDIANS BELOW */
   Achates: {
     name: "Achates",
