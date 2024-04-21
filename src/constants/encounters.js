@@ -412,4 +412,10 @@ export const encounters = {
       .href,
     encounterNames: ["Gargadeth", "Gargadeth+"],
   },
+  Veskal: {
+    name: "Veskal",
+    image: new URL("../assets/images/encounters/veskal.png", import.meta.url)
+      .href,
+    encounterNames: ["Veskal", "Veskal+"],
+  },
 };
