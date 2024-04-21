@@ -207,6 +207,34 @@ export const encounters = {
       .href,
     encounterNames: ["Lazaram, the Trailblazer"],
   },
+  ThaemineG1: {
+    name: "Thaemine Gate 1",
+    image: new URL("../assets/images/encounters/thaemine.png", import.meta.url)
+      .href,
+    encounterNames: ["Killineza the Dark Worshipper"],
+  },
+  ThaemineG2: {
+    name: "Thaemine Gate 2",
+    image: new URL("../assets/images/encounters/thaemine.png", import.meta.url)
+      .href,
+    encounterNames: [
+      "Valinak, Knight of Darkness",
+      "Valinak, Taboo Usurper",
+      "Valinak, Herald of the End"
+    ],
+  },
+  ThaemineG3: {
+    name: "Thaemine Gate 3",
+    image: new URL("../assets/images/encounters/thaemine.png", import.meta.url)
+      .href,
+    encounterNames: ["Thaemine the Lightqueller"],
+  },
+  ThaemineG4: {
+    name: "Thaemine Gate 4",
+    image: new URL("../assets/images/encounters/thaemine.png", import.meta.url)
+      .href,
+    encounterNames: ["Darkness Legion Commander Thaemine", "Thaemine, Conqueror of Stars"],
+  },
   /* GUARDIANS BELOW */
   Achates: {
     name: "Achates",
