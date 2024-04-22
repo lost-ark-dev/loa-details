@@ -60,6 +60,13 @@
       </p>
 
       <h5>Changelog</h5>
+      <h6 id="1-4-30">1.4.30</h6>
+      <ul>
+        <li>
+          Added encounter names & icons for Ivory Tower, Gargadeth, Thaemine,
+          Veskal. (By @MaccolSolZico)
+        </li>
+      </ul>
       <h6 id="1-4-29">1.4.29</h6>
       <ul>
         <li>Fixed a packett that sometimes couldn't get written to log file</li>
