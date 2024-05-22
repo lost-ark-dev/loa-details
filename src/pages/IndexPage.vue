@@ -60,6 +60,10 @@
       </p>
 
       <h5>Changelog</h5>
+      <h6 id="1-4-31">1.4.31</h6>
+      <ul>
+        <li>Support for game update - 22/05/2024 (Chaos Rising)</li>
+      </ul>
       <h6 id="1-4-30">1.4.30</h6>
       <ul>
         <li>
