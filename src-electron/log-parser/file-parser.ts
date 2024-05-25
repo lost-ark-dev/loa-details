@@ -15,6 +15,7 @@ dayjs.extend(customParseFormat);
 export type LogParserStatus = {
   completedJobs: number;
   totalJobs: number;
+  msg: string;
 };
 export type MasterLog = {
   encounters: Encounter[];
@@ -63,6 +64,7 @@ export async function parseLogs(
     event.reply("log-parser-status", {
       completedJobs,
       totalJobs: 1,
+      msg: "Parsing logs",
     });
 
   for (const filename of unparsedLogs) {
@@ -130,6 +132,7 @@ export async function parseLogs(
         event.reply("log-parser-status", {
           completedJobs,
           totalJobs,
+          msg: "Parsing logs",
         });
       }
 
@@ -148,6 +151,7 @@ export async function parseLogs(
     event.reply("log-parser-status", {
       completedJobs: 1,
       totalJobs: 1,
+      msg: "Parsing logs",
     });
 }
 
@@ -181,9 +185,26 @@ function parseLog(
           }
         });
 
+        const playerInfos: {
+          classid: number;
+          name: string;
+          gearscore: number;
+        }[] = [];
+        encounter.entities.forEach((i) => {
+          if (i.isPlayer && i.damageInfo.damageDealt > 0) {
+            playerInfos.push({
+              classid: i.classId,
+              // we do not know the name
+              name: i.name === i.id ? "" : i.name,
+              gearscore: i.gearScore,
+            });
+          }
+        });
+
         const encounterDetails = {
           duration,
           mostDamageTakenEntity,
+          playerInfos,
         };
 
         const encounterId = randomUUID();
@@ -224,10 +245,15 @@ export type ParsedLogInfo = {
   parsedContents: MasterLog;
   date: Date;
 };
-export async function getParsedLogs(): Promise<ParsedLogInfo[]> {
+export async function getParsedLogs(
+  event: IpcMainEvent
+): Promise<ParsedLogInfo[]> {
   const parsedLogs = await fsPromises.readdir(parsedLogFolder);
 
   const res = [];
+  // we collect promises here that are writes to disk that update a session data file
+  const writePromises: Promise<void>[] = [];
+  const filesMissingPlayerInfo: [string, MasterLog][] = [];
 
   for await (const filename of parsedLogs) {
     try {
@@ -240,6 +266,13 @@ export async function getParsedLogs(): Promise<ParsedLogInfo[]> {
 
       const parsedContents = (await JSON.parse(contents, reviver)) as MasterLog;
 
+      if (
+        parsedContents.encounters.length > 0 &&
+        parsedContents.encounters[0].playerInfos === undefined
+      ) {
+        // queue for playerInfo creation
+        filesMissingPlayerInfo.push([filename, parsedContents]);
+      }
       res.push({
         filename,
         parsedContents,
@@ -252,6 +285,65 @@ export async function getParsedLogs(): Promise<ParsedLogInfo[]> {
       continue;
     }
   }
+
+  let jobCompletionCount = 0;
+  const totalJobs = filesMissingPlayerInfo.length;
+  /**
+   * Move player info into session files for new search feature, if the data is not there yet
+   */
+  for (const [filename, masterLog] of filesMissingPlayerInfo) {
+    // this file does not have playerInfos yet, generate it
+    for (const encounter of masterLog.encounters) {
+      const playerInfos: {
+        classid: number;
+        name: string;
+        gearscore: number;
+      }[] = [];
+      const filePath = path.join(parsedLogFolder, encounter.encounterFile);
+      const encounterContent = await fsPromises.readFile(filePath, "utf-8");
+      const encounterGameState = (await JSON.parse(
+        encounterContent,
+        reviver
+      )) as GameStateFile;
+      for (const ent of encounterGameState.entities.values()) {
+        // there are logs around with no damageInfo object
+        // we should probably just ignore those, they
+        if (
+          ent.isPlayer &&
+          ent.damageInfo !== undefined &&
+          ent.damageInfo.damageDealt > 0
+        ) {
+          playerInfos.push({
+            classid: ent.classId,
+            // we do not know the name
+            name: ent.id === ent.name ? "" : ent.name,
+            gearscore: ent.gearScore,
+          });
+        }
+      }
+      encounter.playerInfos = playerInfos;
+    }
+    // now write updated data to disk
+    const promis = fsPromises
+      .writeFile(
+        path.join(parsedLogFolder, filename),
+        JSON.stringify(masterLog),
+        "utf-8"
+      )
+      .then(() => {
+        jobCompletionCount += 1;
+        // do not send last one, because it would trigger the UI code to request this function again
+        if (event && jobCompletionCount < totalJobs)
+          event.reply("log-parser-status", {
+            completedJobs: jobCompletionCount,
+            totalJobs: totalJobs,
+            msg: "updating sessiondata for old logs",
+          });
+      });
+    writePromises.push(promis);
+  }
+
+  await Promise.all(writePromises);
 
   return res;
 }
@@ -314,4 +406,9 @@ type Encounter = {
     damageTaken: number;
     isPlayer: boolean;
   };
+  playerInfos?: {
+    classid: number;
+    name: string;
+    gearscore: number;
+  }[];
 };
