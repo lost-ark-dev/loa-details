@@ -52,6 +52,8 @@ export const useSettingsStore = defineStore("settings", {
         openOnUpload: false,
         uploadUnlisted: true,
         includeRegion: false,
+        uploadDiscord: false,
+        discordWebhook: "",
       },
       damageMeter: {
         functionality: {

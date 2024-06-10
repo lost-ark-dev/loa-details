@@ -95,6 +95,8 @@ export type Settings = {
     openOnUpload: boolean;
     uploadUnlisted: boolean;
     includeRegion: boolean;
+    uploadDiscord: boolean;
+    discordWebhook: string;
   };
   damageMeter: {
     functionality: {
@@ -187,6 +189,8 @@ const defaultSettings: Settings = {
     openOnUpload: false,
     uploadUnlisted: true,
     includeRegion: false,
+    uploadDiscord: false,
+    discordWebhook: "",
   },
   damageMeter: {
     functionality: {

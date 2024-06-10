@@ -128,6 +128,19 @@
       </div>
       <div v-if="!isTakingScreenshot" style="margin-left: auto">
         <q-btn
+          v-if="!isMinimized && settingsStore.settings.uploads.discordWebhook.length !== 0"
+          round
+          icon="discord"
+          @click="toggleDiscordScreenshot"
+          flat
+          :glossy=settingsStore.settings.uploads.uploadDiscord
+          size="sm"
+        >
+          <q-tooltip ref="discordScreenshotTooltip">
+            Toggle Discord screenshot upload
+          </q-tooltip>
+        </q-btn>
+        <q-btn
           v-if="!isMinimized"
           round
           icon="screenshot_monitor"
@@ -299,6 +312,8 @@ import { useSettingsStore } from "src/stores/settings";
 import DamageMeterTable from "src/components/DamageMeter/DamageMeterTable.vue";
 import { DamageType } from "src/util/helpers";
 
+import axios from "axios";
+
 const logoImg = new URL("../assets/images/logo.png", import.meta.url).href;
 
 const settingsStore = useSettingsStore();
@@ -394,6 +409,73 @@ async function takeScreenshot() {
     color: "primary",
     html: true,
   });
+}
+
+function toggleDiscordScreenshot() {
+  settingsStore.settings.uploads.uploadDiscord =
+    !settingsStore.settings.uploads.uploadDiscord;
+  settingsStore.saveSettings();
+}
+
+let lastScreenshotPacket = 0;
+async function uploadDiscordScreenshot() {
+  const oldDamageType = damageType.value;
+  damageType.value = "dmg";
+  isTakingScreenshot.value = true;
+  await sleep(600);
+  if (damageMeterRef.value === null) return;
+  const screenshot = await html2canvas(damageMeterRef.value, {
+    backgroundColor: "#121212",
+  });
+
+  screenshot.toBlob(
+    (blob) => {
+      if (!blob) return;
+
+      let msg = sessionState.value.currentBoss?.name || "No Boss";
+      msg += "\n";
+      msg += "Uploaded by ";
+      msg += sessionState.value.localPlayer || "Unknown";
+
+      void axios.postForm(
+        settingsStore.settings.uploads.discordWebhook,
+        {
+          "payload_json": JSON.stringify({
+            content: msg,
+            attachments: [{
+              id: 0,
+              filename: "screenshot.png",
+              content_type: "image/png",
+            }]
+          }),
+          "files[0]": blob,
+        }
+      );
+
+    },
+    "image/png",
+    1
+  );
+
+  damageType.value = oldDamageType;
+
+  isTakingScreenshot.value = false;
+  Notify.create({
+    message: "<center>Screenshot sent to Discord.</center>",
+    color: "primary",
+    html: true,
+    actions: [
+      {
+        label: "Dismiss",
+        color: "white",
+        handler: () => {
+          /* ... */
+        },
+      },
+    ],
+  });
+
+  return "Screenshot sent to Discord."
 }
 
 function requestSessionRestart() {
@@ -525,6 +607,18 @@ onMounted(() => {
               ],
             });
           }
+        }
+
+        if (
+          !isMinimized.value &&
+          settingsStore.settings.uploads.uploadDiscord &&
+          sessionState.value.currentBoss && // Only upload bosses
+          sessionState.value.lastCombatPacket !== lastScreenshotPacket && // No repeat uploads
+          sessionState.value.lastCombatPacket -
+            sessionState.value.currentBoss.lastUpdate < 3000 // Avoids uploading trash mobs
+          ) {
+            lastScreenshotPacket = sessionState.value.lastCombatPacket;
+            void uploadDiscordScreenshot()
         }
       }
     } else {
